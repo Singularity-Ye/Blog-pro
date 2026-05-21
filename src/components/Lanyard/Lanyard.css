@@ -1,0 +1,24 @@
+/* ─────────────────────────────────────────────────────────
+   Lanyard Canvas Root
+   position: fixed — 脱离文档流，覆盖整个视口
+   通过 JS 动态切换 pointer-events，实现"完全贴合"的容器，
+   不遮挡任何背后的交互！
+───────────────────────────────────────────────────────── */
+.lanyard-canvas-root {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  pointer-events: none;  /* 外层永远不拦截事件 */
+  overflow: hidden;
+}
+
+/* Canvas 本身的 pointer-events 由 JS 动态控制 */
+.lanyard-canvas-root canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  outline: none;
+}
