@@ -1,161 +1,472 @@
 /**
- * build-graph.mjs
- * 扫描 Obsidian vault，生成 graph.json + notes/ 到 public/
+ * Selectively publish Obsidian notes into the React app.
  *
- * 用法: node scripts/build-graph.mjs
+ * Output:
+ * - public/graph.json
+ * - public/notes-index.json
+ * - public/notes markdown files
+ *
+ * This is a Quartz-like content pipeline for the current CRA app: selected
+ * Obsidian markdown is copied to the public folder, wikilinks are indexed, and
+ * a graph payload is generated for the atlas and note pages.
  */
 
 import fs from 'fs';
 import path from 'path';
 
-// ── 配置 ──────────────────────────────────────────────────────
-const VAULT_PATH = String.raw`C:\Users\Yhx06\OneDrive\文档\Obsidian Vault`;
+const VAULT_PATH = String.raw`C:\Users\Yhx06\Documents\Obsidian Vault`;
 const PUBLIC_DIR = path.resolve('public');
-const GRAPH_OUT = path.join(PUBLIC_DIR, 'graph.json');
 const NOTES_OUT = path.join(PUBLIC_DIR, 'notes');
+const GRAPH_OUT = path.join(PUBLIC_DIR, 'graph.json');
+const INDEX_OUT = path.join(PUBLIC_DIR, 'notes-index.json');
+const MANIFEST_PATH = path.resolve('scripts', 'publish-manifest.json');
 
-// 排除的目录
-const EXCLUDE_DIRS = ['.obsidian', '.git', 'node_modules', 'templates'];
+const SELECTED_ROOTS = [
+  {
+    label: '杭州五一旅游攻略',
+    root: '杭州五一旅游攻略',
+    kind: 'travel',
+  },
+  {
+    label: '建站流程指南',
+    root: '建站流程指南-静态网页',
+    kind: 'project',
+  },
+  {
+    label: '博客网站设计思路',
+    root: '博客网站',
+    kind: 'blog-design',
+  },
+];
 
-// ── 工具函数 ──────────────────────────────────────────────────
+function loadManifest() {
+  if (!fs.existsSync(MANIFEST_PATH)) {
+    return {
+      vaultPath: VAULT_PATH,
+      excludeDirs: [...EXCLUDE_DIRS],
+      collections: SELECTED_ROOTS.map((collection) => ({
+        enabled: true,
+        include: ['**/*.md'],
+        exclude: [],
+        ...collection,
+      })),
+      publicFrontmatterFields: [],
+    };
+  }
 
-/** 递归获取所有 .md 文件 */
-function walkMd(dir, base = '') {
+  return JSON.parse(fs.readFileSync(MANIFEST_PATH, 'utf-8'));
+}
+
+const EXCLUDE_DIRS = new Set([
+  '.obsidian',
+  '.git',
+  'node_modules',
+  'templates',
+  '_规划',
+  '_规范',
+  '参考内容',
+  '参考图片',
+  '图片素材',
+  '内部场景图',
+  '临时素材',
+  '废弃方案',
+]);
+
+const manifest = loadManifest();
+const vaultPath = manifest.vaultPath || VAULT_PATH;
+const selectedRoots = (manifest.collections || [])
+  .filter((collection) => collection.enabled !== false)
+  .map((collection) => ({
+    include: ['**/*.md'],
+    exclude: [],
+    ...collection,
+  }));
+const excludeDirs = new Set([...(manifest.excludeDirs || []), ...EXCLUDE_DIRS]);
+
+function normalizeRelPath(value) {
+  return value.split(path.sep).join('/');
+}
+
+function globToRegExp(pattern) {
+  const normalized = normalizeRelPath(pattern);
+  let source = normalized.replace(/[.+^${}()|[\]\\]/g, '\\$&');
+  source = source
+    .replace(/\*\*\//g, '<<GLOBSTAR_SLASH>>')
+    .replace(/\*\*/g, '<<GLOBSTAR>>')
+    .replace(/\*/g, '[^/]*');
+  source = source
+    .replace(/<<GLOBSTAR_SLASH>>/g, '(?:.*/)?')
+    .replace(/<<GLOBSTAR>>/g, '.*');
+  return new RegExp(`^${source}$`);
+}
+
+function matchesAny(relPath, patterns = []) {
+  if (!patterns.length) return false;
+  return patterns.some((pattern) => globToRegExp(pattern).test(relPath));
+}
+
+function ensureDir(dir) {
+  fs.mkdirSync(dir, { recursive: true });
+}
+
+function cleanDir(dir) {
+  if (fs.existsSync(dir)) {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+  ensureDir(dir);
+}
+
+function walkMarkdown(dir, base = '') {
   const results = [];
+
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-    if (EXCLUDE_DIRS.includes(entry.name)) continue;
-    const rel = base ? `${base}/${entry.name}` : entry.name;
+    if (entry.name.startsWith('.') || excludeDirs.has(entry.name)) continue;
+
     const full = path.join(dir, entry.name);
+    const rel = base ? `${base}/${entry.name}` : entry.name;
+
     if (entry.isDirectory()) {
-      results.push(...walkMd(full, rel));
-    } else if (entry.name.endsWith('.md')) {
-      results.push({ full, rel });
+      results.push(...walkMarkdown(full, rel));
+    } else if (entry.isFile() && entry.name.toLowerCase().endsWith('.md')) {
+      results.push({ full, rel: normalizeRelPath(rel) });
     }
   }
+
   return results;
 }
 
-/** 从文件名生成 slug（去掉 .md） */
-function toSlug(relPath) {
-  return relPath.replace(/\.md$/, '');
+function toSlug(root, relPath) {
+  const withoutExt = relPath.replace(/\.md$/i, '');
+  return normalizeRelPath(`${root}/${withoutExt}`);
 }
 
-/** 从文件内容提取标题（优先 frontmatter title，其次一级标题，最后文件名） */
-function extractTitle(content, fileName) {
-  // frontmatter title
-  const fmMatch = content.match(/^---[\s\S]*?^title:\s*["']?(.+?)["']?\s*$/m);
-  if (fmMatch) return fmMatch[1].trim();
+function parseFrontmatter(content) {
+  const normalized = String(content || '').replace(/^\uFEFF/, '').replace(/\r\n?/g, '\n');
+  const match = normalized.match(/^---\n([\s\S]*?)\n---\n?/);
+  if (!match) return {};
 
-  // 第一个 # 标题
-  const h1Match = content.match(/^#\s+(.+)$/m);
-  if (h1Match) return h1Match[1].trim();
+  const data = {};
+  let currentKey = null;
 
-  // 文件名
-  return fileName.replace(/\.md$/, '');
+  for (const line of match[1].split(/\r?\n/)) {
+    const listItem = line.match(/^\s*-\s+(.+)$/);
+    if (listItem && currentKey) {
+      data[currentKey] = [
+        ...(Array.isArray(data[currentKey]) ? data[currentKey] : []),
+        parseScalar(listItem[1]),
+      ];
+      continue;
+    }
+
+    const pair = line.match(/^([A-Za-z0-9_-]+):\s*(.*)$/);
+    if (!pair) continue;
+    currentKey = pair[1];
+    data[currentKey] = pair[2] ? parseScalar(pair[2]) : [];
+  }
+
+  return data;
 }
 
-/** 从文件内容提取 tags */
-function extractTags(content) {
+function parseScalar(value) {
+  const trimmed = String(value || '').trim();
+  if (!trimmed) return '';
+  if (trimmed === '[]') return [];
+  if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+    return trimmed
+      .slice(1, -1)
+      .split(',')
+      .map((item) => parseScalar(item))
+      .filter(Boolean);
+  }
+  return trimmed.replace(/^["']|["']$/g, '');
+}
+
+function extractTitle(content, fileName, frontmatter = parseFrontmatter(content)) {
+  if (frontmatter.title) return String(frontmatter.title).trim();
+
+  const h1Title = String(content || '').replace(/\r\n?/g, '\n').match(/^#\s+(.+)$/m);
+  if (h1Title) return h1Title[1].trim();
+
+  return fileName.replace(/\.md$/i, '');
+}
+
+function extractAliases(frontmatter) {
+  const aliases = frontmatter.aliases ?? frontmatter.alias;
+  if (!aliases) return [];
+  return Array.isArray(aliases) ? aliases.filter(Boolean) : [aliases].filter(Boolean);
+}
+
+function extractTags(content, frontmatter = parseFrontmatter(content)) {
   const tags = [];
-  // frontmatter tags
-  const fmTags = content.match(/^tags:\s*\[([^\]]*)\]/m);
-  if (fmTags) {
-    tags.push(...fmTags[1].split(',').map(t => t.trim().replace(/['"]/g, '')));
+  const fmTags = frontmatter.tags;
+
+  if (Array.isArray(fmTags)) tags.push(...fmTags);
+  else if (fmTags) tags.push(fmTags);
+
+  const fmArray = content.match(/^tags:\s*\[([^\]]*)\]/m);
+
+  if (fmArray) {
+    tags.push(...fmArray[1].split(',').map((tag) => tag.trim().replace(/['"]/g, '')));
   }
-  // inline tags #tag
-  const inlineTags = content.match(/(?:^|\s)#([\w一-鿿/-]+)/g);
+
+  const fmList = content.match(/^tags:\s*\n((?:\s+-\s+.+\n?)+)/m);
+  if (fmList) {
+    tags.push(...fmList[1].split('\n').map((line) => line.replace(/^\s+-\s+/, '').trim()));
+  }
+
+  const inlineTags = content.match(/(?:^|\s)#([\w\u4e00-\u9fa5/-]+)/g);
   if (inlineTags) {
-    tags.push(...inlineTags.map(t => t.trim().slice(1)));
+    tags.push(...inlineTags.map((tag) => tag.trim().slice(1)));
   }
-  return [...new Set(tags)];
+
+  return [...new Set(tags.filter(Boolean))];
 }
 
-/** 提取 [[wikilinks]]，返回链接目标列表 */
 function extractWikilinks(content) {
   const links = [];
-  // 匹配 [[target]] 或 [[target|alias]] 或 [[target#heading]]
-  const regex = /\[\[([^\]|#]+)(?:[|#][^\]]*)?\]\]/g;
+  const regex = /\[\[([^\]|#^]+)(?:[|#^][^\]]*)?\]\]/g;
   let match;
+
   while ((match = regex.exec(content)) !== null) {
     const target = match[1].trim();
     if (target) links.push(target);
   }
+
   return links;
 }
 
-// ── 主逻辑 ────────────────────────────────────────────────────
+function normalizeIndexKey(value) {
+  return String(value || '')
+    .trim()
+    .replace(/\.md$/i, '')
+    .replace(/\\/g, '/')
+    .replace(/^\/+|\/+$/g, '')
+    .toLowerCase();
+}
 
-console.log(`📂 扫描 Obsidian vault: ${VAULT_PATH}`);
+function addIndexEntry(index, key, slug) {
+  const normalized = normalizeIndexKey(key);
+  if (!normalized) return;
+  if (!index[normalized]) index[normalized] = [];
+  if (!index[normalized].includes(slug)) index[normalized].push(slug);
+}
 
-if (!fs.existsSync(VAULT_PATH)) {
-  console.error(`❌ Vault 路径不存在: ${VAULT_PATH}`);
+function makeWikilinkIndex(fileRecords) {
+  const index = {
+    pathIndex: {},
+    basenameIndex: {},
+    titleIndex: {},
+    aliasIndex: {},
+  };
+
+  for (const file of fileRecords) {
+    const relNoExt = file.rel.replace(/\.md$/i, '');
+    const basename = path.basename(relNoExt);
+
+    addIndexEntry(index.pathIndex, file.slug, file.slug);
+    addIndexEntry(index.pathIndex, relNoExt, file.slug);
+    addIndexEntry(index.pathIndex, `${file.collection.root}/${relNoExt}`, file.slug);
+    addIndexEntry(index.basenameIndex, basename, file.slug);
+    addIndexEntry(index.titleIndex, file.title, file.slug);
+    for (const alias of file.aliases) addIndexEntry(index.aliasIndex, alias, file.slug);
+  }
+
+  return index;
+}
+
+function chooseBestCandidate(candidates, sourceFile) {
+  const unique = [...new Set(candidates.filter(Boolean))];
+  if (unique.length <= 1) return { slug: unique[0] || null, ambiguous: false, candidates: unique };
+
+  const sourceDir = sourceFile.slug.split('/').slice(0, -1).join('/');
+  const sameDir = unique.filter((slug) => slug.split('/').slice(0, -1).join('/') === sourceDir);
+  if (sameDir.length === 1) return { slug: sameDir[0], ambiguous: false, candidates: unique };
+
+  const sameCollection = unique.filter((slug) => slug.startsWith(`${sourceFile.collection.root}/`));
+  if (sameCollection.length === 1) return { slug: sameCollection[0], ambiguous: false, candidates: unique };
+
+  return { slug: null, ambiguous: true, candidates: unique };
+}
+
+function resolveWikilink(target, sourceFile, index) {
+  const cleanTarget = normalizeIndexKey(target.split('#')[0].split('^')[0]);
+  const sourceDir = sourceFile.slug.split('/').slice(0, -1).join('/');
+  const pathCandidates = [];
+
+  if (cleanTarget.includes('/')) {
+    pathCandidates.push(...(index.pathIndex[cleanTarget] || []));
+    pathCandidates.push(...(index.pathIndex[normalizeIndexKey(`${sourceDir}/${cleanTarget}`)] || []));
+    pathCandidates.push(...(index.pathIndex[normalizeIndexKey(`${sourceFile.collection.root}/${cleanTarget}`)] || []));
+    return chooseBestCandidate(pathCandidates, sourceFile);
+  }
+
+  const candidates = [
+    ...(index.pathIndex[normalizeIndexKey(`${sourceDir}/${cleanTarget}`)] || []),
+    ...(index.aliasIndex[cleanTarget] || []),
+    ...(index.titleIndex[cleanTarget] || []),
+    ...(index.basenameIndex[cleanTarget] || []),
+    ...(index.pathIndex[cleanTarget] || []),
+  ];
+  return chooseBestCandidate(candidates, sourceFile);
+}
+
+function copyNote(full, slug) {
+  const target = path.join(NOTES_OUT, ...slug.split('/')) + '.md';
+  ensureDir(path.dirname(target));
+  fs.copyFileSync(full, target);
+}
+
+console.log(`Scanning selected Obsidian roots: ${vaultPath}`);
+
+if (!fs.existsSync(vaultPath)) {
+  console.error(`Vault path does not exist: ${vaultPath}`);
   process.exit(1);
 }
 
-// 清理旧输出
-if (fs.existsSync(NOTES_OUT)) {
-  fs.rmSync(NOTES_OUT, { recursive: true });
-}
-fs.mkdirSync(NOTES_OUT, { recursive: true });
+cleanDir(NOTES_OUT);
 
-// 扫描所有 .md 文件
-const files = walkMd(VAULT_PATH);
-console.log(`📄 找到 ${files.length} 个 markdown 文件`);
+const files = [];
 
-// 第一遍：建立 slug → title 映射 + 收集节点
-const slugTitleMap = new Map(); // slug → title
-const titleSlugMap = new Map(); // 小写 title → slug（用于 wikilink 解析）
-const nodes = [];
+for (const collection of selectedRoots) {
+  const fullRoot = path.join(vaultPath, collection.root);
 
-for (const { full, rel } of files) {
-  const content = fs.readFileSync(full, 'utf-8');
-  const slug = toSlug(rel);
-  const fileName = path.basename(rel);
-  const title = extractTitle(content, fileName);
-  const tags = extractTags(content);
+  if (!fs.existsSync(fullRoot)) {
+    console.warn(`Skip missing root: ${collection.root}`);
+    continue;
+  }
 
-  slugTitleMap.set(slug, title);
-  titleSlugMap.set(title.toLowerCase(), slug);
-  // 也用文件名（不含扩展名）做映射，因为 wikilink 通常用文件名
-  titleSlugMap.set(fileName.replace(/\.md$/, '').toLowerCase(), slug);
+  for (const file of walkMarkdown(fullRoot)) {
+    if (!matchesAny(file.rel, collection.include)) continue;
+    if (matchesAny(file.rel, collection.exclude)) continue;
 
-  nodes.push({ id: slug, title, tags, slug });
-}
-
-// 第二遍：提取链接，建立边
-const links = [];
-const linkSet = new Set(); // 去重
-
-for (const { full, rel } of files) {
-  const content = fs.readFileSync(full, 'utf-8');
-  const sourceSlug = toSlug(rel);
-  const wikilinks = extractWikilinks(content);
-
-  for (const target of wikilinks) {
-    const targetSlug = titleSlugMap.get(target.toLowerCase());
-    if (targetSlug && targetSlug !== sourceSlug) {
-      const key = `${sourceSlug}→${targetSlug}`;
-      if (!linkSet.has(key)) {
-        linkSet.add(key);
-        links.push({ source: sourceSlug, target: targetSlug });
-      }
-    }
+    files.push({
+      ...file,
+      collection,
+      slug: toSlug(collection.root, file.rel),
+    });
   }
 }
 
-// 写入 graph.json
-const graph = { nodes, links };
-fs.writeFileSync(GRAPH_OUT, JSON.stringify(graph, null, 2), 'utf-8');
-console.log(`✅ graph.json: ${nodes.length} 节点, ${links.length} 条边`);
+const titleSlugMap = new Map();
+const nodes = [];
+const notes = [];
+const fileRecords = [];
 
-// 拷贝 .md 文件到 public/notes/
-let copied = 0;
-for (const { full, rel } of files) {
-  const slug = toSlug(rel);
-  const destDir = path.join(NOTES_OUT, path.dirname(slug));
-  fs.mkdirSync(destDir, { recursive: true });
-  fs.copyFileSync(full, path.join(NOTES_OUT, slug + '.md'));
-  copied++;
+for (const file of files) {
+  const content = fs.readFileSync(file.full, 'utf-8');
+  const frontmatter = parseFrontmatter(content);
+  const fileName = path.basename(file.rel);
+  const title = extractTitle(content, fileName, frontmatter);
+  const tags = extractTags(content, frontmatter);
+  const aliases = extractAliases(frontmatter);
+  const node = {
+    id: file.slug,
+    slug: file.slug,
+    title,
+    tags,
+    aliases,
+    collection: file.collection.kind,
+    collectionLabel: file.collection.label,
+    path: file.rel,
+  };
+
+  nodes.push(node);
+  notes.push(node);
+
+  titleSlugMap.set(title.toLowerCase(), file.slug);
+  titleSlugMap.set(fileName.replace(/\.md$/i, '').toLowerCase(), file.slug);
+  titleSlugMap.set(file.slug.toLowerCase(), file.slug);
+  titleSlugMap.set(`${file.collection.root}/${file.rel.replace(/\.md$/i, '')}`.toLowerCase(), file.slug);
+  fileRecords.push({
+    ...file,
+    content,
+    title,
+    tags,
+    aliases,
+  });
 }
-console.log(`✅ 拷贝 ${copied} 个笔记到 public/notes/`);
-console.log(`🎉 构建完成！`);
+
+const wikilinkIndex = makeWikilinkIndex(fileRecords);
+const links = [];
+const linkSet = new Set();
+const unresolvedWikilinks = [];
+const ambiguousWikilinks = [];
+
+for (const file of fileRecords) {
+  const wikilinks = extractWikilinks(file.content);
+
+  for (const target of wikilinks) {
+    const result = resolveWikilink(target, file, wikilinkIndex);
+
+    if (result.ambiguous) {
+      ambiguousWikilinks.push({
+        source: file.slug,
+        target,
+        candidates: result.candidates,
+      });
+      continue;
+    }
+
+    const targetSlug = result.slug;
+    if (!targetSlug) {
+      unresolvedWikilinks.push({ source: file.slug, target });
+      continue;
+    }
+
+    if (targetSlug === file.slug) continue;
+
+    const key = `${file.slug}->${targetSlug}`;
+    if (linkSet.has(key)) continue;
+
+    linkSet.add(key);
+    links.push({ source: file.slug, target: targetSlug });
+  }
+}
+
+for (const file of files) {
+  copyNote(file.full, file.slug);
+}
+
+const wikilinkReport = {
+  unresolvedCount: unresolvedWikilinks.length,
+  ambiguousCount: ambiguousWikilinks.length,
+  unresolvedExamples: unresolvedWikilinks.slice(0, 20),
+  ambiguousExamples: ambiguousWikilinks.slice(0, 20),
+};
+
+const graph = { nodes, links, wikilinkIndex, wikilinkReport };
+const index = {
+  generatedAt: new Date().toISOString(),
+  vaultPath,
+  manifestPath: MANIFEST_PATH,
+  publicFrontmatterFields: manifest.publicFrontmatterFields || [],
+  collections: selectedRoots.map((collection) => ({
+    ...collection,
+    count: nodes.filter((node) => node.collection === collection.kind).length,
+  })),
+  notes,
+  wikilinkIndex,
+  wikilinkReport,
+};
+
+ensureDir(PUBLIC_DIR);
+fs.writeFileSync(GRAPH_OUT, JSON.stringify(graph, null, 2), 'utf-8');
+fs.writeFileSync(INDEX_OUT, JSON.stringify(index, null, 2), 'utf-8');
+
+console.log(`Published ${nodes.length} notes and ${links.length} links.`);
+console.log(`Wikilinks unresolved: ${wikilinkReport.unresolvedCount}`);
+console.log(`Wikilinks ambiguous: ${wikilinkReport.ambiguousCount}`);
+if (wikilinkReport.unresolvedExamples.length) {
+  console.log('First unresolved wikilinks:');
+  for (const item of wikilinkReport.unresolvedExamples) {
+    console.log(`- ${item.source} -> ${item.target}`);
+  }
+}
+if (wikilinkReport.ambiguousExamples.length) {
+  console.log('First ambiguous wikilinks:');
+  for (const item of wikilinkReport.ambiguousExamples) {
+    console.log(`- ${item.source} -> ${item.target} (${item.candidates.join(', ')})`);
+  }
+}
+console.log(`Wrote ${GRAPH_OUT}`);
+console.log(`Wrote ${INDEX_OUT}`);

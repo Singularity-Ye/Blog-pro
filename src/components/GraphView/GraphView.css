@@ -1,10 +1,43 @@
-/* ── GraphView 全屏图谱 ─────────────────────────────────── */
 .graph-view-container {
   width: 100%;
-  height: calc(100vh - 60px);
+  height: 100vh;
   position: relative;
-  background: #05000f;
   overflow: hidden;
+  background:
+    radial-gradient(circle at 18% 20%, rgba(185, 130, 52, 0.12), transparent 28%),
+    radial-gradient(circle at 82% 80%, rgba(36, 91, 74, 0.12), transparent 30%),
+    #f1eadb;
+}
+
+.graph-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: clamp(1rem, 3vw, 2.2rem);
+  background: rgba(14, 12, 10, 0.42);
+  backdrop-filter: blur(2px);
+}
+
+.graph-modal-window {
+  width: min(1780px, 94vw);
+  height: min(920px, 84vh);
+  overflow: hidden;
+  border: 1px solid rgba(91, 70, 48, 0.54);
+  background: #f1eadb;
+  box-shadow: 0 26px 70px rgba(12, 9, 6, 0.42);
+}
+
+.graph-modal-window .graph-view-container {
+  height: 100%;
+}
+
+.graph-view-container.is-local {
+  background:
+    radial-gradient(circle at 24% 18%, rgba(36, 91, 74, 0.1), transparent 30%),
+    radial-gradient(circle at 80% 72%, rgba(185, 130, 52, 0.1), transparent 28%),
+    #f4eedf;
 }
 
 .graph-view-container canvas {
@@ -18,19 +51,42 @@
   cursor: grabbing;
 }
 
-/* 提示信息 */
+.graph-view-container::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(rgba(91, 70, 48, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(91, 70, 48, 0.035) 1px, transparent 1px);
+  background-size: 42px 42px;
+  mask-image: radial-gradient(circle at center, black, transparent 78%);
+}
+
+.graph-view-container::after {
+  content: '松果屋关系图谱';
+  position: absolute;
+  right: 18px;
+  bottom: 14px;
+  color: rgba(54, 45, 34, 0.42);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  pointer-events: none;
+}
+
 .graph-tooltip {
   position: absolute;
   pointer-events: none;
-  background: rgba(30, 27, 75, 0.9);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(167, 139, 250, 0.3);
-  border-radius: 8px;
-  padding: 8px 14px;
-  color: #e0e7ff;
-  font-size: 0.85rem;
-  white-space: nowrap;
   z-index: 10;
+  min-width: 120px;
+  padding: 0.58rem 0.72rem;
+  border: 1px solid rgba(91, 70, 48, 0.2);
+  border-radius: 2px;
+  background: rgba(255, 250, 238, 0.94);
+  box-shadow: 0 12px 32px rgba(54, 45, 34, 0.16);
+  color: #362d22;
+  font-size: 0.78rem;
+  white-space: nowrap;
   transform: translate(-50%, -100%);
   margin-top: -12px;
   opacity: 0;
@@ -42,52 +98,106 @@
 }
 
 .graph-tooltip .tooltip-title {
-  font-weight: 600;
-  color: #a78bfa;
+  max-width: 240px;
+  overflow: hidden;
+  color: #245b4a;
+  font-weight: 800;
+  text-overflow: ellipsis;
 }
 
 .graph-tooltip .tooltip-connections {
-  font-size: 0.75rem;
-  color: rgba(224, 231, 255, 0.6);
   margin-top: 2px;
+  color: rgba(54, 45, 34, 0.58);
+  font-size: 0.72rem;
 }
 
-/* 图例 / 控制面板 */
 .graph-controls {
   position: absolute;
-  bottom: 20px;
-  left: 20px;
+  top: 20px;
+  right: 20px;
+  z-index: 10;
   display: flex;
   gap: 8px;
-  z-index: 10;
 }
 
 .graph-controls button {
-  background: rgba(30, 27, 75, 0.7);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(167, 139, 250, 0.2);
-  border-radius: 8px;
-  color: #e0e7ff;
-  padding: 6px 14px;
-  font-size: 0.8rem;
+  min-height: 34px;
+  padding: 0 0.78rem;
+  border: 1px solid rgba(36, 91, 74, 0.28);
+  border-radius: 2px;
+  background: rgba(255, 250, 238, 0.86);
+  color: #245b4a;
+  font-size: 0.76rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
   cursor: pointer;
-  transition: all 0.2s ease;
+  box-shadow: 0 10px 24px rgba(54, 45, 34, 0.1);
+  transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
 }
 
 .graph-controls button:hover {
-  background: rgba(167, 139, 250, 0.2);
-  border-color: rgba(167, 139, 250, 0.5);
+  border-color: rgba(36, 91, 74, 0.6);
+  background: #fffaf0;
+  transform: translateY(-1px);
 }
 
-/* ── MiniGraph 侧边栏图谱 ──────────────────────────────── */
+.graph-mode-badge {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 10;
+  display: grid;
+  gap: 0.25rem;
+  max-width: min(440px, calc(100% - 40px));
+  padding: 0.74rem 0.9rem;
+  border: 1px solid rgba(91, 70, 48, 0.2);
+  border-left: 4px solid #245b4a;
+  background: rgba(255, 250, 238, 0.84);
+  box-shadow: 0 12px 36px rgba(54, 45, 34, 0.12);
+  color: #362d22;
+}
+
+.graph-mode-badge strong {
+  font-size: 0.88rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+}
+
+.graph-mode-badge span {
+  color: rgba(54, 45, 34, 0.56);
+  font-size: 0.72rem;
+}
+
 .mini-graph-container {
   width: 100%;
   height: 300px;
-  border-radius: 12px;
-  background: rgba(5, 0, 15, 0.6);
-  border: 1px solid rgba(167, 139, 250, 0.15);
-  overflow: hidden;
   position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(91, 70, 48, 0.28);
+  border-radius: 2px;
+  background:
+    radial-gradient(circle at 20% 18%, rgba(185, 130, 52, 0.12), transparent 30%),
+    radial-gradient(circle at 80% 74%, rgba(36, 91, 74, 0.11), transparent 30%),
+    #f1eadb;
+}
+
+.mini-graph-container.publishLocal {
+  background:
+    radial-gradient(circle at 28% 24%, rgba(36, 91, 74, 0.1), transparent 30%),
+    radial-gradient(circle at 76% 72%, rgba(185, 130, 52, 0.1), transparent 30%),
+    #f4eedf;
+}
+
+.mini-graph-container::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(rgba(91, 70, 48, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(91, 70, 48, 0.04) 1px, transparent 1px);
+  background-size: 34px 34px;
+  opacity: 0.6;
 }
 
 .mini-graph-container canvas {
@@ -100,9 +210,43 @@
 .mini-graph-label {
   position: absolute;
   top: 8px;
-  left: 12px;
-  font-size: 0.75rem;
-  color: rgba(167, 139, 250, 0.6);
-  font-weight: 500;
+  left: 10px;
+  z-index: 2;
+  color: rgba(54, 45, 34, 0.58);
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
   pointer-events: none;
+}
+
+.mini-graph-expand {
+  position: absolute;
+  top: 8px;
+  right: 9px;
+  z-index: 4;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid rgba(36, 91, 74, 0.24);
+  background: rgba(255, 250, 238, 0.76);
+  color: #245b4a;
+  font-size: 1.15rem;
+  font-weight: 900;
+  box-shadow: 0 8px 20px rgba(54, 45, 34, 0.12);
+  transition: transform 0.16s ease, background 0.16s ease, border-color 0.16s ease;
+}
+
+.mini-graph-expand:hover {
+  border-color: rgba(36, 91, 74, 0.55);
+  background: #fffaf0;
+  transform: translateY(-1px);
+}
+
+.mini-graph-empty {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  color: rgba(54, 45, 34, 0.48);
+  font-size: 0.82rem;
 }

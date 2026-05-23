@@ -12,9 +12,9 @@ const scrollX = keyframes`
 
 const MarqueeContainer = styled.div`
   position: relative;
-  width: 100vw;
-  margin-left: calc(-50vw + 50%);
-  padding: clamp(2.2rem, 5vh, 4rem) 0 1.2rem;
+  width: 100%;
+  max-width: 100%;
+  padding: clamp(4.4rem, 8vh, 6rem) 0 2.6rem;
   overflow: hidden;
   background: transparent;
   display: flex;
@@ -30,6 +30,7 @@ const MarqueeTrack = styled.div`
   gap: 1.6rem;
   width: max-content;
   pointer-events: all;
+  padding: 1.8rem 0;
 
   &:has(.social-card:hover) > div {
     animation-play-state: paused;

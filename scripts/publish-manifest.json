@@ -1,0 +1,60 @@
+{
+  "vaultPath": "C:\\Users\\Yhx06\\Documents\\Obsidian Vault",
+  "excludeDirs": [
+    ".obsidian",
+    ".git",
+    "node_modules",
+    "templates",
+    "_规划",
+    "_规范",
+    "参考内容",
+    "参考图片",
+    "图片素材",
+    "内部场景图",
+    "临时素材",
+    "废弃方案"
+  ],
+  "collections": [
+    {
+      "enabled": true,
+      "label": "杭州五一旅游攻略",
+      "root": "杭州五一旅游攻略",
+      "kind": "travel",
+      "include": ["**/*.md"],
+      "exclude": []
+    },
+    {
+      "enabled": true,
+      "label": "建站流程指南",
+      "root": "建站流程指南-静态网页",
+      "kind": "project",
+      "include": ["**/*.md"],
+      "exclude": []
+    },
+    {
+      "enabled": true,
+      "label": "博客网站设计思路",
+      "root": "博客网站",
+      "kind": "blog-design",
+      "include": ["**/*.md"],
+      "exclude": [
+        "博客页/松果书屋设计素材/**"
+      ]
+    }
+  ],
+  "publicFrontmatterFields": [
+    "type",
+    "name",
+    "city",
+    "district",
+    "category",
+    "duration",
+    "date",
+    "open_time",
+    "price",
+    "ticket",
+    "verified",
+    "source",
+    "tags"
+  ]
+}

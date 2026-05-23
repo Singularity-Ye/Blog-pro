@@ -90,20 +90,37 @@ function createCurvedPatchGeometry(continent, radius, activeOffset = 0) {
 
 function ContinentPatch({ continent, active, onHover, onLeave, onSelect }) {
   const meshRef = useRef();
+  const liftGroupRef = useRef();
+  const mainMaterialRef = useRef();
+  const shadowMaterialRef = useRef();
+  const glowMaterialRef = useRef();
+  const layerMaterialRefs = useRef([]);
+  const liftAmountRef = useRef(0);
   const facingRef = useRef(false);
   const { camera } = useThree();
   const maps = useLoader(THREE.TextureLoader, TEXTURE_URLS);
   const sourceTexture = maps[TEXTURE_BY_BIOME[continent.biome]];
   const texture = useMemo(() => sourceTexture.clone(), [sourceTexture]);
   const biome = BIOMES[continent.biome];
-  const activeLift = active ? continent.hoverLift ?? 0.032 : 0;
+  const activeLift = Math.max(continent.hoverLift ?? 0.032, 0.105);
+  const liftScale = 1 + activeLift / continent.radius;
   const geometry = useMemo(
-    () => createCurvedPatchGeometry(continent, continent.radius, activeLift),
-    [activeLift, continent]
+    () => createCurvedPatchGeometry(continent, continent.radius, 0),
+    [continent]
+  );
+  const shadowGeometry = useMemo(
+    () => createCurvedPatchGeometry(continent, continent.radius + 0.006, 0),
+    [continent]
+  );
+  const raisedLayerGeometries = useMemo(
+    () => [0.018, 0.038, 0.06, 0.082].map((lift) => (
+      createCurvedPatchGeometry(continent, continent.radius, lift)
+    )),
+    [continent]
   );
   const glowGeometry = useMemo(
-    () => createCurvedPatchGeometry(continent, continent.radius + 0.04, activeLift + 0.006),
-    [activeLift, continent]
+    () => createCurvedPatchGeometry(continent, continent.radius + 0.052, 0.014),
+    [continent]
   );
 
   useEffect(() => {
@@ -114,9 +131,37 @@ function ContinentPatch({ continent, active, onHover, onLeave, onSelect }) {
     texture.needsUpdate = true;
   }, [texture]);
 
-  useFrame(() => {
+  useFrame((_, delta) => {
     const mesh = meshRef.current;
     if (!mesh) return;
+
+    const targetLift = active ? 1 : 0;
+    const easing = active ? 1 - Math.exp(-delta * 12) : 1 - Math.exp(-delta * 4.2);
+    liftAmountRef.current = THREE.MathUtils.lerp(liftAmountRef.current, targetLift, easing);
+    const liftAmount = liftAmountRef.current;
+
+    if (liftGroupRef.current) {
+      const scale = THREE.MathUtils.lerp(1, liftScale, liftAmount);
+      liftGroupRef.current.scale.setScalar(scale);
+    }
+
+    if (mainMaterialRef.current) {
+      mainMaterialRef.current.emissiveIntensity = liftAmount * 0.12;
+    }
+
+    if (shadowMaterialRef.current) {
+      shadowMaterialRef.current.opacity = liftAmount * 0.34;
+    }
+
+    layerMaterialRefs.current.forEach((material, index) => {
+      if (!material) return;
+      material.opacity = liftAmount * (0.18 + index * 0.075);
+      material.emissiveIntensity = liftAmount * (0.04 + index * 0.018);
+    });
+
+    if (glowMaterialRef.current) {
+      glowMaterialRef.current.opacity = liftAmount * 0.2;
+    }
 
     mesh.localToWorld(tempWorldCenter.copy(continent.normal).multiplyScalar(continent.radius));
     tempPlanetCenter.setFromMatrixPosition(mesh.parent.matrixWorld);
@@ -129,54 +174,98 @@ function ContinentPatch({ continent, active, onHover, onLeave, onSelect }) {
 
   return (
     <group>
-      <mesh
-        ref={meshRef}
-        geometry={geometry}
-        onPointerOver={(event) => {
-          if (!shouldHandlePointer()) return;
-          event.stopPropagation();
-          onHover?.(continent);
-        }}
-        onPointerOut={(event) => {
-          if (!shouldHandlePointer()) return;
-          event.stopPropagation();
-          onLeave?.();
-        }}
-        onClick={(event) => {
-          if (!shouldHandlePointer()) return;
-          event.stopPropagation();
-          onSelect?.(continent);
-        }}
-      >
-        <meshStandardMaterial
+      <mesh geometry={shadowGeometry} raycast={() => null}>
+        <meshBasicMaterial
+          ref={shadowMaterialRef}
           map={texture}
-          color="#ffffff"
-          emissive={active ? biome.glow : '#000000'}
-          emissiveIntensity={active ? 0.12 : 0}
-          roughness={0.72}
-          metalness={0}
+          color="#062f3a"
           transparent
+          opacity={0}
           alphaTest={0.08}
-          depthWrite
+          depthWrite={false}
           side={THREE.DoubleSide}
           polygonOffset
-          polygonOffsetFactor={-2}
-          polygonOffsetUnits={-2}
+          polygonOffsetFactor={-5}
+          polygonOffsetUnits={-5}
         />
       </mesh>
 
-      {active && (
-        <mesh geometry={glowGeometry}>
+      {raisedLayerGeometries.map((layerGeometry, index) => (
+        <mesh key={`raised-layer-${index}`} geometry={layerGeometry} raycast={() => null}>
+          <meshStandardMaterial
+            ref={(material) => {
+              layerMaterialRefs.current[index] = material;
+            }}
+            map={texture}
+            color={index < 2 ? '#1b6b63' : '#4d986b'}
+            emissive={biome.glow}
+            emissiveIntensity={0}
+            roughness={0.9}
+            metalness={0}
+            transparent
+            opacity={0}
+            alphaTest={0.08}
+            depthWrite={false}
+            side={THREE.DoubleSide}
+            polygonOffset
+            polygonOffsetFactor={2 + index}
+            polygonOffsetUnits={2 + index}
+          />
+        </mesh>
+      ))}
+
+      <group ref={liftGroupRef}>
+        <mesh
+          ref={meshRef}
+          geometry={geometry}
+          onPointerOver={(event) => {
+            if (!shouldHandlePointer()) return;
+            event.stopPropagation();
+            onHover?.(continent);
+          }}
+          onPointerOut={(event) => {
+            if (!shouldHandlePointer()) return;
+            event.stopPropagation();
+            onLeave?.();
+          }}
+          onClick={(event) => {
+            if (!shouldHandlePointer()) return;
+            event.stopPropagation();
+            onSelect?.(continent);
+          }}
+        >
+          <meshStandardMaterial
+            ref={mainMaterialRef}
+            map={texture}
+            color="#ffffff"
+            emissive={biome.glow}
+            emissiveIntensity={0}
+            roughness={0.72}
+            metalness={0}
+            transparent
+            alphaTest={0.08}
+            depthWrite
+            side={THREE.DoubleSide}
+            polygonOffset
+            polygonOffsetFactor={-8}
+            polygonOffsetUnits={-8}
+          />
+        </mesh>
+
+        <mesh geometry={glowGeometry} raycast={() => null}>
           <meshBasicMaterial
+            ref={glowMaterialRef}
+            map={texture}
             color={biome.glow}
             transparent
-            opacity={0.13}
+            opacity={0}
+            alphaTest={0.08}
             depthWrite={false}
             side={THREE.DoubleSide}
             blending={THREE.AdditiveBlending}
           />
         </mesh>
-      )}
+      </group>
     </group>
   );
 }

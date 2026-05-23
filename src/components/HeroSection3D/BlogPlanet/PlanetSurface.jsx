@@ -96,7 +96,7 @@ function PlanetSurface({ activeBiome, onBiomeHover, onBiomeSelect }) {
       hoverTileRef.current = null;
       setHoverTile(null);
       onBiomeHover?.(null);
-    }, 240);
+    }, 420);
   };
 
   const handleSelect = (tile) => {

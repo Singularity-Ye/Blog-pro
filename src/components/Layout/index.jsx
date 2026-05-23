@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import Navigation from './Navigation';
 import Footer from './Footer';
 import { motion } from 'framer-motion';
 import { useLocation } from 'react-router-dom';
@@ -26,11 +25,10 @@ const Main = styled(motion.main)`
 
 const Layout = ({ children }) => {
   const location = useLocation();
-  const isImmersiveBlog = location.pathname.startsWith('/blog');
+  const isImmersivePage = location.pathname === '/' || location.pathname.startsWith('/blog');
 
   return (
     <LayoutWrapper>
-      {!isImmersiveBlog && <Navigation />}
       <Main
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -39,7 +37,7 @@ const Layout = ({ children }) => {
       >
         {children}
       </Main>
-      {!isImmersiveBlog && <Footer />}
+      {!isImmersivePage && <Footer />}
     </LayoutWrapper>
   );
 };

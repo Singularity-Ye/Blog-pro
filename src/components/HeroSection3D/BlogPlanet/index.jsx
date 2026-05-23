@@ -1,17 +1,26 @@
-import { useEffect, useRef } from 'react';
-import { useFrame } from '@react-three/fiber';
+import { useCallback, useEffect, useRef } from 'react';
+import { useFrame, useThree } from '@react-three/fiber';
+import * as THREE from 'three';
 import { BIOMES } from './biomeConfig';
 import PlanetSurface from './PlanetSurface';
 
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 
 function BlogPlanet({ activeBiome, onBiomeHover, onBiomeSelect, onNavigate }) {
+  const { gl } = useThree();
   const groupRef = useRef();
   const navigateTimerRef = useRef(null);
   const draggingRef = useRef(false);
   const draggedRef = useRef(false);
   const lastPointerRef = useRef({ x: 0, y: 0 });
   const velocityRef = useRef({ x: 0, y: 0 });
+  const currentScaleRef = useRef(0.9);
+  const targetScaleRef = useRef(0.9);
+
+  const zoomPlanet = useCallback((deltaY) => {
+    const direction = deltaY > 0 ? -1 : 1;
+    targetScaleRef.current = clamp(targetScaleRef.current + direction * 0.055, 0.72, 1.22);
+  }, []);
 
   useEffect(() => {
     const handlePointerMove = (event) => {
@@ -45,21 +54,39 @@ function BlogPlanet({ activeBiome, onBiomeHover, onBiomeSelect, onNavigate }) {
       }, 80);
     };
 
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        targetScaleRef.current = 0.9;
+      }
+    };
+
+    const handleWheel = (event) => {
+      if (!draggingRef.current) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      zoomPlanet(event.deltaY);
+    };
+
     window.addEventListener('pointermove', handlePointerMove);
     window.addEventListener('pointerup', endDrag);
     window.addEventListener('pointercancel', endDrag);
+    window.addEventListener('keydown', handleKeyDown);
+    gl.domElement.addEventListener('wheel', handleWheel, { passive: false });
 
     return () => {
       window.removeEventListener('pointermove', handlePointerMove);
       window.removeEventListener('pointerup', endDrag);
       window.removeEventListener('pointercancel', endDrag);
+      window.removeEventListener('keydown', handleKeyDown);
+      gl.domElement.removeEventListener('wheel', handleWheel);
 
       if (navigateTimerRef.current) {
         window.clearTimeout(navigateTimerRef.current);
       }
       document.body.style.cursor = 'auto';
     };
-  }, []);
+  }, [gl.domElement, zoomPlanet]);
 
   useFrame(() => {
     const group = groupRef.current;
@@ -71,10 +98,18 @@ function BlogPlanet({ activeBiome, onBiomeHover, onBiomeSelect, onNavigate }) {
       velocityRef.current.x *= 0.92;
       velocityRef.current.y *= 0.92;
     }
+
+    currentScaleRef.current = THREE.MathUtils.lerp(
+      currentScaleRef.current,
+      targetScaleRef.current,
+      0.12
+    );
+    group.scale.setScalar(currentScaleRef.current);
   });
 
   const handlePointerDown = (event) => {
     event.stopPropagation();
+    event.nativeEvent?.preventDefault?.();
     draggingRef.current = true;
     draggedRef.current = false;
     lastPointerRef.current = {
@@ -83,6 +118,14 @@ function BlogPlanet({ activeBiome, onBiomeHover, onBiomeSelect, onNavigate }) {
     };
     velocityRef.current = { x: 0, y: 0 };
     document.body.style.cursor = 'grabbing';
+  };
+
+  const handleWheel = (event) => {
+    if (!draggingRef.current) return;
+
+    event.stopPropagation();
+    event.nativeEvent?.preventDefault?.();
+    zoomPlanet(event.deltaY);
   };
 
   const selectBiome = (biomeKey) => {
@@ -109,6 +152,7 @@ function BlogPlanet({ activeBiome, onBiomeHover, onBiomeSelect, onNavigate }) {
       rotation={[0.03, -0.18, 0]}
       scale={0.9}
       onPointerDown={handlePointerDown}
+      onWheel={handleWheel}
       onPointerOver={() => {
         if (!draggingRef.current) document.body.style.cursor = 'grab';
       }}

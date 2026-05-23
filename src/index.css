@@ -10,15 +10,23 @@ body {
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+body,
+#root {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 html.home-scroll-snap {
   scroll-padding-top: 60px;
-  scroll-snap-type: y mandatory;
+  scroll-snap-type: y proximity;
 }
 
 body.home-scroll-snap-body {
-  overscroll-behavior-y: none;
+  overscroll-behavior-y: auto;
 }
 
 @media (max-width: 768px), (prefers-reduced-motion: reduce) {

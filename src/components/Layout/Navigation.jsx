@@ -59,7 +59,7 @@ function Navigation() {
             <Link to="/blog">博客</Link>
           </NavItem>
           <NavItem whileHover={{ scale: 1.08 }}>
-            <Link to="/graph">图谱</Link>
+            <Link to="/atlas">图谱</Link>
           </NavItem>
           <NavItem whileHover={{ scale: 1.08 }}>
             <Link to="/projects">项目</Link>

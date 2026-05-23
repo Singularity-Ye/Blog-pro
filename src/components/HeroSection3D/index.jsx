@@ -9,11 +9,6 @@ import heroMapBackground from '../../assets/backgrounds/hero-map-background.png'
 import { BIOMES, BIOME_ORDER } from './BlogPlanet/biomeConfig';
 import Scene from './Scene';
 
-const floatAnim = keyframes`
-  0%, 100% { transform: translateX(-50%) translateY(0); }
-  50% { transform: translateX(-50%) translateY(-8px); }
-`;
-
 const pulseAnim = keyframes`
   0%, 100% { opacity: 0.42; }
   50% { opacity: 0.9; }
@@ -24,13 +19,28 @@ const cardShine = keyframes`
   to { transform: translateX(360%) skewX(-18deg); }
 `;
 
+const dropletPulse = keyframes`
+  0%, 100% {
+    border-radius: 62% 38% 58% 42% / 44% 52% 48% 56%;
+    transform: rotate(-8deg) scale(1);
+  }
+  45% {
+    border-radius: 42% 58% 43% 57% / 58% 44% 56% 42%;
+    transform: rotate(6deg) scale(1.04);
+  }
+  72% {
+    border-radius: 54% 46% 62% 38% / 42% 60% 40% 58%;
+    transform: rotate(-2deg) scale(0.98);
+  }
+`;
+
 const HeroWrapper = styled.section`
   position: relative;
-  width: 100vw;
-  margin-left: calc(-50vw + 50%);
-  height: calc(100svh - 60px);
+  width: 100%;
+  max-width: 100%;
+  height: 100svh;
   min-height: 620px;
-  max-height: calc(100svh - 60px);
+  max-height: 100svh;
   overflow: hidden;
   scroll-snap-align: start;
   scroll-snap-stop: always;
@@ -140,7 +150,7 @@ const HeroSubtitle = styled(motion.p)`
 const PlanetLegend = styled(motion.div)`
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.48rem;
+  gap: 0.58rem;
   width: min(100%, 500px);
   margin-bottom: 0;
   pointer-events: all;
@@ -154,81 +164,98 @@ const LegendItem = styled.button`
   position: relative;
   overflow: hidden;
   display: grid;
-  grid-template-columns: 0.72rem 1fr;
-  gap: 0.55rem;
-  align-items: start;
-  min-height: 58px;
-  padding: 0.62rem 0.78rem;
-  border: 1px solid ${({ $active, $glow }) => ($active ? `${$glow}cc` : 'rgba(86, 160, 176, 0.2)')};
-  border-radius: 16px;
+  grid-template-columns: 3rem 1fr;
+  gap: 0.7rem;
+  align-items: center;
+  min-height: 70px;
+  padding: 0.62rem 0.9rem 0.62rem 0.72rem;
+  border: 1px solid ${({ $active, $glow }) => ($active ? `${$glow}d8` : 'rgba(37, 99, 113, 0.15)')};
+  border-radius: 18px 8px 20px 8px;
   background: ${({ $active, $glow }) => ($active
-    ? `linear-gradient(135deg, rgba(236, 254, 255, 0.9), ${$glow}2b)`
-    : 'linear-gradient(135deg, rgba(255, 255, 255, 0.72), rgba(220, 248, 255, 0.42))')};
+    ? `radial-gradient(circle at 14% 50%, ${$glow}28, transparent 34%), linear-gradient(110deg, rgba(255, 255, 255, 0.78), rgba(217, 250, 255, 0.34) 66%, rgba(255, 255, 255, 0.42))`
+    : 'linear-gradient(110deg, rgba(255, 255, 255, 0.54), rgba(217, 250, 255, 0.22) 66%, rgba(255, 255, 255, 0.36))')};
   color: #073b4c;
   cursor: pointer;
   text-align: left;
-  backdrop-filter: blur(14px) saturate(1.15);
+  backdrop-filter: blur(12px) saturate(1.08);
   box-shadow: ${({ $active, $glow }) => ($active
-    ? `0 18px 46px ${$glow}34, 0 0 0 1px rgba(255, 255, 255, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.86)`
-    : '0 14px 38px rgba(31, 91, 112, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.72)')};
+    ? `0 16px 36px ${$glow}2c, 0 0 0 1px rgba(255, 255, 255, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.82)`
+    : '0 12px 28px rgba(31, 91, 112, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.64)')};
   transition: transform 0.22s ease, border-color 0.22s ease, background 0.22s ease, box-shadow 0.22s ease;
 
   &::before {
     content: '';
     position: absolute;
-    inset: 0;
+    left: 3.55rem;
+    top: 1rem;
+    width: 34px;
+    height: 1px;
     pointer-events: none;
-    background: radial-gradient(circle at 18% 20%, rgba(255, 255, 255, 0.65), transparent 36%);
-    opacity: 0.52;
+    background: ${({ $glow }) => `linear-gradient(90deg, ${$glow}, transparent)`};
+    box-shadow:
+      0 6px 0 ${({ $glow }) => `${$glow}88`},
+      0 12px 0 ${({ $glow }) => `${$glow}55`};
+    opacity: ${({ $active }) => ($active ? 0.9 : 0.48)};
   }
 
   &::after {
     content: '';
     position: absolute;
-    left: 0;
-    top: 0;
-    width: 34%;
-    height: 100%;
+    right: 1rem;
+    top: 0.85rem;
+    width: 44px;
+    height: 22px;
     pointer-events: none;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.46), transparent);
-    opacity: 0;
+    border-top: 1px solid ${({ $glow }) => `${$glow}70`};
+    border-right: 1px solid ${({ $glow }) => `${$glow}58`};
+    opacity: 0.62;
   }
 
   &:hover {
-    transform: translateY(-3px);
+    transform: translateY(-2px);
     border-color: ${({ $glow }) => `${$glow}dd`};
-    background: ${({ $glow }) => `linear-gradient(135deg, rgba(236, 254, 255, 0.88), ${$glow}24)`};
+    background: ${({ $glow }) => `linear-gradient(110deg, rgba(255, 255, 255, 0.82), ${$glow}2c 62%, rgba(255, 255, 255, 0.54))`};
     box-shadow:
-      0 18px 44px rgba(31, 91, 112, 0.16),
+      0 18px 36px rgba(31, 91, 112, 0.14),
       0 0 0 1px rgba(255, 255, 255, 0.42),
       inset 0 1px 0 rgba(255, 255, 255, 0.9);
-  }
-
-  &:hover::after {
-    opacity: 1;
-    animation: ${cardShine} 0.8s ease;
   }
 `;
 
 const LegendSwatch = styled.span`
   position: relative;
-  width: 0.72rem;
-  height: 0.72rem;
-  margin-top: 0.25rem;
-  border-radius: 999px;
-  background: ${({ $color }) => $color};
+  width: 2.55rem;
+  height: 2.55rem;
+  justify-self: center;
+  border-radius: 62% 38% 58% 42% / 44% 52% 48% 56%;
+  background:
+    radial-gradient(circle at 36% 30%, rgba(255, 255, 255, 0.5), transparent 28%),
+    ${({ $color }) => $color};
   box-shadow:
-    0 0 0 4px rgba(255, 255, 255, 0.42),
-    0 0 18px ${({ $glow }) => $glow};
+    inset 0 0 0 5px rgba(255, 255, 255, 0.38),
+    0 0 0 1px rgba(255, 255, 255, 0.7),
+    0 0 20px ${({ $glow }) => $glow};
   z-index: 1;
+  animation: ${dropletPulse} 5.2s ease-in-out infinite;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 8px 10px 12px 9px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+  }
 
   &::after {
     content: '';
     position: absolute;
-    inset: -6px;
-    border-radius: inherit;
-    border: 1px solid ${({ $glow }) => $glow};
-    opacity: 0.2;
+    right: -5px;
+    top: 8px;
+    width: 10px;
+    height: 1px;
+    background: ${({ $glow }) => $glow};
+    box-shadow: 0 5px 0 ${({ $glow }) => $glow}, 0 10px 0 ${({ $glow }) => $glow};
+    opacity: 0.7;
   }
 `;
 
@@ -241,13 +268,14 @@ const LegendText = styled.span`
 `;
 
 const LegendLabel = styled.span`
-  font-size: 0.82rem;
+  font-size: 0.86rem;
   font-weight: 800;
+  letter-spacing: 0.02em;
 `;
 
 const LegendDescription = styled.span`
   color: rgba(7, 59, 76, 0.58);
-  font-size: 0.66rem;
+  font-size: 0.68rem;
   line-height: 1.28;
 `;
 
@@ -258,7 +286,7 @@ const LegendCta = styled(motion.a)`
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 16px;
+  border-radius: 8px;
   background:
     radial-gradient(circle at 28% 12%, rgba(255, 255, 255, 0.34), transparent 32%),
     linear-gradient(135deg, #0f8f72 0%, #22c55e 100%);
@@ -293,7 +321,7 @@ const LegendCta = styled(motion.a)`
 const HintText = styled.span`
   position: absolute;
   right: clamp(1.6rem, 8vw, 8rem);
-  bottom: clamp(1.1rem, 4vh, 2.3rem);
+  bottom: clamp(4.4rem, 8.5vh, 6.2rem);
   font-size: 0.68rem;
   letter-spacing: 0.12em;
   color: rgba(7, 59, 76, 0.62);
@@ -310,36 +338,6 @@ const HintText = styled.span`
   @media (max-width: 640px) {
     display: none;
   }
-`;
-
-const ScrollIndicator = styled.div`
-  position: absolute;
-  bottom: 1.15rem;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.3rem;
-  animation: ${floatAnim} 2.2s ease-in-out infinite;
-  z-index: 3;
-
-  @media (max-height: 760px) {
-    display: none;
-  }
-`;
-
-const ScrollDot = styled.div`
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: rgba(7, 59, 76, 0.64);
-`;
-
-const ScrollLine = styled.div`
-  width: 1px;
-  height: 36px;
-  background: linear-gradient(to bottom, rgba(7, 59, 76, 0.55), transparent);
 `;
 
 function HeroSection3D() {
@@ -391,7 +389,7 @@ function HeroSection3D() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.2 }}
         >
-          BLOG GLOBE ONLINE
+          PINECONE GLOBE ONLINE
         </GreetBadge>
 
         <HeroTitle
@@ -399,7 +397,7 @@ function HeroSection3D() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.85, delay: 0.4 }}
         >
-          灵感小地球仪
+          松果灵感地球仪
         </HeroTitle>
 
         <HeroSubtitle
@@ -407,7 +405,7 @@ function HeroSection3D() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.75, delay: 0.6 }}
         >
-          把技术、笔记、随笔和项目折叠成一颗明亮的小星球。拖拽旋转它，找到散落在海洋上的雨林、雪山、荒漠与城市。
+          把博客、图谱、项目和联系入口折叠成一颗明亮的小星球。拖拽旋转它，从大陆进入不同的页面。
         </HeroSubtitle>
 
         <PlanetLegend
@@ -437,18 +435,14 @@ function HeroSection3D() {
               </LegendItem>
             );
           })}
-          <LegendCta href="/blog" whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
-            进入文章地图 →
+          <LegendCta href="/about" whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
+            关于本站 →
           </LegendCta>
         </PlanetLegend>
       </Overlay>
 
-      <HintText>拖拽旋转星球 · 点击大陆进入对应分类</HintText>
+      <HintText>拖拽旋转星球 · 按住星球滚轮缩放 · 点击大陆进入页面</HintText>
 
-      <ScrollIndicator>
-        <ScrollDot />
-        <ScrollLine />
-      </ScrollIndicator>
     </HeroWrapper>
   );
 }

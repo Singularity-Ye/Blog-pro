@@ -19,8 +19,8 @@ const exteriorFrogObject = {
   id: 'frog-greeter',
   title: '青蛙管家',
   placement: {
-    left: '76%',
-    top: '54%',
+    left: '61.8%',
+    top: '56.6%',
     width: '10%',
     rotate: '-4deg',
     opacity: 0.92,
@@ -71,7 +71,7 @@ const Blog = () => {
   }, [activeZone]);
 
   const displayedObject = activeZoneObjects[0] || null;
-  const placementDebugTarget = sceneMode === 'exterior' ? exteriorFrogObject : displayedObject;
+  const placementDebugTarget = sceneMode === 'interior' ? displayedObject : null;
   const currentPlacement = debugPlacement || placementDebugTarget?.placement || null;
 
   const enterInterior = useCallback(() => {
@@ -302,17 +302,17 @@ const Blog = () => {
                 )}
 
                 {hoveredExteriorHotspot === 'house' && (
-                  <ExteriorTooltip $left="62%" $top="44%">
+                  <ExteriorTooltip $left="68%" $top="34%">
                     点击进入书屋内部
                   </ExteriorTooltip>
                 )}
                 {hoveredExteriorHotspot === 'bridge' && (
-                  <ExteriorTooltip $left="42%" $top="72%">
+                  <ExteriorTooltip $left="35%" $top="74%">
                     沿着灯火继续往前走
                   </ExteriorTooltip>
                 )}
                 {hoveredExteriorHotspot === 'lantern' && (
-                  <ExteriorTooltip $left="77%" $top="32%">
+                  <ExteriorTooltip $left="47%" $top="40%">
                     今晚也有新的笔记在发光
                   </ExteriorTooltip>
                 )}
@@ -680,6 +680,12 @@ const ExteriorFrogImage = styled.img`
   transition:
     transform 220ms ease,
     filter 220ms ease;
+
+  @media (max-width: 760px) {
+    width: 15%;
+    left: 64%;
+    top: 59%;
+  }
 `;
 
 const ExteriorPlatformForegroundImage = styled.img`
@@ -906,10 +912,10 @@ const exteriorHotspotBase = `
 
 const ExteriorHouseHotspot = styled.button`
   ${exteriorHotspotBase}
-  left: 51%;
-  top: 29%;
-  width: 30%;
-  height: 33%;
+  left: 58%;
+  top: 24%;
+  width: 27%;
+  height: 26%;
   border-radius: 42% 48% 36% 40%;
 
   span {
@@ -934,11 +940,11 @@ const ExteriorHouseHotspot = styled.button`
 
 const ExteriorBridgeHotspot = styled.button`
   ${exteriorHotspotBase}
-  left: 26%;
-  top: 66%;
-  width: 42%;
-  height: 12%;
-  transform: rotate(-11deg);
+  left: 22%;
+  top: 68%;
+  width: 30%;
+  height: 10%;
+  transform: rotate(-13deg);
 `;
 
 const ExteriorSignpostHotspot = styled.button`
@@ -952,10 +958,10 @@ const ExteriorSignpostHotspot = styled.button`
 
 const ExteriorLanternHotspot = styled.button`
   ${exteriorHotspotBase}
-  left: 74%;
-  top: 25%;
-  width: 10%;
-  height: 14%;
+  left: 43%;
+  top: 39%;
+  width: 9%;
+  height: 13%;
 `;
 
 const ExteriorGuideCard = styled.div`
