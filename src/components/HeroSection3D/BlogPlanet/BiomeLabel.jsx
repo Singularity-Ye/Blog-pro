@@ -1,129 +1,140 @@
 import { Html } from '@react-three/drei';
 import styled, { keyframes } from 'styled-components';
 
-const dropletBreathe = keyframes`
-  0%, 100% {
-    border-radius: 42% 58% 46% 54% / 48% 42% 58% 52%;
-    transform: translate(24px, -50%) rotate(-1deg);
-  }
-  45% {
-    border-radius: 55% 45% 58% 42% / 42% 56% 44% 58%;
-    transform: translate(24px, -51%) rotate(1.2deg);
-  }
-  72% {
-    border-radius: 48% 52% 41% 59% / 58% 45% 55% 42%;
-    transform: translate(24px, -49%) rotate(-0.6deg);
-  }
+const gentleFloat = keyframes`
+  0%, 100% { transform: translate(24px, -50%) translateY(0); }
+  50% { transform: translate(24px, -50%) translateY(-6px); }
 `;
 
-const tideLine = keyframes`
-  from { transform: translateX(-120%); }
-  to { transform: translateX(180%); }
+const shimmer = keyframes`
+  from { transform: translateX(-100%); }
+  to { transform: translateX(200%); }
 `;
 
 const LabelWrap = styled.div`
   --label-glow: ${({ $glow }) => $glow};
   position: relative;
-  width: 264px;
-  min-height: 172px;
-  padding: 1px;
-  color: #e6f7ff;
+  width: 280px;
+  min-height: 140px;
   pointer-events: none;
-  filter:
-    drop-shadow(0 24px 34px rgba(4, 15, 25, 0.32))
-    drop-shadow(0 0 18px color-mix(in srgb, var(--label-glow) 30%, transparent));
-  animation: ${dropletBreathe} 5.6s ease-in-out infinite;
-
+  animation: ${gentleFloat} 6s ease-in-out infinite;
+  
+  /* Pointing line connecting to the continent */
   &::before {
     content: '';
     position: absolute;
-    left: -11px;
+    left: -24px;
     top: 50%;
-    width: 34px;
-    height: 34px;
-    transform: translateY(-50%) rotate(45deg);
-    border-radius: 60% 40% 55% 45%;
-    background:
-      linear-gradient(135deg, rgba(255, 255, 255, 0.72), var(--label-glow));
-    opacity: 0.76;
+    width: 24px;
+    height: 1px;
+    background: var(--label-glow);
+    opacity: 0.6;
   }
 `;
 
 const LabelInner = styled.div`
   position: relative;
   min-height: inherit;
-  padding: 1.25rem 1.35rem 1.18rem;
+  padding: 1.25rem 1.5rem 1.25rem 1.8rem;
   overflow: hidden;
-  border: 1px solid color-mix(in srgb, var(--label-glow) 36%, rgba(255, 255, 255, 0.18));
-  border-radius: inherit;
-  background:
-    radial-gradient(circle at 26% 12%, color-mix(in srgb, var(--label-glow) 22%, transparent), transparent 36%),
-    linear-gradient(135deg, rgba(10, 35, 45, 0.88), rgba(11, 24, 34, 0.76) 62%, rgba(8, 30, 36, 0.68));
-  backdrop-filter: blur(18px) saturate(1.22);
-
+  border-radius: 8px 16px 16px 8px;
+  background: rgba(252, 253, 255, 0.65);
+  backdrop-filter: blur(16px) saturate(1.2);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 
+    0 16px 32px rgba(12, 38, 50, 0.12),
+    inset 0 1px 2px rgba(255, 255, 255, 0.9);
+    
+  /* Paper texture noise */
   &::before {
     content: '';
     position: absolute;
-    left: 1.3rem;
-    right: 1.5rem;
-    top: 1.08rem;
-    height: 3px;
-    border-radius: 999px;
-    background: linear-gradient(90deg, var(--label-glow), rgba(255, 255, 255, 0.58), transparent 54%);
+    inset: 0;
+    opacity: 0.35;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    mix-blend-mode: multiply;
+    pointer-events: none;
   }
 
+  /* Left colored accent line */
   &::after {
     content: '';
     position: absolute;
     left: 0;
     top: 0;
-    width: 55%;
-    height: 100%;
-    background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.12), transparent);
-    animation: ${tideLine} 3.8s ease-in-out infinite;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(180deg, var(--label-glow), rgba(255, 255, 255, 0.2));
+    box-shadow: 2px 0 8px color-mix(in srgb, var(--label-glow) 40%, transparent);
   }
 `;
 
 const LabelContent = styled.div`
   position: relative;
   z-index: 1;
-  padding-top: 1.6rem;
+`;
+
+const LabelTag = styled.span`
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  color: var(--label-glow);
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+  opacity: 0.9;
+  filter: brightness(0.8) contrast(1.2);
 `;
 
 const LabelTitle = styled.strong`
   display: block;
-  color: color-mix(in srgb, var(--label-glow) 72%, #ffffff);
-  font-size: 1.55rem;
+  color: #0c3848;
+  font-size: 1.45rem;
   font-weight: 900;
-  line-height: 1.12;
-  letter-spacing: 0.04em;
-  margin-bottom: 0.65rem;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.8);
 `;
 
 const LabelText = styled.span`
   display: block;
-  color: rgba(226, 244, 255, 0.78);
-  font-size: 0.88rem;
-  line-height: 1.58;
+  color: rgba(12, 56, 72, 0.75);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  margin-bottom: 1rem;
 `;
 
 const LabelAction = styled.span`
   display: inline-flex;
   align-items: center;
-  gap: 0.42rem;
-  margin-top: 0.9rem;
-  color: color-mix(in srgb, var(--label-glow) 80%, #ffffff);
-  font-size: 0.66rem;
-  font-weight: 900;
+  gap: 0.5rem;
+  color: #0c3848;
+  font-size: 0.65rem;
+  font-weight: 800;
   letter-spacing: 0.18em;
   text-transform: uppercase;
+  position: relative;
+  overflow: hidden;
+  padding-bottom: 2px;
 
   &::after {
     content: '';
-    width: 20px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
     height: 1px;
-    background: currentColor;
-    opacity: 0.8;
+    background: var(--label-glow);
+    opacity: 0.6;
+  }
+  
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
+    animation: ${shimmer} 3s infinite;
   }
 `;
 
@@ -139,9 +150,10 @@ function BiomeLabel({ config, position }) {
       <LabelWrap $glow={config.glow}>
         <LabelInner>
           <LabelContent>
+            <LabelTag>LOCATION MAP</LabelTag>
             <LabelTitle>{config.label}</LabelTitle>
             <LabelText>{config.description}</LabelText>
-            <LabelAction>Click to enter</LabelAction>
+            <LabelAction>Click to enter →</LabelAction>
           </LabelContent>
         </LabelInner>
       </LabelWrap>
@@ -150,3 +162,4 @@ function BiomeLabel({ config, position }) {
 }
 
 export default BiomeLabel;
+

@@ -16,7 +16,11 @@ import Layout from './components/Layout';
 function AppRoutes() {
   const location = useLocation();
   const navigate = useNavigate();
-  const backgroundLocation = location.state?.backgroundLocation;
+  
+  // If we are directly visiting '/graph' without a background location,
+  // we mock the background location as '/atlas' so it always opens as a modal.
+  const isGraphRoute = location.pathname === '/graph';
+  const backgroundLocation = location.state?.backgroundLocation || (isGraphRoute ? { pathname: '/atlas' } : null);
 
   return (
     <>
@@ -36,7 +40,15 @@ function AppRoutes() {
       </Layout>
       {backgroundLocation && (
         <Routes>
-          <Route path="/graph" element={<GraphView modal onClose={() => navigate(-1)} />} />
+          <Route 
+            path="/graph" 
+            element={
+              <GraphView 
+                modal 
+                onClose={() => navigate(location.state?.backgroundLocation ? -1 : '/atlas')} 
+              />
+            } 
+          />
         </Routes>
       )}
     </>

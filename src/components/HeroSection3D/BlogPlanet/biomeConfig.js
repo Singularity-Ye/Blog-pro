@@ -1,3 +1,9 @@
+import bgOcean from '../../../assets/images/home/card-ocean.png';
+import bgForest from '../../../assets/images/home/card-forest.png';
+import bgDesert from '../../../assets/images/home/card-desert.png';
+import bgSnow from '../../../assets/images/home/card-snow.png';
+import bgCity from '../../../assets/images/home/card-city.png';
+
 export const BIOMES = {
   ocean: {
     key: 'ocean',
@@ -6,6 +12,7 @@ export const BIOMES = {
     color: '#1598d3',
     glow: '#67e8f9',
     href: '/',
+    bgImage: bgOcean,
   },
   forest: {
     key: 'forest',
@@ -14,6 +21,7 @@ export const BIOMES = {
     color: '#57b83f',
     glow: '#bbf7d0',
     href: '/blog',
+    bgImage: bgForest,
   },
   desert: {
     key: 'desert',
@@ -22,6 +30,7 @@ export const BIOMES = {
     color: '#e0a145',
     glow: '#fde68a',
     href: '/atlas',
+    bgImage: bgDesert,
   },
   snow: {
     key: 'snow',
@@ -30,14 +39,16 @@ export const BIOMES = {
     color: '#f0fbff',
     glow: '#dbeafe',
     href: '/projects',
+    bgImage: bgSnow,
   },
   city: {
     key: 'city',
     label: '联系城市',
     description: '社交账号、留言与个人信标',
-    color: '#9ca3af',
-    glow: '#f0abfc',
+    color: '#fb923c',
+    glow: '#fde047',
     href: '/contact',
+    bgImage: bgCity,
   },
 };
 
