@@ -286,6 +286,199 @@ const NoteItem = styled(Link)`
   }
 `;
 
+const TreeContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  background: rgba(10, 23, 20, 0.48);
+  border: 1px solid rgba(223, 198, 146, 0.12);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1rem;
+`;
+
+const TreeNodeWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const TreeRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.6rem;
+  border-radius: 6px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s ease, border-color 0.2s ease;
+  min-width: 0;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.04);
+  }
+`;
+
+const FolderRow = styled(TreeRow)`
+  color: #fff7df;
+  font-weight: 600;
+`;
+
+const FileRow = styled(Link)`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.6rem;
+  border-radius: 6px;
+  color: rgba(245, 239, 227, 0.85);
+  text-decoration: none;
+  min-width: 0;
+  transition: background 0.2s ease, color 0.2s ease;
+
+  &:hover {
+    background: ${({ $accent }) => `${$accent}16`};
+    color: #fff7df;
+  }
+`;
+
+const NodeName = styled.span`
+  flex: 1;
+  font-size: 0.88rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
+const FolderCount = styled.span`
+  font-size: 0.72rem;
+  color: rgba(245, 239, 227, 0.36);
+  margin-left: 0.35rem;
+  font-weight: normal;
+`;
+
+const FileMeta = styled.span`
+  font-size: 0.72rem;
+  color: rgba(245, 239, 227, 0.38);
+  margin-left: auto;
+  padding-left: 0.5rem;
+  flex-shrink: 0;
+`;
+
+const SubTree = styled.div`
+  margin-left: 10px;
+  padding-left: 10px;
+  border-left: 1px dashed rgba(223, 198, 146, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+`;
+
+const ChevronSvg = ({ isOpen }) => (
+  <svg
+    width="10"
+    height="10"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    style={{
+      transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)',
+      transition: 'transform 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+      flexShrink: 0
+    }}
+  >
+    <polyline points="9 18 15 12 9 6" />
+  </svg>
+);
+
+const FolderSvg = ({ accent }) => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke={accent || '#e7c77e'}
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    style={{ flexShrink: 0, opacity: 0.88 }}
+  >
+    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+  </svg>
+);
+
+const FileSvg = () => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="rgba(245, 239, 227, 0.65)"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    style={{ flexShrink: 0 }}
+  >
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+    <polyline points="14 2 14 8 20 8" />
+    <line x1="16" y1="13" x2="8" y2="13" />
+    <line x1="16" y1="17" x2="8" y2="17" />
+    <polyline points="10 9 9 9 8 9" />
+  </svg>
+);
+
+function DirectoryNode({ node, accent, expandedPaths, onToggle }) {
+  if (node.type === 'folder') {
+    const isOpen = expandedPaths.has(node.path);
+    const countFiles = (n) => {
+      let count = 0;
+      n.children.forEach(c => {
+        if (c.type === 'file') count++;
+        else count += countFiles(c);
+      });
+      return count;
+    };
+    const fileCount = countFiles(node);
+
+    return (
+      <TreeNodeWrapper>
+        <FolderRow onClick={() => onToggle(node.path)}>
+          <ChevronSvg isOpen={isOpen} />
+          <FolderSvg accent={accent} />
+          <NodeName>
+            {node.name}
+            <FolderCount>({fileCount})</FolderCount>
+          </NodeName>
+        </FolderRow>
+        {isOpen && (
+          <SubTree>
+            {node.children.map((child, idx) => (
+              <DirectoryNode
+                key={child.path || child.name + idx}
+                node={child}
+                accent={accent}
+                expandedPaths={expandedPaths}
+                onToggle={onToggle}
+              />
+            ))}
+          </SubTree>
+        )}
+      </TreeNodeWrapper>
+    );
+  }
+
+  const note = node.note;
+  return (
+    <FileRow to={`/note/${note.slug}`} $accent={accent}>
+      <span style={{ width: 10, display: 'inline-block', flexShrink: 0 }} />
+      <FileSvg />
+      <NodeName title={note.title}>{note.title}</NodeName>
+      <FileMeta>{note.tags?.slice(0, 1).join(' / ') || ''}</FileMeta>
+    </FileRow>
+  );
+}
+
 const RightPanel = styled.aside`
   position: sticky;
   top: 1.25rem;
@@ -558,6 +751,83 @@ function AtlasDetail({ collection, graphData, indexData, counts, collections }) 
     [collection.kind, indexData.notes]
   );
 
+  // Build tree hierarchy
+  const tree = useMemo(() => {
+    const root = { type: 'folder', name: 'root', path: '', children: [] };
+    const folderMap = new Map();
+
+    notes.forEach((note) => {
+      const parts = note.path ? note.path.split('/') : [note.title];
+      let currentFolder = root;
+      let accumulatedPath = '';
+
+      for (let i = 0; i < parts.length - 1; i++) {
+        const folderName = parts[i];
+        accumulatedPath = accumulatedPath ? `${accumulatedPath}/${folderName}` : folderName;
+
+        if (!folderMap.has(accumulatedPath)) {
+          const newFolder = {
+            type: 'folder',
+            name: folderName,
+            path: accumulatedPath,
+            children: []
+          };
+          currentFolder.children.push(newFolder);
+          folderMap.set(accumulatedPath, newFolder);
+        }
+        currentFolder = folderMap.get(accumulatedPath);
+      }
+
+      currentFolder.children.push({
+        type: 'file',
+        name: note.title,
+        note: note
+      });
+    });
+
+    const sortTree = (node) => {
+      if (node.type === 'folder') {
+        node.children.sort((a, b) => {
+          if (a.type !== b.type) return a.type === 'folder' ? -1 : 1;
+          return a.name.localeCompare(b.name, 'zh');
+        });
+        node.children.forEach(sortTree);
+      }
+    };
+
+    sortTree(root);
+    return root;
+  }, [notes]);
+
+  // Extract all folder paths for default expansion
+  const allFolderPaths = useMemo(() => {
+    const paths = [];
+    const getPaths = (n) => {
+      if (n.type === 'folder') {
+        if (n.path) paths.push(n.path);
+        n.children.forEach(getPaths);
+      }
+    };
+    getPaths(tree);
+    return paths;
+  }, [tree]);
+
+  const [expandedPaths, setExpandedPaths] = useState(new Set());
+
+  // Automatically expand all folders when the collection changes
+  useEffect(() => {
+    setExpandedPaths(new Set(allFolderPaths));
+  }, [allFolderPaths]);
+
+  const toggleFolder = (path) => {
+    setExpandedPaths((prev) => {
+      const next = new Set(prev);
+      if (next.has(path)) next.delete(path);
+      else next.add(path);
+      return next;
+    });
+  };
+
   return (
     <Page>
       <Shell>
@@ -575,15 +845,24 @@ function AtlasDetail({ collection, graphData, indexData, counts, collections }) 
             <Lead>{collection.description}</Lead>
           </Hero>
 
-          <SectionTitle id="notes">笔记入口</SectionTitle>
-          <NoteList>
-            {notes.map((note) => (
-              <NoteItem key={note.slug} to={`/note/${note.slug}`} $accent={collection.accent}>
-                <strong>{note.title}</strong>
-                <span>{note.tags?.slice(0, 2).join(' / ') || note.path}</span>
-              </NoteItem>
-            ))}
-          </NoteList>
+          <SectionTitle id="notes">笔记目录</SectionTitle>
+          <TreeContainer>
+            {tree.children.length > 0 ? (
+              tree.children.map((child, idx) => (
+                <DirectoryNode
+                  key={child.path || child.name + idx}
+                  node={child}
+                  accent={collection.accent}
+                  expandedPaths={expandedPaths}
+                  onToggle={toggleFolder}
+                />
+              ))
+            ) : (
+              <span style={{ fontSize: '0.88rem', color: 'rgba(245,239,227,0.4)', padding: '0.5rem' }}>
+                暂无相关笔记数据
+              </span>
+            )}
+          </TreeContainer>
         </Main>
         <RightSidebar graphData={graphData} indexData={indexData} activeCollection={collection} />
       </Shell>

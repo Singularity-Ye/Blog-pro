@@ -63,9 +63,7 @@ const NoteContent = styled.div`
 const NoteSidebar = styled.aside`
   width: 300px;
   flex-shrink: 0;
-  position: sticky;
-  top: 80px;
-  align-self: flex-start;
+  align-self: stretch; /* Stretch to parent height to allow inner children to stick */
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -80,6 +78,28 @@ const TocContainer = styled.div`
   border: 1px solid rgba(231, 199, 126, 0.16);
   border-radius: 8px;
   padding: 1rem;
+`;
+
+const StickyTocContainer = styled(TocContainer)`
+  position: sticky;
+  top: 80px;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+
+  /* Custom scrollbar to keep it premium */
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(223, 198, 146, 0.2);
+    border-radius: 2px;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: rgba(223, 198, 146, 0.4);
+  }
 `;
 
 const TocTitle = styled.div`
@@ -797,7 +817,7 @@ export default function Note() {
           </TocContainer>
         )}
         {headings.length > 0 && (
-          <TocContainer>
+          <StickyTocContainer>
             <TocTitle>目录</TocTitle>
             <TocList>
               {headings.map((h, i) => (
@@ -806,7 +826,7 @@ export default function Note() {
                 </TocItem>
               ))}
             </TocList>
-          </TocContainer>
+          </StickyTocContainer>
         )}
       </NoteSidebar>
     </NoteLayout>
