@@ -152,7 +152,7 @@ function BiomeLabel({ config, position }) {
           <LabelContent>
             <LabelTag>LOCATION MAP</LabelTag>
             <LabelTitle>{config.label}</LabelTitle>
-            <LabelText>{config.description}</LabelText>
+            <LabelText>{config.longDescription || config.description}</LabelText>
             <LabelAction>Click to enter →</LabelAction>
           </LabelContent>
         </LabelInner>

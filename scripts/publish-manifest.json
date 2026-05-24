@@ -20,15 +20,21 @@
       "label": "杭州五一旅游攻略",
       "root": "杭州五一旅游攻略",
       "kind": "travel",
-      "include": ["**/*.md"],
-      "exclude": []
+      "include": [
+        "**/*.md"
+      ],
+      "exclude": [
+        "杭州5月穿搭指南.md"
+      ]
     },
     {
       "enabled": true,
       "label": "建站流程指南",
       "root": "建站流程指南-静态网页",
       "kind": "project",
-      "include": ["**/*.md"],
+      "include": [
+        "**/*.md"
+      ],
       "exclude": []
     },
     {
@@ -36,9 +42,65 @@
       "label": "博客网站设计思路",
       "root": "博客网站",
       "kind": "blog-design",
-      "include": ["**/*.md"],
+      "include": [
+        "**/*.md"
+      ],
       "exclude": [
-        "博客页/松果书屋设计素材/**"
+        "博客页/松果书屋设计素材/**",
+        "博客写作规划与Claude提示词.md",
+        "开发任务清单.md",
+        "联系页-三幕虚拟画卷交互设计.md",
+        "设计经验总结.md",
+        "设计总览.md",
+        "视觉资产清单.md",
+        "待解决问题/问题总录.md",
+        "挂绳+卡片-canyard/jsx修改部分.md",
+        "挂绳+卡片-canyard/挂绳+卡片最终归宿与功能.md",
+        "首页/image2纹理贴图方案.md",
+        "首页/灵感小地球仪.md",
+        "首页/生态区与分类映射.md"
+      ]
+    },
+    {
+      "enabled": true,
+      "label": "Linux学习笔记",
+      "root": "Linux学习笔记",
+      "kind": "linux-notes",
+      "include": [
+        "**/*.md"
+      ],
+      "exclude": []
+    },
+    {
+      "enabled": true,
+      "label": "代号《织墨》(WeaveInk)",
+      "root": "代号《织墨》(WeaveInk)",
+      "kind": "weaveink",
+      "include": [
+        "**/*.md"
+      ],
+      "exclude": []
+    },
+    {
+      "enabled": true,
+      "label": "嵌入式",
+      "root": "嵌入式",
+      "kind": "embedded",
+      "include": [
+        "**/*.md"
+      ],
+      "exclude": []
+    },
+    {
+      "enabled": true,
+      "label": "编译原理",
+      "root": "编译原理",
+      "kind": "compiler-theory",
+      "include": [
+        "**/*.md"
+      ],
+      "exclude": [
+        "编译原理对话记录/编译原理：自底向上语法分析.md"
       ]
     }
   ],

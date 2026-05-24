@@ -1,9 +1,11 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
+import { useLocation } from 'react-router-dom';
 import { BLOG_ASSETS, getBlogAssetByKey } from '../constants/blogAssets';
 import { ENABLE_PLACEMENT_DEBUG } from '../constants/blogDebug';
 import { BLOG_OBJECTS } from '../constants/blogObjects';
 import { BLOG_ZONES } from '../constants/blogZones';
+import BookFlipUI from '../components/BookFlipUI';
 
 const panelLabelMap = {
   notebook: 'Notebook',
@@ -15,15 +17,33 @@ const panelLabelMap = {
 
 const guideItems = ['项目实验', '笔记索引', '旅行地图册', '旧卷轴设定'];
 
-const exteriorFrogObject = {
-  id: 'frog-greeter',
-  title: '青蛙管家',
-  placement: {
-    left: '61.8%',
-    top: '56.6%',
-    width: '10%',
-    rotate: '-4deg',
-    opacity: 0.92,
+export const EXTERIOR_FROG_PLACEMENT = {
+  frogg: {
+    id: 'frogg',
+    title: '望远镜青蛙',
+    left: '61.2%',
+    top: '55%',
+    width: '12.6%',
+    rotate: '0deg',
+    opacity: 1,
+  },
+  frog: {
+    id: 'frog',
+    title: '向导青蛙',
+    left: '44.4%',
+    top: '63.8%',
+    width: '13%',
+    rotate: '0deg',
+    opacity: 1,
+  },
+  froggg: {
+    id: 'froggg',
+    title: '灯笼青蛙',
+    left: '37%',
+    top: '19%',
+    width: '11.4%',
+    rotate: '0deg',
+    opacity: 1,
   },
 };
 
@@ -37,6 +57,23 @@ const Blog = () => {
   const [hoveredExteriorHotspot, setHoveredExteriorHotspot] = useState(null);
   const [isGuideOpen, setIsGuideOpen] = useState(false);
   const [debugPlacement, setDebugPlacement] = useState(null);
+  const [activeExteriorFrogId, setActiveExteriorFrogId] = useState('frogg');
+  const [isPlacementDebugMinimized, setIsPlacementDebugMinimized] = useState(false);
+  const [debugCustomImage, setDebugCustomImage] = useState('');
+  
+  const location = useLocation();
+
+  useEffect(() => {
+    const openBook = location.state?.openBook;
+    if (openBook) {
+      const object = BLOG_OBJECTS.find((o) => o.id === openBook);
+      if (object) {
+        setSceneMode('interior');
+        setActiveZoneId(object.zoneId);
+        setActiveObjectId(object.id);
+      }
+    }
+  }, [location.state]);
 
   const activeZone = useMemo(
     () => BLOG_ZONES.find((zone) => zone.id === activeZoneId) || null,
@@ -71,7 +108,18 @@ const Blog = () => {
   }, [activeZone]);
 
   const displayedObject = activeZoneObjects[0] || null;
-  const placementDebugTarget = sceneMode === 'interior' ? displayedObject : null;
+
+  const placementDebugTarget = useMemo(() => {
+    if (sceneMode === 'interior') {
+      return displayedObject;
+    }
+    if (sceneMode === 'exterior') {
+      const activeFrog = EXTERIOR_FROG_PLACEMENT[activeExteriorFrogId];
+      return activeFrog ? { id: activeFrog.id, title: activeFrog.title, placement: activeFrog } : null;
+    }
+    return null;
+  }, [sceneMode, displayedObject, activeExteriorFrogId]);
+
   const currentPlacement = debugPlacement || placementDebugTarget?.placement || null;
 
   const enterInterior = useCallback(() => {
@@ -149,6 +197,18 @@ const Blog = () => {
     await navigator.clipboard?.writeText(text);
   };
 
+  const copyAllExteriorFrogsConfig = async () => {
+    const allConfig = { ...EXTERIOR_FROG_PLACEMENT };
+    if (sceneMode === 'exterior' && debugPlacement && activeExteriorFrogId) {
+      allConfig[activeExteriorFrogId] = {
+        ...allConfig[activeExteriorFrogId],
+        ...debugPlacement,
+      };
+    }
+    const text = JSON.stringify(allConfig, null, 2).replace(/"([^"]+)":/g, '$1:');
+    await navigator.clipboard?.writeText(text);
+  };
+
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (ENABLE_PLACEMENT_DEBUG && placementDebugTarget?.placement) {
@@ -210,23 +270,42 @@ const Blog = () => {
                   src={BLOG_ASSETS.exterior.houseMain}
                   alt="夜色树枝上的松果屋外景主体"
                 />
+                
                 <ExteriorFrogImage
-                  src={BLOG_ASSETS.exterior.frog}
-                  alt="青蛙管家"
-                  $placement={currentPlacement || exteriorFrogObject.placement}
-                  $debugOpacity={(currentPlacement || exteriorFrogObject.placement).opacity}
+                  src={(activeExteriorFrogId === 'frogg' && debugCustomImage) ? debugCustomImage : BLOG_ASSETS.exterior.frog}
+                  alt="望远镜青蛙"
+                  $placement={activeExteriorFrogId === 'frogg' && currentPlacement ? currentPlacement : EXTERIOR_FROG_PLACEMENT.frogg}
+                  $debugOpacity={(activeExteriorFrogId === 'frogg' && currentPlacement ? currentPlacement : EXTERIOR_FROG_PLACEMENT.frogg).opacity}
+                  onMouseEnter={() => setHoveredExteriorHotspot('frogg')}
+                  onMouseLeave={() => setHoveredExteriorHotspot(null)}
                 />
-                <ExteriorPlatformForegroundImage
-                  src={BLOG_ASSETS.exterior.platformForeground}
-                  alt=""
-                  aria-hidden="true"
+                <ExteriorFrogImage
+                  src={(activeExteriorFrogId === 'frog' && debugCustomImage) ? debugCustomImage : BLOG_ASSETS.exterior.frogGuide}
+                  alt="向导青蛙"
+                  $placement={activeExteriorFrogId === 'frog' && currentPlacement ? currentPlacement : EXTERIOR_FROG_PLACEMENT.frog}
+                  $debugOpacity={(activeExteriorFrogId === 'frog' && currentPlacement ? currentPlacement : EXTERIOR_FROG_PLACEMENT.frog).opacity}
+                  onMouseEnter={() => setHoveredExteriorHotspot('frog')}
+                  onMouseLeave={() => setHoveredExteriorHotspot(null)}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    setIsGuideOpen((current) => !current);
+                  }}
                 />
+                <ExteriorFrogImage
+                  src={(activeExteriorFrogId === 'froggg' && debugCustomImage) ? debugCustomImage : BLOG_ASSETS.exterior.frogLantern}
+                  alt="灯笼青蛙"
+                  $placement={activeExteriorFrogId === 'froggg' && currentPlacement ? currentPlacement : EXTERIOR_FROG_PLACEMENT.froggg}
+                  $debugOpacity={(activeExteriorFrogId === 'froggg' && currentPlacement ? currentPlacement : EXTERIOR_FROG_PLACEMENT.froggg).opacity}
+                  onMouseEnter={() => setHoveredExteriorHotspot('froggg')}
+                  onMouseLeave={() => setHoveredExteriorHotspot(null)}
+                />
+
                 <ExteriorShade aria-hidden="true" />
 
                 <ExteriorIntroPanel className="exteriorIntroPanel">
                   <span>松果灵感书屋</span>
                   <strong>沿着灯火，走进项目、笔记与奇怪实验的藏书室。</strong>
-                  <p>屋外入口先负责欢迎和导览。真正的内容，藏在书屋里面。</p>
+                  <p>屋外入口负责欢迎和导览。沿着木桥，点点星火将照亮前路，真正的内容都藏在书屋里面。</p>
                   <ExteriorEnterButton
                     className="exteriorEnterButton"
                     type="button"
@@ -253,41 +332,6 @@ const Blog = () => {
                   >
                     <span>进入书屋</span>
                   </ExteriorHouseHotspot>
-
-                  <ExteriorBridgeHotspot
-                    className="exteriorBridgeHotspot"
-                    type="button"
-                    onMouseEnter={() => setHoveredExteriorHotspot('bridge')}
-                    onMouseLeave={() => setHoveredExteriorHotspot(null)}
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      enterInterior();
-                    }}
-                    aria-label="沿木桥进入书屋"
-                  />
-
-                  <ExteriorSignpostHotspot
-                    className="exteriorSignpostHotspot"
-                    type="button"
-                    onMouseEnter={() => {
-                      setHoveredExteriorHotspot('signpost');
-                      setIsGuideOpen(true);
-                    }}
-                    onMouseLeave={() => setHoveredExteriorHotspot(null)}
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      setIsGuideOpen((current) => !current);
-                    }}
-                    aria-label="查看书屋导览"
-                  />
-
-                  <ExteriorLanternHotspot
-                    className="exteriorLanternHotspot"
-                    type="button"
-                    onMouseEnter={() => setHoveredExteriorHotspot('lantern')}
-                    onMouseLeave={() => setHoveredExteriorHotspot(null)}
-                    aria-label="查看灯火提示"
-                  />
                 </ExteriorHotspotLayer>
 
                 {isGuideOpen && (
@@ -306,14 +350,19 @@ const Blog = () => {
                     点击进入书屋内部
                   </ExteriorTooltip>
                 )}
-                {hoveredExteriorHotspot === 'bridge' && (
-                  <ExteriorTooltip $left="35%" $top="74%">
-                    沿着灯火继续往前走
+                {hoveredExteriorHotspot === 'frogg' && (
+                  <ExteriorTooltip $left="61%" $top="45%">
+                    “快进来看看，书屋里藏着很多好东西！”
                   </ExteriorTooltip>
                 )}
-                {hoveredExteriorHotspot === 'lantern' && (
-                  <ExteriorTooltip $left="47%" $top="40%">
-                    今晚也有新的笔记在发光
+                {hoveredExteriorHotspot === 'frog' && (
+                  <ExteriorTooltip $left="44%" $top="54%">
+                    “我是导游，点我可以查看书屋的藏品目录！”
+                  </ExteriorTooltip>
+                )}
+                {hoveredExteriorHotspot === 'froggg' && (
+                  <ExteriorTooltip $left="37%" $top="11%">
+                    “呱呱~今晚也有新的灵感在发光哦~”
                   </ExteriorTooltip>
                 )}
 
@@ -341,7 +390,7 @@ const Blog = () => {
                   <strong>{activeZone ? activeZone.title : '先选择一个区域靠近看看'}</strong>
                   <p>
                     {activeZone
-                      ? `${activeZone.hint} 点击局部物件继续展开。`
+                      ? `${activeZone.hint} 点击发光物件继续探索。`
                       : '完整书屋负责区域导航，进入局部场景后再选择具体物件。'}
                   </p>
                 </StagePrompt>
@@ -391,45 +440,65 @@ const Blog = () => {
                                 ? currentPlacement?.opacity
                                 : object.placement.opacity;
 
-                            return object.asset ? (
-                              <ProtoObjectButton
-                                key={object.id}
-                                type="button"
-                                $placement={placement}
-                                $debugOpacity={opacity}
-                                onClick={(event) => {
-                                  event.stopPropagation();
-                                  setActiveObjectId(object.id);
-                                }}
-                                onMouseEnter={() => setHoveredObjectId(object.id)}
-                                onMouseLeave={() => setHoveredObjectId(null)}
-                                aria-label={`打开${object.title}`}
-                              >
-                                <img src={object.asset} alt={object.title} />
-                              </ProtoObjectButton>
-                            ) : (
-                              <DebugObjectProxy
-                                key={object.id}
-                                type="button"
-                                $placement={placement}
-                                $debugOpacity={opacity}
-                                onClick={(event) => {
-                                  event.stopPropagation();
-                                  setActiveObjectId(object.id);
-                                }}
-                                onMouseEnter={() => setHoveredObjectId(object.id)}
-                                onMouseLeave={() => setHoveredObjectId(null)}
-                                aria-label={`调试${object.title}`}
-                              >
-                                {object.title}
-                              </DebugObjectProxy>
+                            return (
+                              <ObjectWrapper key={object.id} $placement={placement}>
+                                {/* Backing Glow for enabled items */}
+                                {object.enabled && <BackingGlow />}
+
+                                {/* Magic Spark Particles for enabled items */}
+                                {object.enabled && (
+                                  <>
+                                    <Spark $left="20%" $delay="0s" $drift="-12px" />
+                                    <Spark $left="50%" $delay="1.5s" $drift="8px" />
+                                    <Spark $left="80%" $delay="3s" $drift="-6px" />
+                                  </>
+                                )}
+
+                                {/* Floating Action Label for enabled items */}
+                                {object.enabled && (
+                                  <FloatingPrompt>
+                                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.53c-.26-.81-1-1.4-1.9-1.4h-1v-3c0-.55-.45-1-1-1h-6v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.4z" fill="currentColor"/></svg>
+                                    <span>{object.title}</span>
+                                  </FloatingPrompt>
+                                )}
+
+                                {object.asset || (object.id === displayedObject?.id && debugCustomImage) ? (
+                                  <ProtoObjectButton
+                                    type="button"
+                                    $debugOpacity={opacity}
+                                    onClick={(event) => {
+                                      event.stopPropagation();
+                                      setActiveObjectId(object.id);
+                                    }}
+                                    onMouseEnter={() => setHoveredObjectId(object.id)}
+                                    onMouseLeave={() => setHoveredObjectId(null)}
+                                    aria-label={`打开${object.title}`}
+                                  >
+                                    <img src={(object.id === displayedObject?.id && debugCustomImage) ? debugCustomImage : object.asset} alt={object.title} />
+                                  </ProtoObjectButton>
+                                ) : (
+                                  <DebugObjectProxy
+                                    type="button"
+                                    $debugOpacity={opacity}
+                                    onClick={(event) => {
+                                      event.stopPropagation();
+                                      setActiveObjectId(object.id);
+                                    }}
+                                    onMouseEnter={() => setHoveredObjectId(object.id)}
+                                    onMouseLeave={() => setHoveredObjectId(null)}
+                                    aria-label={`调试${object.title}`}
+                                  >
+                                    {object.title}
+                                  </DebugObjectProxy>
+                                )}
+                              </ObjectWrapper>
                             );
                           })}
                         </ObjectLayer>
                       </CloseupStage>
                       <CloseupHint>
                         <strong>{activeZone.title}</strong>
-                        <span>点击局部图中的物件继续展开。</span>
+                        <span>点击有微光的物件展开手札。</span>
                       </CloseupHint>
                       <BackButton
                         type="button"
@@ -445,28 +514,34 @@ const Blog = () => {
                 </CloseupLayer>
 
                 {activeObject && (
-                  <DetailPanel
-                    role="dialog"
-                    aria-modal="true"
-                    aria-labelledby={`blog-object-${activeObject.id}`}
-                    onClick={(event) => event.stopPropagation()}
-                  >
-                    <PanelLabel>{panelLabelMap[activeObject.panelType]}</PanelLabel>
-                    <h2 id={`blog-object-${activeObject.id}`}>{activeObject.title}</h2>
-                    <p>{activeObject.subtitle}</p>
-                    <PanelText>{activeObject.description}</PanelText>
-                    <EntryList>
-                      {activeObject.entries.map((entry) => (
-                        <li key={entry}>{entry}</li>
-                      ))}
-                    </EntryList>
-                    <PanelActions>
-                      <button type="button">查看内容</button>
-                      <button type="button" onClick={closeObject}>
-                        收起面板
-                      </button>
-                    </PanelActions>
-                  </DetailPanel>
+                  activeObject.id === 'notes-source' ? (
+                    <BookFlipUI bookId="notes-source" onClose={closeObject} />
+                  ) : activeObject.id === 'mapbook-main' ? (
+                    <BookFlipUI bookId="mapbook-main" onClose={closeObject} />
+                  ) : (
+                    <DetailPanel
+                      role="dialog"
+                      aria-modal="true"
+                      aria-labelledby={`blog-object-${activeObject.id}`}
+                      onClick={(event) => event.stopPropagation()}
+                    >
+                      <PanelLabel>{panelLabelMap[activeObject.panelType]}</PanelLabel>
+                      <h2 id={`blog-object-${activeObject.id}`}>{activeObject.title}</h2>
+                      <p>{activeObject.subtitle}</p>
+                      <PanelText>{activeObject.description}</PanelText>
+                      <EntryList>
+                        {activeObject.entries.map((entry) => (
+                          <li key={entry}>{entry}</li>
+                        ))}
+                      </EntryList>
+                      <PanelActions>
+                        <button type="button">查看内容</button>
+                        <button type="button" onClick={closeObject}>
+                          收起面板
+                        </button>
+                      </PanelActions>
+                    </DetailPanel>
+                  )
                 )}
 
                 {hoveredZone && !activeZone && <Tooltip $zone={hoveredZone}>{hoveredZone.title}</Tooltip>}
@@ -489,34 +564,89 @@ const Blog = () => {
 
         {ENABLE_PLACEMENT_DEBUG && placementDebugTarget?.placement && (
           <PlacementDebugPanel>
-            <strong>Placement Debug: {placementDebugTarget.id}</strong>
-            {['left', 'top', 'width', 'rotate'].map((field) => (
-              <label key={field}>
-                <span>{field}</span>
-                <input
-                  value={(debugPlacement || placementDebugTarget.placement)[field] || ''}
-                  onChange={(event) => updateDebugPlacement({ [field]: event.target.value })}
-                />
-              </label>
-            ))}
-            <label>
-              <span>opacity</span>
-              <input
-                type="number"
-                min="0"
-                max="1"
-                step="0.05"
-                value={(debugPlacement || placementDebugTarget.placement).opacity ?? 1}
-                onChange={(event) => updateDebugPlacement({ opacity: Number(event.target.value) })}
-              />
-            </label>
-            <DebugCode>
-              {JSON.stringify(debugPlacement || placementDebugTarget.placement, null, 2)}
-            </DebugCode>
-            <button type="button" onClick={copyDebugPlacement}>
-              复制配置
-            </button>
-            <small>方向键移动，[ ] 调宽，, . 调旋转，Shift 加速。</small>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isPlacementDebugMinimized ? '0' : '12px' }}>
+              <strong>Placement Debug: {placementDebugTarget.id}</strong>
+              <button 
+                type="button" 
+                onClick={() => setIsPlacementDebugMinimized(!isPlacementDebugMinimized)}
+                style={{ padding: '4px 8px', fontSize: '12px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', borderRadius: '4px', cursor: 'pointer' }}
+              >
+                {isPlacementDebugMinimized ? '展开' : '收起'}
+              </button>
+            </div>
+            
+            {!isPlacementDebugMinimized && (
+              <>
+                {sceneMode === 'exterior' && (
+                  <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+                    <button 
+                      type="button" 
+                      onClick={() => { setActiveExteriorFrogId('frogg'); setDebugPlacement(null); }}
+                      style={{ fontWeight: activeExteriorFrogId === 'frogg' ? 'bold' : 'normal' }}
+                    >
+                      frogg
+                    </button>
+                    <button 
+                      type="button" 
+                      onClick={() => { setActiveExteriorFrogId('frog'); setDebugPlacement(null); }}
+                      style={{ fontWeight: activeExteriorFrogId === 'frog' ? 'bold' : 'normal' }}
+                    >
+                      frog
+                    </button>
+                    <button 
+                      type="button" 
+                      onClick={() => { setActiveExteriorFrogId('froggg'); setDebugPlacement(null); }}
+                      style={{ fontWeight: activeExteriorFrogId === 'froggg' ? 'bold' : 'normal' }}
+                    >
+                      froggg
+                    </button>
+                  </div>
+                )}
+                {['left', 'top', 'width', 'rotate'].map((field) => (
+                  <label key={field}>
+                    <span>{field}</span>
+                    <input
+                      value={(debugPlacement || placementDebugTarget.placement)[field] || ''}
+                      onChange={(event) => updateDebugPlacement({ [field]: event.target.value })}
+                    />
+                  </label>
+                ))}
+                <label>
+                  <span>opacity</span>
+                  <input
+                    type="number"
+                    min="0"
+                    max="1"
+                    step="0.05"
+                    value={(debugPlacement || placementDebugTarget.placement).opacity ?? 1}
+                    onChange={(event) => updateDebugPlacement({ opacity: Number(event.target.value) })}
+                  />
+                </label>
+                <label>
+                  <span>替换图片路径</span>
+                  <input
+                    type="text"
+                    placeholder="输入路径以预览"
+                    value={debugCustomImage}
+                    onChange={(event) => setDebugCustomImage(event.target.value)}
+                  />
+                </label>
+                <DebugCode>
+                  {JSON.stringify(debugPlacement || placementDebugTarget.placement, null, 2)}
+                </DebugCode>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button type="button" onClick={copyDebugPlacement}>
+                    复制配置
+                  </button>
+                  {sceneMode === 'exterior' && (
+                    <button type="button" onClick={copyAllExteriorFrogsConfig}>
+                      复制所有青蛙配置
+                    </button>
+                  )}
+                </div>
+                <small>方向键移动，[ ] 调宽，, . 调旋转，Shift 加速。</small>
+              </>
+            )}
           </PlacementDebugPanel>
         )}
 
@@ -671,15 +801,23 @@ const ExteriorFrogImage = styled.img`
   opacity: ${({ $debugOpacity }) => $debugOpacity ?? 1};
   transform: translate(-50%, -50%) rotate(${({ $placement }) => $placement.rotate});
   transform-origin: 50% 72%;
-  pointer-events: none;
+  pointer-events: auto;
+  cursor: pointer;
   filter:
-    brightness(0.86)
-    saturate(0.92)
-    sepia(0.08)
-    drop-shadow(0 8px 10px rgba(0, 0, 0, 0.32));
+    drop-shadow(0 10px 18px rgba(0, 0, 0, 0.28))
+    saturate(0.95)
+    brightness(0.96);
   transition:
     transform 220ms ease,
     filter 220ms ease;
+
+  &:hover {
+    filter:
+      drop-shadow(0 15px 25px rgba(215, 151, 70, 0.35))
+      saturate(1.05)
+      brightness(1.05);
+    transform: translate(-50%, -52%) rotate(${({ $placement }) => $placement.rotate}) scale(1.02);
+  }
 
   @media (max-width: 760px) {
     width: 15%;
@@ -688,18 +826,7 @@ const ExteriorFrogImage = styled.img`
   }
 `;
 
-const ExteriorPlatformForegroundImage = styled.img`
-  position: absolute;
-  inset: 0;
-  z-index: 4;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  object-position: center;
-  transform: scale(1.03);
-  transform-origin: center;
-  pointer-events: none;
-`;
+
 
 const ExteriorShade = styled.div`
   position: absolute;
@@ -830,8 +957,8 @@ const ExteriorIntroPanel = styled.div`
   left: clamp(18px, 4vw, 64px);
   top: clamp(18px, 5vw, 76px);
   z-index: 8;
-  width: min(420px, 36%);
-  padding: clamp(16px, 2.4vw, 26px);
+  width: min(340px, 28%);
+  padding: clamp(14px, 2vw, 22px);
   border: 1px solid rgba(255, 224, 164, 0.24);
   border-radius: 8px;
   background:
@@ -938,31 +1065,7 @@ const ExteriorHouseHotspot = styled.button`
   }
 `;
 
-const ExteriorBridgeHotspot = styled.button`
-  ${exteriorHotspotBase}
-  left: 22%;
-  top: 68%;
-  width: 30%;
-  height: 10%;
-  transform: rotate(-13deg);
-`;
 
-const ExteriorSignpostHotspot = styled.button`
-  ${exteriorHotspotBase}
-  left: 9%;
-  top: 42%;
-  width: 18%;
-  height: 27%;
-  border-radius: 8px;
-`;
-
-const ExteriorLanternHotspot = styled.button`
-  ${exteriorHotspotBase}
-  left: 43%;
-  top: 39%;
-  width: 9%;
-  height: 13%;
-`;
 
 const ExteriorGuideCard = styled.div`
   position: absolute;
@@ -1288,29 +1391,150 @@ const BackButton = styled.button`
   backdrop-filter: blur(10px);
 `;
 
-const ProtoObjectButton = styled.button`
+const ObjectWrapper = styled.div`
   position: absolute;
   left: ${({ $placement }) => $placement.left};
   top: ${({ $placement }) => $placement.top};
   width: ${({ $placement }) => $placement.width};
   z-index: 8;
+  transform: translate(-50%, -50%) rotate(${({ $placement }) => $placement.rotate});
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+`;
+
+const BackingGlow = styled.div`
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 130%;
+  height: 130%;
+  transform: translate(-50%, -50%) scale(0.9);
+  pointer-events: none;
+  z-index: 1;
+  background: radial-gradient(circle, rgba(255, 204, 119, 0.4) 0%, rgba(255, 155, 54, 0.08) 50%, transparent 70%);
+  filter: blur(8px);
+  mix-blend-mode: screen;
+  animation: backingPulse 4s ease-in-out infinite alternate;
+
+  @keyframes backingPulse {
+    0% {
+      transform: translate(-50%, -50%) scale(0.85) rotate(0deg);
+      opacity: 0.4;
+    }
+    100% {
+      transform: translate(-50%, -50%) scale(1.18) rotate(180deg);
+      opacity: 0.9;
+    }
+  }
+`;
+
+const Spark = styled.div`
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: #ffd389;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #ffb853, 0 0 20px #ffd389;
+  pointer-events: none;
+  z-index: 9;
+  opacity: 0;
+  animation: floatSpark 4.5s infinite ease-in-out;
+  left: ${props => props.$left};
+  bottom: 0%;
+  animation-delay: ${props => props.$delay};
+
+  @keyframes floatSpark {
+    0% {
+      transform: translateY(0) scale(0) rotate(0deg);
+      opacity: 0;
+    }
+    20% {
+      opacity: 0.8;
+    }
+    80% {
+      opacity: 0.8;
+    }
+    100% {
+      transform: translateY(-50px) translateX(${props => props.$drift}) scale(1.2) rotate(360deg);
+      opacity: 0;
+    }
+  }
+`;
+
+const FloatingPrompt = styled.div`
+  position: absolute;
+  left: 50%;
+  top: -30px;
+  transform: translateX(-50%);
+  z-index: 10;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  background: linear-gradient(135deg, rgba(46, 31, 20, 0.92), rgba(22, 14, 9, 0.96));
+  border: 1px solid rgba(255, 204, 119, 0.5);
+  border-radius: 20px;
+  color: #ffeed3;
+  font-size: 0.72rem;
+  font-weight: bold;
+  white-space: nowrap;
+  box-shadow: 
+    0 4px 10px rgba(0, 0, 0, 0.5), 
+    0 0 8px rgba(255, 204, 119, 0.25);
+  animation: floatingHint 2s ease-in-out infinite alternate;
+
+  svg {
+    width: 11px;
+    height: 11px;
+    fill: #ffb853;
+    filter: drop-shadow(0 0 2px #ffb853);
+  }
+
+  @keyframes floatingHint {
+    0% {
+      transform: translateX(-50%) translateY(0);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5), 0 0 8px rgba(255, 204, 119, 0.25);
+    }
+    100% {
+      transform: translateX(-50%) translateY(-6px);
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.6), 0 0 14px rgba(255, 204, 119, 0.55);
+    }
+  }
+`;
+
+const ProtoObjectButton = styled.button`
+  position: relative;
+  width: 100%;
+  z-index: 2;
   padding: 0;
   border: 0;
   background: transparent;
   cursor: pointer;
   pointer-events: auto;
   opacity: ${({ $debugOpacity }) => $debugOpacity ?? 1};
-  transform: translate(-50%, -50%) rotate(${({ $placement }) => $placement.rotate});
 
   img {
     width: 100%;
     display: block;
     background: transparent;
-    filter: drop-shadow(0 10px 12px rgba(0, 0, 0, 0.35));
+    filter: drop-shadow(0 8px 10px rgba(0, 0, 0, 0.35)) drop-shadow(0 0 4px rgba(255, 198, 104, 0.45));
     transition:
       transform 220ms ease,
       filter 220ms ease,
       opacity 220ms ease;
+    animation: objectPulseGlow 3s ease-in-out infinite alternate;
+
+    @keyframes objectPulseGlow {
+      0% {
+        filter: drop-shadow(0 8px 10px rgba(0, 0, 0, 0.35)) drop-shadow(0 0 4px rgba(255, 198, 104, 0.45));
+      }
+      100% {
+        filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.4)) drop-shadow(0 0 15px rgba(255, 204, 119, 0.85));
+      }
+    }
   }
 
   &:hover,
@@ -1318,10 +1542,11 @@ const ProtoObjectButton = styled.button`
     outline: none;
 
     img {
+      animation-play-state: paused;
       transform: translateY(-5px) scale(1.04);
       filter:
         drop-shadow(0 14px 16px rgba(0, 0, 0, 0.42))
-        drop-shadow(0 0 14px rgba(255, 198, 104, 0.35));
+        drop-shadow(0 0 20px rgba(255, 198, 104, 0.95));
     }
   }
 
@@ -1332,6 +1557,7 @@ const ProtoObjectButton = styled.button`
   @media (prefers-reduced-motion: reduce) {
     img {
       transition: filter 160ms ease;
+      animation: none;
     }
 
     &:hover img,
@@ -1342,12 +1568,10 @@ const ProtoObjectButton = styled.button`
 `;
 
 const DebugObjectProxy = styled.button`
-  position: absolute;
-  left: ${({ $placement }) => $placement.left};
-  top: ${({ $placement }) => $placement.top};
-  width: ${({ $placement }) => $placement.width};
+  position: relative;
+  width: 100%;
   min-height: clamp(44px, 7vw, 92px);
-  z-index: 8;
+  z-index: 2;
   padding: 8px;
   border: 1px dashed rgba(255, 220, 155, 0.72);
   border-radius: 8px;
@@ -1356,7 +1580,6 @@ const DebugObjectProxy = styled.button`
   cursor: pointer;
   pointer-events: auto;
   opacity: ${({ $debugOpacity }) => $debugOpacity ?? 0.72};
-  transform: translate(-50%, -50%) rotate(${({ $placement }) => $placement.rotate});
   font-size: clamp(0.72rem, 1vw, 0.9rem);
   font-weight: 900;
   line-height: 1.2;
@@ -1364,24 +1587,37 @@ const DebugObjectProxy = styled.button`
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
   box-shadow:
     inset 0 0 20px rgba(255, 211, 140, 0.12),
-    0 12px 24px rgba(0, 0, 0, 0.22);
+    0 12px 24px rgba(0, 0, 0, 0.22),
+    0 0 6px rgba(255, 198, 104, 0.2);
+  animation: proxyPulseGlow 3s ease-in-out infinite alternate;
   transition:
     transform 220ms ease,
     border-color 220ms ease,
     background 220ms ease,
     box-shadow 220ms ease;
 
+  @keyframes proxyPulseGlow {
+    0% {
+      border-color: rgba(255, 220, 155, 0.5);
+      box-shadow: inset 0 0 20px rgba(255, 211, 140, 0.12), 0 12px 24px rgba(0, 0, 0, 0.22), 0 0 4px rgba(255, 198, 104, 0.25);
+    }
+    100% {
+      border-color: rgba(255, 232, 184, 0.95);
+      box-shadow: inset 0 0 20px rgba(255, 211, 140, 0.2), 0 12px 24px rgba(0, 0, 0, 0.22), 0 0 14px rgba(255, 204, 119, 0.65);
+    }
+  }
+
   &:hover,
   &:focus-visible {
+    animation-play-state: paused;
     border-color: rgba(255, 232, 184, 0.95);
     background: rgba(255, 198, 104, 0.2);
     outline: none;
-    transform: translate(-50%, calc(-50% - 5px)) rotate(${({ $placement }) => $placement.rotate})
-      scale(1.035);
+    transform: translateY(-5px) scale(1.035);
     box-shadow:
       inset 0 0 24px rgba(255, 211, 140, 0.16),
       0 14px 28px rgba(0, 0, 0, 0.28),
-      0 0 18px rgba(255, 198, 104, 0.26);
+      0 0 20px rgba(255, 198, 104, 0.85);
   }
 
   @media (max-width: 760px) {
@@ -1390,10 +1626,11 @@ const DebugObjectProxy = styled.button`
 
   @media (prefers-reduced-motion: reduce) {
     transition: none;
+    animation: none;
 
     &:hover,
     &:focus-visible {
-      transform: translate(-50%, -50%) rotate(${({ $placement }) => $placement.rotate});
+      transform: none;
     }
   }
 `;

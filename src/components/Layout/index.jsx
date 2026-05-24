@@ -20,7 +20,7 @@ const Main = styled(motion.main)`
   background: transparent;
   position: relative;
   z-index: 1;
-  overflow-x: hidden;
+  overflow-x: clip;
 `;
 
 const Layout = ({ children }) => {

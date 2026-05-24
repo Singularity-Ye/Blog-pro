@@ -12,6 +12,7 @@ import Note from './pages/Note';
 import Atlas from './pages/Atlas';
 import GraphView from './components/GraphView/GraphView';
 import Layout from './components/Layout';
+import GlobalNav from './components/GlobalNav';
 
 function AppRoutes() {
   const location = useLocation();
@@ -51,6 +52,7 @@ function AppRoutes() {
           />
         </Routes>
       )}
+      <GlobalNav />
     </>
   );
 }
@@ -67,4 +69,4 @@ function App() {
 }
 
 export default App;
-// deploy sync trigger: 2026-05-23 18:22 
+// deploy sync trigger: 2026-05-23 19:55

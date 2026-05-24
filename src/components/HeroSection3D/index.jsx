@@ -134,6 +134,20 @@ const HeroTitle = styled(motion.h1)`
   color: #073b4c;
   letter-spacing: -0.04em;
   text-shadow: 0 2px 0 rgba(255, 255, 255, 0.44);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  .en-sub {
+    font-size: clamp(0.75rem, 1.5vw, 0.95rem);
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(7, 59, 76, 0.45);
+    font-family: 'Outfit', 'Inter', sans-serif;
+    margin-top: 0.2rem;
+    text-shadow: none;
+  }
 `;
 
 const HeroSubtitle = styled(motion.p)`
@@ -739,7 +753,8 @@ function HeroSection3D() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.85, delay: 0.4 }}
         >
-          松果灵感地球仪
+          松果星寰仪
+          <span className="en-sub">Pinecone Orrery · Aether Mirror</span>
         </HeroTitle>
 
         <HeroSubtitle
@@ -747,7 +762,7 @@ function HeroSection3D() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.75, delay: 0.6 }}
         >
-          把博客、图谱、项目和联系入口折叠成一颗明亮的小星球。拖拽旋转它，从大陆进入不同的页面。
+          此仪为以太交织而成的幻象之茧。本站的书卷手札、思维星图、炼金法阵与精神信标，皆被压缩并封印在这一颗缓缓流转的三维微型星体中。拨动星体，开启通往异世界的时空之门。
         </HeroSubtitle>
 
         <PlanetLegend
@@ -798,7 +813,7 @@ function HeroSection3D() {
         </PlanetLegend>
       </Overlay>
 
-      <HintText>拖拽旋转星球 · 按住星球滚轮缩放 · 点击大陆进入页面</HintText>
+      <HintText>🔮 拨动星体以旋转命运 · 滚动视界以缩放虚空 · 点击漂浮大陆以开启传送</HintText>
 
     </HeroWrapper>
   );

@@ -10,11 +10,11 @@ status: active
 
 ## 本次项目
 
-| 项目 | 值 |
-|------|-----|
-| 仓库 | `Singularity-Ye / Blog-pro` |
-| 框架 | Create React App |
-| 部署 | Cloudflare Pages |
+| 项目  | 值                           |
+| --- | --------------------------- |
+| 仓库  | `Singularity-Ye / Blog-pro` |
+| 框架  | Create React App            |
+| 部署  | Cloudflare Pages            |
 
 ## 标准命令
 

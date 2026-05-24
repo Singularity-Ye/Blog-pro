@@ -14,7 +14,7 @@ const GlobalStyle = createGlobalStyle`
     line-height: 1.6;
     color: #e0e7ff;
     background: #05000f;
-    overflow-x: hidden;
+    overflow-x: clip;
   }
 
   #root {

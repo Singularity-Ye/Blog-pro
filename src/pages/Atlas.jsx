@@ -10,7 +10,7 @@ import {
 } from '../utils/graphFilters';
 import atlasArchiveBg from '../assets/images/atlas/pinecone-observatory-bg.png';
 
-const COLLECTIONS = [
+const METADATA_COLLECTIONS = [
   {
     slug: 'travel',
     kind: 'travel',
@@ -36,8 +36,6 @@ const COLLECTIONS = [
     accent: '#9b8ac7',
   },
 ];
-
-const collectionBySlug = new Map(COLLECTIONS.map((item) => [item.slug, item]));
 
 const Page = styled.div`
   min-height: 100vh;
@@ -431,12 +429,12 @@ function useAtlasData() {
   return { graphData, indexData };
 }
 
-function AtlasRail({ activeSlug, counts }) {
+function AtlasRail({ activeSlug, counts, collections }) {
   return (
     <Rail>
       <RailTitle to="/atlas">图谱大厅</RailTitle>
       <NavList aria-label="已发布 Obsidian 内容">
-        {COLLECTIONS.map((item) => (
+        {collections.map((item) => (
           <NavLink
             key={item.slug}
             to={`/atlas/${item.slug}`}
@@ -479,6 +477,7 @@ function RightSidebar({ graphData, indexData, activeCollection }) {
             graphData={previewGraph}
             label={activeKind ? '分类图谱预览' : '已发布图谱'}
             theme="publishGlobal"
+            expandHref={graphHref}
           />
         </PreviewBody>
       </PreviewPanel>
@@ -502,11 +501,11 @@ function RightSidebar({ graphData, indexData, activeCollection }) {
   );
 }
 
-function AtlasHall({ graphData, indexData, counts }) {
+function AtlasHall({ graphData, indexData, counts, collections }) {
   return (
     <Page>
       <Shell>
-        <AtlasRail activeSlug="hall" counts={counts} />
+        <AtlasRail activeSlug="hall" counts={counts} collections={collections} />
         <Main>
           <Hero id="overview">
             <Eyebrow $accent="#e7c77e">Pinecone Archive</Eyebrow>
@@ -522,10 +521,10 @@ function AtlasHall({ graphData, indexData, counts }) {
               右侧关系图谱会按当前内容区过滤，展开后进入当前分类的全局图谱。
             </Lead>
           </Hero>
-
+ 
           <SectionTitle id="entries">已发布内容区</SectionTitle>
           <CardGrid>
-            {COLLECTIONS.map((item) => (
+            {collections.map((item) => (
               <CollectionCard key={item.slug} to={`/atlas/${item.slug}`} $accent={item.accent}>
                 <strong>{item.title}</strong>
                 <span>
@@ -536,7 +535,7 @@ function AtlasHall({ graphData, indexData, counts }) {
               </CollectionCard>
             ))}
           </CardGrid>
-
+ 
           <SectionTitle id="notes">最近发布的笔记</SectionTitle>
           <NoteList>
             {indexData.notes.slice(0, 12).map((note) => (
@@ -553,7 +552,7 @@ function AtlasHall({ graphData, indexData, counts }) {
   );
 }
 
-function AtlasDetail({ collection, graphData, indexData, counts }) {
+function AtlasDetail({ collection, graphData, indexData, counts, collections }) {
   const notes = useMemo(
     () => indexData.notes.filter((note) => note.collection === collection.kind),
     [collection.kind, indexData.notes]
@@ -562,7 +561,7 @@ function AtlasDetail({ collection, graphData, indexData, counts }) {
   return (
     <Page>
       <Shell>
-        <AtlasRail activeSlug={collection.slug} counts={counts} />
+        <AtlasRail activeSlug={collection.slug} counts={counts} collections={collections} />
         <Main>
           <Hero id="overview">
             <Eyebrow $accent={collection.accent}>{collection.eyebrow}</Eyebrow>
@@ -596,10 +595,54 @@ export default function Atlas() {
   const { type } = useParams();
   const { graphData, indexData } = useAtlasData();
   const counts = useMemo(() => getCollectionCounts(indexData), [indexData]);
-  const currentCollection = type ? collectionBySlug.get(type) : null;
+
+  const collections = useMemo(() => {
+    const list = [];
+    
+    // Merge indexData collections with predefined metadata
+    for (const c of indexData?.collections ?? []) {
+      const matched = METADATA_COLLECTIONS.find((item) => item.kind === c.kind);
+      if (matched) {
+        list.push({
+          ...matched,
+          count: c.count,
+        });
+      } else {
+        // Fallback for new dynamically added collections
+        list.push({
+          slug: c.kind,
+          kind: c.kind,
+          title: c.label,
+          eyebrow: 'Obsidian 笔记库',
+          description: `包含当前分类下的所有相关笔记与知识节点。`,
+          accent: '#a78bfa', // dynamic default purple accent
+          count: c.count,
+        });
+      }
+    }
+
+    if (list.length === 0) {
+      return METADATA_COLLECTIONS.map(item => ({ ...item, count: 0 }));
+    }
+
+    return list;
+  }, [indexData]);
+
+  const collectionsMap = useMemo(() => {
+    return new Map(collections.map((item) => [item.slug, item]));
+  }, [collections]);
+
+  const currentCollection = type ? collectionsMap.get(type) : null;
 
   if (!type) {
-    return <AtlasHall graphData={graphData} indexData={indexData} counts={counts} />;
+    return (
+      <AtlasHall
+        graphData={graphData}
+        indexData={indexData}
+        counts={counts}
+        collections={collections}
+      />
+    );
   }
 
   if (!currentCollection) {
@@ -612,6 +655,7 @@ export default function Atlas() {
       graphData={graphData}
       indexData={indexData}
       counts={counts}
+      collections={collections}
     />
   );
 }

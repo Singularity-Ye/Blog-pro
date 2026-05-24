@@ -1,9 +1,9 @@
 /* eslint-disable react/no-unknown-property */
 /* @refresh reset */
 'use client';
-import { Suspense, useEffect, useRef, useState, useMemo } from 'react';
+import { Suspense, useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import { Canvas, extend, useFrame, useThree } from '@react-three/fiber';
-import { useTexture, Environment, Lightformer } from '@react-three/drei';
+import { Environment, Lightformer } from '@react-three/drei';
 import {
   BallCollider,
   CuboidCollider,
@@ -16,201 +16,14 @@ import { MeshLineGeometry, MeshLineMaterial } from 'meshline';
 import * as THREE from 'three';
 import './Lanyard.css';
 
-import cardImage from '../../assets/images/card.png';
+import frogImage from '../../assets/images/contact/frog01.png';
+import cardWateryImage from '../../assets/images/contact/card_watery.jpg';
+import avatarImage from '../../assets/images/github.png';
 
 extend({ MeshLineGeometry, MeshLineMaterial });
 
-const CONNECTOR_HEADER_H = 0.16;
-const CONNECTOR_THICKNESS = 0.045;
-const CONNECTOR_SUCTION_Y = CONNECTOR_HEADER_H / 2 + 0.075;
-
 /* ─────────────────────────────────────────
-   舌头纹理 — 模块级单例
-   粉紫渐变 + 中央湿润高光 + 横向肉纹
-───────────────────────────────────────── */
-let _tongueTex = null;
-function getTongueTexture() {
-  if (_tongueTex) return _tongueTex;
-
-  const W = 512;
-  const H = 96;
-  const canvas = document.createElement('canvas');
-  canvas.width = W;
-  canvas.height = H;
-  const ctx = canvas.getContext('2d');
-
-  // 主体渐变：边缘暗，中间亮
-  const base = ctx.createLinearGradient(0, 0, 0, H);
-  base.addColorStop(0, '#b8326f');
-  base.addColorStop(0.18, '#e86f9e');
-  base.addColorStop(0.5, '#ff9db8');
-  base.addColorStop(0.82, '#e86f9e');
-  base.addColorStop(1, '#9f245f');
-  ctx.fillStyle = base;
-  ctx.fillRect(0, 0, W, H);
-
-  // 中央湿润高光
-  const highlight = ctx.createLinearGradient(0, 0, 0, H);
-  highlight.addColorStop(0, 'rgba(255,255,255,0)');
-  highlight.addColorStop(0.42, 'rgba(255,230,240,0.32)');
-  highlight.addColorStop(0.5, 'rgba(255,255,255,0.45)');
-  highlight.addColorStop(0.58, 'rgba(255,230,240,0.25)');
-  highlight.addColorStop(1, 'rgba(255,255,255,0)');
-  ctx.fillStyle = highlight;
-  ctx.fillRect(0, 0, W, H);
-
-  // 细微横向肉纹
-  for (let x = 0; x < W; x += 18) {
-    ctx.strokeStyle = 'rgba(120, 20, 70, 0.18)';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(x, H * 0.2);
-    ctx.quadraticCurveTo(x + 8, H * 0.5, x, H * 0.8);
-    ctx.stroke();
-  }
-
-  // 少量亮斑
-  for (let i = 0; i < 60; i++) {
-    const x = Math.random() * W;
-    const y = H * 0.25 + Math.random() * H * 0.5;
-    const r = Math.random() * 1.4 + 0.4;
-    ctx.fillStyle = 'rgba(255, 230, 240, 0.18)';
-    ctx.beginPath();
-    ctx.arc(x, y, r, 0, Math.PI * 2);
-    ctx.fill();
-  }
-
-  _tongueTex = new THREE.CanvasTexture(canvas);
-  _tongueTex.wrapS = THREE.RepeatWrapping;
-  _tongueTex.wrapT = THREE.RepeatWrapping;
-  _tongueTex.colorSpace = THREE.SRGBColorSpace;
-
-  return _tongueTex;
-}
-
-/* ─────────────────────────────────────────
-   蛙怪脑袋 — 几何拼装版
-   默认 / hover / dragged 三种眼睛状态
-───────────────────────────────────────── */
-function FrogHead({ position = [0, 0, 0], dragged = false, hovered = false }) {
-  const headRef = useRef();
-  const leftEyeRef = useRef();
-  const rightEyeRef = useRef();
-
-  useFrame((state) => {
-    if (!headRef.current) return;
-    const t = state.clock.elapsedTime;
-    headRef.current.position.y = position[1] + Math.sin(t * 1.8) * 0.035;
-    headRef.current.rotation.z = Math.sin(t * 1.2) * 0.035;
-
-    // 眼睛看向鼠标方向
-    const targetX = state.pointer.x * 0.04;
-    const targetY = state.pointer.y * 0.03;
-    [leftEyeRef, rightEyeRef].forEach((ref) => {
-      if (ref.current) {
-        ref.current.rotation.y += (targetX - ref.current.rotation.y) * 0.08;
-        ref.current.rotation.x += (targetY - ref.current.rotation.x) * 0.08;
-      }
-    });
-  });
-
-  const eyeScale = dragged ? 1.18 : hovered ? 1.08 : 1;
-  const mouthOpen = dragged ? 0.06 : hovered ? 0.03 : 0;
-
-  return (
-    <group ref={headRef} position={position} scale={0.9}>
-      {/* 脑袋主体 */}
-      <mesh>
-        <sphereGeometry args={[0.45, 32, 24]} />
-        <meshStandardMaterial
-          color="#7dd3a8"
-          roughness={0.55}
-          metalness={0.02}
-        />
-      </mesh>
-
-      {/* 头顶小凸起 */}
-      <mesh position={[0, 0.38, -0.05]}>
-        <sphereGeometry args={[0.12, 16, 12]} />
-        <meshStandardMaterial color="#6bc99a" roughness={0.6} />
-      </mesh>
-
-      {/* 左眼 */}
-      <group position={[-0.22, 0.24, 0.28]} scale={eyeScale}>
-        <mesh>
-          <sphereGeometry args={[0.12, 24, 16]} />
-          <meshStandardMaterial color="#f8fafc" roughness={0.35} />
-        </mesh>
-        <group ref={leftEyeRef}>
-          <mesh position={[0, 0, 0.08]}>
-            <sphereGeometry args={[0.05, 16, 12]} />
-            <meshStandardMaterial color="#111827" />
-          </mesh>
-          {/* 眼睛高光 */}
-          <mesh position={[0.02, 0.025, 0.1]}>
-            <sphereGeometry args={[0.018, 12, 8]} />
-            <meshStandardMaterial color="#ffffff" emissive="#ffffff" emissiveIntensity={0.5} />
-          </mesh>
-        </group>
-      </group>
-
-      {/* 右眼 */}
-      <group position={[0.22, 0.24, 0.28]} scale={eyeScale}>
-        <mesh>
-          <sphereGeometry args={[0.12, 24, 16]} />
-          <meshStandardMaterial color="#f8fafc" roughness={0.35} />
-        </mesh>
-        <group ref={rightEyeRef}>
-          <mesh position={[0, 0, 0.08]}>
-            <sphereGeometry args={[0.05, 16, 12]} />
-            <meshStandardMaterial color="#111827" />
-          </mesh>
-          <mesh position={[0.02, 0.025, 0.1]}>
-            <sphereGeometry args={[0.018, 12, 8]} />
-            <meshStandardMaterial color="#ffffff" emissive="#ffffff" emissiveIntensity={0.5} />
-          </mesh>
-        </group>
-      </group>
-
-      {/* 嘴巴 — 半圆弧，舌头从中间吐出 */}
-      <group position={[0, -0.12 - mouthOpen, 0.38]}>
-        <mesh rotation={[Math.PI / 2, 0, 0]}>
-          <torusGeometry args={[0.16, 0.025, 12, 32, Math.PI]} />
-          <meshStandardMaterial color="#3f1d2f" roughness={0.5} />
-        </mesh>
-        {/* 嘴巴内侧 */}
-        <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0, -0.01]}>
-          <torusGeometry args={[0.13, 0.015, 12, 32, Math.PI]} />
-          <meshStandardMaterial color="#8b2252" roughness={0.4} />
-        </mesh>
-      </group>
-
-      {/* 腮红 */}
-      <mesh position={[-0.3, 0.08, 0.3]} rotation={[0, 0.3, 0]}>
-        <circleGeometry args={[0.08, 24]} />
-        <meshStandardMaterial
-          color="#f9a8d4"
-          transparent
-          opacity={0.35}
-          side={THREE.DoubleSide}
-        />
-      </mesh>
-      <mesh position={[0.3, 0.08, 0.3]} rotation={[0, -0.3, 0]}>
-        <circleGeometry args={[0.08, 24]} />
-        <meshStandardMaterial
-          color="#f9a8d4"
-          transparent
-          opacity={0.35}
-          side={THREE.DoubleSide}
-        />
-      </mesh>
-    </group>
-  );
-}
-
-/* ─────────────────────────────────────────
-   卡片背面纹理 — Canvas 生成 Explorer Profile
-   简化版：4 块大字，3D 晃动时也能看清
+   卡片背面贴图 — Canvas 动态生成 Explorer Profile
 ───────────────────────────────────────── */
 let _backTex = null;
 function getBackTexture() {
@@ -223,16 +36,16 @@ function getBackTexture() {
   canvas.height = H;
   const ctx = canvas.getContext('2d');
 
-  // 背景
+  // 背景：金黑与曜岩黑
   const bg = ctx.createLinearGradient(0, 0, 0, H);
-  bg.addColorStop(0, '#0c0a1a');
-  bg.addColorStop(0.5, '#141030');
-  bg.addColorStop(1, '#0c0a1a');
+  bg.addColorStop(0, '#0a0805');
+  bg.addColorStop(0.5, '#20160a');
+  bg.addColorStop(1, '#0a0805');
   ctx.fillStyle = bg;
   ctx.fillRect(0, 0, W, H);
 
   // 微弱网格
-  ctx.strokeStyle = 'rgba(167, 139, 250, 0.04)';
+  ctx.strokeStyle = 'rgba(231, 199, 126, 0.05)';
   ctx.lineWidth = 1;
   for (let x = 0; x < W; x += 40) {
     ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
@@ -246,18 +59,18 @@ function getBackTexture() {
 
   // ── 标题 ──
   ctx.font = `bold ${px(14)}px "Inter", "SF Pro", system-ui, sans-serif`;
-  ctx.fillStyle = 'rgba(167, 139, 250, 0.6)';
+  ctx.fillStyle = 'rgba(231, 199, 126, 0.72)';
   ctx.fillText('EXPLORER PROFILE', W / 2, px(70));
 
   // 分隔线
-  ctx.strokeStyle = 'rgba(167, 139, 250, 0.2)';
+  ctx.strokeStyle = 'rgba(231, 199, 126, 0.22)';
   ctx.lineWidth = 1.5;
   ctx.beginPath();
   ctx.moveTo(px(50), px(90));
   ctx.lineTo(W - px(50), px(90));
   ctx.stroke();
 
-  // ── 身份信息 — 大字，4 行 ──
+  // ── 身份信息 — 大字 ──
   const labelX = W * 0.22;
   const valX = W * 0.42;
   let y = px(130);
@@ -266,11 +79,11 @@ function getBackTexture() {
   const drawRow = (label, value) => {
     ctx.textAlign = 'left';
     ctx.font = `bold ${px(10)}px "Inter", "SF Mono", monospace`;
-    ctx.fillStyle = 'rgba(167, 139, 250, 0.55)';
+    ctx.fillStyle = 'rgba(231, 199, 126, 0.58)';
     ctx.fillText(label, labelX, y);
 
     ctx.font = `${px(11)}px "Inter", system-ui, sans-serif`;
-    ctx.fillStyle = 'rgba(224, 231, 255, 0.9)';
+    ctx.fillStyle = 'rgba(245, 239, 227, 0.95)';
     ctx.fillText(value, valX, y);
     y += gap;
   };
@@ -282,7 +95,7 @@ function getBackTexture() {
 
   // 分隔线
   y += px(6);
-  ctx.strokeStyle = 'rgba(167, 139, 250, 0.15)';
+  ctx.strokeStyle = 'rgba(231, 199, 126, 0.18)';
   ctx.lineWidth = 1.5;
   ctx.beginPath();
   ctx.moveTo(px(50), y);
@@ -293,12 +106,12 @@ function getBackTexture() {
   // ── 系统一行 ──
   ctx.textAlign = 'center';
   ctx.font = `${px(9.5)}px "Inter", "SF Mono", monospace`;
-  ctx.fillStyle = 'rgba(224, 231, 255, 0.4)';
+  ctx.fillStyle = 'rgba(245, 239, 227, 0.45)';
   ctx.fillText('Blog · Obsidian · Travel Atlas', W / 2, y);
   y += px(36);
 
   // 分隔线
-  ctx.strokeStyle = 'rgba(167, 139, 250, 0.12)';
+  ctx.strokeStyle = 'rgba(231, 199, 126, 0.12)';
   ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.moveTo(px(80), y);
@@ -308,7 +121,7 @@ function getBackTexture() {
 
   // ── 底部标语 ──
   ctx.font = `italic ${px(10)}px "Inter", system-ui, sans-serif`;
-  ctx.fillStyle = 'rgba(167, 139, 250, 0.5)';
+  ctx.fillStyle = 'rgba(231, 199, 126, 0.52)';
   ctx.fillText('从笔记出发，延伸到地图、项目与世界。', W / 2, y);
   y += px(40);
 
@@ -316,7 +129,7 @@ function getBackTexture() {
   for (let i = -2; i <= 2; i++) {
     ctx.beginPath();
     ctx.arc(W / 2 + i * px(12), y, px(2), 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(167, 139, 250, ${0.15 + Math.abs(2 - Math.abs(i)) * 0.1})`;
+    ctx.fillStyle = `rgba(231, 199, 126, ${0.15 + Math.abs(2 - Math.abs(i)) * 0.1})`;
     ctx.fill();
   }
 
@@ -326,279 +139,319 @@ function getBackTexture() {
 }
 
 /* ─────────────────────────────────────────
-   吊头组件 — 窄圆角塑料片 + 金属环 + 舌尖
-   独立 scale，不跟卡片主体一起放大
+   白色背景过滤与透明贴图生成工具 (支持羽化)
 ───────────────────────────────────────── */
-function SuctionCup({ dragged = false, hovered = false }) {
-  const cupRef = useRef();
-  const sealRef = useRef();
-  const shineRef = useRef();
+function loadTransparentTexture(imgSrc, threshold = 45, feather = 40, callback) {
+  const img = new Image();
+  img.src = imgSrc;
+  img.crossOrigin = 'anonymous';
+  img.onload = () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = img.width;
+    canvas.height = img.height;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const data = imgData.data;
+
+    // 1. 利用颜色距离做抠图，将实白背景滤除为透明，并进行平滑羽化边缘
+    for (let i = 0; i < data.length; i += 4) {
+      const r = data[i];
+      const g = data[i + 1];
+      const b = data[i + 2];
+
+      const dist = Math.sqrt((255 - r) ** 2 + (255 - g) ** 2 + (255 - b) ** 2);
+      if (dist < threshold) {
+        data[i + 3] = 0;
+      } else if (dist < threshold + feather) {
+        const factor = (dist - threshold) / feather;
+        data[i + 3] = Math.round(data[i + 3] * factor);
+      }
+    }
+    ctx.putImageData(imgData, 0, 0);
+
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.minFilter = THREE.LinearFilter;
+    callback(tex);
+  };
+}
+
+/* ─────────────────────────────────────────
+   水色玻璃卡牌贴图生成器 — 动态加载背景与头像，处理抠图并在画布上绘制可配置信息
+───────────────────────────────────────── */
+function loadCardFrontTexture(bgImgSrc, avatarImgSrc, callback) {
+  const bgImg = new Image();
+  const avatarImg = new Image();
+
+  let bgLoaded = false;
+  let avatarLoaded = false;
+
+  const draw = () => {
+    if (!bgLoaded || !avatarLoaded) return;
+
+    const W = bgImg.width;
+    const H = bgImg.height;
+
+    // 1. 创建临时 Canvas 用于抠除卡片模板的背景白底，防止误伤头像
+    const bgCanvas = document.createElement('canvas');
+    bgCanvas.width = W;
+    bgCanvas.height = H;
+    const bgCtx = bgCanvas.getContext('2d');
+    bgCtx.drawImage(bgImg, 0, 0);
+
+    const bgData = bgCtx.getImageData(0, 0, W, H);
+    const data = bgData.data;
+    for (let i = 0; i < data.length; i += 4) {
+      const r = data[i];
+      const g = data[i + 1];
+      const b = data[i + 2];
+      const dist = Math.sqrt((255 - r) ** 2 + (255 - g) ** 2 + (255 - b) ** 2);
+      if (dist < 45) {
+        data[i + 3] = 0; // 完全透明
+      } else if (dist < 85) {
+        const factor = (dist - 45) / 40;
+        data[i + 3] = Math.round(data[i + 3] * factor);
+      }
+    }
+    bgCtx.putImageData(bgData, 0, 0);
+
+    // 2. 创建最终名片 Canvas
+    const canvas = document.createElement('canvas');
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext('2d');
+
+    // 绘制处理好的透明卡牌背景
+    ctx.drawImage(bgCanvas, 0, 0);
+
+    // 3. 绘制自定义圆形头像 (对应图三黑底孔窗)
+    const cx = W / 2;          // 389
+    const cy = H * 0.327;      // ~330
+    const r = W * 0.141;       // ~110
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.clip();
+    ctx.drawImage(avatarImg, cx - r, cy - r, r * 2, r * 2);
+    ctx.restore();
+
+    // 4. 绘制名片文本信息 (对应图二的三个空白槽线)
+    ctx.fillStyle = 'rgba(21, 80, 65, 0.88)'; // 高级深绿松石墨水色
+    ctx.font = `bold ${W * 0.038}px "Inter", "SF Pro", "Microsoft YaHei", sans-serif`;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+
+    const textX = W * 0.334; // 水平对齐点 ~260
+
+    // 写入信息槽
+    ctx.fillText('松果屋屋主 (Songguo)', textX, H * 0.515); // 第一栏
+    ctx.fillText('yhx06@outlook.com', textX, H * 0.630);    // 第二栏
+    ctx.fillText('松果屋 · 探索与构建', textX, H * 0.745);      // 第三栏
+
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.minFilter = THREE.LinearFilter;
+    callback(tex);
+  };
+
+  bgImg.src = bgImgSrc;
+  bgImg.crossOrigin = 'anonymous';
+  bgImg.onload = () => {
+    bgLoaded = true;
+    draw();
+  };
+
+  avatarImg.src = avatarImgSrc;
+  avatarImg.crossOrigin = 'anonymous';
+  avatarImg.onload = () => {
+    avatarLoaded = true;
+    draw();
+  };
+}
+
+/* ─────────────────────────────────────────
+   吊头组件 — 顶部的精致金属小吊环
+───────────────────────────────────────── */
+function CardConnector() {
+  return (
+    <group>
+      <mesh>
+        <torusGeometry args={[0.075, 0.016, 12, 24]} />
+        <meshPhysicalMaterial
+          color="#fcd34d"
+          metalness={0.9}
+          roughness={0.12}
+          clearcoat={1.0}
+        />
+      </mesh>
+    </group>
+  );
+}
+
+/* ─────────────────────────────────────────
+   钓鱼青蛙 — 2.5D 立体纸板贴纸版
+   慵懒小青蛙躺在木躺椅上，手持钓竿，从右上角探出
+───────────────────────────────────────── */
+function FrogHead({ position = [0, 0, 0], dragged = false, hovered = false }) {
+  const headRef = useRef();
+  const [frogTex, setFrogTex] = useState(null);
+  const spark1 = useRef();
+  const spark2 = useRef();
+
+  useEffect(() => {
+    const loader = new THREE.TextureLoader();
+    loader.load(frogImage, (tex) => {
+      tex.colorSpace = THREE.SRGBColorSpace;
+      tex.minFilter = THREE.LinearFilter;
+      setFrogTex(tex);
+    });
+  }, []);
 
   useFrame((state) => {
+    if (!headRef.current) return;
     const t = state.clock.elapsedTime;
-    const pull = dragged ? 1 : hovered ? 0.45 : 0;
-    const pulse = Math.sin(t * 5.5) * 0.025;
 
-    if (cupRef.current) {
-      cupRef.current.scale.set(
-        1.85 + pull * 0.22 + pulse,
-        0.7 - pull * 0.08,
-        0.28 + pull * 0.03
-      );
+    // 微妙的呼吸悬浮动画
+    headRef.current.position.y = position[1] + Math.sin(t * 1.5) * 0.04;
+    headRef.current.rotation.z = Math.sin(t * 0.8) * 0.02;
+
+    // 2.5D 立体视差倾斜：跟着指针方向微微倾斜转动
+    const targetRotY = state.pointer.x * 0.22;
+    const targetRotX = -state.pointer.y * 0.15;
+    headRef.current.rotation.y += (targetRotY - headRef.current.rotation.y) * 0.08;
+    headRef.current.rotation.x += (targetRotX - headRef.current.rotation.x) * 0.08;
+
+    // 拖拽或悬浮时的弹性微缩放
+    const targetScale = dragged ? 3.5 : hovered ? 3.45 : 3.55;
+    const currentScale = headRef.current.scale.x;
+    const nextScale = currentScale + (targetScale - currentScale) * 0.1;
+    headRef.current.scale.set(nextScale, nextScale, nextScale);
+
+    // 动画竿尖处的魔法微粒
+    if (spark1.current) {
+      const ang = t * 4.0;
+      spark1.current.position.x = -0.38 + Math.cos(ang) * 0.08;
+      spark1.current.position.y = 0.23 + Math.sin(ang) * 0.08;
+      spark1.current.position.z = 0.2 + Math.sin(t * 2.0) * 0.04;
     }
-
-    if (sealRef.current) {
-      sealRef.current.scale.set(1.15 + pull * 0.12, 0.45 - pull * 0.04, 0.08);
-    }
-
-    if (shineRef.current) {
-      shineRef.current.material.opacity = dragged ? 0.62 : hovered ? 0.52 : 0.42;
+    if (spark2.current) {
+      const ang = t * -3.0 + 1.5;
+      spark2.current.position.x = -0.38 + Math.cos(ang) * 0.12;
+      spark2.current.position.y = 0.23 + Math.sin(ang) * 0.12;
+      spark2.current.position.z = 0.2 + Math.cos(t * 2.0) * 0.04;
     }
   });
 
   return (
-    <group>
-      <mesh ref={sealRef} position={[0, 0.02, 0.01]} rotation={[0.42, 0, 0]}>
-        <sphereGeometry args={[0.13, 36, 16]} />
-        <meshBasicMaterial
-          color="#ffb3c7"
-          transparent
-          opacity={0.18}
-          depthWrite={false}
-        />
-      </mesh>
+    <group ref={headRef} position={position}>
+      {frogTex && (
+        <group>
+          {/* 后置柔和阴影片 (2.5D 浮空阴影效果) */}
+          <mesh position={[0.02, -0.02, -0.04]} renderOrder={9}>
+            <planeGeometry args={[1.0, 1.0]} />
+            <meshBasicMaterial
+              map={frogTex}
+              color="#000000"
+              transparent={true}
+              opacity={0.3}
+              alphaTest={0.05}
+              depthWrite={false}
+            />
+          </mesh>
 
-      <mesh ref={cupRef} position={[0, 0, 0.02]} rotation={[0.42, 0, 0]}>
-        <sphereGeometry args={[0.15, 40, 22]} />
-        <meshPhysicalMaterial
-          color={dragged ? '#f43f7a' : '#fb7185'}
-          roughness={0.16}
-          metalness={0.01}
-          clearcoat={0.75}
-          clearcoatRoughness={0.07}
-        />
-      </mesh>
+          {/* 前置萌系立体卡牌贴纸主板 */}
+          <mesh position={[0, 0, 0]} renderOrder={10}>
+            <planeGeometry args={[1.0, 1.0]} />
+            <meshBasicMaterial
+              map={frogTex}
+              transparent={true}
+              side={THREE.DoubleSide}
+              alphaTest={0.05}
+            />
+          </mesh>
 
-      <mesh position={[0, -0.006, 0.058]} rotation={[0.42, 0, 0]} scale={[1.15, 0.42, 0.08]}>
-        <sphereGeometry args={[0.105, 32, 14]} />
-        <meshPhysicalMaterial
-          color="#c02663"
-          roughness={0.22}
-          metalness={0}
-          clearcoat={0.45}
-          clearcoatRoughness={0.12}
-        />
-      </mesh>
+          {/* 竿尖魔法辉光节点 */}
+          <group position={[-0.38, 0.23, 0.2]}>
+            {/* 核心强光 */}
+            <mesh>
+              <sphereGeometry args={[0.015, 8, 8]} />
+              <meshBasicMaterial color="#fffbeb" />
+            </mesh>
+            {/* 外部柔光晕 */}
+            <mesh>
+              <sphereGeometry args={[0.05, 12, 12]} />
+              <meshBasicMaterial color="#fcd34d" transparent opacity={0.65} />
+            </mesh>
+          </group>
 
-      <mesh ref={shineRef} position={[0.035, 0.035, 0.105]} rotation={[0.42, 0, -0.1]} scale={[1.2, 0.35, 0.1]}>
-        <sphereGeometry args={[0.06, 24, 12]} />
-        <meshBasicMaterial
-          color="#ffd1dc"
-          transparent
-          opacity={0.42}
-          depthWrite={false}
-        />
-      </mesh>
-    </group>
-  );
-}
-
-function CardConnector({ dragged = false, hovered = false }) {
-  const HEADER_W = 0.46;
-  const HEADER_H = CONNECTOR_HEADER_H;
-  const THICKNESS = CONNECTOR_THICKNESS;
-
-  return (
-    <group>
-      {/* ── 吊头主体：缩小、降低存在感 ── */}
-      <mesh position={[0, 0, 0]}>
-        <boxGeometry args={[HEADER_W, HEADER_H, THICKNESS]} />
-        <meshPhysicalMaterial
-          color="#1a1748"
-          roughness={0.28}
-          metalness={0.06}
-          clearcoat={0.65}
-          clearcoatRoughness={0.2}
-          transparent
-          opacity={0.82}
-        />
-      </mesh>
-
-      {/* 吊头前面的小亮面 */}
-      <mesh position={[0, 0.012, THICKNESS / 2 + 0.002]}>
-        <planeGeometry args={[HEADER_W * 0.86, HEADER_H * 0.58]} />
-        <meshBasicMaterial
-          color="#a78bfa"
-          transparent
-          opacity={0.1}
-          side={THREE.DoubleSide}
-        />
-      </mesh>
-
-      {/* ── 舌身到吸盘的过渡块 — 软组织渐宽 ── */}
-      <mesh
-        position={[0, HEADER_H / 2 + 0.19, THICKNESS / 2 + 0.065]}
-        rotation={[0.35, 0, 0]}
-        scale={[dragged ? 0.68 : 0.75, dragged ? 1.18 : 1.05, 0.24]}
-      >
-        <sphereGeometry args={[0.105, 28, 16]} />
-        <meshPhysicalMaterial
-          color={dragged ? '#fb7185' : '#ff8fab'}
-          roughness={0.2}
-          metalness={0.01}
-          clearcoat={0.5}
-          clearcoatRoughness={0.1}
-        />
-      </mesh>
-
-      {/* ── 宽舌尖吸盘：扁宽、像软舌头啪地贴住 ── */}
-      <mesh
-        position={[0, CONNECTOR_SUCTION_Y + 0.085, THICKNESS / 2 + 0.075]}
-        rotation={[0.15, 0, 0]}
-        scale={[0.55, dragged ? 1.22 : 1.08, 0.22]}
-      >
-        <sphereGeometry args={[0.09, 28, 16]} />
-        <meshPhysicalMaterial
-          color={dragged ? '#fb7185' : '#ff8fab'}
-          roughness={0.18}
-          metalness={0.01}
-          clearcoat={0.55}
-          clearcoatRoughness={0.1}
-        />
-      </mesh>
-
-      <group position={[0, CONNECTOR_SUCTION_Y, THICKNESS / 2 + 0.07]}>
-        <SuctionCup dragged={dragged} hovered={hovered} />
-      </group>
-
-      {/* 舌尖中央湿润高光 */}
-
-      {/* ── 吊头与正文之间的短连接杆 ── */}
-      <mesh position={[0, -HEADER_H / 2 - 0.07, 0]}>
-        <boxGeometry args={[HEADER_W * 0.18, 0.14, THICKNESS * 0.6]} />
-        <meshStandardMaterial color="#252050" roughness={0.4} metalness={0.12} />
-      </mesh>
+          {/* 绕竿尖飞舞的黄金魔法火花 */}
+          <mesh ref={spark1}>
+            <sphereGeometry args={[0.008, 6, 6]} />
+            <meshBasicMaterial color="#fcd34d" />
+          </mesh>
+          <mesh ref={spark2}>
+            <sphereGeometry args={[0.006, 6, 6]} />
+            <meshBasicMaterial color="#fef08a" />
+          </mesh>
+        </group>
+      )}
     </group>
   );
 }
 
 /* ─────────────────────────────────────────
-   主容器：蛙怪吐舌吊牌
+   物理场景主体：鱼竿、线、鱼钩与水色玻璃卡牌
 ───────────────────────────────────────── */
-function LanyardPhysics({ gravity, isMobile }) {
-  return (
-    <Suspense fallback={null}>
-      <Physics gravity={gravity} timeStep={1 / 60}>
-        <FrogTongueBand isMobile={isMobile} />
-      </Physics>
-    </Suspense>
-  );
-}
-
-export default function Lanyard({
-  position = [-2, 0, 22],
-  gravity = [0, -40, 0],
-  fov = 20,
-  transparent = true,
-}) {
-  const [isMobile, setIsMobile] = useState(
-    () => typeof window !== 'undefined' && window.innerWidth < 768
-  );
-
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  if (isMobile) return null;
-
-  return (
-    <div className="lanyard-canvas-root">
-      <Canvas
-        camera={{ position: [0, 0, 30], fov }}
-        dpr={[1, 2]}
-        gl={{ alpha: transparent, antialias: true }}
-        onCreated={({ gl }) => {
-          gl.setClearColor(new THREE.Color(0x000000), 0);
-          gl.domElement.style.pointerEvents = 'none';
-        }}
-        eventSource={typeof document !== 'undefined' ? document.body : undefined}
-        eventPrefix="client"
-      >
-        <ambientLight intensity={Math.PI * 0.6} />
-        <directionalLight position={[5, 10, 5]} intensity={1.2} color="#e0e7ff" />
-        <pointLight position={[-5, 5, 5]} intensity={0.8} color="#a78bfa" />
-        {/* 舌头专用暖光 */}
-        <pointLight position={[0, 2, 8]} intensity={0.4} color="#f9a8d4" />
-
-        <Environment blur={0.75}>
-          <Lightformer intensity={2} color="white" position={[0, -1, 5]} rotation={[0, 0, Math.PI / 3]} scale={[100, 0.1, 1]} />
-          <Lightformer intensity={3} color="white" position={[-1, -1, 1]} rotation={[0, 0, Math.PI / 3]} scale={[100, 0.1, 1]} />
-          <Lightformer intensity={3} color="white" position={[1, 1, 1]} rotation={[0, 0, Math.PI / 3]} scale={[100, 0.1, 1]} />
-          <Lightformer intensity={8} color="#a78bfa" position={[-10, 0, 14]} rotation={[0, Math.PI / 2, Math.PI / 3]} scale={[100, 10, 1]} />
-        </Environment>
-
-        <LanyardPhysics gravity={gravity} isMobile={isMobile} />
-      </Canvas>
-    </div>
-  );
-}
-
-/* ─────────────────────────────────────────
-   物理舌头 + 蛙怪 + 卡片
-───────────────────────────────────────── */
-function FrogTongueBand({ maxSpeed = 50, minSpeed = 0 }) {
-  const { gl, viewport } = useThree();
+function FrogTongueBand({ maxSpeed = 50, minSpeed = 0, interactive = true }) {
+  const { viewport } = useThree();
   const band = useRef();
   const fixed = useRef();
   const j1 = useRef();
   const j2 = useRef();
   const j3 = useRef();
   const card = useRef();
-
+  const ropeSpark1 = useRef();
+  const ropeSpark2 = useRef();
   const vecRef = useRef(new THREE.Vector3());
   const angRef = useRef(new THREE.Vector3());
   const rotRef = useRef(new THREE.Vector3());
   const dirRef = useRef(new THREE.Vector3());
 
-  const startX = viewport.width / 2 - 2;
-  const startY = viewport.height / 2 - 0.15;
+  // 动态视口定位 (右上角)
+  const startX = viewport.width / 2 - 2.8;
+  const startY = viewport.height / 2 - 2.5;
 
   const segmentProps = {
     type: 'dynamic',
     canSleep: true,
     colliders: false,
-    angularDamping: 4,
-    linearDamping: 4,
+    angularDamping: 4.5,
+    linearDamping: 4.5,
   };
 
-  const cardTex = useTexture(cardImage);
+  const [cardWateryTex, setCardWateryTex] = useState(null);
   const backTex = useMemo(() => getBackTexture(), []);
-  const tongueTex = useMemo(() => getTongueTexture(), []);
+
+  useEffect(() => {
+    loadCardFrontTexture(cardWateryImage, avatarImage, setCardWateryTex);
+  }, []);
 
   const CARD_W = 1.6;
   const CARD_H = CARD_W * (1008 / 778);
-  const CARD_BASE_THICKNESS = 0.04;
 
-  // 卡片主体的视觉缩放
+  // 物理与视觉参数
   const CARD_VISUAL_SCALE = 2.25;
   const CONNECTOR_SCALE = 1.25;
 
-  // 卡片主体 group 的 y 偏移
-  const CARD_BODY_Y = -CARD_H / 2;
+  // 鱼竿 tip 在 Frog 局部坐标系下的位置
+  // 对应 frog 缩放 2.8 倍后的 tip 物理位置
+  const ROPE_X_OFFSET = -1.36;
+  const ROPE_Y_OFFSET = 1.60;
 
-  // 视觉上卡片图片的顶部位置（刚体局部空间）
-  const CARD_VISUAL_TOP_Y = CARD_BODY_Y + (CARD_H / 2) * CARD_VISUAL_SCALE;
-
-  // 吊头放在卡片图片上方
-  const CONNECTOR_Y = CARD_VISUAL_TOP_Y + 0.22;
-
-  // CardConnector 内部吸盘舌尖中心的本地 y 偏移
-  const SUCTION_LOCAL_Y = CONNECTOR_SUCTION_Y;
-
-  // 物理舌尖连接点：对齐吸盘中心
-  const CONNECTOR_JOINT_Y = CONNECTOR_Y + SUCTION_LOCAL_Y * CONNECTOR_SCALE;
+  // 物理挂扣连接点：对应卡片缩放后的顶部挂扣位置 (y = 1.29)
+  const CONNECTOR_JOINT_Y = 1.29;
 
   const [curve] = useState(
     () =>
@@ -611,36 +464,65 @@ function FrogTongueBand({ maxSpeed = 50, minSpeed = 0 }) {
   );
   const [dragged, drag] = useState(false);
   const [hovered, hover] = useState(false);
-  const tongueColor = dragged ? '#fb4f86' : hovered ? '#ff7fa4' : '#ff8fab';
-  const tongueWidth = dragged ? 0.4 : hovered ? 0.49 : 0.46;
-  const tongueRepeat = dragged ? [-2.7, 1] : [-2.0, 1];
 
-  // 物理关节
-  useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], 1]);
-  useRopeJoint(j1, j2, [[0, 0, 0], [0, 0, 0], 1]);
-  useRopeJoint(j2, j3, [[0, 0, 0], [0, 0, 0], 1]);
-  // 舌尖连接到吊头圆环位置
+  // 物理挂载关节
+  useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], 0.8]);
+  useRopeJoint(j1, j2, [[0, 0, 0], [0, 0, 0], 0.7]);
+  useRopeJoint(j2, j3, [[0, 0, 0], [0, 0, 0], 0.7]);
   useSphericalJoint(j3, card, [[0, 0, 0], [0, CONNECTOR_JOINT_Y, 0]]);
 
-  // pointer events
+  // pointer styles
   useEffect(() => {
+    if (!interactive) {
+      document.body.style.cursor = 'auto';
+      return;
+    }
     if (hovered || dragged) {
       document.body.style.cursor = dragged ? 'grabbing' : 'grab';
-      gl.domElement.style.pointerEvents = 'auto';
     } else {
       document.body.style.cursor = 'auto';
-      gl.domElement.style.pointerEvents = 'none';
     }
     return () => {
       document.body.style.cursor = 'auto';
     };
-  }, [hovered, dragged, gl]);
+  }, [hovered, dragged, interactive]);
+
+  const resetCard = useCallback(() => {
+    if (card.current && fixed.current && j1.current && j2.current && j3.current) {
+      // 物理坐标复位
+      card.current.setTranslation({ x: startX + ROPE_X_OFFSET, y: startY - 3.1, z: 0 }, true);
+      card.current.setLinvel({ x: 0, y: 0, z: 0 }, true);
+      card.current.setAngvel({ x: 0, y: 0, z: 0 }, true);
+      card.current.setRotation({ x: 0, y: 0, z: 0, w: 1 }, true);
+
+      j1.current.setTranslation({ x: startX + ROPE_X_OFFSET, y: startY - 0.2, z: 0 }, true);
+      j1.current.setLinvel({ x: 0, y: 0, z: 0 }, true);
+
+      j2.current.setTranslation({ x: startX + ROPE_X_OFFSET, y: startY - 0.9, z: 0 }, true);
+      j2.current.setLinvel({ x: 0, y: 0, z: 0 }, true);
+
+      j3.current.setTranslation({ x: startX + ROPE_X_OFFSET, y: startY - 1.6, z: 0 }, true);
+      j3.current.setLinvel({ x: 0, y: 0, z: 0 }, true);
+    }
+  }, [startX]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.__resetLanyard = resetCard;
+    }
+    return () => {
+      if (typeof window !== 'undefined') {
+        delete window.__resetLanyard;
+      }
+    };
+  }, [resetCard]);
 
   useFrame((state, delta) => {
     const vec = vecRef.current;
     const ang = angRef.current;
     const rot = rotRef.current;
     const dir = dirRef.current;
+    const t = state.clock.elapsedTime;
 
     if (dragged) {
       vec.set(state.pointer.x, state.pointer.y, 0.5).unproject(state.camera);
@@ -664,15 +546,49 @@ function FrogTongueBand({ maxSpeed = 50, minSpeed = 0 }) {
           delta * (minSpeed + d * (maxSpeed - minSpeed))
         );
       });
-      curve.points[0].copy(j3.current.translation());
-      curve.points[1].copy(j2.current.lerped);
-      curve.points[2].copy(j1.current.lerped);
-      curve.points[3].copy(fixed.current.translation());
-      band.current.geometry.setPoints(curve.getPoints(32));
 
+      // ── 鱼线顶点插值渲染 ──
+      curve.points = [
+        new THREE.Vector3().copy(fixed.current.translation()),
+        new THREE.Vector3().copy(j1.current.lerped),
+        new THREE.Vector3().copy(j2.current.lerped),
+        new THREE.Vector3().copy(j3.current.translation())
+      ];
+      band.current.geometry.setPoints(curve.getPoints(24));
+
+      // 自动阻尼
       ang.copy(card.current.angvel());
       rot.copy(card.current.rotation());
       card.current.setAngvel({ x: ang.x, y: ang.y - rot.y * 0.25, z: ang.z });
+
+      // 将名片坐标转为屏幕投影坐标，以触发背景烟花与水波
+      const translation = card.current.translation();
+      const cardVec = vec.set(translation.x, translation.y, translation.z);
+      cardVec.project(state.camera);
+      const px_x = (cardVec.x * 0.5 + 0.5) * window.innerWidth;
+      const px_y = (-cardVec.y * 0.5 + 0.5) * window.innerHeight;
+
+      if (dragged) {
+        window.dispatchEvent(new CustomEvent('card-drag', { detail: { x: px_x, y: px_y } }));
+      } else {
+        if (Math.random() < 0.2) {
+          window.dispatchEvent(new CustomEvent('card-swing', { detail: { x: px_x, y: px_y } }));
+        }
+      }
+
+      // 动画鱼线起点的魔法微粒
+      if (ropeSpark1.current) {
+        const ang = t * -3.5;
+        ropeSpark1.current.position.x = ROPE_X_OFFSET + Math.cos(ang) * 0.08;
+        ropeSpark1.current.position.y = ROPE_Y_OFFSET + Math.sin(ang) * 0.08;
+        ropeSpark1.current.position.z = Math.cos(t * 2.0) * 0.04;
+      }
+      if (ropeSpark2.current) {
+        const ang = t * 4.5 + 2.0;
+        ropeSpark2.current.position.x = ROPE_X_OFFSET + Math.cos(ang) * 0.12;
+        ropeSpark2.current.position.y = ROPE_Y_OFFSET + Math.sin(ang) * 0.12;
+        ropeSpark2.current.position.z = Math.sin(t * 2.0) * 0.04;
+      }
     }
   });
 
@@ -680,89 +596,141 @@ function FrogTongueBand({ maxSpeed = 50, minSpeed = 0 }) {
 
   return (
     <>
-      {/* 锚点组 */}
       <group position={[startX, startY, 0]}>
-        {/* 蛙怪脑袋 — 从页面顶部探出 */}
-        <FrogHead position={[0, -0.4, 0]} dragged={!!dragged} hovered={hovered} />
+        {/* 慵懒钓鱼青蛙躺椅背景装饰 */}
+        <group
+          onClick={interactive ? resetCard : undefined}
+          onPointerOver={interactive ? () => { document.body.style.cursor = 'pointer'; } : undefined}
+          onPointerOut={interactive ? () => { document.body.style.cursor = 'auto'; } : undefined}
+        >
+          <FrogHead position={[-0.1, 0.8, -0.6]} dragged={!!dragged} hovered={hovered} />
+        </group>
 
-        <RigidBody ref={fixed} {...segmentProps} type="fixed" position={[0.1, -0.45, 0]} />
-        <RigidBody position={[0.5, 0, 0]} ref={j1} {...segmentProps}>
-          <BallCollider args={[0.1]} />
+        {/* 鱼竿竿尖固定锚点 */}
+        <RigidBody ref={fixed} {...segmentProps} type="fixed" position={[ROPE_X_OFFSET, ROPE_Y_OFFSET, 0]} />
+
+        {/* 鱼线起点处的魔法光球 */}
+        <group position={[ROPE_X_OFFSET, ROPE_Y_OFFSET, 0.1]}>
+          <mesh>
+            <sphereGeometry args={[0.015, 8, 8]} />
+            <meshBasicMaterial color="#fffbeb" />
+          </mesh>
+          <mesh>
+            <sphereGeometry args={[0.05, 12, 12]} />
+            <meshBasicMaterial color="#fcd34d" transparent opacity={0.65} />
+          </mesh>
+        </group>
+
+        {/* 绕鱼线起点飞舞的黄金魔法火花 */}
+        <mesh ref={ropeSpark1}>
+          <sphereGeometry args={[0.008, 6, 6]} />
+          <meshBasicMaterial color="#fcd34d" />
+        </mesh>
+        <mesh ref={ropeSpark2}>
+          <sphereGeometry args={[0.006, 6, 6]} />
+          <meshBasicMaterial color="#fef08a" />
+        </mesh>
+
+        {/* 鱼线物理节点 */}
+        <RigidBody position={[ROPE_X_OFFSET, -0.20, 0]} ref={j1} {...segmentProps}>
+          <BallCollider args={[0.08]} />
         </RigidBody>
-        <RigidBody position={[1, 0, 0]} ref={j2} {...segmentProps}>
-          <BallCollider args={[0.1]} />
+        <RigidBody position={[ROPE_X_OFFSET, -0.90, 0]} ref={j2} {...segmentProps}>
+          <BallCollider args={[0.08]} />
         </RigidBody>
-        <RigidBody position={[1.5, 0, 0]} ref={j3} {...segmentProps}>
-          <BallCollider args={[0.1]} />
+        <RigidBody position={[ROPE_X_OFFSET, -1.60, 0]} ref={j3} {...segmentProps}>
+          <BallCollider args={[0.08]} />
+          {/* 3D 黄金小鱼钩 — 挂载于鱼线末端 */}
+          <mesh position={[0, -0.06, 0.02]} rotation={[0, 0, 0.2]}>
+            <torusGeometry args={[0.065, 0.015, 8, 16, Math.PI * 1.5]} />
+            <meshPhysicalMaterial
+              color="#fcd34d"
+              metalness={0.9}
+              roughness={0.12}
+              clearcoat={1.0}
+            />
+          </mesh>
         </RigidBody>
 
-        {/* 卡片 */}
+        {/* 水色名片卡牌 */}
         <RigidBody
-          position={[2, 0, 0]}
+          position={[ROPE_X_OFFSET, -3.1, 0]}
           ref={card}
           {...segmentProps}
           type={dragged ? 'kinematicPosition' : 'dynamic'}
         >
-          <CuboidCollider args={[CARD_W / 2, (CARD_H + 0.6) / 2, 0.01]} />
+          {/* 名片碰撞盒 */}
+          <CuboidCollider args={[(CARD_W * CARD_VISUAL_SCALE) / 2, ((CARD_H + 0.12) * CARD_VISUAL_SCALE) / 2, 0.02]} />
 
-          {/* ── 吊头 — 独立缩放，不跟着正文卡片暴涨 ── */}
-          <group position={[0, CONNECTOR_Y, -0.04]} scale={CONNECTOR_SCALE}>
-            <CardConnector dragged={!!dragged} hovered={hovered} />
+          {/* ── 顶部挂接孔环 (Torus) ── */}
+          <group position={[0, CONNECTOR_JOINT_Y, 0.025]} scale={CONNECTOR_SCALE}>
+            <CardConnector />
           </group>
 
-          {/* ── 卡片主体 — scale 2.25 ── */}
+          {/* ── 名片主体 — scale 2.25 ── */}
           <group
-            scale={2.25}
+            scale={CARD_VISUAL_SCALE}
             position={[0, -CARD_H / 2, -0.05]}
-            onPointerOver={() => hover(true)}
-            onPointerOut={() => hover(false)}
-            onPointerUp={(e) => {
+            onPointerOver={interactive ? () => hover(true) : undefined}
+            onPointerOut={interactive ? () => hover(false) : undefined}
+            onPointerUp={interactive ? (e) => {
               e.target.releasePointerCapture?.(e.pointerId);
               drag(false);
-            }}
-            onPointerDown={(e) => {
+            } : undefined}
+            onPointerDown={interactive ? (e) => {
               e.target.setPointerCapture?.(e.pointerId);
               drag(
                 new THREE.Vector3()
                   .copy(e.point)
                   .sub(vecRef.current.copy(card.current.translation()))
               );
-            }}
+            } : undefined}
           >
-            {/* 厚度底板 */}
-            <mesh position={[0, 0, -CARD_BASE_THICKNESS / 2]}>
-              <boxGeometry args={[CARD_W + 0.04, CARD_H + 0.04, CARD_BASE_THICKNESS]} />
-              <meshPhysicalMaterial
-                color="#111033"
-                roughness={0.35}
-                metalness={0.08}
-                clearcoat={0.6}
-                clearcoatRoughness={0.2}
-              />
-            </mesh>
+            {/* 1. 后置立体金描边底板 (完美吻合玻璃卡片有机轮廓) */}
+            {cardWateryTex && (
+              <mesh position={[0, 0, -0.005]} scale={[1.035, 1.035, 1]}>
+                <planeGeometry args={[CARD_W, CARD_H]} />
+                <meshPhysicalMaterial
+                  map={cardWateryTex}
+                  color="#e7c77e"
+                  metalness={0.88}
+                  roughness={0.16}
+                  clearcoat={1.0}
+                  transparent
+                  alphaTest={0.1}
+                  side={THREE.DoubleSide}
+                />
+              </mesh>
+            )}
 
-            {/* 正面图片 — 略微前移 */}
-            <mesh position={[0, 0, 0.022]}>
-              <planeGeometry args={[CARD_W, CARD_H]} />
-              <meshPhysicalMaterial
-                map={cardTex}
-                map-anisotropy={16}
-                clearcoat={1}
-                clearcoatRoughness={0.1}
-                roughness={0.3}
-                metalness={0.05}
-                transparent
-                side={THREE.FrontSide}
-              />
-            </mesh>
+            {/* 2. 正面水色玻璃名片 — 具有水波纹理与折射感 */}
+            {cardWateryTex && (
+              <mesh position={[0, 0, 0.015]}>
+                <planeGeometry args={[CARD_W, CARD_H]} />
+                <meshPhysicalMaterial
+                  map={cardWateryTex}
+                  map-anisotropy={16}
+                  transparent
+                  alphaTest={0.1}
+                  roughness={0.15}
+                  metalness={0.05}
+                  clearcoat={1.0}
+                  clearcoatRoughness={0.08}
+                  side={THREE.DoubleSide}
+                />
+              </mesh>
+            )}
 
-            {/* 背面 — Explorer Profile，正面朝外旋转 180° */}
-            <mesh position={[0, 0, -0.022]} rotation={[0, Math.PI, 0]}>
+            {/* 3. 背面文字手札 (Explorer Profile) — 稍微移后 */}
+            <mesh position={[0, 0, -0.016]} rotation={[0, Math.PI, 0]}>
               <planeGeometry args={[CARD_W, CARD_H]} />
               <meshStandardMaterial
                 map={backTex}
-                roughness={0.5}
-                metalness={0.15}
+                alphaMap={cardWateryTex}
+                transparent={true}
+                alphaTest={0.1}
+                roughness={0.45}
+                metalness={0.12}
                 side={THREE.FrontSide}
               />
             </mesh>
@@ -770,20 +738,80 @@ function FrogTongueBand({ maxSpeed = 50, minSpeed = 0 }) {
         </RigidBody>
       </group>
 
-      {/* 舌头：从蛙嘴到吸盘舌尖 */}
+      {/* 鱼线：从鱼竿尖端垂落到鱼钩 */}
       <mesh ref={band}>
         <meshLineGeometry />
         <meshLineMaterial
-          color={tongueColor}
-          depthTest={false}
+          color="#fcd34d"
+          depthTest={true}
           resolution={[1000, 1000]}
-          useMap
-          map={tongueTex}
-          repeat={tongueRepeat}
-          lineWidth={tongueWidth}
+          lineWidth={0.035}
           transparent
+          opacity={0.85}
         />
       </mesh>
     </>
+  );
+}
+
+/* ─────────────────────────────────────────
+   物理容器封装
+───────────────────────────────────────── */
+function LanyardPhysics({ gravity, isMobile, interactive }) {
+  return (
+    <Suspense fallback={null}>
+      <Physics gravity={gravity} timeStep={1 / 60}>
+        <FrogTongueBand isMobile={isMobile} interactive={interactive} />
+      </Physics>
+    </Suspense>
+  );
+}
+
+export default function Lanyard({
+  position = [0, 0, 30],
+  gravity = [0, -32, 0], // 稍微降低重力让垂钓轻盈摆动
+  fov = 20,
+  transparent = true,
+  interactive = true,
+}) {
+  const [isMobile, setIsMobile] = useState(
+    () => typeof window !== 'undefined' && window.innerWidth < 768
+  );
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  if (isMobile) return null;
+
+  return (
+    <div className="lanyard-canvas-root">
+      <Canvas
+        style={{ pointerEvents: interactive ? 'auto' : 'none' }}
+        camera={{ position, fov }}
+        dpr={[1, 2]}
+        gl={{ alpha: transparent, antialias: true }}
+        onCreated={({ gl }) => {
+          gl.setClearColor(new THREE.Color(0x000000), 0);
+        }}
+        eventPrefix="client"
+      >
+        <ambientLight intensity={Math.PI * 0.65} />
+        <directionalLight position={[5, 10, 5]} intensity={1.5} color="#e0f2fe" />
+        <pointLight position={[-6, 5, 5]} intensity={0.9} color="#7dd3fc" />
+        <pointLight position={[0, -2, 8]} intensity={0.5} color="#e0f2fe" />
+
+        <Environment blur={0.75}>
+          <Lightformer intensity={2} color="white" position={[0, -1, 5]} rotation={[0, 0, Math.PI / 3]} scale={[100, 0.1, 1]} />
+          <Lightformer intensity={3} color="white" position={[-1, -1, 1]} rotation={[0, 0, Math.PI / 3]} scale={[100, 0.1, 1]} />
+          <Lightformer intensity={3} color="#38bdf8" position={[1, 1, 1]} rotation={[0, 0, Math.PI / 3]} scale={[100, 0.1, 1]} />
+          <Lightformer intensity={6} color="#0284c7" position={[-10, 0, 14]} rotation={[0, Math.PI / 2, Math.PI / 3]} scale={[100, 10, 1]} />
+        </Environment>
+
+        <LanyardPhysics gravity={gravity} isMobile={isMobile} interactive={interactive} />
+      </Canvas>
+    </div>
   );
 }

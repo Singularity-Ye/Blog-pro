@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import ForceGraph2D from 'react-force-graph-2d';
+import * as d3 from 'd3';
 import { normalizeGraph, filterGraphByLocal } from '../../utils/graphFilters';
 import './GraphView.css';
 
@@ -20,29 +21,39 @@ const THEME = {
   text: '#2c2820', textHighlight: '#1a1610',
 };
 
-export default function MiniGraph() {
+export default function MiniGraph({ graphData: propGraphData, currentSlug: propCurrentSlug, expandHref }) {
   const containerRef = useRef(null);
   const fgRef = useRef(null);
   const location = useLocation();
   const navigate = useNavigate();
-  const [graphData, setGraphData] = useState(null);
+  const [internalGraphData, setInternalGraphData] = useState(null);
   const [hoverNode, setHoverNode] = useState(null);
   const [dimensions, setDimensions] = useState({ width: 300, height: 300 });
   
   const highlightNodes = useRef(new Set());
   const highlightLinks = useRef(new Set());
 
+  const targetZoomRef = useRef(1.0);
+  const targetCenterRef = useRef({ x: 0, y: 0 });
+  const currentZoomRef = useRef(1.0);
+  const currentCenterRef = useRef({ x: 0, y: 0 });
+  const animFrameIdRef = useRef(null);
+
+  const graphData = propGraphData || internalGraphData;
+
   const currentSlug = useMemo(() => {
+    if (propCurrentSlug !== undefined) return propCurrentSlug;
     const match = location.pathname.match(/^\/note\/(.+)$/);
     return match ? decodeURIComponent(match[1]) : null;
-  }, [location]);
+  }, [location, propCurrentSlug]);
 
   useEffect(() => {
+    if (propGraphData) return;
     fetch('/graph.json')
       .then((response) => response.json())
-      .then(setGraphData)
+      .then(setInternalGraphData)
       .catch(console.error);
-  }, []);
+  }, [propGraphData]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -131,8 +142,11 @@ export default function MiniGraph() {
     ctx.fill();
     ctx.globalAlpha = 1;
     
-    const visible = globalScale > 1.2 || isSelf || isHighlight;
-    if (visible && (node.degree > 3 || isSelf)) {
+    const totalNodesCount = visibleGraphData?.nodes?.length || 0;
+    const shouldShowLabel = node.degree > 3 || isSelf || isHighlight || totalNodesCount < 20 || isHovered;
+    const visible = globalScale > 1.2 || isSelf || isHighlight || totalNodesCount < 20;
+    
+    if (visible && shouldShowLabel) {
       const fontSize = 11 / globalScale;
       ctx.font = `${isSelf ? '700' : '500'} ${fontSize}px Inter, "Segoe UI", sans-serif`;
       ctx.textAlign = 'center';
@@ -142,7 +156,7 @@ export default function MiniGraph() {
       ctx.fillText(node.title, node.x, node.y + radius + 4 / globalScale);
       ctx.globalAlpha = 1;
     }
-  }, [hoverNode, currentSlug]);
+  }, [hoverNode, currentSlug, visibleGraphData]);
 
   const paintLink = useCallback((link, ctx, globalScale) => {
     const isHighlight = highlightLinks.current.has(link);
@@ -182,6 +196,140 @@ export default function MiniGraph() {
       el.d3ReheatSimulation();
     }
   }, [visibleGraphData]);
+  
+  // ── 仿 Obsidian/Quartz 流畅动画缩放 (rAF Lerp 惯性阻尼版本) ──
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    let canvasListener = null;
+
+    const tick = () => {
+      if (!fgRef.current) {
+        animFrameIdRef.current = null;
+        return;
+      }
+
+      const targetK = targetZoomRef.current;
+      const targetC = targetCenterRef.current;
+      const currK = currentZoomRef.current;
+      const currC = currentCenterRef.current;
+
+      const lerpFactor = 0.15; // 阻尼系数，0.15 最为丝滑
+
+      const nextK = currK + (targetK - currK) * lerpFactor;
+      const nextCx = currC.x + (targetC.x - currC.x) * lerpFactor;
+      const nextCy = currC.y + (targetC.y - currC.y) * lerpFactor;
+
+      currentZoomRef.current = nextK;
+      currentCenterRef.current = { x: nextCx, y: nextCy };
+
+      fgRef.current.zoom(nextK);
+      fgRef.current.centerAt(nextCx, nextCy);
+
+      const diffK = Math.abs(targetK - nextK);
+      const diffC = Math.sqrt((targetC.x - nextCx) ** 2 + (targetC.y - nextCy) ** 2);
+
+      if (diffK < 0.001 && diffC < 0.01) {
+        fgRef.current.zoom(targetK);
+        fgRef.current.centerAt(targetC.x, targetC.y);
+        currentZoomRef.current = targetK;
+        currentCenterRef.current = { ...targetC };
+        animFrameIdRef.current = null;
+      } else {
+        animFrameIdRef.current = requestAnimationFrame(tick);
+      }
+    };
+
+    const startAnimation = () => {
+      if (!animFrameIdRef.current) {
+        animFrameIdRef.current = requestAnimationFrame(tick);
+      }
+    };
+
+    const bindToCanvas = (canvasElement) => {
+      if (!canvasElement || canvasListener) return;
+
+      // 初始化当前和目标位置
+      targetZoomRef.current = fgRef.current.zoom();
+      const initCenter = fgRef.current.centerAt();
+      targetCenterRef.current = { x: initCenter.x || 0, y: initCenter.y || 0 };
+      currentZoomRef.current = targetZoomRef.current;
+      currentCenterRef.current = { ...targetCenterRef.current };
+
+      const handleWheel = (e) => {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+
+        if (!fgRef.current) return;
+
+        // 手动拖拽平移后同步
+        if (!animFrameIdRef.current) {
+          currentZoomRef.current = fgRef.current.zoom();
+          const center = fgRef.current.centerAt();
+          currentCenterRef.current = { x: center.x || 0, y: center.y || 0 };
+          targetZoomRef.current = currentZoomRef.current;
+          targetCenterRef.current = { ...currentCenterRef.current };
+        }
+
+        const zoomFactor = 1.3;
+        const minZoom = 0.5; // 对应 MiniGraph 的限制
+        const maxZoom = 8;
+
+        let K_new = e.deltaY < 0 ? targetZoomRef.current * zoomFactor : targetZoomRef.current / zoomFactor;
+        K_new = Math.max(minZoom, Math.min(maxZoom, K_new));
+
+        if (K_new === targetZoomRef.current) return;
+
+        const rect = canvasElement.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+        const width = rect.width;
+        const height = rect.height;
+
+        const K_old = targetZoomRef.current;
+        const centerX = targetCenterRef.current.x;
+        const centerY = targetCenterRef.current.y;
+
+        const centerX_new = centerX + (mouseX - width / 2) * (1 / K_old - 1 / K_new);
+        const centerY_new = centerY + (mouseY - height / 2) * (1 / K_old - 1 / K_new);
+
+        targetZoomRef.current = K_new;
+        targetCenterRef.current = { x: centerX_new, y: centerY_new };
+
+        startAnimation();
+      };
+
+      canvasElement.addEventListener('wheel', handleWheel, { passive: false });
+      canvasListener = () => {
+        canvasElement.removeEventListener('wheel', handleWheel);
+      };
+    };
+
+    // 1. 直连 canvas
+    const canvas = container.querySelector('canvas');
+    if (canvas) {
+      bindToCanvas(canvas);
+    }
+
+    // 2. 观察者模式兜底动态挂载的 canvas
+    const observer = new MutationObserver(() => {
+      const c = container.querySelector('canvas');
+      if (c) {
+        bindToCanvas(c);
+      }
+    });
+
+    observer.observe(container, { childList: true, subtree: true });
+
+    return () => {
+      observer.disconnect();
+      if (canvasListener) canvasListener();
+      if (animFrameIdRef.current) {
+        cancelAnimationFrame(animFrameIdRef.current);
+      }
+    };
+  }, [graphData]);
 
   const paintPointerArea = useCallback((node, color, ctx, globalScale) => {
     const radius = Math.max(1, Math.min(4, 1 + Math.sqrt(node.degree) * 0.5)) + 6 / globalScale;
@@ -196,7 +344,7 @@ export default function MiniGraph() {
     <div className={`mini-graph-container ${currentSlug ? 'publishLocal' : ''}`} ref={containerRef}>
       <span className="mini-graph-label">关系图谱</span>
       <Link 
-        to={currentSlug ? `/graph?local=${encodeURIComponent(currentSlug)}` : '/graph'} 
+        to={expandHref || (currentSlug ? `/graph?local=${encodeURIComponent(currentSlug)}` : '/graph')} 
         state={{ backgroundLocation: location }}
         className="mini-graph-expand"
         title="在全屏查看图谱"

@@ -195,17 +195,46 @@ const TagChip = styled.span`
 const BackButton = styled.button`
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.6rem;
   width: fit-content;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  font-size: 0.85rem;
-  color: rgba(231, 199, 126, 0.74);
-  margin-bottom: 1.5rem;
+  padding: 0.5rem 1.2rem;
+  border: 1px solid rgba(231, 199, 126, 0.3);
+  border-radius: 20px;
+  background: rgba(9, 19, 17, 0.6);
+  backdrop-filter: blur(4px);
+  font-size: 0.8rem;
+  color: #fff7df;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  margin-bottom: 1.8rem;
   cursor: pointer;
-  transition: color 0.2s;
-  &:hover { color: #fff7df; }
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.2),
+    inset 0 0 8px rgba(231, 199, 126, 0.05);
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  svg {
+    transition: transform 0.3s ease;
+    stroke: #e7c77e;
+  }
+
+  &:hover {
+    color: #fff;
+    background: rgba(231, 199, 126, 0.12);
+    border-color: #e7c77e;
+    box-shadow: 
+      0 6px 16px rgba(231, 199, 126, 0.15),
+      inset 0 0 12px rgba(231, 199, 126, 0.1);
+    transform: translateY(-1px);
+
+    svg {
+      transform: translateX(-4px);
+    }
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
 `;
 
 // Markdown 内容样式
@@ -499,6 +528,20 @@ export default function Note() {
 
   const decodedSlug = useMemo(() => decodeURIComponent(slug || ''), [slug]);
 
+  const handleBackClick = () => {
+    const fromBook = location.state?.fromBook;
+    const activeTab = location.state?.activeTab;
+    if (fromBook) {
+      navigate('/blog', { state: { openBook: fromBook, activeTab } });
+    } else {
+      if (window.history.length > 1) {
+        navigate(-1);
+      } else {
+        navigate('/blog');
+      }
+    }
+  };
+
   // 加载图谱数据
   useEffect(() => {
     fetch('/graph.json')
@@ -607,7 +650,13 @@ export default function Note() {
     return (
       <NoteLayout>
         <NoteContent>
-          <BackButton type="button" onClick={() => navigate(-1)}>← 返回上一页</BackButton>
+          <BackButton type="button" onClick={handleBackClick}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+              <line x1="19" y1="12" x2="5" y2="12"></line>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            返回上一页
+          </BackButton>
           <div style={{ color: 'rgba(224,231,255,0.5)', padding: '4rem 0', textAlign: 'center' }}>
             {error}
           </div>
@@ -619,7 +668,13 @@ export default function Note() {
   return (
     <NoteLayout>
       <NoteContent>
-        <BackButton type="button" onClick={() => navigate(-1)}>← 返回上一页</BackButton>
+        <BackButton type="button" onClick={handleBackClick}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          返回上一页
+        </BackButton>
         <NoteTitle>{title}</NoteTitle>
         <NoteMeta>笔记路径: {decodedSlug}</NoteMeta>
         {parsedNote.properties.length > 0 && (
@@ -678,6 +733,38 @@ export default function Note() {
                   return <Link to={href} {...props}>{children}</Link>;
                 }
                 return <a href={href} target="_blank" rel="noopener noreferrer" {...props}>{children}</a>;
+              },
+              img: ({src, alt, ...props}) => {
+                let width = undefined;
+                let cleanAlt = alt || '';
+                if (cleanAlt.includes('|')) {
+                  const parts = cleanAlt.split('|');
+                  cleanAlt = parts[0];
+                  const sizePart = parts[1];
+                  if (/^\d+$/.test(sizePart)) {
+                    width = sizePart + 'px';
+                  } else if (sizePart.includes('x')) {
+                    const [w] = sizePart.split('x');
+                    width = w + 'px';
+                  }
+                }
+                return (
+                  <img
+                    src={src}
+                    alt={cleanAlt}
+                    style={{
+                      width: width || '100%',
+                      maxWidth: '100%',
+                      height: 'auto',
+                      display: 'block',
+                      margin: '1.8rem auto',
+                      borderRadius: '8px',
+                      boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
+                      border: '1px solid rgba(231, 199, 126, 0.16)'
+                    }}
+                    {...props}
+                  />
+                );
               },
             }}
           >

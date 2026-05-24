@@ -224,7 +224,8 @@ function extractTags(content, frontmatter = parseFrontmatter(content)) {
 
 function extractWikilinks(content) {
   const links = [];
-  const regex = /\[\[([^\]|#^]+)(?:[|#^][^\]]*)?\]\]/g;
+  // Use lookbehind to avoid matching ![[image.png]]
+  const regex = /(?<!\!)\[\[([^\]|#^]+)(?:[|#^][^\]]*)?\]\]/g;
   let match;
 
   while ((match = regex.exec(content)) !== null) {
@@ -310,13 +311,119 @@ function resolveWikilink(target, sourceFile, index) {
   return chooseBestCandidate(candidates, sourceFile);
 }
 
-function copyNote(full, slug) {
-  const target = path.join(NOTES_OUT, ...slug.split('/')) + '.md';
-  ensureDir(path.dirname(target));
-  fs.copyFileSync(full, target);
+const IMAGE_EXTENSIONS = new Set(['.png', '.jpg', '.jpeg', '.gif', '.svg', '.webp']);
+
+function walkImages(dir, base = '') {
+  const results = [];
+  if (!fs.existsSync(dir)) return results;
+  try {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (entry.name.startsWith('.') || entry.name === 'node_modules' || entry.name === '.git' || entry.name === '.obsidian') continue;
+
+      const full = path.join(dir, entry.name);
+      const rel = base ? `${base}/${entry.name}` : entry.name;
+
+      if (entry.isDirectory()) {
+        results.push(...walkImages(full, rel));
+      } else if (entry.isFile()) {
+        const ext = path.extname(entry.name).toLowerCase();
+        if (IMAGE_EXTENSIONS.has(ext)) {
+          results.push({ full, rel: normalizeRelPath(rel), name: entry.name });
+        }
+      }
+    }
+  } catch (e) {
+    console.error(`Error walking images in ${dir}:`, e);
+  }
+  return results;
+}
+
+function resolveImage(refPath, sourceFile, imageList) {
+  const cleanRef = normalizeRelPath(refPath.split('|')[0].trim()).toLowerCase();
+  
+  // 1. Try to find an image whose relative path (from vault) ends with cleanRef or is exactly cleanRef
+  let candidates = imageList.filter(img => 
+    img.rel.toLowerCase() === cleanRef || 
+    img.rel.toLowerCase().endsWith('/' + cleanRef)
+  );
+
+  // 2. If not found, try to match by filename/basename only
+  if (candidates.length === 0 && !cleanRef.includes('/')) {
+    candidates = imageList.filter(img => img.name.toLowerCase() === cleanRef);
+  }
+
+  // 3. If still not found, try to resolve relative to sourceFile's folder
+  if (candidates.length === 0) {
+    const noteDir = path.dirname(sourceFile.full);
+    const absoluteImgPath = path.resolve(noteDir, refPath.split('|')[0].trim());
+    if (fs.existsSync(absoluteImgPath)) {
+      const normalizedAbs = path.normalize(absoluteImgPath);
+      const found = imageList.find(img => path.normalize(img.full) === normalizedAbs);
+      if (found) return found;
+    }
+  }
+
+  if (candidates.length === 0) {
+    return null;
+  }
+
+  // Choose the best candidate (same directory or collection first)
+  const sourceCollectionRoot = sourceFile.collection.root.toLowerCase();
+  const sameCollection = candidates.filter(img => img.rel.toLowerCase().startsWith(sourceCollectionRoot + '/'));
+  if (sameCollection.length > 0) {
+    return sameCollection[0];
+  }
+
+  return candidates[0];
+}
+
+function copyAttachment(srcFull, destRel) {
+  const destFull = path.join(PUBLIC_DIR, 'notes', 'attachments', ...destRel.split('/'));
+  ensureDir(path.dirname(destFull));
+  fs.copyFileSync(srcFull, destFull);
+}
+
+function processMarkdownImages(content, fileRecord, imageList) {
+  let newContent = content;
+
+  // 1. Process Obsidian-style image links: ![[image.png]] or ![[image.png|width]]
+  const obsidianImgRegex = /!\[\[([^\]|#]+)(?:\|([^\]]*))?\]\]/g;
+  newContent = newContent.replace(obsidianImgRegex, (match, refPath, widthPart) => {
+    const resolved = resolveImage(refPath, fileRecord, imageList);
+    if (resolved) {
+      copyAttachment(resolved.full, resolved.rel);
+      const destUrl = `/notes/attachments/${resolved.rel}`;
+      const altText = widthPart ? `${path.basename(refPath)}|${widthPart.trim()}` : path.basename(refPath);
+      return `![${altText}](${destUrl})`;
+    } else {
+      console.warn(`[Image Sync] Cannot resolve Obsidian image: "${refPath}" in "${fileRecord.slug}"`);
+      return `![图片未找到: ${refPath}](#)`;
+    }
+  });
+
+  // 2. Process standard markdown image links: ![alt](url)
+  const standardImgRegex = /!\[([^\]]*)\]\(([^)]+)\)/g;
+  newContent = newContent.replace(standardImgRegex, (match, altText, imgUrl) => {
+    if (imgUrl.startsWith('http://') || imgUrl.startsWith('https://') || imgUrl.startsWith('/')) {
+      return match;
+    }
+    const resolved = resolveImage(imgUrl, fileRecord, imageList);
+    if (resolved) {
+      copyAttachment(resolved.full, resolved.rel);
+      const destUrl = `/notes/attachments/${resolved.rel}`;
+      return `![${altText}](${destUrl})`;
+    } else {
+      console.warn(`[Image Sync] Cannot resolve standard image: "${imgUrl}" in "${fileRecord.slug}"`);
+      return `![图片未找到: ${imgUrl}](#)`;
+    }
+  });
+
+  return newContent;
 }
 
 console.log(`Scanning selected Obsidian roots: ${vaultPath}`);
+const allImages = walkImages(vaultPath);
+console.log(`Scanned ${allImages.length} image attachments in vault.`);
 
 if (!fs.existsSync(vaultPath)) {
   console.error(`Vault path does not exist: ${vaultPath}`);
@@ -423,8 +530,11 @@ for (const file of fileRecords) {
   }
 }
 
-for (const file of files) {
-  copyNote(file.full, file.slug);
+for (const file of fileRecords) {
+  const processedContent = processMarkdownImages(file.content, file, allImages);
+  const targetPath = path.join(NOTES_OUT, ...file.slug.split('/')) + '.md';
+  ensureDir(path.dirname(targetPath));
+  fs.writeFileSync(targetPath, processedContent, 'utf-8');
 }
 
 const wikilinkReport = {

@@ -8,7 +8,9 @@ import exteriorSkyBg from '../assets/images/blog/exterior/exterior-sky-bg.png';
 import exteriorHouseMain from '../assets/images/blog/exterior/exterior-house-main.png';
 import exteriorPlatformForeground from '../assets/images/blog/exterior/exterior-platform-foreground.png';
 import exteriorFrog from '../assets/images/blog/exterior/frogg.png';
-import notesSource from '../assets/images/blog/proto/notes/source.png';
+import exteriorFrogGuide from '../assets/images/blog/exterior/frog.png';
+import exteriorFrogLantern from '../assets/images/blog/exterior/froggg.png';
+import notesSource from '../assets/images/blog/proto/notes/notes001.png';
 import notesStack from '../assets/images/blog/proto/notes/stack.png';
 import mapbookSource from '../assets/images/blog/proto/mapbook/source.png';
 
@@ -26,6 +28,8 @@ export const BLOG_ASSETS = {
     houseMain: exteriorHouseMain,
     platformForeground: exteriorPlatformForeground,
     frog: exteriorFrog,
+    frogGuide: exteriorFrogGuide,
+    frogLantern: exteriorFrogLantern,
   },
   proto: {
     notes: {

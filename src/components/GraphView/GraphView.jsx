@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import ForceGraph2D from 'react-force-graph-2d';
+import * as d3 from 'd3';
 import {
   filterGraphByCollection,
   filterGraphByLocal,
@@ -53,6 +54,12 @@ export default function GraphView({ modal = false, onClose }) {
   
   const highlightNodes = useRef(new Set());
   const highlightLinks = useRef(new Set());
+
+  const targetZoomRef = useRef(1.0);
+  const targetCenterRef = useRef({ x: 0, y: 0 });
+  const currentZoomRef = useRef(1.0);
+  const currentCenterRef = useRef({ x: 0, y: 0 });
+  const animFrameIdRef = useRef(null);
 
   useEffect(() => {
     fetch('/graph.json')
@@ -192,8 +199,11 @@ export default function GraphView({ modal = false, onClose }) {
     ctx.fill();
     ctx.globalAlpha = 1;
     
-    const visible = globalScale > 0.8 || isSelf || isHighlight || (visibleGraphData?.nodes.length < 30);
-    if (visible && (node.degree > 3 || localFilter)) {
+    const totalNodesCount = visibleGraphData?.nodes?.length || 0;
+    const shouldShowLabel = node.degree > 3 || localFilter || isSelf || isHighlight || totalNodesCount < 30 || isHovered;
+    const visible = globalScale > 0.8 || isSelf || isHighlight || totalNodesCount < 30;
+    
+    if (visible && shouldShowLabel) {
       const fontSize = 12 / globalScale;
       ctx.font = `${isSelf ? '700' : '500'} ${fontSize}px Inter, "Segoe UI", sans-serif`;
       ctx.textAlign = 'center';
@@ -243,6 +253,140 @@ export default function GraphView({ modal = false, onClose }) {
       el.d3ReheatSimulation();
     }
   }, [visibleGraphData]);
+  
+  // ── 仿 Obsidian/Quartz 流畅动画缩放 (rAF Lerp 惯性阻尼版本) ──
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    let canvasListener = null;
+
+    const tick = () => {
+      if (!fgRef.current) {
+        animFrameIdRef.current = null;
+        return;
+      }
+
+      const targetK = targetZoomRef.current;
+      const targetC = targetCenterRef.current;
+      const currK = currentZoomRef.current;
+      const currC = currentCenterRef.current;
+
+      const lerpFactor = 0.15; // 阻尼系数，0.15 最为丝滑
+
+      const nextK = currK + (targetK - currK) * lerpFactor;
+      const nextCx = currC.x + (targetC.x - currC.x) * lerpFactor;
+      const nextCy = currC.y + (targetC.y - currC.y) * lerpFactor;
+
+      currentZoomRef.current = nextK;
+      currentCenterRef.current = { x: nextCx, y: nextCy };
+
+      fgRef.current.zoom(nextK);
+      fgRef.current.centerAt(nextCx, nextCy);
+
+      const diffK = Math.abs(targetK - nextK);
+      const diffC = Math.sqrt((targetC.x - nextCx) ** 2 + (targetC.y - nextCy) ** 2);
+
+      if (diffK < 0.001 && diffC < 0.01) {
+        fgRef.current.zoom(targetK);
+        fgRef.current.centerAt(targetC.x, targetC.y);
+        currentZoomRef.current = targetK;
+        currentCenterRef.current = { ...targetC };
+        animFrameIdRef.current = null;
+      } else {
+        animFrameIdRef.current = requestAnimationFrame(tick);
+      }
+    };
+
+    const startAnimation = () => {
+      if (!animFrameIdRef.current) {
+        animFrameIdRef.current = requestAnimationFrame(tick);
+      }
+    };
+
+    const bindToCanvas = (canvasElement) => {
+      if (!canvasElement || canvasListener) return;
+
+      // 初始化当前和目标位置
+      targetZoomRef.current = fgRef.current.zoom();
+      const initCenter = fgRef.current.centerAt();
+      targetCenterRef.current = { x: initCenter.x || 0, y: initCenter.y || 0 };
+      currentZoomRef.current = targetZoomRef.current;
+      currentCenterRef.current = { ...targetCenterRef.current };
+
+      const handleWheel = (e) => {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+
+        if (!fgRef.current) return;
+
+        // 手动拖拽平移后同步
+        if (!animFrameIdRef.current) {
+          currentZoomRef.current = fgRef.current.zoom();
+          const center = fgRef.current.centerAt();
+          currentCenterRef.current = { x: center.x || 0, y: center.y || 0 };
+          targetZoomRef.current = currentZoomRef.current;
+          targetCenterRef.current = { ...currentCenterRef.current };
+        }
+
+        const zoomFactor = 1.3;
+        const minZoom = 0.2;
+        const maxZoom = 8;
+
+        let K_new = e.deltaY < 0 ? targetZoomRef.current * zoomFactor : targetZoomRef.current / zoomFactor;
+        K_new = Math.max(minZoom, Math.min(maxZoom, K_new));
+
+        if (K_new === targetZoomRef.current) return;
+
+        const rect = canvasElement.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+        const width = rect.width;
+        const height = rect.height;
+
+        const K_old = targetZoomRef.current;
+        const centerX = targetCenterRef.current.x;
+        const centerY = targetCenterRef.current.y;
+
+        const centerX_new = centerX + (mouseX - width / 2) * (1 / K_old - 1 / K_new);
+        const centerY_new = centerY + (mouseY - height / 2) * (1 / K_old - 1 / K_new);
+
+        targetZoomRef.current = K_new;
+        targetCenterRef.current = { x: centerX_new, y: centerY_new };
+
+        startAnimation();
+      };
+
+      canvasElement.addEventListener('wheel', handleWheel, { passive: false });
+      canvasListener = () => {
+        canvasElement.removeEventListener('wheel', handleWheel);
+      };
+    };
+
+    // 1. 直连 canvas
+    const canvas = container.querySelector('canvas');
+    if (canvas) {
+      bindToCanvas(canvas);
+    }
+
+    // 2. 观察者模式兜底动态挂载的 canvas
+    const observer = new MutationObserver(() => {
+      const c = container.querySelector('canvas');
+      if (c) {
+        bindToCanvas(c);
+      }
+    });
+
+    observer.observe(container, { childList: true, subtree: true });
+
+    return () => {
+      observer.disconnect();
+      if (canvasListener) canvasListener();
+      if (animFrameIdRef.current) {
+        cancelAnimationFrame(animFrameIdRef.current);
+      }
+    };
+  }, [graphData]);
 
   const paintPointerArea = useCallback((node, color, ctx, globalScale) => {
     const radius = getRadius(node.degree, !!localFilter) + 6 / globalScale;
