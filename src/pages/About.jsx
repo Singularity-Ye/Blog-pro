@@ -110,27 +110,33 @@ const SPELL_SCHOOLS = [
 const CHRONOLOGY = [
   {
     year: '2021',
-    title: '觉醒之光 (Awakening)',
-    desc: '与代码魔法签订最初的契约。系统修习 HTML/CSS/JS 符文，掌握了人生的第一颗智慧光点。',
-    icon: '🔮'
+    title: '混沌泥巴期 (Mud-Playing Era)',
+    desc: '在高中秘境中与数理化做无谓挣扎。代码是什么？当时唯一懂的“指令”大概是在《我的世界》里用红石火把建一扇发光的双开铁门。',
+    icon: '🪵'
   },
   {
     year: '2022',
-    title: '元素操控 (Mastery)',
-    desc: '踏入 React 组件工坊。在复杂的全局状态与重新渲染中，凝练了组件封装和单向流状态秘术。',
-    icon: '🧪'
+    title: '摸鱼小法师 (High School Fishing)',
+    desc: '在课本堆成的小山后面偷偷构思一些奇妙想法，魔力值基本为零。自学了极为简陋的 HTML 网页，以为只要写出一个会弹窗的 button 就已经掌握了互联网的核心科技。',
+    icon: '🎣'
   },
   {
     year: '2023',
-    title: '三维幻镜 (Dimension)',
-    desc: '跨足 WebGL 与三维幻镜构建领域。利用 React Three Fiber 将 3D 渲染和拖拽物理算法引入博客屋。',
-    icon: '🧭'
+    title: '高考传送门与野蛮生长 (Post-Exam Wildness)',
+    desc: '度过备考期，在考后的超长假期里开启报复性敲字生活。虽然写出的代码十行有九行在报错，但依然乐此不疲，彻底开启了代码魔法之旅。',
+    icon: '🐎'
   },
   {
     year: '2024',
-    title: '契约共生 (Symbiosis)',
-    desc: '在全栈工程与 AI 大模型共生领域深耕。完成了智能炼金聊天系统并开发了本地 Obsidian 发布网关。',
-    icon: '📜'
+    title: '踏入魔法学院 (Freshman\'s Awakening)',
+    desc: '正式成为大一新生，系统性地接触前端现代法术。在 React 和复杂的生命周期中反复被虐，但成功在这个时期迈出了构建自己“法术系统”的第一步。',
+    icon: '🏫'
+  },
+  {
+    year: '2025-2026',
+    title: '松果屋筑梦与 ESLint 劫数 (The Webweaver)',
+    desc: '大二在读中。成功搭建了“松果屋”个人博客并融入 3D 挂绳卡片。在线上部署时经历了被 ESLint 警告阻拦的惨痛教训，终在智能协同下拔除封印。',
+    icon: '🧙‍♂️'
   }
 ];
 
