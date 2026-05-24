@@ -613,14 +613,29 @@ function TransparentImage({ src, avatarSrc = avatarImage, alt, className, style 
       
       // 4. 绘制文字
       ctx.fillStyle = 'rgba(21, 80, 65, 0.88)';
-      ctx.font = `bold ${W * 0.038}px "Inter", "SF Pro", "Microsoft YaHei", sans-serif`;
       ctx.textAlign = 'left';
       ctx.textBaseline = 'middle';
       
       const textX = W * 0.334;
-      ctx.fillText('松果屋屋主 (Songguo)', textX, H * 0.515);
-      ctx.fillText('yhx06@outlook.com', textX, H * 0.630);
-      ctx.fillText('松果屋 · 探索与构建', textX, H * 0.745);
+      const lines = [
+        '松果屋屋主（Singularity_Ye）',
+        'y2915872819@gmail.com',
+        '松果屋 · 探索与构建'
+      ];
+
+      // 动态调整字体大小以防止溢出槽线
+      let fontSize = W * 0.038;
+      const maxTextWidth = W * 0.48; // 可绘制的最大宽度，留出安全边距
+      ctx.font = `bold ${fontSize}px "Inter", "SF Pro", "Microsoft YaHei", sans-serif`;
+      while (lines.some(line => ctx.measureText(line).width > maxTextWidth) && fontSize > W * 0.02) {
+        fontSize -= 0.5;
+        ctx.font = `bold ${fontSize}px "Inter", "SF Pro", "Microsoft YaHei", sans-serif`;
+      }
+
+      // 写入信息槽
+      ctx.fillText(lines[0], textX, H * 0.515);
+      ctx.fillText(lines[1], textX, H * 0.630);
+      ctx.fillText(lines[2], textX, H * 0.745);
     };
     
     bgImg.src = src;
