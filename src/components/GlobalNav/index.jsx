@@ -1,9 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const RADIUS = 120; // 环形展开的半径
+
+const getItemOffset = (index) => {
+  const angle = 80 + index * 22;
+  const rad = (angle * Math.PI) / 180;
+
+  return {
+    x: RADIUS * Math.cos(rad),
+    y: -RADIUS * Math.sin(rad),
+  };
+};
 
 const NAV_ITEMS = [
   {
@@ -152,7 +163,7 @@ const MainButton = styled(motion.button)`
 
 const ItemWrapper = styled(motion.div)`
   position: absolute;
-  z-index: 9995;
+  z-index: ${props => props.$hovered ? 10005 : 9995};
   width: 44px;
   height: 44px;
   display: flex;
@@ -337,10 +348,10 @@ const Swatch = styled(motion.div)`
 `;
 
 const Tooltip = styled(motion.div)`
-  position: absolute;
-  right: calc(100% + 10px);
-  top: 50%;
-  transform: translateY(-50%);
+  position: fixed;
+  left: ${({ $left }) => `${$left}px`};
+  top: ${({ $top }) => `${$top}px`};
+  transform: translate(-100%, -50%);
   background: rgba(10, 5, 25, 0.88);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
@@ -356,7 +367,7 @@ const Tooltip = styled(motion.div)`
     0 4px 16px rgba(0, 0, 0, 0.45),
     0 0 8px rgba(167, 139, 250, 0.15);
   pointer-events: none;
-  z-index: 10000;
+  z-index: 10020;
 `;
 
 const MainTooltip = styled(motion.div)`
@@ -397,10 +408,7 @@ const itemVariants = {
   },
   visible: (i) => {
     // 角度从 80° 到 190° 分布 (6 个项之间有 5 个间隔，每个间隔 22°)
-    const angle = 80 + i * 22;
-    const rad = (angle * Math.PI) / 180;
-    const x = RADIUS * Math.cos(rad);
-    const y = -RADIUS * Math.sin(rad); // negative because CSS y-axis increases downwards
+    const { x, y } = getItemOffset(i);
     return {
       opacity: 1,
       scale: 1,
@@ -423,6 +431,8 @@ function GlobalNav() {
   const [isOpen, setIsOpen] = useState(false);
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [mainHovered, setMainHovered] = useState(false);
+  const [tooltipPosition, setTooltipPosition] = useState(null);
+  const itemRefs = useRef([]);
 
   // 路由改变时自动关闭菜单
   useEffect(() => {
@@ -433,6 +443,21 @@ function GlobalNav() {
   const handleItemClick = (href) => {
     navigate(href);
     setIsOpen(false);
+  };
+  const handleItemMouseEnter = (index) => {
+    const rect = itemRefs.current[index]?.getBoundingClientRect();
+    setHoveredIndex(index);
+
+    if (rect) {
+      setTooltipPosition({
+        left: rect.left - 10,
+        top: rect.top + rect.height / 2,
+      });
+    }
+  };
+  const handleItemMouseLeave = () => {
+    setHoveredIndex(null);
+    setTooltipPosition(null);
   };
 
   const isHome = location.pathname === '/';
@@ -464,35 +489,25 @@ function GlobalNav() {
             {NAV_ITEMS.map((item, index) => (
               <ItemWrapper
                 key={item.key}
+                ref={(node) => {
+                  itemRefs.current[index] = node;
+                }}
                 custom={index}
                 variants={itemVariants}
                 initial="hidden"
                 animate={isOpen ? 'visible' : 'hidden'}
+                $hovered={hoveredIndex === index}
               >
                 <Swatch
                   $biomeKey={item.key}
                   onClick={() => handleItemClick(item.href)}
-                  onMouseEnter={() => setHoveredIndex(index)}
-                  onMouseLeave={() => setHoveredIndex(null)}
+                  onMouseEnter={() => handleItemMouseEnter(index)}
+                  onMouseLeave={handleItemMouseLeave}
                   whileHover={{ scale: 1.15 }}
                   whileTap={{ scale: 0.95 }}
                 >
                   {item.icon}
                 </Swatch>
-
-                {/* 悬浮文字气泡 */}
-                <AnimatePresence>
-                  {hoveredIndex === index && (
-                    <Tooltip
-                      initial={{ opacity: 0, x: 8, y: '-50%' }}
-                      animate={{ opacity: 1, x: 0, y: '-50%' }}
-                      exit={{ opacity: 0, x: 8, y: '-50%' }}
-                      transition={{ duration: 0.18 }}
-                    >
-                      {item.label}
-                    </Tooltip>
-                  )}
-                </AnimatePresence>
               </ItemWrapper>
             ))}
 
@@ -531,6 +546,24 @@ function GlobalNav() {
               )}
             </AnimatePresence>
           </Container>
+
+          {createPortal(
+            <AnimatePresence>
+              {hoveredIndex !== null && tooltipPosition && (
+                <Tooltip
+                  $left={tooltipPosition.left}
+                  $top={tooltipPosition.top}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.18 }}
+                >
+                  {NAV_ITEMS[hoveredIndex].label}
+                </Tooltip>
+              )}
+            </AnimatePresence>,
+            document.body
+          )}
         </>
       )}
     </AnimatePresence>
