@@ -139,45 +139,6 @@ function getBackTexture() {
 }
 
 /* ─────────────────────────────────────────
-   白色背景过滤与透明贴图生成工具 (支持羽化)
-───────────────────────────────────────── */
-function loadTransparentTexture(imgSrc, threshold = 45, feather = 40, callback) {
-  const img = new Image();
-  img.src = imgSrc;
-  img.crossOrigin = 'anonymous';
-  img.onload = () => {
-    const canvas = document.createElement('canvas');
-    canvas.width = img.width;
-    canvas.height = img.height;
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(img, 0, 0);
-    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const data = imgData.data;
-
-    // 1. 利用颜色距离做抠图，将实白背景滤除为透明，并进行平滑羽化边缘
-    for (let i = 0; i < data.length; i += 4) {
-      const r = data[i];
-      const g = data[i + 1];
-      const b = data[i + 2];
-
-      const dist = Math.sqrt((255 - r) ** 2 + (255 - g) ** 2 + (255 - b) ** 2);
-      if (dist < threshold) {
-        data[i + 3] = 0;
-      } else if (dist < threshold + feather) {
-        const factor = (dist - threshold) / feather;
-        data[i + 3] = Math.round(data[i + 3] * factor);
-      }
-    }
-    ctx.putImageData(imgData, 0, 0);
-
-    const tex = new THREE.CanvasTexture(canvas);
-    tex.colorSpace = THREE.SRGBColorSpace;
-    tex.minFilter = THREE.LinearFilter;
-    callback(tex);
-  };
-}
-
-/* ─────────────────────────────────────────
    水色玻璃卡牌贴图生成器 — 动态加载背景与头像，处理抠图并在画布上绘制可配置信息
 ───────────────────────────────────────── */
 function loadCardFrontTexture(bgImgSrc, avatarImgSrc, callback) {
@@ -401,6 +362,21 @@ function FrogHead({ position = [0, 0, 0], dragged = false, hovered = false }) {
   );
 }
 
+const CARD_W = 1.6;
+const CARD_H = CARD_W * (1008 / 778);
+
+// 物理与视觉参数
+const CARD_VISUAL_SCALE = 2.25;
+const CONNECTOR_SCALE = 1.25;
+
+// 鱼竿 tip 在 Frog 局部坐标系下的位置
+// 对应 frog 缩放 2.8 倍后的 tip 物理位置
+const ROPE_X_OFFSET = -1.36;
+const ROPE_Y_OFFSET = 1.60;
+
+// 物理挂扣连接点：对应卡片缩放后的顶部挂扣位置 (y = 1.29)
+const CONNECTOR_JOINT_Y = 1.29;
+
 /* ─────────────────────────────────────────
    物理场景主体：鱼竿、线、鱼钩与水色玻璃卡牌
 ───────────────────────────────────────── */
@@ -437,21 +413,6 @@ function FrogTongueBand({ maxSpeed = 50, minSpeed = 0, interactive = true }) {
   useEffect(() => {
     loadCardFrontTexture(cardWateryImage, avatarImage, setCardWateryTex);
   }, []);
-
-  const CARD_W = 1.6;
-  const CARD_H = CARD_W * (1008 / 778);
-
-  // 物理与视觉参数
-  const CARD_VISUAL_SCALE = 2.25;
-  const CONNECTOR_SCALE = 1.25;
-
-  // 鱼竿 tip 在 Frog 局部坐标系下的位置
-  // 对应 frog 缩放 2.8 倍后的 tip 物理位置
-  const ROPE_X_OFFSET = -1.36;
-  const ROPE_Y_OFFSET = 1.60;
-
-  // 物理挂扣连接点：对应卡片缩放后的顶部挂扣位置 (y = 1.29)
-  const CONNECTOR_JOINT_Y = 1.29;
 
   const [curve] = useState(
     () =>
@@ -504,7 +465,7 @@ function FrogTongueBand({ maxSpeed = 50, minSpeed = 0, interactive = true }) {
       j3.current.setTranslation({ x: startX + ROPE_X_OFFSET, y: startY - 1.6, z: 0 }, true);
       j3.current.setLinvel({ x: 0, y: 0, z: 0 }, true);
     }
-  }, [startX]);
+  }, [startX, startY]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {

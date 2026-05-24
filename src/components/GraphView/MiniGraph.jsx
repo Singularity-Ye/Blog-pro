@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import ForceGraph2D from 'react-force-graph-2d';
-import * as d3 from 'd3';
 import { normalizeGraph, filterGraphByLocal } from '../../utils/graphFilters';
 import './GraphView.css';
 
