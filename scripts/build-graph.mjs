@@ -392,7 +392,7 @@ function processMarkdownImages(content, fileRecord, imageList) {
     const resolved = resolveImage(refPath, fileRecord, imageList);
     if (resolved) {
       copyAttachment(resolved.full, resolved.rel);
-      const destUrl = `/notes/attachments/${resolved.rel}`;
+      const destUrl = encodeURI(`/notes/attachments/${resolved.rel}`);
       const altText = widthPart ? `${path.basename(refPath)}|${widthPart.trim()}` : path.basename(refPath);
       return `![${altText}](${destUrl})`;
     } else {
@@ -410,7 +410,7 @@ function processMarkdownImages(content, fileRecord, imageList) {
     const resolved = resolveImage(imgUrl, fileRecord, imageList);
     if (resolved) {
       copyAttachment(resolved.full, resolved.rel);
-      const destUrl = `/notes/attachments/${resolved.rel}`;
+      const destUrl = encodeURI(`/notes/attachments/${resolved.rel}`);
       return `![${altText}](${destUrl})`;
     } else {
       console.warn(`[Image Sync] Cannot resolve standard image: "${imgUrl}" in "${fileRecord.slug}"`);
