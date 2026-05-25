@@ -48,18 +48,18 @@ const particleDrift = keyframes`
    ───────────────────────────────────────── */
 
 const ATTRIBUTES = [
-  { key: 'HP', name: '生命力 (心境宁静度)', value: 92, max: 100, desc: '面对风雨与突发状况的坚韧度，保持心境不炸炉的自愈能力。', color: '#10b981' },
-  { key: 'MP', name: '魔力值 (灵感敏锐度)', value: 88, max: 100, desc: '捕捉日常生活中微小美好与深刻感触的直觉。', color: '#6366f1' },
-  { key: 'INT', name: '悟性 (法阵塑形能力)', value: 95, max: 100, desc: '绘制浮空光影与交互符文的熟练度，掌控法阵的流光溢彩。', color: '#e7c77e' },
-  { key: 'ALC', name: '炼丹术 (文字温度)', value: 85, max: 100, desc: '汇聚四方气流与灵力管道的熟练度，炼制温热言语以供给源能。', color: '#5aa38f' },
-  { key: 'WIS', name: '神识 (AI 协同默契)', value: 90, max: 100, desc: '与通灵大模型/灵体配对沟通，指引复杂意念凝聚的默契度。', color: '#a78bfa' },
-  { key: 'DYN', name: '身法 (生活节奏控制)', value: 88, max: 100, desc: '在忙碌与闲适、出发与停留之间自由切换的从容态度。', color: '#f43f5e' }
+  { key: 'QI', name: '气血 (心境宁静)', value: 92, max: 100, desc: '面对风雨与突发状况的坚韧度，保持心境不炸炉的自愈能力。', color: '#10b981' },
+  { key: 'MANA', name: '灵力 (灵感敏锐)', value: 88, max: 100, desc: '捕捉日常生活中微小美好与深刻感触的直觉。', color: '#6366f1' },
+  { key: 'INS', name: '悟性 (法阵塑形)', value: 95, max: 100, desc: '绘制浮空光影与交互符文的熟练度，掌控法阵的流光溢彩。', color: '#e7c77e' },
+  { key: 'DAN', name: '丹道 (文字温度)', value: 85, max: 100, desc: '汇聚四方气流与灵力管道的熟练度，炼制温热言语以供给源能。', color: '#5aa38f' },
+  { key: 'CON', name: '神识 (通灵默契)', value: 90, max: 100, desc: '与通灵大模型/灵体配对沟通，指引复杂意念凝聚的默契度。', color: '#a78bfa' },
+  { key: 'AGI', name: '身法 (尘世调和)', value: 88, max: 100, desc: '在忙碌与闲适、出发与停留之间自由切换的从容态度。', color: '#f43f5e' }
 ];
 
 const SPELL_SCHOOLS = [
   {
     id: 'conjuration',
-    label: '笔耕系 (Writing & Expression)',
+    label: '笔耕系 (Scribing Dao)',
     color: '#e7c77e',
     desc: '以笔为媒，将脑海中稍纵即逝的火花凝聚成温热的篇章。',
     skills: [
@@ -71,7 +71,7 @@ const SPELL_SCHOOLS = [
   },
   {
     id: 'alchemy',
-    label: '感悟系 (Perception & Growth)',
+    label: '感悟系 (Heart-Refining Dao)',
     color: '#5aa38f',
     desc: '感知四季流转与人情冷暖，在安静中熔炼人生的智慧。',
     skills: [
@@ -83,7 +83,7 @@ const SPELL_SCHOOLS = [
   },
   {
     id: 'divination',
-    label: '问道系 (Reading & Connection)',
+    label: '问道系 (Scripture Dao)',
     color: '#6366f1',
     desc: '阅读先贤智慧，探寻人与人之间隐秘而真挚的灵魂连结。',
     skills: [
@@ -95,7 +95,7 @@ const SPELL_SCHOOLS = [
   },
   {
     id: 'runes',
-    label: '足迹系 (Footprints & Journey)',
+    label: '足迹系 (Journey Dao)',
     color: '#a78bfa',
     desc: '记录走过的千山万水，留存时光的刻痕，搭建属于心灵的港湾。',
     skills: [
@@ -213,6 +213,7 @@ const Particle = styled.div`
 `;
 
 const GridContainer = styled.div`
+  width: 100%;
   max-width: 1200px;
   margin: 0 auto;
   display: grid;
@@ -221,7 +222,7 @@ const GridContainer = styled.div`
   position: relative;
   z-index: 1;
 
-  @media (max-width: 960px) {
+  @media (max-width: 1024px) {
     grid-template-columns: 1fr;
   }
 `;
@@ -406,6 +407,7 @@ const MainContent = styled.div`
   display: flex;
   flex-direction: column;
   gap: 2.2rem;
+  min-width: 0;
 `;
 
 const Section = styled.section`
@@ -802,7 +804,7 @@ export default function About() {
                   />
                 </BarBg>
                 <StatTooltip className="stat-tooltip">
-                  <strong>{attr.key} · 属性解析</strong>
+                  <strong>{attr.name.split(' ')[0]} · 妙用解析</strong>
                   <div style={{ marginTop: '4px', opacity: 0.85 }}>{attr.desc}</div>
                 </StatTooltip>
               </StatWrapper>
@@ -850,10 +852,10 @@ export default function About() {
                       <SkillCard key={skill.name} $color={selectedSchool.color}>
                         <SkillInfo>
                           <SkillName>{skill.name}</SkillName>
-                          <SkillMana>Mana: {skill.mana}</SkillMana>
+                          <SkillMana>消耗真气: {skill.mana}</SkillMana>
                         </SkillInfo>
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', color: 'rgba(245,239,227,0.48)' }}>
-                          <span>掌握阶层</span>
+                          <span>参悟境界</span>
                           <span>Lv.{skill.level}</span>
                         </div>
                         <SkillBarBg>
