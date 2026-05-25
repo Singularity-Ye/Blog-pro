@@ -1,8 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import Footer from './Footer';
 import { motion } from 'framer-motion';
-import { useLocation } from 'react-router-dom';
 
 const LayoutWrapper = styled.div`
   min-height: 100vh;
@@ -24,13 +22,6 @@ const Main = styled(motion.main)`
 `;
 
 const Layout = ({ children }) => {
-  const location = useLocation();
-  const isImmersivePage =
-    location.pathname === '/' ||
-    location.pathname.startsWith('/blog') ||
-    location.pathname === '/contact' ||
-    location.pathname === '/graph';
-
   return (
     <LayoutWrapper>
       <Main
@@ -41,9 +32,8 @@ const Layout = ({ children }) => {
       >
         {children}
       </Main>
-      {!isImmersivePage && <Footer />}
     </LayoutWrapper>
   );
 };
 
-export default Layout; 
+export default Layout;

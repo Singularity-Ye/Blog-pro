@@ -4,6 +4,9 @@ import { motion, AnimatePresence, useTransform, useMotionValue, animate } from '
 import Lanyard from '../components/Lanyard/Lanyard';
 import FlowingMenu from '../components/Animations/FlowingMenu';
 import Marquee from '../components/Animations/Marquee';
+import VariableProximity from '../components/Animations/VariableProximity';
+import CircularText from '../components/Animations/CircularText';
+import CurvedLoop from '../components/Animations/CurvedLoop';
 
 // 导入主页背景图作为 FlowingMenu 的精美胶囊封面
 import forestImg from '../assets/images/home/card-forest.png';
@@ -485,32 +488,40 @@ const CardBack = styled(CardFace)`
   }
 `;
 
-const ResetLanyardBtn = styled(motion.button)`
+const FloatingButtonGroup = styled(motion.div)`
   position: fixed;
   bottom: 6rem;
   right: 2rem;
   z-index: 10001;
-  background: rgba(6, 18, 14, 0.6);
-  border: 1px solid rgba(231, 199, 126, 0.25);
-  border-radius: 30px;
-  color: #e7c77e;
-  padding: 0.5rem 1rem;
-  font-size: 0.75rem;
-  cursor: pointer;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
   display: flex;
-  align-items: center;
-  gap: 6px;
-  transition: all 0.2s;
-
-  &:hover {
-    background: rgba(231, 199, 126, 0.15);
-    border-color: #e7c77e;
-  }
+  flex-direction: column;
+  gap: 0.6rem;
 
   @media (max-width: 992px) {
     display: none;
+  }
+`;
+
+const LanyardControlBtn = styled(motion.button)`
+  background: rgba(6, 18, 14, 0.65);
+  border: 1px solid rgba(231, 199, 126, 0.25);
+  border-radius: 30px;
+  color: #e7c77e;
+  padding: 0.55rem 1.1rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.25s;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+
+  &:hover {
+    background: rgba(231, 199, 126, 0.18);
+    border-color: #e7c77e;
+    box-shadow: 0 4px 16px rgba(231, 199, 126, 0.15);
   }
 `;
 
@@ -1287,18 +1298,34 @@ export default function Contact() {
         </motion.div>
       )}
 
-      {/* PC 端复位按钮 */}
+      {/* PC 端交互悬浮控制按钮组 */}
       {!isMobile && (
-        <ResetLanyardBtn
-          onClick={handleResetLanyard}
+        <FloatingButtonGroup
           style={{
             zIndex: activeSection === 1 ? 26 : 1,
             opacity: lanyardOpacity,
             pointerEvents: activeSection === 1 ? 'auto' : 'none'
           }}
         >
-          🔄 拉回卡片 (Reset)
-        </ResetLanyardBtn>
+          <LanyardControlBtn
+            onClick={handleResetLanyard}
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.96 }}
+          >
+            🔄 拉回卡片 (Reset)
+          </LanyardControlBtn>
+          <LanyardControlBtn
+            onClick={() => {
+              if (typeof window !== 'undefined' && window.__flipLanyard) {
+                window.__flipLanyard();
+              }
+            }}
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.96 }}
+          >
+            🔄 翻转卡牌 (Flip)
+          </LanyardControlBtn>
+        </FloatingButtonGroup>
       )}
 
       {/* Toast 提示 */}
@@ -1336,15 +1363,37 @@ export default function Contact() {
           />
           <StageContent style={{ opacity: section1Opacity, y: section1Y, scale: section1Scale, filter: section1Filter }}>
             <PageTitleArea style={{ textAlign: 'center', maxWidth: '800px', margin: '0 auto' }}>
-              <ContactTitle style={{ textAlign: 'center' }}>CONTACT</ContactTitle>
+              <ContactTitle style={{ textAlign: 'center' }}>
+                <VariableProximity
+                  label="CONTACT"
+                  containerRef={sec1Ref}
+                  radius={250}
+                  falloff="exponential"
+                  fromFontVariationSettings="'wght' 300, 'opsz' 8"
+                  toFontVariationSettings="'wght' 900, 'opsz' 40"
+                />
+              </ContactTitle>
               <p style={{ fontSize: '1.15rem', color: 'rgba(245, 239, 227, 0.85)', marginTop: '1.5rem', lineHeight: '1.8' }}>
-                如果你想联系松果屋，可以把一张手札递给池塘边正在发呆的小青蛙。它会慢悠悠地帮你把联系方式钓上来。
+                如果你想拜访松果屋，可以将一封手札轻送入池。在荷叶上悠闲垂钓的魔法青蛙，会用它的灵动钓竿，慢悠悠地为你钩起探索者的神秘名片。
               </p>
               <div style={{ marginTop: '3.5rem', fontSize: '0.82rem', color: 'rgba(231, 199, 126, 0.65)', letterSpacing: '0.2em' }}>
                 👇 向下滚动，滑向池塘深处
               </div>
             </PageTitleArea>
           </StageContent>
+
+          {/* Golden flowing Bezier text stream */}
+          <div style={{ position: 'absolute', bottom: '2rem', left: 0, width: '100%', zIndex: 12, pointerEvents: 'auto' }}>
+            <CurvedLoop
+              marqueeText="✦ SLIDE INTO THE DEEP POND ✦ WHISPER TO THE FROG ✦ DROP A NOTE ✦ EXPLORE MY WORK ✦"
+              speed={1.5}
+              curveAmount={60}
+              fontSize="1.05rem"
+              fill="rgba(231, 199, 126, 0.45)"
+              minHeight="80px"
+              interactive={true}
+            />
+          </div>
         </StickyStage>
       </SectionContainer>
 
@@ -1370,20 +1419,20 @@ export default function Contact() {
                       <div className="rows">
                         <div className="info-row">
                           <span className="label">ROLE</span>
-                          <span className="val">Developer / Explorer</span>
+                          <span className="val">Web Craftsperson / Digital Alchemist</span>
                         </div>
                         <div className="info-row">
-                          <span className="label">FOCUS</span>
-                          <span className="val">Web · AI · Obsidian · Travel</span>
+                          <span className="label">MISSION</span>
+                          <span className="val">Create immersive web spaces</span>
                         </div>
                         <div className="info-row">
-                          <span className="label">MODE</span>
-                          <span className="val">Build · Note · Visualize</span>
+                          <span className="label">STACK</span>
+                          <span className="val">React · Three.js · Obsidian · AI</span>
                         </div>
                         <div className="info-row">
                           <span className="label">STATUS</span>
                           <span className="val">
-                            <span className="status-dot"></span>Online
+                            <span className="status-dot"></span>🍃 Resting & Fishing
                           </span>
                         </div>
                       </div>
@@ -1399,18 +1448,30 @@ export default function Contact() {
               </MobileCardSection>
             ) : (
               <Section2Grid>
-                <div style={{ paddingRight: '2rem' }}>
-                  <h2 style={{ fontSize: '2.1rem', color: '#e7c77e', marginBottom: '1.5rem', fontFamily: 'Outfit, sans-serif', fontWeight: 800, letterSpacing: '0.05em' }}>
+                <div style={{ paddingRight: '2rem', position: 'relative' }}>
+                  {/* Decorative Rotating Circular Badge */}
+                  <div style={{ position: 'absolute', top: '-110px', left: '0', pointerEvents: 'auto', zIndex: 10 }}>
+                    <CircularText
+                      text="EXPLORER*PROFILE*PINE*CONE*CONTACT*"
+                      spinDuration={25}
+                      onHover="speedUp"
+                      width="100px"
+                      height="100px"
+                      color="rgba(231, 199, 126, 0.45)"
+                      fontSize="9px"
+                    />
+                  </div>
+                  <h2 style={{ fontSize: '2.1rem', color: '#e7c77e', marginBottom: '1.5rem', marginTop: '1rem', fontFamily: 'Outfit, sans-serif', fontWeight: 800, letterSpacing: '0.05em' }}>
                     池畔信亭 · 探索者侧写
                   </h2>
                   <p style={{ fontSize: '1.02rem', color: 'rgba(245, 239, 227, 0.8)', lineHeight: '1.8', marginBottom: '1.2rem' }}>
-                    发呆的小青蛙钓竿末端，系着一枚水纹潋滟的半透明玻璃名片。
+                    在青蛙旅人悠闲低垂的钓线末端，正悬挂着一枚水纹潋滟的魔法琉璃名片。
                   </p>
                   <p style={{ fontSize: '1.02rem', color: 'rgba(245, 239, 227, 0.8)', lineHeight: '1.8', marginBottom: '2.2rem' }}>
-                    你可以鼠标放上去任意拖拽、甩拽它，感受在魔法水面激起的火花，反面烙印着探索者的技能与信念。
+                    试着用鼠标轻轻拖曳、甩动它，在泛起波光的魔法水面激起阵阵涟漪。卡片的另一面，则静静镌刻着屋主的探险履历与代码心愿。
                   </p>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'rgba(231, 199, 126, 0.65)', fontSize: '0.85rem' }}>
-                    🖱️ 试着甩动右侧的悬挂卡片
+                    🖱️ 试着甩动或点击右侧悬挂的卡牌
                   </div>
                 </div>
                 <div style={{ position: 'relative', height: '400px' }} />

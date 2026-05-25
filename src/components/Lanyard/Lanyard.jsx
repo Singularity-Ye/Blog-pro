@@ -39,13 +39,13 @@ function getBackTexture() {
   // 背景：金黑与曜岩黑
   const bg = ctx.createLinearGradient(0, 0, 0, H);
   bg.addColorStop(0, '#0a0805');
-  bg.addColorStop(0.5, '#20160a');
+  bg.addColorStop(0.5, '#1e160d');
   bg.addColorStop(1, '#0a0805');
   ctx.fillStyle = bg;
   ctx.fillRect(0, 0, W, H);
 
   // 微弱网格
-  ctx.strokeStyle = 'rgba(231, 199, 126, 0.05)';
+  ctx.strokeStyle = 'rgba(231, 199, 126, 0.04)';
   ctx.lineWidth = 1;
   for (let x = 0; x < W; x += 40) {
     ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
@@ -55,80 +55,123 @@ function getBackTexture() {
   }
 
   const px = (v) => v * (W / 400);
+
+  // 绘制同心虚线圆 (魔法星盘/齿轮背景)
+  ctx.strokeStyle = 'rgba(231, 199, 126, 0.08)';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([px(6), px(6)]);
+  ctx.beginPath();
+  ctx.arc(W / 2, H / 2, px(85), 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(W / 2, H / 2, px(60), 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // 双层金色边框
+  ctx.strokeStyle = 'rgba(231, 199, 126, 0.35)';
+  ctx.lineWidth = 2.0;
+  ctx.strokeRect(px(16), px(16), W - px(32), H - px(32));
+
+  ctx.strokeStyle = 'rgba(231, 199, 126, 0.15)';
+  ctx.lineWidth = 1.0;
+  ctx.strokeRect(px(22), px(22), W - px(44), H - px(44));
+
+  // 绘制精致四角边框细节
+  ctx.fillStyle = 'rgba(231, 199, 126, 0.65)';
+  const cornerLen = px(12);
+  const pad = px(16);
+  // Top-left
+  ctx.fillRect(pad, pad, cornerLen, 3);
+  ctx.fillRect(pad, pad, 3, cornerLen);
+  // Top-right
+  ctx.fillRect(W - pad - cornerLen, pad, cornerLen, 3);
+  ctx.fillRect(W - pad, pad, 3, cornerLen);
+  // Bottom-left
+  ctx.fillRect(pad, H - pad, cornerLen, 3);
+  ctx.fillRect(pad, H - pad - cornerLen, 3, cornerLen);
+  // Bottom-right
+  ctx.fillRect(W - pad - cornerLen, H - pad, cornerLen, 3);
+  ctx.fillRect(W - pad, H - pad - cornerLen, 3, cornerLen);
+
   ctx.textAlign = 'center';
 
-  // ── 标题 ──
-  ctx.font = `bold ${px(14)}px "Inter", "SF Pro", system-ui, sans-serif`;
-  ctx.fillStyle = 'rgba(231, 199, 126, 0.72)';
-  ctx.fillText('EXPLORER PROFILE', W / 2, px(70));
+  // ── 标题与发光效果 ──
+  ctx.save();
+  ctx.shadowColor = 'rgba(231, 199, 126, 0.4)';
+  ctx.shadowBlur = 12;
+  ctx.font = `bold ${px(14.5)}px "Inter", "SF Pro", system-ui, sans-serif`;
+  ctx.fillStyle = 'rgba(231, 199, 126, 0.85)';
+  ctx.fillText('EXPLORER PROFILE', W / 2, px(72));
+  ctx.restore();
 
   // 分隔线
   ctx.strokeStyle = 'rgba(231, 199, 126, 0.22)';
   ctx.lineWidth = 1.5;
   ctx.beginPath();
-  ctx.moveTo(px(50), px(90));
-  ctx.lineTo(W - px(50), px(90));
+  ctx.moveTo(px(50), px(92));
+  ctx.lineTo(W - px(50), px(92));
   ctx.stroke();
 
   // ── 身份信息 — 大字 ──
-  const labelX = W * 0.22;
-  const valX = W * 0.42;
-  let y = px(130);
+  const labelX = W * 0.18;
+  const valX = W * 0.40;
+  let yPosition = px(132);
   const gap = px(48);
 
   const drawRow = (label, value) => {
     ctx.textAlign = 'left';
-    ctx.font = `bold ${px(10)}px "Inter", "SF Mono", monospace`;
-    ctx.fillStyle = 'rgba(231, 199, 126, 0.58)';
-    ctx.fillText(label, labelX, y);
+    ctx.font = `bold ${px(10.5)}px "Inter", "SF Mono", monospace`;
+    ctx.fillStyle = 'rgba(231, 199, 126, 0.65)';
+    ctx.fillText(label, labelX, yPosition);
 
     ctx.font = `${px(11)}px "Inter", system-ui, sans-serif`;
     ctx.fillStyle = 'rgba(245, 239, 227, 0.95)';
-    ctx.fillText(value, valX, y);
-    y += gap;
+    ctx.fillText(value, valX, yPosition);
+    yPosition += gap;
   };
 
-  drawRow('ROLE', 'Developer / Explorer');
-  drawRow('FOCUS', 'Web · AI · Obsidian · Travel');
-  drawRow('MODE', 'Build · Note · Visualize');
-  drawRow('STATUS', '● Online');
+  drawRow('ROLE', 'Web Craftsperson / Digital Alchemist');
+  drawRow('MISSION', 'Create immersive web spaces');
+  drawRow('STACK', 'React · Three.js · Obsidian · AI');
+  drawRow('STATUS', '🍃 Resting & Fishing');
 
   // 分隔线
-  y += px(6);
+  yPosition += px(6);
   ctx.strokeStyle = 'rgba(231, 199, 126, 0.18)';
   ctx.lineWidth = 1.5;
   ctx.beginPath();
-  ctx.moveTo(px(50), y);
-  ctx.lineTo(W - px(50), y);
+  ctx.moveTo(px(50), yPosition);
+  ctx.lineTo(W - px(50), yPosition);
   ctx.stroke();
-  y += px(30);
+  yPosition += px(30);
 
-  // ── 系统一行 ──
+  // ── 系统信息行 ──
   ctx.textAlign = 'center';
   ctx.font = `${px(9.5)}px "Inter", "SF Mono", monospace`;
   ctx.fillStyle = 'rgba(245, 239, 227, 0.45)';
-  ctx.fillText('Blog · Obsidian · Travel Atlas', W / 2, y);
-  y += px(36);
+  ctx.fillText('Blog · Obsidian · Travel Atlas', W / 2, yPosition);
+  yPosition += px(36);
 
   // 分隔线
   ctx.strokeStyle = 'rgba(231, 199, 126, 0.12)';
   ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.moveTo(px(80), y);
-  ctx.lineTo(W - px(80), y);
+  ctx.moveTo(px(80), yPosition);
+  ctx.lineTo(W - px(80), yPosition);
   ctx.stroke();
-  y += px(36);
+  yPosition += px(36);
 
   // ── 底部标语 ──
   ctx.font = `italic ${px(10)}px "Inter", system-ui, sans-serif`;
   ctx.fillStyle = 'rgba(231, 199, 126, 0.52)';
-  ctx.fillText('从笔记出发，延伸到地图、项目与世界。', W / 2, y);
-  y += px(40);
+  ctx.fillText('从笔记出发，延伸到地图、项目与世界。', W / 2, yPosition);
+  yPosition += px(40);
 
   // 装饰小点
   for (let i = -2; i <= 2; i++) {
     ctx.beginPath();
-    ctx.arc(W / 2 + i * px(12), y, px(2), 0, Math.PI * 2);
+    ctx.arc(W / 2 + i * px(12), yPosition, px(2), 0, Math.PI * 2);
     ctx.fillStyle = `rgba(231, 199, 126, ${0.15 + Math.abs(2 - Math.abs(i)) * 0.1})`;
     ctx.fill();
   }
@@ -405,7 +448,6 @@ function FrogTongueBand({ maxSpeed = 50, minSpeed = 0, interactive = true }) {
   const ropeSpark2 = useRef();
   const vecRef = useRef(new THREE.Vector3());
   const angRef = useRef(new THREE.Vector3());
-  const rotRef = useRef(new THREE.Vector3());
   const dirRef = useRef(new THREE.Vector3());
 
   // 动态视口定位 (右上角)
@@ -438,6 +480,8 @@ function FrogTongueBand({ maxSpeed = 50, minSpeed = 0, interactive = true }) {
   );
   const [dragged, drag] = useState(false);
   const [hovered, hover] = useState(false);
+  const [isFlipped, setIsFlipped] = useState(false);
+  const dragStartPos = useRef({ x: 0, y: 0 });
 
   // 物理挂载关节
   useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], 0.8]);
@@ -462,6 +506,7 @@ function FrogTongueBand({ maxSpeed = 50, minSpeed = 0, interactive = true }) {
   }, [hovered, dragged, interactive]);
 
   const resetCard = useCallback(() => {
+    setIsFlipped(false);
     if (card.current && fixed.current && j1.current && j2.current && j3.current) {
       // 物理坐标复位
       card.current.setTranslation({ x: startX + ROPE_X_OFFSET, y: startY - 3.1, z: 0 }, true);
@@ -483,10 +528,12 @@ function FrogTongueBand({ maxSpeed = 50, minSpeed = 0, interactive = true }) {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       window.__resetLanyard = resetCard;
+      window.__flipLanyard = () => setIsFlipped(f => !f);
     }
     return () => {
       if (typeof window !== 'undefined') {
         delete window.__resetLanyard;
+        delete window.__flipLanyard;
       }
     };
   }, [resetCard]);
@@ -494,7 +541,6 @@ function FrogTongueBand({ maxSpeed = 50, minSpeed = 0, interactive = true }) {
   useFrame((state, delta) => {
     const vec = vecRef.current;
     const ang = angRef.current;
-    const rot = rotRef.current;
     const dir = dirRef.current;
     const t = state.clock.elapsedTime;
 
@@ -530,10 +576,16 @@ function FrogTongueBand({ maxSpeed = 50, minSpeed = 0, interactive = true }) {
       ];
       band.current.geometry.setPoints(curve.getPoints(24));
 
-      // 自动阻尼
+      // 自动阻尼与翻转控制
       ang.copy(card.current.angvel());
-      rot.copy(card.current.rotation());
-      card.current.setAngvel({ x: ang.x, y: ang.y - rot.y * 0.25, z: ang.z });
+      const targetRotY = isFlipped ? Math.PI : 0;
+      const q = new THREE.Quaternion().copy(card.current.rotation());
+      const euler = new THREE.Euler().setFromQuaternion(q, 'YXZ');
+      const rotY = euler.y;
+      let diff = rotY - targetRotY;
+      // 保证差值在 [-PI, PI] 之间，以使卡片按最短距离旋转
+      diff = Math.atan2(Math.sin(diff), Math.cos(diff));
+      card.current.setAngvel({ x: ang.x, y: ang.y - diff * 2.0, z: ang.z });
 
       // 将名片坐标转为屏幕投影坐标，以触发背景烟花与水波
       const translation = card.current.translation();
@@ -650,9 +702,14 @@ function FrogTongueBand({ maxSpeed = 50, minSpeed = 0, interactive = true }) {
             onPointerUp={interactive ? (e) => {
               e.target.releasePointerCapture?.(e.pointerId);
               drag(false);
+              const moveDist = Math.hypot(e.clientX - dragStartPos.current.x, e.clientY - dragStartPos.current.y);
+              if (moveDist < 6) {
+                setIsFlipped(prev => !prev);
+              }
             } : undefined}
             onPointerDown={interactive ? (e) => {
               e.target.setPointerCapture?.(e.pointerId);
+              dragStartPos.current = { x: e.clientX, y: e.clientY };
               drag(
                 new THREE.Vector3()
                   .copy(e.point)
