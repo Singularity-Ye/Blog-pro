@@ -186,78 +186,6 @@ function loadCardBackTexture(bgImgSrc, callback) {
     // 绘制处理好的透明卡牌背景
     ctx.drawImage(bgCanvas, 0, 0);
 
-    const panelX = W * 0.13;
-    const panelY = H * 0.275;
-    const panelW = W * 0.74;
-    const panelH = H * 0.5;
-    const panelGradient = ctx.createLinearGradient(0, panelY, 0, panelY + panelH);
-    panelGradient.addColorStop(0, 'rgba(4, 44, 52, 0.34)');
-    panelGradient.addColorStop(0.52, 'rgba(9, 71, 78, 0.2)');
-    panelGradient.addColorStop(1, 'rgba(3, 31, 43, 0.34)');
-    ctx.save();
-    ctx.shadowColor = 'rgba(0, 28, 34, 0.45)';
-    ctx.shadowBlur = W * 0.045;
-    roundRect(ctx, panelX, panelY, panelW, panelH, W * 0.055);
-    ctx.fillStyle = panelGradient;
-    ctx.fill();
-    ctx.strokeStyle = 'rgba(232, 215, 151, 0.18)';
-    ctx.lineWidth = W * 0.0022;
-    ctx.stroke();
-    ctx.restore();
-
-    // 3. 绘制背面文字 (池畔手札)
-    ctx.textAlign = 'center';
-
-    // 3.1 标题
-    ctx.save();
-    ctx.shadowColor = 'rgba(0, 24, 32, 0.75)';
-    ctx.shadowBlur = W * 0.018;
-    ctx.font = `bold ${W * 0.068}px "Inter", "SF Pro", "Microsoft YaHei", sans-serif`;
-    ctx.lineWidth = W * 0.006;
-    ctx.strokeStyle = 'rgba(4, 30, 36, 0.72)';
-    ctx.fillStyle = 'rgba(255, 232, 150, 0.98)';
-    ctx.strokeText('池畔手札', W / 2, H * 0.325);
-    ctx.fillText('池畔手札', W / 2, H * 0.325);
-    ctx.restore();
-
-    // 3.2 细分割线
-    ctx.strokeStyle = 'rgba(231, 199, 126, 0.2)';
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.moveTo(W * 0.22, H * 0.37);
-    ctx.lineTo(W * 0.78, H * 0.37);
-    ctx.stroke();
-
-    // 3.3 正文
-    ctx.fillStyle = 'rgba(252, 250, 238, 0.98)';
-    ctx.strokeStyle = 'rgba(1, 25, 32, 0.64)';
-    ctx.lineWidth = W * 0.0055;
-    ctx.shadowColor = 'rgba(0, 18, 24, 0.72)';
-    ctx.shadowBlur = W * 0.008;
-    ctx.font = `700 ${W * 0.041}px "Inter", "SF Pro", "Microsoft YaHei", sans-serif`;
-    const startY = H * 0.45;
-    const lineHeight = H * 0.073;
-
-    const lines = [
-      '愿你拥有安静的池塘，',
-      '睡到自然醒的清晨，',
-      '没有 Bug 的温热午后，',
-      '和一路清风与暖阳。'
-    ];
-
-    lines.forEach((line, idx) => {
-      ctx.strokeText(line, W / 2, startY + idx * lineHeight);
-      ctx.fillText(line, W / 2, startY + idx * lineHeight);
-    });
-
-    // 3.4 署名
-    ctx.fillStyle = 'rgba(255, 232, 150, 0.94)';
-    ctx.strokeStyle = 'rgba(1, 25, 32, 0.64)';
-    ctx.lineWidth = W * 0.004;
-    ctx.font = `italic 700 ${W * 0.034}px "Inter", "SF Pro", "Microsoft YaHei", sans-serif`;
-    ctx.strokeText('—— Singularity_Ye', W / 2, H * 0.76);
-    ctx.fillText('—— Singularity_Ye', W / 2, H * 0.76);
-
     const tex = new THREE.CanvasTexture(canvas);
     tex.colorSpace = THREE.SRGBColorSpace;
     tex.minFilter = THREE.LinearFilter;
@@ -265,6 +193,112 @@ function loadCardBackTexture(bgImgSrc, callback) {
   };
   bgImg.src = bgImgSrc;
   bgImg.crossOrigin = 'anonymous';
+}
+
+function loadCardBackMessageTexture(callback) {
+  const W = 1800;
+  const H = 1120;
+  const canvas = document.createElement('canvas');
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  ctx.clearRect(0, 0, W, H);
+
+  const panelX = 90;
+  const panelY = 82;
+  const panelW = W - panelX * 2;
+  const panelH = H - panelY * 2;
+  const panelGradient = ctx.createLinearGradient(0, panelY, 0, panelY + panelH);
+  panelGradient.addColorStop(0, 'rgba(2, 30, 42, 0.68)');
+  panelGradient.addColorStop(0.48, 'rgba(8, 79, 88, 0.5)');
+  panelGradient.addColorStop(1, 'rgba(1, 25, 36, 0.7)');
+
+  ctx.save();
+  ctx.shadowColor = 'rgba(0, 14, 20, 0.58)';
+  ctx.shadowBlur = 42;
+  ctx.shadowOffsetY = 22;
+  roundRect(ctx, panelX, panelY, panelW, panelH, 58);
+  ctx.fillStyle = panelGradient;
+  ctx.fill();
+  ctx.shadowColor = 'transparent';
+  ctx.lineWidth = 4;
+  ctx.strokeStyle = 'rgba(241, 216, 137, 0.45)';
+  ctx.stroke();
+  ctx.lineWidth = 1.5;
+  ctx.strokeStyle = 'rgba(255, 255, 245, 0.28)';
+  roundRect(ctx, panelX + 18, panelY + 18, panelW - 36, panelH - 36, 46);
+  ctx.stroke();
+  ctx.restore();
+
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'alphabetic';
+
+  ctx.save();
+  ctx.shadowColor = 'rgba(0, 20, 26, 0.9)';
+  ctx.shadowBlur = 18;
+  ctx.font = '800 98px "Inter", "SF Pro", "Microsoft YaHei", sans-serif';
+  ctx.lineWidth = 9;
+  ctx.strokeStyle = 'rgba(1, 23, 31, 0.82)';
+  ctx.fillStyle = 'rgba(255, 232, 154, 0.98)';
+  ctx.strokeText('池畔手札', W / 2, 235);
+  ctx.fillText('池畔手札', W / 2, 235);
+  ctx.restore();
+
+  const dividerGradient = ctx.createLinearGradient(W * 0.2, 0, W * 0.8, 0);
+  dividerGradient.addColorStop(0, 'rgba(241, 216, 137, 0)');
+  dividerGradient.addColorStop(0.5, 'rgba(241, 216, 137, 0.72)');
+  dividerGradient.addColorStop(1, 'rgba(241, 216, 137, 0)');
+  ctx.strokeStyle = dividerGradient;
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(W * 0.22, 295);
+  ctx.lineTo(W * 0.78, 295);
+  ctx.stroke();
+
+  const lines = [
+    '谢谢你沿着粼粼水光，叩开这扇隐秘的林间之门。',
+    '愿你在喧嚣的世界里，能拥有一方安静的池塘；',
+    '愿你拥有睡到自然醒的清晨，和没有 Bug 的温热午后，',
+    '走过的旅途都有清风与暖阳。',
+    '如果累了，不妨在池塘边听听蛙鸣，',
+    '松果屋会在这里，慢慢守候每一个漂流的故事。'
+  ];
+
+  ctx.save();
+  ctx.shadowColor = 'rgba(0, 17, 24, 0.8)';
+  ctx.shadowBlur = 12;
+  ctx.font = '700 57px "Inter", "SF Pro", "Microsoft YaHei", sans-serif';
+  ctx.lineWidth = 7;
+  ctx.strokeStyle = 'rgba(0, 24, 34, 0.78)';
+  ctx.fillStyle = 'rgba(253, 251, 236, 0.98)';
+  const startY = 410;
+  const lineHeight = 92;
+  lines.forEach((line, idx) => {
+    const y = startY + idx * lineHeight;
+    ctx.strokeText(line, W / 2, y);
+    ctx.fillText(line, W / 2, y);
+  });
+  ctx.restore();
+
+  ctx.save();
+  ctx.font = 'italic 800 46px "Inter", "SF Pro", "Microsoft YaHei", sans-serif';
+  ctx.lineWidth = 6;
+  ctx.strokeStyle = 'rgba(0, 24, 34, 0.78)';
+  ctx.fillStyle = 'rgba(255, 232, 154, 0.96)';
+  ctx.shadowColor = 'rgba(0, 17, 24, 0.72)';
+  ctx.shadowBlur = 10;
+  ctx.strokeText('—— 见习魔法师 · Singularity_Ye', W / 2, 995);
+  ctx.fillText('—— 见习魔法师 · Singularity_Ye', W / 2, 995);
+  ctx.restore();
+
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.minFilter = THREE.LinearFilter;
+  tex.magFilter = THREE.LinearFilter;
+  tex.anisotropy = 16;
+  tex.needsUpdate = true;
+  callback(tex);
 }
 
 function loadCardSilhouetteTexture(bgImgSrc, callback) {
@@ -482,11 +516,13 @@ function FrogTongueBand({ maxSpeed = 50, minSpeed = 0, interactive = true }) {
 
   const [cardWateryTex, setCardWateryTex] = useState(null);
   const [cardBackTex, setCardBackTex] = useState(null);
+  const [cardBackMessageTex, setCardBackMessageTex] = useState(null);
   const [cardSilhouetteTex, setCardSilhouetteTex] = useState(null);
 
   useEffect(() => {
     loadCardFrontTexture(cardWateryImage, avatarImage, setCardWateryTex);
     loadCardBackTexture(cardBackImage, setCardBackTex);
+    loadCardBackMessageTexture(setCardBackMessageTex);
     loadCardSilhouetteTexture(cardBackImage, setCardSilhouetteTex);
   }, []);
 
@@ -833,7 +869,7 @@ function FrogTongueBand({ maxSpeed = 50, minSpeed = 0, interactive = true }) {
               </mesh>
             )}
 
-            {/* 5. 背面文字手札 (Explorer Profile) */}
+            {/* 5. 背面原始水色卡片 */}
             {cardBackTex && (
               <mesh position={[0, 0, -0.012]} rotation={[0, Math.PI, 0]}>
                 <planeGeometry args={[CARD_W, CARD_H]} />
@@ -842,6 +878,21 @@ function FrogTongueBand({ maxSpeed = 50, minSpeed = 0, interactive = true }) {
                   transparent={true}
                   alphaTest={0.1}
                   depthWrite={true}
+                  toneMapped={false}
+                  side={THREE.FrontSide}
+                />
+              </mesh>
+            )}
+
+            {/* 6. 背面手札浮层 — 独立于卡片本体，完整文字可越出卡片范围 */}
+            {cardBackMessageTex && (
+              <mesh position={[0, -0.02, -0.028]} rotation={[0, Math.PI, 0]} renderOrder={30}>
+                <planeGeometry args={[CARD_W * 1.76, CARD_H * 0.72]} />
+                <meshBasicMaterial
+                  map={cardBackMessageTex}
+                  transparent={true}
+                  alphaTest={0.02}
+                  depthWrite={false}
                   toneMapped={false}
                   side={THREE.FrontSide}
                 />
