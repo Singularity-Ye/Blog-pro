@@ -539,6 +539,7 @@ const html = String.raw`<!doctype html>
   </style>
 </head>
 <body>
+  <datalist id="vaultDirs"></datalist>
   <div class="toast-container" id="toasts"></div>
 
   <div id="modal" class="modal-overlay hidden">
@@ -586,7 +587,7 @@ const html = String.raw`<!doctype html>
           <label class="toggle-label"><input id="enabled" type="checkbox" /> 发布这个分类</label>
           <div class="field-grid field">
             <label>显示名称<input id="label" /></label>
-            <label>Vault 目录<input id="root" /></label>
+            <label>Vault 目录<input id="root" list="vaultDirs" autocomplete="off" /></label>
             <label>分类标识<input id="kind" /></label>
           </div>
           <div class="field">
@@ -1158,7 +1159,7 @@ const html = String.raw`<!doctype html>
       showModal('新增分类', [
         '<div class="modal-form">',
         '<label>显示名称 <input id="newLabel" placeholder="如：我的旅行日记" /></label>',
-        '<label>Vault 目录名 <input id="newRoot" placeholder="如：旅行日记" /></label>',
+        '<label>Vault 目录名 <input id="newRoot" list="vaultDirs" autocomplete="off" placeholder="如：旅行日记" /></label>',
         '<label>分类标识 <input id="newKind" placeholder="如：travel" /></label>',
         '</div>'
       ].join(''), function() {
@@ -1244,8 +1245,17 @@ const html = String.raw`<!doctype html>
     }
 
     /* ── Init ── */
+    function loadVaultDirs() {
+      api('/api/vault-dirs').then(function(data) {
+        var html = '';
+        (data.dirs || []).forEach(function(d) { html += '<option value="' + esc(d) + '">'; });
+        $('vaultDirs').innerHTML = html;
+      }).catch(function(err) { console.error('Failed to load vault dirs', err); });
+    }
+
     function init() {
       bindGlobalEvents();
+      loadVaultDirs();
       loadManifest().then(function() {
         /* Auto-expand root-level folders */
         return render();
@@ -1307,6 +1317,19 @@ const server = http.createServer(async (req, res) => {
       const body = JSON.parse(await readBody(req));
       const result = toggleBatch(body.collection, body.files);
       send(res, 200, result);
+      return;
+    }
+
+    if (req.method === 'GET' && url.pathname === '/api/vault-dirs') {
+      const manifest = readJson(MANIFEST_PATH);
+      const vpath = manifest.vaultPath;
+      let dirs = [];
+      if (fs.existsSync(vpath)) {
+        dirs = fs.readdirSync(vpath, { withFileTypes: true })
+          .filter(e => e.isDirectory() && !e.name.startsWith('.') && !['node_modules', 'templates'].includes(e.name))
+          .map(e => e.name);
+      }
+      send(res, 200, { dirs });
       return;
     }
 
