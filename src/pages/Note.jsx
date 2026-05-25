@@ -89,6 +89,51 @@ const StickySidebarContent = styled.div`
   max-height: calc(100vh - 100px);
 `;
 
+const BackButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: fit-content;
+  padding: 0.5rem 1.2rem;
+  border: 1px solid rgba(231, 199, 126, 0.3);
+  border-radius: 20px;
+  background: rgba(9, 19, 17, 0.6);
+  backdrop-filter: blur(4px);
+  font-size: 0.8rem;
+  color: #fff7df;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  margin-bottom: 1.8rem;
+  cursor: pointer;
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.2),
+    inset 0 0 8px rgba(231, 199, 126, 0.05);
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  svg {
+    transition: transform 0.3s ease;
+    stroke: #e7c77e;
+  }
+
+  &:hover {
+    color: #fff;
+    background: rgba(231, 199, 126, 0.12);
+    border-color: #e7c77e;
+    box-shadow: 
+      0 6px 16px rgba(231, 199, 126, 0.15),
+      inset 0 0 12px rgba(231, 199, 126, 0.1);
+    transform: translateY(-1px);
+
+    svg {
+      transform: translateX(-4px);
+    }
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+`;
+
 const SidebarBackButton = styled(BackButton)`
   width: 100%;
   justify-content: center;
@@ -228,50 +273,7 @@ const TagChip = styled.span`
   line-height: 1.2;
 `;
 
-const BackButton = styled.button`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  width: fit-content;
-  padding: 0.5rem 1.2rem;
-  border: 1px solid rgba(231, 199, 126, 0.3);
-  border-radius: 20px;
-  background: rgba(9, 19, 17, 0.6);
-  backdrop-filter: blur(4px);
-  font-size: 0.8rem;
-  color: #fff7df;
-  font-weight: 500;
-  letter-spacing: 0.05em;
-  margin-bottom: 1.8rem;
-  cursor: pointer;
-  box-shadow: 
-    0 4px 12px rgba(0, 0, 0, 0.2),
-    inset 0 0 8px rgba(231, 199, 126, 0.05);
-  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
 
-  svg {
-    transition: transform 0.3s ease;
-    stroke: #e7c77e;
-  }
-
-  &:hover {
-    color: #fff;
-    background: rgba(231, 199, 126, 0.12);
-    border-color: #e7c77e;
-    box-shadow: 
-      0 6px 16px rgba(231, 199, 126, 0.15),
-      inset 0 0 12px rgba(231, 199, 126, 0.1);
-    transform: translateY(-1px);
-
-    svg {
-      transform: translateX(-4px);
-    }
-  }
-
-  &:active {
-    transform: translateY(1px);
-  }
-`;
 
 // Markdown 内容样式
 const MarkdownBody = styled.div`
