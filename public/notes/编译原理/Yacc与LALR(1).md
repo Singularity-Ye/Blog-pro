@@ -53,15 +53,15 @@ LALR(1) 的核心操作：先按 LR(1) 构造所有项目集，然后把**核心
 
 ### 2.1 definitions 段的形式化内容
 
-| 指令 | 含义 | 示例 |
-|------|------|------|
-| `%token` | 声明终结符（token），Yacc 自动为其分配编号 | `%token NUM ID` |
-| `%left` | 声明左结合运算符，**同时指定优先级**——写在越下面的优先级越高 | `%left PLUS MINUS` |
-| `%right` | 声明右结合运算符 | `%right ASSIGN` |
-| `%nonassoc` | 声明不可结合的运算符（如比较符连续出现时报错） | `%nonassoc LT GT` |
-| `%union` | 定义属性值的 C 联合类型（`$$`、`$1` 等的类型） | `%union { int ival; char *sval; }` |
-| `%type` | 给非终结符指定 union 中的字段类型 | `%type <ival> exp term factor` |
-| `%start` | 指定开始符号（默认第一条规则的左部） | `%start program` |
+| 指令          | 含义                                | 示例                                 |
+| ----------- | --------------------------------- | ---------------------------------- |
+| `%token`    | 声明终结符（token），Yacc 自动为其分配编号        | `%token NUM ID`                    |
+| `%left`     | 声明左结合运算符，**同时指定优先级**——写在越下面的优先级越高 | `%left PLUS MINUS`                 |
+| `%right`    | 声明右结合运算符                          | `%right ASSIGN`                    |
+| `%nonassoc` | 声明不可结合的运算符（如比较符连续出现时报错）           | `%nonassoc LT GT`                  |
+| `%union`    | 定义属性值的 C 联合类型（`$$`、`$1` 等的类型）     | `%union { int ival; char *sval; }` |
+| `%type`     | 给非终结符指定 union 中的字段类型              | `%type <ival> exp term factor`     |
+| `%start`    | 指定开始符号（默认第一条规则的左部）                | `%start program`                   |
 
 **优先级与结合性消除歧义的机制**：
 

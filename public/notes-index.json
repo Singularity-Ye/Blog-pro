@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T02:11:50.250Z",
+  "generatedAt": "2026-05-25T03:10:59.035Z",
   "vaultPath": "C:\\Users\\Yhx06\\Documents\\Obsidian Vault",
   "manifestPath": "D:\\Yhx06\\Documents\\全栈学习模板\\个人博客网站\\personal-blog\\scripts\\publish-manifest.json",
   "publicFrontmatterFields": [
@@ -111,7 +111,7 @@
       "label": "编译原理",
       "root": "编译原理",
       "kind": "compiler-theory",
-      "count": 36
+      "count": 38
     }
   ],
   "notes": [
@@ -3840,6 +3840,42 @@
       "path": "Lab/lab1/多模式词法_NFA并与子集构造.md"
     },
     {
+      "id": "编译原理/Lab/lab2/Lab2-YACC科学计算器语法分析",
+      "slug": "编译原理/Lab/lab2/Lab2-YACC科学计算器语法分析",
+      "title": "Lab 2 — YACC/Bison 科学计算器语法分析",
+      "tags": [
+        "编译原理",
+        "实验",
+        "Yacc",
+        "Bison",
+        "AST",
+        "冲突分析",
+        "1"
+      ],
+      "aliases": [],
+      "collection": "compiler-theory",
+      "collectionLabel": "编译原理",
+      "path": "Lab/lab2/Lab2-YACC科学计算器语法分析.md"
+    },
+    {
+      "id": "编译原理/Lab/lab2/Lab2-实验分析报告",
+      "slug": "编译原理/Lab/lab2/Lab2-实验分析报告",
+      "title": "Lab 2 科学计算器语法分析——实验分析报告",
+      "tags": [
+        "编译原理",
+        "实验",
+        "Yacc",
+        "Bison",
+        "AST",
+        "冲突分析",
+        "include"
+      ],
+      "aliases": [],
+      "collection": "compiler-theory",
+      "collectionLabel": "编译原理",
+      "path": "Lab/lab2/Lab2-实验分析报告.md"
+    },
+    {
       "id": "编译原理/lr0-slr1——LR 语法分析核心术语索引",
       "slug": "编译原理/lr0-slr1——LR 语法分析核心术语索引",
       "title": "LR 语法分析核心术语索引",
@@ -5708,6 +5744,18 @@
       "lab/lab1/多模式词法_nfa并与子集构造": [
         "编译原理/Lab/lab1/多模式词法_NFA并与子集构造"
       ],
+      "编译原理/lab/lab2/lab2-yacc科学计算器语法分析": [
+        "编译原理/Lab/lab2/Lab2-YACC科学计算器语法分析"
+      ],
+      "lab/lab2/lab2-yacc科学计算器语法分析": [
+        "编译原理/Lab/lab2/Lab2-YACC科学计算器语法分析"
+      ],
+      "编译原理/lab/lab2/lab2-实验分析报告": [
+        "编译原理/Lab/lab2/Lab2-实验分析报告"
+      ],
+      "lab/lab2/lab2-实验分析报告": [
+        "编译原理/Lab/lab2/Lab2-实验分析报告"
+      ],
       "编译原理/lr0-slr1——lr 语法分析核心术语索引": [
         "编译原理/lr0-slr1——LR 语法分析核心术语索引"
       ],
@@ -6661,6 +6709,12 @@
       "多模式词法_nfa并与子集构造": [
         "编译原理/Lab/lab1/多模式词法_NFA并与子集构造"
       ],
+      "lab2-yacc科学计算器语法分析": [
+        "编译原理/Lab/lab2/Lab2-YACC科学计算器语法分析"
+      ],
+      "lab2-实验分析报告": [
+        "编译原理/Lab/lab2/Lab2-实验分析报告"
+      ],
       "lr0-slr1——lr 语法分析核心术语索引": [
         "编译原理/lr0-slr1——LR 语法分析核心术语索引"
       ],
@@ -7509,6 +7563,12 @@
       "多模式词法分析：nfa ε-并 + 子集构造（方案二）": [
         "编译原理/Lab/lab1/多模式词法_NFA并与子集构造"
       ],
+      "lab 2 — yacc/bison 科学计算器语法分析": [
+        "编译原理/Lab/lab2/Lab2-YACC科学计算器语法分析"
+      ],
+      "lab 2 科学计算器语法分析——实验分析报告": [
+        "编译原理/Lab/lab2/Lab2-实验分析报告"
+      ],
       "lr 语法分析核心术语索引": [
         "编译原理/lr0-slr1——LR 语法分析核心术语索引"
       ],
@@ -7733,7 +7793,7 @@
     }
   },
   "wikilinkReport": {
-    "unresolvedCount": 136,
+    "unresolvedCount": 140,
     "ambiguousCount": 0,
     "unresolvedExamples": [
       {

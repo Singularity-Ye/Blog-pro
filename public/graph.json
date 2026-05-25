@@ -3725,6 +3725,42 @@
       "path": "Lab/lab1/多模式词法_NFA并与子集构造.md"
     },
     {
+      "id": "编译原理/Lab/lab2/Lab2-YACC科学计算器语法分析",
+      "slug": "编译原理/Lab/lab2/Lab2-YACC科学计算器语法分析",
+      "title": "Lab 2 — YACC/Bison 科学计算器语法分析",
+      "tags": [
+        "编译原理",
+        "实验",
+        "Yacc",
+        "Bison",
+        "AST",
+        "冲突分析",
+        "1"
+      ],
+      "aliases": [],
+      "collection": "compiler-theory",
+      "collectionLabel": "编译原理",
+      "path": "Lab/lab2/Lab2-YACC科学计算器语法分析.md"
+    },
+    {
+      "id": "编译原理/Lab/lab2/Lab2-实验分析报告",
+      "slug": "编译原理/Lab/lab2/Lab2-实验分析报告",
+      "title": "Lab 2 科学计算器语法分析——实验分析报告",
+      "tags": [
+        "编译原理",
+        "实验",
+        "Yacc",
+        "Bison",
+        "AST",
+        "冲突分析",
+        "include"
+      ],
+      "aliases": [],
+      "collection": "compiler-theory",
+      "collectionLabel": "编译原理",
+      "path": "Lab/lab2/Lab2-实验分析报告.md"
+    },
+    {
       "id": "编译原理/lr0-slr1——LR 语法分析核心术语索引",
       "slug": "编译原理/lr0-slr1——LR 语法分析核心术语索引",
       "title": "LR 语法分析核心术语索引",
@@ -9535,6 +9571,82 @@
       "target": "Linux学习笔记/树莓派SSH与远程桌面连接指南"
     },
     {
+      "source": "编译原理/Lab/lab2/Lab2-YACC科学计算器语法分析",
+      "target": "编译原理/Yacc与LALR(1)"
+    },
+    {
+      "source": "编译原理/Lab/lab2/Lab2-YACC科学计算器语法分析",
+      "target": "编译原理/关系图谱-节点内容/综合属性"
+    },
+    {
+      "source": "编译原理/Lab/lab2/Lab2-YACC科学计算器语法分析",
+      "target": "编译原理/LR系列对比总览"
+    },
+    {
+      "source": "编译原理/Lab/lab2/Lab2-YACC科学计算器语法分析",
+      "target": "编译原理/关系图谱-节点内容/移进-归约冲突"
+    },
+    {
+      "source": "编译原理/Lab/lab2/Lab2-YACC科学计算器语法分析",
+      "target": "编译原理/关系图谱-节点内容/归约-归约冲突"
+    },
+    {
+      "source": "编译原理/Lab/lab2/Lab2-YACC科学计算器语法分析",
+      "target": "编译原理/关系图谱-节点内容/S-属性文法"
+    },
+    {
+      "source": "编译原理/Lab/lab2/Lab2-YACC科学计算器语法分析",
+      "target": "编译原理/关系图谱-节点内容/属性文法"
+    },
+    {
+      "source": "编译原理/Lab/lab2/Lab2-YACC科学计算器语法分析",
+      "target": "编译原理/关系图谱-节点内容/Action 表"
+    },
+    {
+      "source": "编译原理/Lab/lab2/Lab2-YACC科学计算器语法分析",
+      "target": "编译原理/关系图谱-节点内容/Goto 表"
+    },
+    {
+      "source": "编译原理/Lab/lab2/Lab2-YACC科学计算器语法分析",
+      "target": "编译原理/关系图谱-节点内容/项目集规范族"
+    },
+    {
+      "source": "编译原理/Lab/lab2/Lab2-YACC科学计算器语法分析",
+      "target": "编译原理/编译原理阶段总结"
+    },
+    {
+      "source": "编译原理/Lab/lab2/Lab2-实验分析报告",
+      "target": "编译原理/Yacc与LALR(1)"
+    },
+    {
+      "source": "编译原理/Lab/lab2/Lab2-实验分析报告",
+      "target": "编译原理/关系图谱-节点内容/综合属性"
+    },
+    {
+      "source": "编译原理/Lab/lab2/Lab2-实验分析报告",
+      "target": "编译原理/关系图谱-节点内容/移进-归约冲突"
+    },
+    {
+      "source": "编译原理/Lab/lab2/Lab2-实验分析报告",
+      "target": "编译原理/LR系列对比总览"
+    },
+    {
+      "source": "编译原理/Lab/lab2/Lab2-实验分析报告",
+      "target": "编译原理/Lab/lab2/Lab2-YACC科学计算器语法分析"
+    },
+    {
+      "source": "编译原理/Lab/lab2/Lab2-实验分析报告",
+      "target": "编译原理/关系图谱-节点内容/S-属性文法"
+    },
+    {
+      "source": "编译原理/Lab/lab2/Lab2-实验分析报告",
+      "target": "编译原理/关系图谱-节点内容/属性文法"
+    },
+    {
+      "source": "编译原理/Lab/lab2/Lab2-实验分析报告",
+      "target": "编译原理/编译原理阶段总结"
+    },
+    {
       "source": "编译原理/lr0-slr1——LR 语法分析核心术语索引",
       "target": "编译原理/关系图谱-节点内容/LR(0) 项目"
     },
@@ -11951,6 +12063,18 @@
       "lab/lab1/多模式词法_nfa并与子集构造": [
         "编译原理/Lab/lab1/多模式词法_NFA并与子集构造"
       ],
+      "编译原理/lab/lab2/lab2-yacc科学计算器语法分析": [
+        "编译原理/Lab/lab2/Lab2-YACC科学计算器语法分析"
+      ],
+      "lab/lab2/lab2-yacc科学计算器语法分析": [
+        "编译原理/Lab/lab2/Lab2-YACC科学计算器语法分析"
+      ],
+      "编译原理/lab/lab2/lab2-实验分析报告": [
+        "编译原理/Lab/lab2/Lab2-实验分析报告"
+      ],
+      "lab/lab2/lab2-实验分析报告": [
+        "编译原理/Lab/lab2/Lab2-实验分析报告"
+      ],
       "编译原理/lr0-slr1——lr 语法分析核心术语索引": [
         "编译原理/lr0-slr1——LR 语法分析核心术语索引"
       ],
@@ -12904,6 +13028,12 @@
       "多模式词法_nfa并与子集构造": [
         "编译原理/Lab/lab1/多模式词法_NFA并与子集构造"
       ],
+      "lab2-yacc科学计算器语法分析": [
+        "编译原理/Lab/lab2/Lab2-YACC科学计算器语法分析"
+      ],
+      "lab2-实验分析报告": [
+        "编译原理/Lab/lab2/Lab2-实验分析报告"
+      ],
       "lr0-slr1——lr 语法分析核心术语索引": [
         "编译原理/lr0-slr1——LR 语法分析核心术语索引"
       ],
@@ -13752,6 +13882,12 @@
       "多模式词法分析：nfa ε-并 + 子集构造（方案二）": [
         "编译原理/Lab/lab1/多模式词法_NFA并与子集构造"
       ],
+      "lab 2 — yacc/bison 科学计算器语法分析": [
+        "编译原理/Lab/lab2/Lab2-YACC科学计算器语法分析"
+      ],
+      "lab 2 科学计算器语法分析——实验分析报告": [
+        "编译原理/Lab/lab2/Lab2-实验分析报告"
+      ],
       "lr 语法分析核心术语索引": [
         "编译原理/lr0-slr1——LR 语法分析核心术语索引"
       ],
@@ -13976,7 +14112,7 @@
     }
   },
   "wikilinkReport": {
-    "unresolvedCount": 136,
+    "unresolvedCount": 140,
     "ambiguousCount": 0,
     "unresolvedExamples": [
       {
