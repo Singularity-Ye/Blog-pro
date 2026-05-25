@@ -25,7 +25,11 @@ const Main = styled(motion.main)`
 
 const Layout = ({ children }) => {
   const location = useLocation();
-  const isImmersivePage = location.pathname === '/' || location.pathname.startsWith('/blog');
+  const isImmersivePage =
+    location.pathname === '/' ||
+    location.pathname.startsWith('/blog') ||
+    location.pathname === '/contact' ||
+    location.pathname === '/graph';
 
   return (
     <LayoutWrapper>
