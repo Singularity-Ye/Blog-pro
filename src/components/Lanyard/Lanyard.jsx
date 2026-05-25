@@ -186,10 +186,10 @@ function loadCardBackTexture(bgImgSrc, callback) {
     // 绘制处理好的透明卡牌背景
     ctx.drawImage(bgCanvas, 0, 0);
 
-    const panelX = W * 0.18;
-    const panelY = H * 0.285;
-    const panelW = W * 0.64;
-    const panelH = H * 0.49;
+    const panelX = W * 0.13;
+    const panelY = H * 0.275;
+    const panelW = W * 0.74;
+    const panelH = H * 0.5;
     const panelGradient = ctx.createLinearGradient(0, panelY, 0, panelY + panelH);
     panelGradient.addColorStop(0, 'rgba(4, 44, 52, 0.34)');
     panelGradient.addColorStop(0.52, 'rgba(9, 71, 78, 0.2)');
@@ -212,39 +212,37 @@ function loadCardBackTexture(bgImgSrc, callback) {
     ctx.save();
     ctx.shadowColor = 'rgba(0, 24, 32, 0.75)';
     ctx.shadowBlur = W * 0.018;
-    ctx.font = `bold ${W * 0.052}px "Inter", "SF Pro", "Microsoft YaHei", sans-serif`;
+    ctx.font = `bold ${W * 0.068}px "Inter", "SF Pro", "Microsoft YaHei", sans-serif`;
     ctx.lineWidth = W * 0.006;
     ctx.strokeStyle = 'rgba(4, 30, 36, 0.72)';
     ctx.fillStyle = 'rgba(255, 232, 150, 0.98)';
-    ctx.strokeText('池畔手札', W / 2, H * 0.31);
-    ctx.fillText('池畔手札', W / 2, H * 0.31);
+    ctx.strokeText('池畔手札', W / 2, H * 0.325);
+    ctx.fillText('池畔手札', W / 2, H * 0.325);
     ctx.restore();
 
     // 3.2 细分割线
     ctx.strokeStyle = 'rgba(231, 199, 126, 0.2)';
     ctx.lineWidth = 1.5;
     ctx.beginPath();
-    ctx.moveTo(W * 0.25, H * 0.35);
-    ctx.lineTo(W * 0.75, H * 0.35);
+    ctx.moveTo(W * 0.22, H * 0.37);
+    ctx.lineTo(W * 0.78, H * 0.37);
     ctx.stroke();
 
     // 3.3 正文
     ctx.fillStyle = 'rgba(252, 250, 238, 0.98)';
     ctx.strokeStyle = 'rgba(1, 25, 32, 0.64)';
-    ctx.lineWidth = W * 0.0045;
+    ctx.lineWidth = W * 0.0055;
     ctx.shadowColor = 'rgba(0, 18, 24, 0.72)';
     ctx.shadowBlur = W * 0.008;
-    ctx.font = `600 ${W * 0.031}px "Inter", "SF Pro", "Microsoft YaHei", sans-serif`;
-    const startY = H * 0.415; // 590 / 1448 ~ 0.41
-    const lineHeight = H * 0.048; // ~70px line height
+    ctx.font = `700 ${W * 0.041}px "Inter", "SF Pro", "Microsoft YaHei", sans-serif`;
+    const startY = H * 0.45;
+    const lineHeight = H * 0.073;
 
     const lines = [
-      '谢谢你沿着粼粼水光，叩开这扇隐秘的林间之门。',
-      '愿你在喧嚣的世界里，能拥有一方安静的池塘；',
-      '愿你拥有睡到自然醒的清晨，和没有Bug的温热午后，',
-      '走过的旅途都有清风与暖阳。',
-      '如果累了，不妨在池塘边听听蛙鸣，',
-      '松果屋会在这里，慢慢守候每一个漂流的故事。'
+      '愿你拥有安静的池塘，',
+      '睡到自然醒的清晨，',
+      '没有 Bug 的温热午后，',
+      '和一路清风与暖阳。'
     ];
 
     lines.forEach((line, idx) => {
@@ -256,9 +254,9 @@ function loadCardBackTexture(bgImgSrc, callback) {
     ctx.fillStyle = 'rgba(255, 232, 150, 0.94)';
     ctx.strokeStyle = 'rgba(1, 25, 32, 0.64)';
     ctx.lineWidth = W * 0.004;
-    ctx.font = `italic 600 ${W * 0.025}px "Inter", "SF Pro", "Microsoft YaHei", sans-serif`;
-    ctx.strokeText('—— 见习魔法师 · Singularity_Ye', W / 2, H * 0.74);
-    ctx.fillText('—— 见习魔法师 · Singularity_Ye', W / 2, H * 0.74);
+    ctx.font = `italic 700 ${W * 0.034}px "Inter", "SF Pro", "Microsoft YaHei", sans-serif`;
+    ctx.strokeText('—— Singularity_Ye', W / 2, H * 0.76);
+    ctx.fillText('—— Singularity_Ye', W / 2, H * 0.76);
 
     const tex = new THREE.CanvasTexture(canvas);
     tex.colorSpace = THREE.SRGBColorSpace;
@@ -442,9 +440,6 @@ const CARD_H = CARD_W * (1448 / 1086);
 
 // 物理与视觉参数
 const CARD_VISUAL_SCALE = 2.25;
-const CARD_MIN_ZOOM = 0.72;
-const CARD_MAX_ZOOM = 1.38;
-const CARD_ZOOM_STEP = 0.0018;
 const CONNECTOR_SCALE = 1.25;
 
 // 鱼竿 tip 在 Frog 局部坐标系下的位置
@@ -506,12 +501,9 @@ function FrogTongueBand({ maxSpeed = 50, minSpeed = 0, interactive = true }) {
   );
   const [dragged, drag] = useState(false);
   const [hovered, hover] = useState(false);
-  const [selected, setSelected] = useState(false);
-  const [cardZoom, setCardZoom] = useState(1);
   const [isFlipped, setIsFlipped] = useState(false);
   const dragStartPos = useRef({ x: 0, y: 0 });
   const hoveredRef = useRef(false);
-  const selectedRef = useRef(false);
 
   // 物理挂载关节
   useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], 0.8]);
@@ -523,30 +515,24 @@ function FrogTongueBand({ maxSpeed = 50, minSpeed = 0, interactive = true }) {
     hoveredRef.current = hovered;
   }, [hovered]);
 
-  useEffect(() => {
-    selectedRef.current = selected;
-  }, [selected]);
-
   // pointer styles
   useEffect(() => {
     if (!interactive) {
       document.body.style.cursor = 'auto';
       return;
     }
-    if (hovered || dragged || selected) {
-      document.body.style.cursor = dragged ? 'grabbing' : selected ? 'zoom-in' : 'grab';
+    if (hovered || dragged) {
+      document.body.style.cursor = dragged ? 'grabbing' : 'grab';
     } else {
       document.body.style.cursor = 'auto';
     }
     return () => {
       document.body.style.cursor = 'auto';
     };
-  }, [hovered, dragged, selected, interactive]);
+  }, [hovered, dragged, interactive]);
 
   const resetCard = useCallback(() => {
     setIsFlipped(false);
-    setSelected(false);
-    setCardZoom(1);
     if (card.current && fixed.current && j1.current && j2.current && j3.current) {
       // 物理坐标复位
       card.current.setTranslation({ x: startX + ROPE_X_OFFSET, y: startY - 3.1, z: 0 }, true);
@@ -571,7 +557,6 @@ function FrogTongueBand({ maxSpeed = 50, minSpeed = 0, interactive = true }) {
 
   const flipCard = useCallback(() => {
     wakeRig();
-    setSelected(true);
     setIsFlipped((prev) => {
       const next = !prev;
       card.current?.setAngvel({ x: 0, y: next ? 7.5 : -7.5, z: 0 }, true);
@@ -591,24 +576,6 @@ function FrogTongueBand({ maxSpeed = 50, minSpeed = 0, interactive = true }) {
       }
     };
   }, [flipCard, resetCard]);
-
-  useEffect(() => {
-    if (!interactive || typeof window === 'undefined') return undefined;
-
-    const handleCardWheel = (event) => {
-      if (!selectedRef.current || !hoveredRef.current) return;
-      event.preventDefault();
-      event.stopPropagation();
-      wakeRig();
-      setCardZoom((value) => {
-        const next = value - event.deltaY * CARD_ZOOM_STEP;
-        return Math.max(CARD_MIN_ZOOM, Math.min(CARD_MAX_ZOOM, next));
-      });
-    };
-
-    window.addEventListener('wheel', handleCardWheel, { passive: false, capture: true });
-    return () => window.removeEventListener('wheel', handleCardWheel, { capture: true });
-  }, [interactive, wakeRig]);
 
   useFrame((state, delta) => {
     const vec = vecRef.current;
@@ -763,16 +730,16 @@ function FrogTongueBand({ maxSpeed = 50, minSpeed = 0, interactive = true }) {
           type={dragged ? 'kinematicPosition' : 'dynamic'}
         >
           {/* 名片碰撞盒 */}
-          <CuboidCollider args={[(CARD_W * CARD_VISUAL_SCALE * cardZoom) / 2, ((CARD_H + 0.12) * CARD_VISUAL_SCALE * cardZoom) / 2, 0.02]} />
+          <CuboidCollider args={[(CARD_W * CARD_VISUAL_SCALE) / 2, ((CARD_H + 0.12) * CARD_VISUAL_SCALE) / 2, 0.02]} />
 
           {/* ── 顶部挂接孔环 (Torus) ── */}
-          <group position={[0, CONNECTOR_JOINT_Y, 0.025]} scale={CONNECTOR_SCALE * cardZoom}>
+          <group position={[0, CONNECTOR_JOINT_Y, 0.025]} scale={CONNECTOR_SCALE}>
             <CardConnector />
           </group>
 
           {/* ── 名片主体 — scale 2.25 ── */}
           <group
-            scale={CARD_VISUAL_SCALE * cardZoom}
+            scale={CARD_VISUAL_SCALE}
             position={[0, -CARD_H / 2, -0.05]}
             onPointerOver={interactive ? () => hover(true) : undefined}
             onPointerOut={interactive ? () => hover(false) : undefined}
@@ -789,7 +756,6 @@ function FrogTongueBand({ maxSpeed = 50, minSpeed = 0, interactive = true }) {
               if (e.button !== 0) return;
               e.stopPropagation();
               e.target.setPointerCapture?.(e.pointerId);
-              setSelected(true);
               wakeRig();
               dragStartPos.current = { x: e.clientX, y: e.clientY };
               drag(
