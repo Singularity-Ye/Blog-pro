@@ -366,6 +366,23 @@ function toNoteHref(slug) {
   return `/note/${String(slug).split('/').map(encodeURIComponent).join('/')}`;
 }
 
+function getTextContent(value) {
+  if (Array.isArray(value)) return value.map(getTextContent).join('');
+  if (value === null || value === undefined || typeof value === 'boolean') return '';
+  if (typeof value === 'string' || typeof value === 'number') return String(value);
+  if (value?.props?.children) return getTextContent(value.props.children);
+  return '';
+}
+
+function slugifyHeading(value) {
+  return getTextContent(value)
+    .trim()
+    .toLowerCase()
+    .replace(/`/g, '')
+    .replace(/[^\p{Letter}\p{Number}_\s-]/gu, '')
+    .replace(/\s+/g, '-');
+}
+
 function normalizeLinkKey(value) {
   return String(value || '').trim().replace(/\.md$/i, '').toLowerCase();
 }
@@ -449,16 +466,24 @@ function extractHeadings(markdown) {
   const headings = [];
   const lines = markdown.split('\n');
   for (const line of lines) {
-    const match = line.match(/^(#{1,4})\s+(.+)$/);
+    const match = line.match(/^(#{1,6})\s+(.+)$/);
     if (match) {
       headings.push({
         level: match[1].length,
         text: match[2].trim(),
-        id: match[2].trim().toLowerCase().replace(/\s+/g, '-').replace(/[^\w一-鿿-]/g, ''),
+        id: slugifyHeading(match[2]),
       });
     }
   }
   return headings;
+}
+
+function Heading({ as: Tag, children, ...props }) {
+  return (
+    <Tag id={slugifyHeading(children)} {...props}>
+      {children}
+    </Tag>
+  );
 }
 
 const PROPERTY_LABELS = {
@@ -672,6 +697,23 @@ export default function Note() {
     ? `/graph?collection=${encodeURIComponent(currentNode.collection)}`
     : '/graph';
 
+  useEffect(() => {
+    if (loading || !location.hash) return undefined;
+
+    let frameId = 0;
+    const timeoutId = window.setTimeout(() => {
+      frameId = window.requestAnimationFrame(() => {
+        const targetId = decodeURIComponent(location.hash.slice(1));
+        document.getElementById(targetId)?.scrollIntoView({ block: 'start' });
+      });
+    }, 0);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+      if (frameId) window.cancelAnimationFrame(frameId);
+    };
+  }, [decodedSlug, loading, location.hash, parsedNote.body]);
+
   if (loading) {
     return (
       <NoteLayout>
@@ -740,18 +782,12 @@ export default function Note() {
           <ReactMarkdown
             remarkPlugins={[remarkGfm, [remarkWikilinks, { resolve: wikilinkResolver }]]}
             components={{
-              h1: ({children, ...props}) => {
-                const id = String(children).toLowerCase().replace(/\s+/g, '-').replace(/[^\w一-鿿-]/g, '');
-                return <h1 id={id} {...props}>{children}</h1>;
-              },
-              h2: ({children, ...props}) => {
-                const id = String(children).toLowerCase().replace(/\s+/g, '-').replace(/[^\w一-鿿-]/g, '');
-                return <h2 id={id} {...props}>{children}</h2>;
-              },
-              h3: ({children, ...props}) => {
-                const id = String(children).toLowerCase().replace(/\s+/g, '-').replace(/[^\w一-鿿-]/g, '');
-                return <h3 id={id} {...props}>{children}</h3>;
-              },
+              h1: ({children, ...props}) => <Heading as="h1" {...props}>{children}</Heading>,
+              h2: ({children, ...props}) => <Heading as="h2" {...props}>{children}</Heading>,
+              h3: ({children, ...props}) => <Heading as="h3" {...props}>{children}</Heading>,
+              h4: ({children, ...props}) => <Heading as="h4" {...props}>{children}</Heading>,
+              h5: ({children, ...props}) => <Heading as="h5" {...props}>{children}</Heading>,
+              h6: ({children, ...props}) => <Heading as="h6" {...props}>{children}</Heading>,
               a: ({href, children, ...props}) => {
                 if (href?.startsWith('#wikilink-unresolved:')) {
                   return (
