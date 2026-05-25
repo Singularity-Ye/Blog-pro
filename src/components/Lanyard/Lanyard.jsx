@@ -36,16 +36,16 @@ function getBackTexture() {
   canvas.height = H;
   const ctx = canvas.getContext('2d');
 
-  // 背景：金黑与曜岩黑
+  // 背景：深曜黑色与微弱琥珀暖调渐变
   const bg = ctx.createLinearGradient(0, 0, 0, H);
-  bg.addColorStop(0, '#0a0805');
-  bg.addColorStop(0.5, '#1e160d');
-  bg.addColorStop(1, '#0a0805');
+  bg.addColorStop(0, '#070503');
+  bg.addColorStop(0.5, '#1b120a');
+  bg.addColorStop(1, '#070503');
   ctx.fillStyle = bg;
   ctx.fillRect(0, 0, W, H);
 
   // 微弱网格
-  ctx.strokeStyle = 'rgba(231, 199, 126, 0.04)';
+  ctx.strokeStyle = 'rgba(231, 199, 126, 0.03)';
   ctx.lineWidth = 1;
   for (let x = 0; x < W; x += 40) {
     ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
@@ -57,8 +57,8 @@ function getBackTexture() {
   const px = (v) => v * (W / 400);
 
   // 绘制同心虚线圆 (魔法星盘/齿轮背景)
-  ctx.strokeStyle = 'rgba(231, 199, 126, 0.08)';
-  ctx.lineWidth = 1.5;
+  ctx.strokeStyle = 'rgba(231, 199, 126, 0.06)';
+  ctx.lineWidth = 1.2;
   ctx.setLineDash([px(6), px(6)]);
   ctx.beginPath();
   ctx.arc(W / 2, H / 2, px(85), 0, Math.PI * 2);
@@ -69,28 +69,24 @@ function getBackTexture() {
   ctx.setLineDash([]);
 
   // 双层金色边框
-  ctx.strokeStyle = 'rgba(231, 199, 126, 0.35)';
+  ctx.strokeStyle = 'rgba(231, 199, 126, 0.3)';
   ctx.lineWidth = 2.0;
   ctx.strokeRect(px(16), px(16), W - px(32), H - px(32));
 
-  ctx.strokeStyle = 'rgba(231, 199, 126, 0.15)';
+  ctx.strokeStyle = 'rgba(231, 199, 126, 0.12)';
   ctx.lineWidth = 1.0;
   ctx.strokeRect(px(22), px(22), W - px(44), H - px(44));
 
   // 绘制精致四角边框细节
-  ctx.fillStyle = 'rgba(231, 199, 126, 0.65)';
+  ctx.fillStyle = 'rgba(231, 199, 126, 0.55)';
   const cornerLen = px(12);
   const pad = px(16);
-  // Top-left
   ctx.fillRect(pad, pad, cornerLen, 3);
   ctx.fillRect(pad, pad, 3, cornerLen);
-  // Top-right
   ctx.fillRect(W - pad - cornerLen, pad, cornerLen, 3);
   ctx.fillRect(W - pad, pad, 3, cornerLen);
-  // Bottom-left
   ctx.fillRect(pad, H - pad, cornerLen, 3);
   ctx.fillRect(pad, H - pad - cornerLen, 3, cornerLen);
-  // Bottom-right
   ctx.fillRect(W - pad - cornerLen, H - pad, cornerLen, 3);
   ctx.fillRect(W - pad, H - pad - cornerLen, 3, cornerLen);
 
@@ -98,80 +94,69 @@ function getBackTexture() {
 
   // ── 标题与发光效果 ──
   ctx.save();
-  ctx.shadowColor = 'rgba(231, 199, 126, 0.4)';
-  ctx.shadowBlur = 12;
-  ctx.font = `bold ${px(14.5)}px "Inter", "SF Pro", system-ui, sans-serif`;
+  ctx.shadowColor = 'rgba(231, 199, 126, 0.35)';
+  ctx.shadowBlur = 10;
+  ctx.font = `bold ${px(14)}px "Inter", "SF Pro", system-ui, sans-serif`;
   ctx.fillStyle = 'rgba(231, 199, 126, 0.85)';
-  ctx.fillText('EXPLORER PROFILE', W / 2, px(72));
+  ctx.fillText('POND WHISPERS', W / 2, px(72));
   ctx.restore();
 
   // 分隔线
-  ctx.strokeStyle = 'rgba(231, 199, 126, 0.22)';
-  ctx.lineWidth = 1.5;
+  ctx.strokeStyle = 'rgba(231, 199, 126, 0.2)';
+  ctx.lineWidth = 1.2;
   ctx.beginPath();
   ctx.moveTo(px(50), px(92));
   ctx.lineTo(W - px(50), px(92));
   ctx.stroke();
 
-  // ── 身份信息 — 大字 ──
-  const labelX = W * 0.18;
-  const valX = W * 0.40;
-  let yPosition = px(132);
-  const gap = px(48);
+  // ── 寄语正文 (排版为手写体信件风格) ──
+  ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(245, 239, 227, 0.9)';
+  ctx.font = `500 ${px(12.5)}px "Inter", "SF Pro", "Microsoft YaHei", sans-serif`;
+  
+  let startY = px(155);
+  const lineHeight = px(28);
 
-  const drawRow = (label, value) => {
-    ctx.textAlign = 'left';
-    ctx.font = `bold ${px(10.5)}px "Inter", "SF Mono", monospace`;
-    ctx.fillStyle = 'rgba(231, 199, 126, 0.65)';
-    ctx.fillText(label, labelX, yPosition);
-
-    ctx.font = `${px(11)}px "Inter", system-ui, sans-serif`;
-    ctx.fillStyle = 'rgba(245, 239, 227, 0.95)';
-    ctx.fillText(value, valX, yPosition);
-    yPosition += gap;
+  const writeLine = (text) => {
+    ctx.fillText(text, W / 2, startY);
+    startY += lineHeight;
   };
 
-  drawRow('ROLE', 'Web Craftsperson / Digital Alchemist');
-  drawRow('MISSION', 'Create immersive web spaces');
-  drawRow('STACK', 'React · Three.js · Obsidian · AI');
-  drawRow('STATUS', '🍃 Resting & Fishing');
+  writeLine('致来访的旅人：');
+  startY += px(12); // 段落间距
+  writeLine('愿你在喧嚣的世界中，');
+  writeLine('能拥有一方安静的池塘；');
+  writeLine('愿你编写的代码温暖明亮，');
+  writeLine('身边的旅途常有清风与暖阳。');
+  startY += px(12);
+  writeLine('祝你心有所向，步履轻盈。');
+  
+  // ── 署名 ──
+  startY += px(36);
+  ctx.fillStyle = 'rgba(231, 199, 126, 0.75)';
+  ctx.font = `italic 500 ${px(11)}px "Inter", "SF Pro", "Microsoft YaHei", sans-serif`;
+  ctx.fillText('—— 松果屋屋主', W / 2, startY);
 
   // 分隔线
-  yPosition += px(6);
-  ctx.strokeStyle = 'rgba(231, 199, 126, 0.18)';
-  ctx.lineWidth = 1.5;
-  ctx.beginPath();
-  ctx.moveTo(px(50), yPosition);
-  ctx.lineTo(W - px(50), yPosition);
-  ctx.stroke();
-  yPosition += px(30);
-
-  // ── 系统信息行 ──
-  ctx.textAlign = 'center';
-  ctx.font = `${px(9.5)}px "Inter", "SF Mono", monospace`;
-  ctx.fillStyle = 'rgba(245, 239, 227, 0.45)';
-  ctx.fillText('Blog · Obsidian · Travel Atlas', W / 2, yPosition);
-  yPosition += px(36);
-
-  // 分隔线
-  ctx.strokeStyle = 'rgba(231, 199, 126, 0.12)';
+  startY += px(42);
+  ctx.strokeStyle = 'rgba(231, 199, 126, 0.1)';
   ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.moveTo(px(80), yPosition);
-  ctx.lineTo(W - px(80), yPosition);
+  ctx.moveTo(px(80), startY);
+  ctx.lineTo(W - px(80), startY);
   ctx.stroke();
-  yPosition += px(36);
+  startY += px(36);
 
-  // ── 底部标语 ──
-  ctx.font = `italic ${px(10)}px "Inter", system-ui, sans-serif`;
-  ctx.fillStyle = 'rgba(231, 199, 126, 0.52)';
-  ctx.fillText('从笔记出发，延伸到地图、项目与世界。', W / 2, yPosition);
-  yPosition += px(40);
+  // 底部小字
+  ctx.font = `${px(9.5)}px "Inter", "SF Mono", monospace`;
+  ctx.fillStyle = 'rgba(245, 239, 227, 0.35)';
+  ctx.fillText('Blog · Obsidian · Travel Atlas', W / 2, startY);
+  startY += px(30);
 
   // 装饰小点
   for (let i = -2; i <= 2; i++) {
     ctx.beginPath();
-    ctx.arc(W / 2 + i * px(12), yPosition, px(2), 0, Math.PI * 2);
+    ctx.arc(W / 2 + i * px(12), startY, px(2), 0, Math.PI * 2);
     ctx.fillStyle = `rgba(231, 199, 126, ${0.15 + Math.abs(2 - Math.abs(i)) * 0.1})`;
     ctx.fill();
   }
@@ -585,7 +570,7 @@ function FrogTongueBand({ maxSpeed = 50, minSpeed = 0, interactive = true }) {
       let diff = rotY - targetRotY;
       // 保证差值在 [-PI, PI] 之间，以使卡片按最短距离旋转
       diff = Math.atan2(Math.sin(diff), Math.cos(diff));
-      card.current.setAngvel({ x: ang.x, y: ang.y - diff * 2.0, z: ang.z });
+      card.current.setAngvel({ x: ang.x, y: ang.y - diff * 0.9, z: ang.z });
 
       // 将名片坐标转为屏幕投影坐标，以触发背景烟花与水波
       const translation = card.current.translation();
@@ -762,7 +747,7 @@ function FrogTongueBand({ maxSpeed = 50, minSpeed = 0, interactive = true }) {
                 alphaTest={0.1}
                 roughness={0.45}
                 metalness={0.12}
-                side={THREE.FrontSide}
+                side={THREE.DoubleSide}
               />
             </mesh>
           </group>

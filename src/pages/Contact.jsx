@@ -1413,32 +1413,19 @@ export default function Contact() {
                     <CardFront>
                       <TransparentImage src={cardWateryImage} alt="Contact Card Front" style={{ width: '100%', height: '100%' }} />
                     </CardFront>
-                    <CardBack>
-                      <div className="header">EXPLORER PROFILE</div>
-                      <div className="divider"></div>
-                      <div className="rows">
-                        <div className="info-row">
-                          <span className="label">ROLE</span>
-                          <span className="val">Web Craftsperson / Digital Alchemist</span>
-                        </div>
-                        <div className="info-row">
-                          <span className="label">MISSION</span>
-                          <span className="val">Create immersive web spaces</span>
-                        </div>
-                        <div className="info-row">
-                          <span className="label">STACK</span>
-                          <span className="val">React · Three.js · Obsidian · AI</span>
-                        </div>
-                        <div className="info-row">
-                          <span className="label">STATUS</span>
-                          <span className="val">
-                            <span className="status-dot"></span>🍃 Resting & Fishing
-                          </span>
-                        </div>
+                    <CardBack style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '1.8rem 1.5rem', textAlign: 'center' }}>
+                      <div className="header" style={{ fontSize: '1.1rem', color: '#e7c77e', fontWeight: 'bold', marginBottom: '0.4rem', letterSpacing: '0.1em' }}>POND WHISPERS</div>
+                      <div className="divider" style={{ width: '80%', height: '1.2px', background: 'rgba(231, 199, 126, 0.22)', margin: '0.4rem 0 1rem' }}></div>
+                      <div className="letter-content" style={{ fontSize: '0.85rem', color: 'rgba(245, 239, 227, 0.85)', lineHeight: '1.8', margin: '0.4rem 0' }}>
+                        <p style={{ margin: '0.3rem 0', fontWeight: 'bold', color: 'rgba(245, 239, 227, 0.95)' }}>致来访的旅人：</p>
+                        <p style={{ margin: '0.3rem 0' }}>愿你在喧嚣的世界中，</p>
+                        <p style={{ margin: '0.3rem 0' }}>能拥有一方安静的池塘；</p>
+                        <p style={{ margin: '0.3rem 0' }}>愿你编写的代码温暖明亮，</p>
+                        <p style={{ margin: '0.3rem 0' }}>身边的旅途常有清风与暖阳。</p>
+                        <p style={{ margin: '0.6rem 0 0.3rem', fontSize: '0.82rem', fontStyle: 'italic', color: 'rgba(231, 199, 126, 0.75)' }}>祝你心有所向，步履轻盈。</p>
                       </div>
-                      <div className="divider"></div>
-                      <div className="footer-tag">Blog · Obsidian · Travel Atlas</div>
-                      <div className="slogan">从笔记出发，延伸到地图、项目与世界。</div>
+                      <div className="divider" style={{ width: '80%', height: '1px', background: 'rgba(231, 199, 126, 0.1)', margin: '1rem 0 0.6rem' }}></div>
+                      <div className="signature" style={{ fontSize: '0.78rem', color: 'rgba(231, 199, 126, 0.7)', fontStyle: 'italic' }}>—— 松果屋屋主</div>
                     </CardBack>
                   </FlipCard>
                 </CardContainer3D>
@@ -1468,7 +1455,7 @@ export default function Contact() {
                     在青蛙旅人悠闲低垂的钓线末端，正悬挂着一枚水纹潋滟的魔法琉璃名片。
                   </p>
                   <p style={{ fontSize: '1.02rem', color: 'rgba(245, 239, 227, 0.8)', lineHeight: '1.8', marginBottom: '2.2rem' }}>
-                    试着用鼠标轻轻拖曳、甩动它，在泛起波光的魔法水面激起阵阵涟漪。卡片的另一面，则静静镌刻着屋主的探险履历与代码心愿。
+                    试着用鼠标轻轻拖曳、甩动它，在泛起波光的魔法水面激起阵阵涟漪。卡片的另一面，则静静镌刻着屋主对来访者的温和祝福与真挚期盼。
                   </p>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'rgba(231, 199, 126, 0.65)', fontSize: '0.85rem' }}>
                     🖱️ 试着甩动或点击右侧悬挂的卡牌
