@@ -1,7 +1,7 @@
 /* eslint-disable react/no-unknown-property */
 /* @refresh reset */
 'use client';
-import { Suspense, useEffect, useRef, useState, useMemo, useCallback } from 'react';
+import { Suspense, useEffect, useRef, useState, useCallback } from 'react';
 import { Canvas, extend, useFrame, useThree } from '@react-three/fiber';
 import { Environment, Lightformer } from '@react-three/drei';
 import {
@@ -18,156 +18,13 @@ import './Lanyard.css';
 
 import frogImage from '../../assets/images/contact/frog01.png';
 import cardWateryImage from '../../assets/images/contact/card_watery.jpg';
+import cardBackImage from '../../assets/images/contact/cardback_watery.jpg';
 import avatarImage from '../../assets/images/github.png';
 
 extend({ MeshLineGeometry, MeshLineMaterial });
 
 /* ─────────────────────────────────────────
-   卡片背面贴图 — Canvas 动态生成 Explorer Profile
-───────────────────────────────────────── */
-let _backTex = null;
-function getBackTexture() {
-  if (_backTex) return _backTex;
-
-  const W = 778;
-  const H = 1008;
-  const canvas = document.createElement('canvas');
-  canvas.width = W;
-  canvas.height = H;
-  const ctx = canvas.getContext('2d');
-
-  // 背景：深曜黑色与微弱琥珀暖调渐变
-  const bg = ctx.createLinearGradient(0, 0, 0, H);
-  bg.addColorStop(0, '#070503');
-  bg.addColorStop(0.5, '#1b120a');
-  bg.addColorStop(1, '#070503');
-  ctx.fillStyle = bg;
-  ctx.fillRect(0, 0, W, H);
-
-  // 微弱网格
-  ctx.strokeStyle = 'rgba(231, 199, 126, 0.03)';
-  ctx.lineWidth = 1;
-  for (let x = 0; x < W; x += 40) {
-    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
-  }
-  for (let y = 0; y < H; y += 40) {
-    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
-  }
-
-  const px = (v) => v * (W / 400);
-
-  // 绘制同心虚线圆 (魔法星盘/齿轮背景)
-  ctx.strokeStyle = 'rgba(231, 199, 126, 0.06)';
-  ctx.lineWidth = 1.2;
-  ctx.setLineDash([px(6), px(6)]);
-  ctx.beginPath();
-  ctx.arc(W / 2, H / 2, px(85), 0, Math.PI * 2);
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.arc(W / 2, H / 2, px(60), 0, Math.PI * 2);
-  ctx.stroke();
-  ctx.setLineDash([]);
-
-  // 双层金色边框
-  ctx.strokeStyle = 'rgba(231, 199, 126, 0.3)';
-  ctx.lineWidth = 2.0;
-  ctx.strokeRect(px(16), px(16), W - px(32), H - px(32));
-
-  ctx.strokeStyle = 'rgba(231, 199, 126, 0.12)';
-  ctx.lineWidth = 1.0;
-  ctx.strokeRect(px(22), px(22), W - px(44), H - px(44));
-
-  // 绘制精致四角边框细节
-  ctx.fillStyle = 'rgba(231, 199, 126, 0.55)';
-  const cornerLen = px(12);
-  const pad = px(16);
-  ctx.fillRect(pad, pad, cornerLen, 3);
-  ctx.fillRect(pad, pad, 3, cornerLen);
-  ctx.fillRect(W - pad - cornerLen, pad, cornerLen, 3);
-  ctx.fillRect(W - pad, pad, 3, cornerLen);
-  ctx.fillRect(pad, H - pad, cornerLen, 3);
-  ctx.fillRect(pad, H - pad - cornerLen, 3, cornerLen);
-  ctx.fillRect(W - pad - cornerLen, H - pad, cornerLen, 3);
-  ctx.fillRect(W - pad, H - pad - cornerLen, 3, cornerLen);
-
-  ctx.textAlign = 'center';
-
-  // ── 标题与发光效果 ──
-  ctx.save();
-  ctx.shadowColor = 'rgba(231, 199, 126, 0.35)';
-  ctx.shadowBlur = 10;
-  ctx.font = `bold ${px(14)}px "Inter", "SF Pro", system-ui, sans-serif`;
-  ctx.fillStyle = 'rgba(231, 199, 126, 0.85)';
-  ctx.fillText('POND WHISPERS', W / 2, px(72));
-  ctx.restore();
-
-  // 分隔线
-  ctx.strokeStyle = 'rgba(231, 199, 126, 0.2)';
-  ctx.lineWidth = 1.2;
-  ctx.beginPath();
-  ctx.moveTo(px(50), px(92));
-  ctx.lineTo(W - px(50), px(92));
-  ctx.stroke();
-
-  // ── 寄语正文 (排版为手写体信件风格) ──
-  ctx.textAlign = 'center';
-  ctx.fillStyle = 'rgba(245, 239, 227, 0.9)';
-  ctx.font = `500 ${px(12.5)}px "Inter", "SF Pro", "Microsoft YaHei", sans-serif`;
-  
-  let startY = px(155);
-  const lineHeight = px(28);
-
-  const writeLine = (text) => {
-    ctx.fillText(text, W / 2, startY);
-    startY += lineHeight;
-  };
-
-  writeLine('致来访的旅人：');
-  startY += px(12); // 段落间距
-  writeLine('愿你在喧嚣的世界中，');
-  writeLine('能拥有一方安静的池塘；');
-  writeLine('愿你编写的代码温暖明亮，');
-  writeLine('身边的旅途常有清风与暖阳。');
-  startY += px(12);
-  writeLine('祝你心有所向，步履轻盈。');
-  
-  // ── 署名 ──
-  startY += px(36);
-  ctx.fillStyle = 'rgba(231, 199, 126, 0.75)';
-  ctx.font = `italic 500 ${px(11)}px "Inter", "SF Pro", "Microsoft YaHei", sans-serif`;
-  ctx.fillText('—— 松果屋屋主', W / 2, startY);
-
-  // 分隔线
-  startY += px(42);
-  ctx.strokeStyle = 'rgba(231, 199, 126, 0.1)';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(px(80), startY);
-  ctx.lineTo(W - px(80), startY);
-  ctx.stroke();
-  startY += px(36);
-
-  // 底部小字
-  ctx.font = `${px(9.5)}px "Inter", "SF Mono", monospace`;
-  ctx.fillStyle = 'rgba(245, 239, 227, 0.35)';
-  ctx.fillText('Blog · Obsidian · Travel Atlas', W / 2, startY);
-  startY += px(30);
-
-  // 装饰小点
-  for (let i = -2; i <= 2; i++) {
-    ctx.beginPath();
-    ctx.arc(W / 2 + i * px(12), startY, px(2), 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(231, 199, 126, ${0.15 + Math.abs(2 - Math.abs(i)) * 0.1})`;
-    ctx.fill();
-  }
-
-  _backTex = new THREE.CanvasTexture(canvas);
-  _backTex.colorSpace = THREE.SRGBColorSpace;
-  return _backTex;
-}
-
-/* ─────────────────────────────────────────
-   水色玻璃卡牌贴图生成器 — 动态加载背景与头像，处理抠图并在画布上绘制可配置信息
+   名片正面贴图生成器 — 动态加载背景与头像，处理抠图并在画布上绘制可配置信息
 ───────────────────────────────────────── */
 function loadCardFrontTexture(bgImgSrc, avatarImgSrc, callback) {
   const bgImg = new Image();
@@ -214,10 +71,10 @@ function loadCardFrontTexture(bgImgSrc, avatarImgSrc, callback) {
     // 绘制处理好的透明卡牌背景
     ctx.drawImage(bgCanvas, 0, 0);
 
-    // 3. 绘制自定义圆形头像 (对应图三黑底孔窗)
-    const cx = W / 2;          // 389
-    const cy = H * 0.327;      // ~330
-    const r = W * 0.141;       // ~110
+    // 3. 绘制自定义圆形头像 (根据新版 avatar circle 坐标调整)
+    const cx = W / 2;          // 543
+    const cy = H * 0.317;      // 459
+    const r = W * 0.1575;      // 171
 
     ctx.save();
     ctx.beginPath();
@@ -226,16 +83,16 @@ function loadCardFrontTexture(bgImgSrc, avatarImgSrc, callback) {
     ctx.drawImage(avatarImg, cx - r, cy - r, r * 2, r * 2);
     ctx.restore();
 
-    // 4. 绘制名片文本信息 (对应图二的三个空白槽线)
+    // 4. 绘制名片文本信息
     ctx.fillStyle = 'rgba(21, 80, 65, 0.88)'; // 高级深绿松石墨水色
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
 
-    const textX = W * 0.334; // 水平对齐点 ~260
+    const textX = W * 0.334; // 水平对齐点 ~362
     const lines = [
-      '松果屋屋主（Singularity_Ye）',
+      '松果屋主 · Singularity_Ye',
       'y2915872819@gmail.com',
-      '松果屋 · 探索与构建'
+      '哔啵~ 松果电波 · 666 Hz'
     ];
 
     // 动态调整字体大小以防止溢出槽线
@@ -247,10 +104,10 @@ function loadCardFrontTexture(bgImgSrc, avatarImgSrc, callback) {
       ctx.font = `bold ${fontSize}px "Inter", "SF Pro", "Microsoft YaHei", sans-serif`;
     }
 
-    // 写入信息槽
-    ctx.fillText(lines[0], textX, H * 0.515); // 第一栏
-    ctx.fillText(lines[1], textX, H * 0.630); // 第二栏
-    ctx.fillText(lines[2], textX, H * 0.745); // 第三栏
+    // 写入信息槽 (根据新版 slots y-coordinates 调整并上移以居中对齐)
+    ctx.fillText(lines[0], textX, H * 0.534); // 第一栏
+    ctx.fillText(lines[1], textX, H * 0.631); // 第二栏
+    ctx.fillText(lines[2], textX, H * 0.728); // 第三栏
 
     const tex = new THREE.CanvasTexture(canvas);
     tex.colorSpace = THREE.SRGBColorSpace;
@@ -271,6 +128,138 @@ function loadCardFrontTexture(bgImgSrc, avatarImgSrc, callback) {
     avatarLoaded = true;
     draw();
   };
+}
+
+/* ─────────────────────────────────────────
+   名片背面贴图生成器 — 动态加载背景，并在画布上绘制手札正文
+───────────────────────────────────────── */
+function loadCardBackTexture(bgImgSrc, callback) {
+  const bgImg = new Image();
+  bgImg.onload = () => {
+    const W = bgImg.width;
+    const H = bgImg.height;
+
+    // 1. 创建临时 Canvas 用于抠除卡片模板的背景白底
+    const bgCanvas = document.createElement('canvas');
+    bgCanvas.width = W;
+    bgCanvas.height = H;
+    const bgCtx = bgCanvas.getContext('2d');
+    bgCtx.drawImage(bgImg, 0, 0);
+
+    const bgData = bgCtx.getImageData(0, 0, W, H);
+    const data = bgData.data;
+    for (let i = 0; i < data.length; i += 4) {
+      const r = data[i];
+      const g = data[i + 1];
+      const b = data[i + 2];
+      const dist = Math.sqrt((255 - r) ** 2 + (255 - g) ** 2 + (255 - b) ** 2);
+      if (dist < 45) {
+        data[i + 3] = 0; // 完全透明
+      } else if (dist < 85) {
+        const factor = (dist - 45) / 40;
+        data[i + 3] = Math.round(data[i + 3] * factor);
+      }
+    }
+    bgCtx.putImageData(bgData, 0, 0);
+
+    // 2. 创建最终名片 Canvas
+    const canvas = document.createElement('canvas');
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext('2d');
+
+    // 绘制处理好的透明卡牌背景
+    ctx.drawImage(bgCanvas, 0, 0);
+
+    // 3. 绘制背面文字 (池畔手札)
+    ctx.textAlign = 'center';
+
+    // 3.1 标题
+    ctx.save();
+    ctx.shadowColor = 'rgba(231, 199, 126, 0.4)';
+    ctx.shadowBlur = 8;
+    ctx.font = `bold ${W * 0.05}px "Inter", "SF Pro", "Microsoft YaHei", sans-serif`;
+    ctx.fillStyle = 'rgba(231, 199, 126, 0.95)';
+    ctx.fillText('池畔手札', W / 2, H * 0.31);
+    ctx.restore();
+
+    // 3.2 细分割线
+    ctx.strokeStyle = 'rgba(231, 199, 126, 0.2)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(W * 0.25, H * 0.35);
+    ctx.lineTo(W * 0.75, H * 0.35);
+    ctx.stroke();
+
+    // 3.3 正文
+    ctx.fillStyle = 'rgba(245, 239, 227, 0.95)';
+    ctx.font = `500 ${W * 0.0295}px "Inter", "SF Pro", "Microsoft YaHei", sans-serif`;
+    const startY = H * 0.415; // 590 / 1448 ~ 0.41
+    const lineHeight = H * 0.048; // ~70px line height
+
+    const lines = [
+      '谢谢你沿着粼粼水光，叩开这扇隐秘的林间之门。',
+      '愿你在喧嚣的世界里，能拥有一方安静的池塘；',
+      '愿你拥有睡到自然醒的清晨，和没有Bug的温热午后，',
+      '走过的旅途都有清风与暖阳。',
+      '如果累了，不妨在池塘边听听蛙鸣，',
+      '松果屋会在这里，慢慢守候每一个漂流的故事。'
+    ];
+
+    lines.forEach((line, idx) => {
+      ctx.fillText(line, W / 2, startY + idx * lineHeight);
+    });
+
+    // 3.4 署名
+    ctx.fillStyle = 'rgba(231, 199, 126, 0.85)';
+    ctx.font = `italic 500 ${W * 0.025}px "Inter", "SF Pro", "Microsoft YaHei", sans-serif`;
+    ctx.fillText('—— 见习魔法师 · Singularity_Ye', W / 2, H * 0.74);
+
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.minFilter = THREE.LinearFilter;
+    callback(tex);
+  };
+  bgImg.src = bgImgSrc;
+  bgImg.crossOrigin = 'anonymous';
+}
+
+function loadCardSilhouetteTexture(bgImgSrc, callback) {
+  const bgImg = new Image();
+  bgImg.onload = () => {
+    const W = bgImg.width;
+    const H = bgImg.height;
+    const canvas = document.createElement('canvas');
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(bgImg, 0, 0);
+
+    const imageData = ctx.getImageData(0, 0, W, H);
+    const data = imageData.data;
+    for (let i = 0; i < data.length; i += 4) {
+      const r = data[i];
+      const g = data[i + 1];
+      const b = data[i + 2];
+      const dist = Math.sqrt((255 - r) ** 2 + (255 - g) ** 2 + (255 - b) ** 2);
+      let alpha = 255;
+      if (dist < 45) alpha = 0;
+      else if (dist < 85) alpha = Math.round(((dist - 45) / 40) * 255);
+
+      data[i] = 4;
+      data[i + 1] = 12;
+      data[i + 2] = 10;
+      data[i + 3] = alpha;
+    }
+    ctx.putImageData(imageData, 0, 0);
+
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.minFilter = THREE.LinearFilter;
+    callback(tex);
+  };
+  bgImg.src = bgImgSrc;
+  bgImg.crossOrigin = 'anonymous';
 }
 
 /* ─────────────────────────────────────────
@@ -404,7 +393,7 @@ function FrogHead({ position = [0, 0, 0], dragged = false, hovered = false }) {
 }
 
 const CARD_W = 1.6;
-const CARD_H = CARD_W * (1008 / 778);
+const CARD_H = CARD_W * (1448 / 1086);
 
 // 物理与视觉参数
 const CARD_VISUAL_SCALE = 2.25;
@@ -434,6 +423,7 @@ function FrogTongueBand({ maxSpeed = 50, minSpeed = 0, interactive = true }) {
   const vecRef = useRef(new THREE.Vector3());
   const angRef = useRef(new THREE.Vector3());
   const dirRef = useRef(new THREE.Vector3());
+  const forwardRef = useRef(new THREE.Vector3());
 
   // 动态视口定位 (右上角)
   const startX = viewport.width / 2 - 2.8;
@@ -448,10 +438,13 @@ function FrogTongueBand({ maxSpeed = 50, minSpeed = 0, interactive = true }) {
   };
 
   const [cardWateryTex, setCardWateryTex] = useState(null);
-  const backTex = useMemo(() => getBackTexture(), []);
+  const [cardBackTex, setCardBackTex] = useState(null);
+  const [cardSilhouetteTex, setCardSilhouetteTex] = useState(null);
 
   useEffect(() => {
     loadCardFrontTexture(cardWateryImage, avatarImage, setCardWateryTex);
+    loadCardBackTexture(cardBackImage, setCardBackTex);
+    loadCardSilhouetteTexture(cardBackImage, setCardSilhouetteTex);
   }, []);
 
   const [curve] = useState(
@@ -565,12 +558,17 @@ function FrogTongueBand({ maxSpeed = 50, minSpeed = 0, interactive = true }) {
       ang.copy(card.current.angvel());
       const targetRotY = isFlipped ? Math.PI : 0;
       const q = new THREE.Quaternion().copy(card.current.rotation());
-      const euler = new THREE.Euler().setFromQuaternion(q, 'YXZ');
-      const rotY = euler.y;
+      
+      // 使用更鲁棒的向量投影计算 Y 轴偏航角 (Yaw)，避免 Euler 角万向节死锁及异常轴跳转
+      const forward = forwardRef.current.set(0, 0, 1).applyQuaternion(q);
+      const rotY = Math.atan2(forward.x, forward.z);
+      
       let diff = rotY - targetRotY;
       // 保证差值在 [-PI, PI] 之间，以使卡片按最短距离旋转
       diff = Math.atan2(Math.sin(diff), Math.cos(diff));
       card.current.setAngvel({ x: ang.x, y: ang.y - diff * 0.9, z: ang.z });
+
+
 
       // 将名片坐标转为屏幕投影坐标，以触发背景烟花与水波
       const translation = card.current.translation();
@@ -702,9 +700,9 @@ function FrogTongueBand({ maxSpeed = 50, minSpeed = 0, interactive = true }) {
               );
             } : undefined}
           >
-            {/* 1. 后置立体金描边底板 (完美吻合玻璃卡片有机轮廓) */}
+            {/* 1. 正面立体金描边底板 (完美吻合玻璃卡片有机轮廓) */}
             {cardWateryTex && (
-              <mesh position={[0, 0, -0.005]} scale={[1.035, 1.035, 1]}>
+              <mesh position={[0, 0, 0.006]} scale={[1.035, 1.035, 1]}>
                 <planeGeometry args={[CARD_W, CARD_H]} />
                 <meshPhysicalMaterial
                   map={cardWateryTex}
@@ -714,14 +712,14 @@ function FrogTongueBand({ maxSpeed = 50, minSpeed = 0, interactive = true }) {
                   clearcoat={1.0}
                   transparent
                   alphaTest={0.1}
-                  side={THREE.DoubleSide}
+                  side={THREE.FrontSide}
                 />
               </mesh>
             )}
 
             {/* 2. 正面水色玻璃名片 — 具有水波纹理与折射感 */}
             {cardWateryTex && (
-              <mesh position={[0, 0, 0.015]}>
+              <mesh position={[0, 0, 0.012]}>
                 <planeGeometry args={[CARD_W, CARD_H]} />
                 <meshPhysicalMaterial
                   map={cardWateryTex}
@@ -732,24 +730,59 @@ function FrogTongueBand({ maxSpeed = 50, minSpeed = 0, interactive = true }) {
                   metalness={0.05}
                   clearcoat={1.0}
                   clearcoatRoughness={0.08}
+                  side={THREE.FrontSide}
+                />
+              </mesh>
+            )}
+
+            {/* 3. 内部不透明遮光夹层 — 阻断正反面文字相互透射，并提供物理卡片厚度感 */}
+            {cardSilhouetteTex && (
+              <mesh position={[0, 0, 0]}>
+                <planeGeometry args={[CARD_W, CARD_H]} />
+                <meshBasicMaterial
+                  map={cardSilhouetteTex}
+                  color="#040c0a"
+                  transparent={true}
+                  alphaTest={0.5}
+                  opacity={1.0}
+                  depthWrite={true}
                   side={THREE.DoubleSide}
                 />
               </mesh>
             )}
 
-            {/* 3. 背面文字手札 (Explorer Profile) — 稍微移后 */}
-            <mesh position={[0, 0, -0.016]} rotation={[0, Math.PI, 0]}>
-              <planeGeometry args={[CARD_W, CARD_H]} />
-              <meshStandardMaterial
-                map={backTex}
-                alphaMap={cardWateryTex}
-                transparent={true}
-                alphaTest={0.1}
-                roughness={0.45}
-                metalness={0.12}
-                side={THREE.DoubleSide}
-              />
-            </mesh>
+            {/* 4. 反面立体金描边底板 (完美吻合玻璃卡片有机轮廓) */}
+            {cardBackTex && (
+              <mesh position={[0, 0, -0.006]} scale={[1.035, 1.035, 1]} rotation={[0, Math.PI, 0]}>
+                <planeGeometry args={[CARD_W, CARD_H]} />
+                <meshPhysicalMaterial
+                  map={cardBackTex}
+                  color="#e7c77e"
+                  metalness={0.88}
+                  roughness={0.16}
+                  clearcoat={1.0}
+                  transparent
+                  alphaTest={0.1}
+                  side={THREE.FrontSide}
+                />
+              </mesh>
+            )}
+
+            {/* 5. 背面文字手札 (Explorer Profile) */}
+            {cardBackTex && (
+              <mesh position={[0, 0, -0.012]} rotation={[0, Math.PI, 0]}>
+                <planeGeometry args={[CARD_W, CARD_H]} />
+                <meshStandardMaterial
+                  map={cardBackTex}
+                  transparent={true}
+                  alphaTest={0.1}
+                  depthWrite={true}
+                  roughness={0.45}
+                  metalness={0.12}
+                  side={THREE.FrontSide}
+                />
+              </mesh>
+            )}
           </group>
         </RigidBody>
       </group>

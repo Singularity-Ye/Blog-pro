@@ -17,6 +17,7 @@ import cityImg from '../assets/images/home/card-city.png';
 
 // 导入名片正面与水色玻璃名片背景
 import cardWateryImage from '../assets/images/contact/card_watery.jpg';
+import cardBackImage from '../assets/images/contact/cardback_watery.jpg';
 import avatarImage from '../assets/images/github.png';
 
 // 导入生成的石灯笼、灯荷、荷叶与大背景分段图片
@@ -1413,19 +1414,31 @@ export default function Contact() {
                     <CardFront>
                       <TransparentImage src={cardWateryImage} alt="Contact Card Front" style={{ width: '100%', height: '100%' }} />
                     </CardFront>
-                    <CardBack style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '1.8rem 1.5rem', textAlign: 'center' }}>
-                      <div className="header" style={{ fontSize: '1.1rem', color: '#e7c77e', fontWeight: 'bold', marginBottom: '0.4rem', letterSpacing: '0.1em' }}>POND WHISPERS</div>
-                      <div className="divider" style={{ width: '80%', height: '1.2px', background: 'rgba(231, 199, 126, 0.22)', margin: '0.4rem 0 1rem' }}></div>
-                      <div className="letter-content" style={{ fontSize: '0.85rem', color: 'rgba(245, 239, 227, 0.85)', lineHeight: '1.8', margin: '0.4rem 0' }}>
-                        <p style={{ margin: '0.3rem 0', fontWeight: 'bold', color: 'rgba(245, 239, 227, 0.95)' }}>致来访的旅人：</p>
-                        <p style={{ margin: '0.3rem 0' }}>愿你在喧嚣的世界中，</p>
-                        <p style={{ margin: '0.3rem 0' }}>能拥有一方安静的池塘；</p>
-                        <p style={{ margin: '0.3rem 0' }}>愿你编写的代码温暖明亮，</p>
-                        <p style={{ margin: '0.3rem 0' }}>身边的旅途常有清风与暖阳。</p>
-                        <p style={{ margin: '0.6rem 0 0.3rem', fontSize: '0.82rem', fontStyle: 'italic', color: 'rgba(231, 199, 126, 0.75)' }}>祝你心有所向，步履轻盈。</p>
+                    <CardBack style={{
+                      backgroundImage: `url(${cardBackImage})`,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      padding: '2rem 1.2rem',
+                      textAlign: 'center',
+                      border: 'none',
+                      boxShadow: 'none',
+                    }}>
+                      <div className="header" style={{ fontSize: '1.25rem', color: '#e7c77e', fontWeight: 'bold', marginBottom: '0.2rem', letterSpacing: '0.15em' }}>池畔手札</div>
+                      <div className="divider" style={{ width: '60%', height: '1.2px', background: 'rgba(231, 199, 126, 0.22)', margin: '0.2rem 0 1.2rem' }}></div>
+                      <div className="letter-content" style={{ fontSize: '0.78rem', color: 'rgba(245, 239, 227, 0.95)', lineHeight: '1.75', margin: '0' }}>
+                        <p style={{ margin: '0.4rem 0' }}>谢谢你沿着粼粼水光，叩开这扇隐秘的林间之门。</p>
+                        <p style={{ margin: '0.4rem 0' }}>愿你在喧嚣的世界里，能拥有一方安静的池塘；</p>
+                        <p style={{ margin: '0.4rem 0' }}>愿你拥有睡到自然醒的清晨，和没有Bug的温热午后，</p>
+                        <p style={{ margin: '0.4rem 0' }}>走过的旅途都有清风与暖阳。</p>
+                        <p style={{ margin: '0.4rem 0' }}>如果累了，不妨在池塘边听听蛙鸣，</p>
+                        <p style={{ margin: '0.4rem 0' }}>松果屋会在这里，慢慢守候每一个漂流的故事。</p>
                       </div>
-                      <div className="divider" style={{ width: '80%', height: '1px', background: 'rgba(231, 199, 126, 0.1)', margin: '1rem 0 0.6rem' }}></div>
-                      <div className="signature" style={{ fontSize: '0.78rem', color: 'rgba(231, 199, 126, 0.7)', fontStyle: 'italic' }}>—— 松果屋屋主</div>
+                      <div className="divider" style={{ width: '60%', height: '1px', background: 'rgba(231, 199, 126, 0.1)', margin: '1.2rem 0 0.4rem' }}></div>
+                      <div className="signature" style={{ fontSize: '0.82rem', color: '#e7c77e', fontStyle: 'italic' }}>—— 见习魔法师 · Singularity_Ye</div>
                     </CardBack>
                   </FlipCard>
                 </CardContainer3D>
