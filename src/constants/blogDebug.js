@@ -1,1 +1,1 @@
-export const ENABLE_PLACEMENT_DEBUG = false;
+export const ENABLE_PLACEMENT_DEBUG = true;
