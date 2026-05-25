@@ -205,25 +205,25 @@ function loadCardBackMessageTexture(callback) {
 
   ctx.clearRect(0, 0, W, H);
 
-  const panelX = 150;
-  const panelY = 350;
+  const panelX = 155;
+  const panelY = 405;
   const panelW = W - panelX * 2;
-  const panelH = 930;
+  const panelH = 850;
   const panelGradient = ctx.createLinearGradient(0, panelY, 0, panelY + panelH);
-  panelGradient.addColorStop(0, 'rgba(2, 30, 42, 0.34)');
-  panelGradient.addColorStop(0.48, 'rgba(8, 79, 88, 0.22)');
-  panelGradient.addColorStop(1, 'rgba(1, 25, 36, 0.34)');
+  panelGradient.addColorStop(0, 'rgba(2, 30, 42, 0.16)');
+  panelGradient.addColorStop(0.48, 'rgba(2, 34, 44, 0.34)');
+  panelGradient.addColorStop(1, 'rgba(1, 25, 36, 0.16)');
 
   ctx.save();
-  ctx.shadowColor = 'rgba(0, 14, 20, 0.38)';
-  ctx.shadowBlur = 30;
-  ctx.shadowOffsetY = 14;
-  roundRect(ctx, panelX, panelY, panelW, panelH, 54);
+  ctx.shadowColor = 'rgba(0, 14, 20, 0.32)';
+  ctx.shadowBlur = 34;
+  ctx.shadowOffsetY = 12;
+  roundRect(ctx, panelX, panelY, panelW, panelH, 70);
   ctx.fillStyle = panelGradient;
   ctx.fill();
   ctx.shadowColor = 'transparent';
-  ctx.lineWidth = 3;
-  ctx.strokeStyle = 'rgba(241, 216, 137, 0.28)';
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = 'rgba(241, 216, 137, 0.16)';
   ctx.stroke();
   ctx.restore();
 
@@ -253,9 +253,12 @@ function loadCardBackMessageTexture(callback) {
   ctx.stroke();
 
   const lines = [
-    '谢谢你沿着粼粼水光，叩开这扇隐秘的林间之门。',
-    '愿你在喧嚣的世界里，能拥有一方安静的池塘；',
-    '愿你拥有睡到自然醒的清晨，和没有 Bug 的温热午后，',
+    '谢谢你沿着粼粼水光，',
+    '叩开这扇隐秘的林间之门。',
+    '愿你在喧嚣的世界里，',
+    '能拥有一方安静的池塘；',
+    '愿你拥有睡到自然醒的清晨，',
+    '和没有 Bug 的温热午后，',
     '走过的旅途都有清风与暖阳。',
     '如果累了，不妨在池塘边听听蛙鸣，',
     '松果屋会在这里，慢慢守候每一个漂流的故事。'
@@ -263,13 +266,13 @@ function loadCardBackMessageTexture(callback) {
 
   ctx.save();
   ctx.shadowColor = 'rgba(0, 17, 24, 0.8)';
-  ctx.shadowBlur = 12;
-  ctx.font = '700 48px "Inter", "SF Pro", "Microsoft YaHei", sans-serif';
-  ctx.lineWidth = 6;
-  ctx.strokeStyle = 'rgba(0, 24, 34, 0.78)';
+  ctx.shadowBlur = 14;
+  ctx.font = '750 56px "Inter", "SF Pro", "Microsoft YaHei", sans-serif';
+  ctx.lineWidth = 8;
+  ctx.strokeStyle = 'rgba(0, 22, 32, 0.88)';
   ctx.fillStyle = 'rgba(253, 251, 236, 0.98)';
-  const startY = 540;
-  const lineHeight = 122;
+  const startY = 520;
+  const lineHeight = 91;
   lines.forEach((line, idx) => {
     const y = startY + idx * lineHeight;
     ctx.strokeText(line, W / 2, y);
@@ -284,8 +287,8 @@ function loadCardBackMessageTexture(callback) {
   ctx.fillStyle = 'rgba(255, 232, 154, 0.96)';
   ctx.shadowColor = 'rgba(0, 17, 24, 0.72)';
   ctx.shadowBlur = 10;
-  ctx.strokeText('—— 见习魔法师 · Singularity_Ye', W / 2, 1375);
-  ctx.fillText('—— 见习魔法师 · Singularity_Ye', W / 2, 1375);
+  ctx.strokeText('—— 见习魔法师 · Singularity_Ye', W / 2, 1360);
+  ctx.fillText('—— 见习魔法师 · Singularity_Ye', W / 2, 1360);
   ctx.restore();
 
   const tex = new THREE.CanvasTexture(canvas);
