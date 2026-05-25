@@ -205,29 +205,25 @@ function loadCardBackMessageTexture(callback) {
 
   ctx.clearRect(0, 0, W, H);
 
-  const panelX = 90;
-  const panelY = 82;
+  const panelX = 150;
+  const panelY = 350;
   const panelW = W - panelX * 2;
-  const panelH = H - panelY * 2;
+  const panelH = 930;
   const panelGradient = ctx.createLinearGradient(0, panelY, 0, panelY + panelH);
-  panelGradient.addColorStop(0, 'rgba(2, 30, 42, 0.68)');
-  panelGradient.addColorStop(0.48, 'rgba(8, 79, 88, 0.5)');
-  panelGradient.addColorStop(1, 'rgba(1, 25, 36, 0.7)');
+  panelGradient.addColorStop(0, 'rgba(2, 30, 42, 0.34)');
+  panelGradient.addColorStop(0.48, 'rgba(8, 79, 88, 0.22)');
+  panelGradient.addColorStop(1, 'rgba(1, 25, 36, 0.34)');
 
   ctx.save();
-  ctx.shadowColor = 'rgba(0, 14, 20, 0.58)';
-  ctx.shadowBlur = 42;
-  ctx.shadowOffsetY = 22;
-  roundRect(ctx, panelX, panelY, panelW, panelH, 58);
+  ctx.shadowColor = 'rgba(0, 14, 20, 0.38)';
+  ctx.shadowBlur = 30;
+  ctx.shadowOffsetY = 14;
+  roundRect(ctx, panelX, panelY, panelW, panelH, 54);
   ctx.fillStyle = panelGradient;
   ctx.fill();
   ctx.shadowColor = 'transparent';
-  ctx.lineWidth = 4;
-  ctx.strokeStyle = 'rgba(241, 216, 137, 0.45)';
-  ctx.stroke();
-  ctx.lineWidth = 1.5;
-  ctx.strokeStyle = 'rgba(255, 255, 245, 0.28)';
-  roundRect(ctx, panelX + 18, panelY + 18, panelW - 36, panelH - 36, 46);
+  ctx.lineWidth = 3;
+  ctx.strokeStyle = 'rgba(241, 216, 137, 0.28)';
   ctx.stroke();
   ctx.restore();
 
@@ -237,12 +233,12 @@ function loadCardBackMessageTexture(callback) {
   ctx.save();
   ctx.shadowColor = 'rgba(0, 20, 26, 0.9)';
   ctx.shadowBlur = 18;
-  ctx.font = '800 108px "Inter", "SF Pro", "Microsoft YaHei", sans-serif';
-  ctx.lineWidth = 10;
+  ctx.font = '800 104px "Inter", "SF Pro", "Microsoft YaHei", sans-serif';
+  ctx.lineWidth = 9;
   ctx.strokeStyle = 'rgba(1, 23, 31, 0.82)';
   ctx.fillStyle = 'rgba(255, 232, 154, 0.98)';
-  ctx.strokeText('池畔手札', W / 2, 255);
-  ctx.fillText('池畔手札', W / 2, 255);
+  ctx.strokeText('池畔手札', W / 2, 300);
+  ctx.fillText('池畔手札', W / 2, 300);
   ctx.restore();
 
   const dividerGradient = ctx.createLinearGradient(W * 0.2, 0, W * 0.8, 0);
@@ -252,32 +248,28 @@ function loadCardBackMessageTexture(callback) {
   ctx.strokeStyle = dividerGradient;
   ctx.lineWidth = 3;
   ctx.beginPath();
-  ctx.moveTo(W * 0.24, 325);
-  ctx.lineTo(W * 0.76, 325);
+  ctx.moveTo(W * 0.28, 360);
+  ctx.lineTo(W * 0.72, 360);
   ctx.stroke();
 
   const lines = [
-    '谢谢你沿着粼粼水光，',
-    '叩开这扇隐秘的林间之门。',
-    '愿你在喧嚣的世界里，',
-    '能拥有一方安静的池塘；',
-    '愿你拥有睡到自然醒的清晨，',
-    '和没有 Bug 的温热午后，',
+    '谢谢你沿着粼粼水光，叩开这扇隐秘的林间之门。',
+    '愿你在喧嚣的世界里，能拥有一方安静的池塘；',
+    '愿你拥有睡到自然醒的清晨，和没有 Bug 的温热午后，',
     '走过的旅途都有清风与暖阳。',
     '如果累了，不妨在池塘边听听蛙鸣，',
-    '松果屋会在这里，',
-    '慢慢守候每一个漂流的故事。'
+    '松果屋会在这里，慢慢守候每一个漂流的故事。'
   ];
 
   ctx.save();
   ctx.shadowColor = 'rgba(0, 17, 24, 0.8)';
   ctx.shadowBlur = 12;
-  ctx.font = '700 61px "Inter", "SF Pro", "Microsoft YaHei", sans-serif';
-  ctx.lineWidth = 7;
+  ctx.font = '700 48px "Inter", "SF Pro", "Microsoft YaHei", sans-serif';
+  ctx.lineWidth = 6;
   ctx.strokeStyle = 'rgba(0, 24, 34, 0.78)';
   ctx.fillStyle = 'rgba(253, 251, 236, 0.98)';
-  const startY = 465;
-  const lineHeight = 112;
+  const startY = 540;
+  const lineHeight = 122;
   lines.forEach((line, idx) => {
     const y = startY + idx * lineHeight;
     ctx.strokeText(line, W / 2, y);
@@ -286,14 +278,14 @@ function loadCardBackMessageTexture(callback) {
   ctx.restore();
 
   ctx.save();
-  ctx.font = 'italic 800 50px "Inter", "SF Pro", "Microsoft YaHei", sans-serif';
-  ctx.lineWidth = 6;
+  ctx.font = 'italic 800 42px "Inter", "SF Pro", "Microsoft YaHei", sans-serif';
+  ctx.lineWidth = 5;
   ctx.strokeStyle = 'rgba(0, 24, 34, 0.78)';
   ctx.fillStyle = 'rgba(255, 232, 154, 0.96)';
   ctx.shadowColor = 'rgba(0, 17, 24, 0.72)';
   ctx.shadowBlur = 10;
-  ctx.strokeText('—— 见习魔法师 · Singularity_Ye', W / 2, 1585);
-  ctx.fillText('—— 见习魔法师 · Singularity_Ye', W / 2, 1585);
+  ctx.strokeText('—— 见习魔法师 · Singularity_Ye', W / 2, 1375);
+  ctx.fillText('—— 见习魔法师 · Singularity_Ye', W / 2, 1375);
   ctx.restore();
 
   const tex = new THREE.CanvasTexture(canvas);
@@ -890,8 +882,8 @@ function FrogTongueBand({ maxSpeed = 50, minSpeed = 0, interactive = true }) {
 
             {/* 6. 背面手札浮层 — 独立于卡片本体，完整文字可越出卡片范围 */}
             {cardBackMessageTex && (
-              <mesh position={[0, -0.06, -0.028]} rotation={[0, Math.PI, 0]} renderOrder={30}>
-                <planeGeometry args={[CARD_W * 1.24, CARD_H * 1.055]} />
+              <mesh position={[0, -0.055, -0.028]} rotation={[0, Math.PI, 0]} renderOrder={30}>
+                <planeGeometry args={[CARD_W * 1.08, CARD_H * 0.9]} />
                 <meshBasicMaterial
                   map={cardBackMessageTex}
                   transparent={true}
