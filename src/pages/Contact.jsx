@@ -708,6 +708,7 @@ export default function Contact() {
   };
 
   const handleWheel = (e) => {
+    if (e.defaultPrevented) return;
     if (isTransitioningRef.current) return;
     const deltaY = e.deltaY;
     if (Math.abs(deltaY) < 35) return;

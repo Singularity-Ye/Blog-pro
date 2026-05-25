@@ -442,6 +442,9 @@ const CARD_H = CARD_W * (1448 / 1086);
 
 // 物理与视觉参数
 const CARD_VISUAL_SCALE = 2.25;
+const CARD_MIN_ZOOM = 0.72;
+const CARD_MAX_ZOOM = 1.38;
+const CARD_ZOOM_STEP = 0.0018;
 const CONNECTOR_SCALE = 1.25;
 
 // 鱼竿 tip 在 Frog 局部坐标系下的位置
@@ -503,8 +506,12 @@ function FrogTongueBand({ maxSpeed = 50, minSpeed = 0, interactive = true }) {
   );
   const [dragged, drag] = useState(false);
   const [hovered, hover] = useState(false);
+  const [selected, setSelected] = useState(false);
+  const [cardZoom, setCardZoom] = useState(1);
   const [isFlipped, setIsFlipped] = useState(false);
   const dragStartPos = useRef({ x: 0, y: 0 });
+  const hoveredRef = useRef(false);
+  const selectedRef = useRef(false);
 
   // 物理挂载关节
   useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], 0.8]);
@@ -512,24 +519,34 @@ function FrogTongueBand({ maxSpeed = 50, minSpeed = 0, interactive = true }) {
   useRopeJoint(j2, j3, [[0, 0, 0], [0, 0, 0], 0.7]);
   useSphericalJoint(j3, card, [[0, 0, 0], [0, CONNECTOR_JOINT_Y, 0]]);
 
+  useEffect(() => {
+    hoveredRef.current = hovered;
+  }, [hovered]);
+
+  useEffect(() => {
+    selectedRef.current = selected;
+  }, [selected]);
+
   // pointer styles
   useEffect(() => {
     if (!interactive) {
       document.body.style.cursor = 'auto';
       return;
     }
-    if (hovered || dragged) {
-      document.body.style.cursor = dragged ? 'grabbing' : 'grab';
+    if (hovered || dragged || selected) {
+      document.body.style.cursor = dragged ? 'grabbing' : selected ? 'zoom-in' : 'grab';
     } else {
       document.body.style.cursor = 'auto';
     }
     return () => {
       document.body.style.cursor = 'auto';
     };
-  }, [hovered, dragged, interactive]);
+  }, [hovered, dragged, selected, interactive]);
 
   const resetCard = useCallback(() => {
     setIsFlipped(false);
+    setSelected(false);
+    setCardZoom(1);
     if (card.current && fixed.current && j1.current && j2.current && j3.current) {
       // 物理坐标复位
       card.current.setTranslation({ x: startX + ROPE_X_OFFSET, y: startY - 3.1, z: 0 }, true);
@@ -548,10 +565,24 @@ function FrogTongueBand({ maxSpeed = 50, minSpeed = 0, interactive = true }) {
     }
   }, [startX, startY]);
 
+  const wakeRig = useCallback(() => {
+    [card, j1, j2, j3, fixed].forEach((ref) => ref.current?.wakeUp());
+  }, []);
+
+  const flipCard = useCallback(() => {
+    wakeRig();
+    setSelected(true);
+    setIsFlipped((prev) => {
+      const next = !prev;
+      card.current?.setAngvel({ x: 0, y: next ? 7.5 : -7.5, z: 0 }, true);
+      return next;
+    });
+  }, [wakeRig]);
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       window.__resetLanyard = resetCard;
-      window.__flipLanyard = () => setIsFlipped(f => !f);
+      window.__flipLanyard = flipCard;
     }
     return () => {
       if (typeof window !== 'undefined') {
@@ -559,7 +590,25 @@ function FrogTongueBand({ maxSpeed = 50, minSpeed = 0, interactive = true }) {
         delete window.__flipLanyard;
       }
     };
-  }, [resetCard]);
+  }, [flipCard, resetCard]);
+
+  useEffect(() => {
+    if (!interactive || typeof window === 'undefined') return undefined;
+
+    const handleCardWheel = (event) => {
+      if (!selectedRef.current || !hoveredRef.current) return;
+      event.preventDefault();
+      event.stopPropagation();
+      wakeRig();
+      setCardZoom((value) => {
+        const next = value - event.deltaY * CARD_ZOOM_STEP;
+        return Math.max(CARD_MIN_ZOOM, Math.min(CARD_MAX_ZOOM, next));
+      });
+    };
+
+    window.addEventListener('wheel', handleCardWheel, { passive: false, capture: true });
+    return () => window.removeEventListener('wheel', handleCardWheel, { capture: true });
+  }, [interactive, wakeRig]);
 
   useFrame((state, delta) => {
     const vec = vecRef.current;
@@ -714,29 +763,34 @@ function FrogTongueBand({ maxSpeed = 50, minSpeed = 0, interactive = true }) {
           type={dragged ? 'kinematicPosition' : 'dynamic'}
         >
           {/* 名片碰撞盒 */}
-          <CuboidCollider args={[(CARD_W * CARD_VISUAL_SCALE) / 2, ((CARD_H + 0.12) * CARD_VISUAL_SCALE) / 2, 0.02]} />
+          <CuboidCollider args={[(CARD_W * CARD_VISUAL_SCALE * cardZoom) / 2, ((CARD_H + 0.12) * CARD_VISUAL_SCALE * cardZoom) / 2, 0.02]} />
 
           {/* ── 顶部挂接孔环 (Torus) ── */}
-          <group position={[0, CONNECTOR_JOINT_Y, 0.025]} scale={CONNECTOR_SCALE}>
+          <group position={[0, CONNECTOR_JOINT_Y, 0.025]} scale={CONNECTOR_SCALE * cardZoom}>
             <CardConnector />
           </group>
 
           {/* ── 名片主体 — scale 2.25 ── */}
           <group
-            scale={CARD_VISUAL_SCALE}
+            scale={CARD_VISUAL_SCALE * cardZoom}
             position={[0, -CARD_H / 2, -0.05]}
             onPointerOver={interactive ? () => hover(true) : undefined}
             onPointerOut={interactive ? () => hover(false) : undefined}
             onPointerUp={interactive ? (e) => {
+              e.stopPropagation();
               e.target.releasePointerCapture?.(e.pointerId);
               drag(false);
               const moveDist = Math.hypot(e.clientX - dragStartPos.current.x, e.clientY - dragStartPos.current.y);
               if (moveDist < 6) {
-                setIsFlipped(prev => !prev);
+                flipCard();
               }
             } : undefined}
             onPointerDown={interactive ? (e) => {
+              if (e.button !== 0) return;
+              e.stopPropagation();
               e.target.setPointerCapture?.(e.pointerId);
+              setSelected(true);
+              wakeRig();
               dragStartPos.current = { x: e.clientX, y: e.clientY };
               drag(
                 new THREE.Vector3()
