@@ -281,14 +281,14 @@ function loadCardBackMessageTexture(callback) {
   ctx.restore();
 
   ctx.save();
-  ctx.font = 'italic 800 42px "Inter", "SF Pro", "Microsoft YaHei", sans-serif';
-  ctx.lineWidth = 5;
+  ctx.font = 'italic 800 54px "Inter", "SF Pro", "Microsoft YaHei", sans-serif';
+  ctx.lineWidth = 6;
   ctx.strokeStyle = 'rgba(0, 24, 34, 0.78)';
   ctx.fillStyle = 'rgba(255, 232, 154, 0.96)';
   ctx.shadowColor = 'rgba(0, 17, 24, 0.72)';
   ctx.shadowBlur = 10;
-  ctx.strokeText('—— 见习魔法师 · Singularity_Ye', W / 2, 1360);
-  ctx.fillText('—— 见习魔法师 · Singularity_Ye', W / 2, 1360);
+  ctx.strokeText('—— 见习魔法师 · Singularity_Ye', W / 2, 1368);
+  ctx.fillText('—— 见习魔法师 · Singularity_Ye', W / 2, 1368);
   ctx.restore();
 
   const tex = new THREE.CanvasTexture(canvas);
