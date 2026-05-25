@@ -1433,7 +1433,7 @@ export default function Contact() {
                       <div className="letter-content" style={{ fontSize: '0.78rem', color: 'rgba(245, 239, 227, 0.95)', lineHeight: '1.75', margin: '0' }}>
                         <p style={{ margin: '0.4rem 0' }}>谢谢你沿着粼粼水光，叩开这扇隐秘的林间之门。</p>
                         <p style={{ margin: '0.4rem 0' }}>愿你在喧嚣的世界里，能拥有一方安静的池塘；</p>
-                        <p style={{ margin: '0.4rem 0' }}>愿你拥有睡到自然醒的清晨，和没有Bug的温热午后，</p>
+                        <p style={{ margin: '0.4rem 0' }}>愿你拥有睡到自然醒的清晨，和没有烦扰的温热午后，</p>
                         <p style={{ margin: '0.4rem 0' }}>走过的旅途都有清风与暖阳。</p>
                         <p style={{ margin: '0.4rem 0' }}>如果累了，不妨在池塘边听听蛙鸣，</p>
                         <p style={{ margin: '0.4rem 0' }}>松果屋会在这里，慢慢守候每一个漂流的故事。</p>

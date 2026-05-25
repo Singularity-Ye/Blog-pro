@@ -19,7 +19,7 @@ export const BIOMES = {
     key: 'forest',
     label: '叶间书林',
     description: '收藏文章、随笔与手札。',
-    longDescription: '由墨水与羊皮纸低语织成的笔记森林。每一片树叶都是封印了博主探索心得、技术图纸与随笔手札的载体。',
+    longDescription: '由墨水与羊皮纸低语织成的笔记森林。每一片树叶都低语着行旅所得、偶发想法与让我备受鼓舞的短句。',
     color: '#57b83f',
     glow: '#bbf7d0',
     href: '/blog',

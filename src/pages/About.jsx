@@ -48,94 +48,94 @@ const particleDrift = keyframes`
    ───────────────────────────────────────── */
 
 const ATTRIBUTES = [
-  { key: 'HP', name: '生命力 (代码稳定性)', value: 92, max: 100, desc: '测试覆盖、错误边界与异常防御能力。', color: '#10b981' },
-  { key: 'MP', name: '魔力值 (架构合理性)', value: 88, max: 100, desc: '模块解耦、复用设计与系统拓展能力。', color: '#6366f1' },
-  { key: 'INT', name: '智力值 (前端熟练度)', value: 95, max: 100, desc: 'React, Three.js, CSS 与高性能动效交互。', color: '#e7c77e' },
-  { key: 'ALC', name: '炼金术 (后端掌握度)', value: 85, max: 100, desc: 'Node.js, Express, 数据库与流式 APIs。', color: '#5aa38f' },
-  { key: 'WIS', name: '智慧值 (AI 协同指数)', value: 90, max: 100, desc: '与大模型配对编程，高难度提示工程。', color: '#a78bfa' },
-  { key: 'DYN', name: '敏捷度 (动效阻尼控制)', value: 88, max: 100, desc: 'Framer Motion, GSAP, 物理引擎阻尼微调。', color: '#f43f5e' }
+  { key: 'HP', name: '生命力 (心境宁静度)', value: 92, max: 100, desc: '面对风雨与突发状况的坚韧度，保持心境不炸炉的自愈能力。', color: '#10b981' },
+  { key: 'MP', name: '魔力值 (灵感敏锐度)', value: 88, max: 100, desc: '捕捉日常生活中微小美好与深刻感触的直觉。', color: '#6366f1' },
+  { key: 'INT', name: '悟性 (法阵塑形能力)', value: 95, max: 100, desc: '绘制浮空光影与交互符文的熟练度，掌控法阵的流光溢彩。', color: '#e7c77e' },
+  { key: 'ALC', name: '炼丹术 (文字温度)', value: 85, max: 100, desc: '汇聚四方气流与灵力管道的熟练度，炼制温热言语以供给源能。', color: '#5aa38f' },
+  { key: 'WIS', name: '神识 (AI 协同默契)', value: 90, max: 100, desc: '与通灵大模型/灵体配对沟通，指引复杂意念凝聚的默契度。', color: '#a78bfa' },
+  { key: 'DYN', name: '身法 (生活节奏控制)', value: 88, max: 100, desc: '在忙碌与闲适、出发与停留之间自由切换的从容态度。', color: '#f43f5e' }
 ];
 
 const SPELL_SCHOOLS = [
   {
     id: 'conjuration',
-    label: '构装系 (Frontend)',
+    label: '笔耕系 (Writing & Expression)',
     color: '#e7c77e',
-    desc: '物质实体构建，掌控浏览器渲染视界，化无形为有形。',
+    desc: '以笔为媒，将脑海中稍纵即逝的火花凝聚成温热的篇章。',
     skills: [
-      { name: 'React & Componentry', level: 90, mana: 40 },
-      { name: 'WebGL & Three.js', level: 80, mana: 55 },
-      { name: 'Styled Components', level: 95, mana: 20 },
-      { name: 'Framer Motion', level: 88, mana: 30 }
+      { name: '随笔记录 (Essays & Thoughts)', level: 90, mana: 40 },
+      { name: '情感共鸣 (Empathy & Connection)', level: 80, mana: 55 },
+      { name: '排版美学 (Visual Storytelling)', level: 95, mana: 20 },
+      { name: '诗意留白 (Poetic Intervals)', level: 88, mana: 30 }
     ]
   },
   {
     id: 'alchemy',
-    label: '炼金系 (Backend)',
+    label: '感悟系 (Perception & Growth)',
     color: '#5aa38f',
-    desc: '底层资源置换，熔炼数据结构，通过管道向前端供给源能。',
+    desc: '感知四季流转与人情冷暖，在安静中熔炼人生的智慧。',
     skills: [
-      { name: 'Node.js Engine', level: 85, mana: 45 },
-      { name: 'REST APIs & SSE', level: 90, mana: 35 },
-      { name: 'SQL & NoSQL DBs', level: 80, mana: 50 },
-      { name: 'Express Backend', level: 88, mana: 25 }
+      { name: '生活观察 (Life Observation)', level: 85, mana: 45 },
+      { name: '情绪疗愈 (Emotional Healing)', level: 90, mana: 35 },
+      { name: '逆境坚韧 (Resilience & Hope)', level: 80, mana: 50 },
+      { name: '日常冥想 (Daily Reflection)', level: 88, mana: 25 }
     ]
   },
   {
     id: 'divination',
-    label: '占卜系 (Data & Logic)',
+    label: '问道系 (Reading & Connection)',
     color: '#6366f1',
-    desc: '洞察复杂网络，解析节点关系，构建星空灵感图谱。',
+    desc: '阅读先贤智慧，探寻人与人之间隐秘而真挚的灵魂连结。',
     skills: [
-      { name: 'D3.js Graph Visuals', level: 88, mana: 50 },
-      { name: 'Python Core', level: 82, mana: 40 },
-      { name: 'Algorithms & Logic', level: 80, mana: 60 },
-      { name: 'State Management', level: 85, mana: 30 }
+      { name: '经典阅读 (Classic Reading)', level: 88, mana: 50 },
+      { name: '思想碰撞 (Philosophical Dialogues)', level: 82, mana: 40 },
+      { name: '暖心问候 (Heartwarming Greetings)', level: 80, mana: 60 },
+      { name: '故事倾听 (Active Listening)', level: 85, mana: 30 }
     ]
   },
   {
     id: 'runes',
-    label: '符文系 (DevOps & Tools)',
+    label: '足迹系 (Footprints & Journey)',
     color: '#a78bfa',
-    desc: '镌刻自动化流转符文，守护时空传送，稳定部署环境。',
+    desc: '记录走过的千山万水，留存时光的刻痕，搭建属于心灵的港湾。',
     skills: [
-      { name: 'Git Versioning', level: 92, mana: 15 },
-      { name: 'Cloudflare / Vercel', level: 95, mana: 20 },
-      { name: 'Webpack / Vite', level: 85, mana: 30 },
-      { name: 'Docker Containers', level: 75, mana: 45 }
+      { name: '行旅摄影 (Travel Photography)', level: 92, mana: 15 },
+      { name: '回忆归档 (Memory Archiving)', level: 95, mana: 20 },
+      { name: '心灵港湾 (Digital Sanctuary)', level: 85, mana: 30 },
+      { name: '时间管理 (Mindful Living)', level: 75, mana: 45 }
     ]
   }
 ];
 
 const CHRONOLOGY = [
   {
-    year: '2021',
-    title: '混沌泥巴期 (Mud-Playing Era)',
-    desc: '在高中秘境中与数理化做无谓挣扎。代码是什么？当时唯一懂的“指令”大概是在《我的世界》里用红石火把建一扇发光的双开铁门。',
+    year: '2024.6',
+    title: '引气入体与强手降世 (Dou Zong & Qi Awakening)',
+    desc: '迈入大学，斗宗强者（各种AI，如 Copilot、Cursor 等）展现出种种浩瀚伟力。作为一个连基础引气决都念不周全的凡人，开始试着摸索如何去与之沟通、借阅并获取他们的力量。',
     icon: '🪵'
   },
   {
-    year: '2022',
-    title: '摸鱼小法师 (High School Fishing)',
-    desc: '在课本堆成的小山后面偷偷构思一些奇妙想法，魔力值基本为零。自学了极为简陋的 HTML 网页，以为只要写出一个会弹窗的 button 就已经掌握了互联网的核心科技。',
-    icon: '🎣'
-  },
-  {
-    year: '2023',
-    title: '高考传送门与野蛮生长 (Post-Exam Wildness)',
-    desc: '度过备考期，在考后的超长假期里开启报复性敲字生活。虽然写出的代码十行有九行在报错，但依然乐此不疲，彻底开启了代码魔法之旅。',
-    icon: '🐎'
-  },
-  {
-    year: '2024',
-    title: '踏入魔法学院 (Freshman\'s Awakening)',
-    desc: '正式成为大一新生，系统性地接触前端现代法术。在 React 和复杂的生命周期中反复被虐，但成功在这个时期迈出了构建自己“法术系统”的第一步。',
+    year: '2025.1',
+    title: '小试牛刀与呆猫符文 (The Daimao Talisman)',
+    desc: '修行方过百日，在晨曦贤者 · Cursor 的指引下，借其通灵法术之威，基于怪猎呆猫之魂，绘制出了第一个为新春庆贺而生的符文小法阵 xinchun.daimao.fun。虽只是筑基前的粗浅尝试，却引得灵力初绽。',
     icon: '🏫'
   },
   {
-    year: '2025-2026',
-    title: '松果屋筑梦与 ESLint 劫数 (The Webweaver)',
-    desc: '大二在读中。成功搭建了“松果屋”个人博客并融入 3D 挂绳卡片。在线上部署时经历了被 ESLint 警告阻拦的惨痛教训，终在智能协同下拔除封印。',
+    year: '不入册的时隙',
+    title: '洞天游历与傀儡机关 (Ecosystem Wandering & Automation)',
+    desc: '在不同的奇境副本中游历（如在《怪猎》《战神》《燕云十六声》等异界中闲逛），偶尔借助AE2傀儡机关之手，在小千世界里随手拼装些科技整合包里的生产自动化（纯粹为了体验一下拼装的成就感），自由而惬意。',
+    icon: '🎮'
+  },
+  {
+    year: '2025.11',
+    title: '仙网传音与碎叶符纸 (Spiritual Transmission & Leaf Talismans)',
+    desc: '偶尔翻看星空传音网里漂流的奇思妙想，将戳中内心的碎纸片收集成册。顺便瞄一眼贤者法阵的发展流派，虽然有些高深法术看不大懂，却也不妨碍借用一点皮毛来点缀自己的林间小屋。',
+    icon: '🎣'
+  },
+  {
+    year: '2026.4',
+    title: '万法并秀与洞天辟建 (The Oracle\'s Spring)',
+    desc: '天地灵气（大模型生态）彻底倾泻，诸般神通法阵（应用）如雨后春笋。修行界不再苦于无法御空，而是难在如何留住转瞬即逝的灵光、并竭力走完每一段悟道之路。在这仙法繁盛的百花齐放期，松果屋——这一方小小的洞天福地，在温热的炉火旁悄然辟建。',
     icon: '🧙‍♂️'
   }
 ];
@@ -143,7 +143,7 @@ const CHRONOLOGY = [
 const RELICS = [
   { name: '鸣频共振信标', category: 'Music', desc: '在电子合成器与宏大原声带的音波震动中，激发灵感涟漪。', icon: '🎧', glow: 'rgba(99,102,241,0.25)' },
   { name: '虚拟裂隙行者', category: 'Gaming', desc: '探索复杂宏大的世界观设定，钟爱高难度动作游戏与箱庭探索。', icon: '🎮', glow: 'rgba(244,63,94,0.25)' },
-  { name: '古籍法典残页', category: 'Reading', desc: '涉猎历史、设计学与硬核技术书籍，深信文字是跨次元传送门。', icon: '📚', glow: 'rgba(231,199,126,0.25)' },
+  { name: '古旧典籍与奇闻怪志', category: 'Reading', desc: '涉猎历史、设计学与奇闻怪志，深信文字是跨次元传送门。', icon: '📚', glow: 'rgba(231,199,126,0.25)' },
   { name: '微缩光影留存仪', category: 'Photography', desc: '利用光学棱镜捕捉瞬间的阴晴与颗粒，定格微弱的霓虹反差。', icon: '📷', glow: 'rgba(16,185,129,0.25)' }
 ];
 
@@ -781,9 +781,9 @@ export default function About() {
             </AvatarContainer>
 
             <MageName>Ye Singularity</MageName>
-            <MageTitle>星空大贤者 / 以太织网者</MageTitle>
+            <MageTitle>星空大贤者 · Gemini / 以太织网者 · GPT (见习魔法师)</MageTitle>
             <MageDesc>
-              “沿着连线与魔力轨迹，编织代码。在理性与幻想交界处，记录星光。”
+              “在安静的时间里，把脑海中的碎片拼凑成册。不求惊鸣世界，只愿在风经过时，能留下一些真实的痕迹。”
             </MageDesc>
 
             {/* 属性进度槽列表 */}
