@@ -23,6 +23,21 @@ import avatarImage from '../../assets/images/github.png';
 
 extend({ MeshLineGeometry, MeshLineMaterial });
 
+function roundRect(ctx, x, y, width, height, radius) {
+  const r = Math.min(radius, width / 2, height / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + width - r, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + r);
+  ctx.lineTo(x + width, y + height - r);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - r, y + height);
+  ctx.lineTo(x + r, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
 /* ─────────────────────────────────────────
    名片正面贴图生成器 — 动态加载背景与头像，处理抠图并在画布上绘制可配置信息
 ───────────────────────────────────────── */
@@ -53,10 +68,10 @@ function loadCardFrontTexture(bgImgSrc, avatarImgSrc, callback) {
       const g = data[i + 1];
       const b = data[i + 2];
       const dist = Math.sqrt((255 - r) ** 2 + (255 - g) ** 2 + (255 - b) ** 2);
-      if (dist < 45) {
+      if (dist < 8) {
         data[i + 3] = 0; // 完全透明
-      } else if (dist < 85) {
-        const factor = (dist - 45) / 40;
+      } else if (dist < 24) {
+        const factor = (dist - 8) / 16;
         data[i + 3] = Math.round(data[i + 3] * factor);
       }
     }
@@ -153,10 +168,10 @@ function loadCardBackTexture(bgImgSrc, callback) {
       const g = data[i + 1];
       const b = data[i + 2];
       const dist = Math.sqrt((255 - r) ** 2 + (255 - g) ** 2 + (255 - b) ** 2);
-      if (dist < 45) {
+      if (dist < 8) {
         data[i + 3] = 0; // 完全透明
-      } else if (dist < 85) {
-        const factor = (dist - 45) / 40;
+      } else if (dist < 24) {
+        const factor = (dist - 8) / 16;
         data[i + 3] = Math.round(data[i + 3] * factor);
       }
     }
@@ -171,15 +186,37 @@ function loadCardBackTexture(bgImgSrc, callback) {
     // 绘制处理好的透明卡牌背景
     ctx.drawImage(bgCanvas, 0, 0);
 
+    const panelX = W * 0.18;
+    const panelY = H * 0.285;
+    const panelW = W * 0.64;
+    const panelH = H * 0.49;
+    const panelGradient = ctx.createLinearGradient(0, panelY, 0, panelY + panelH);
+    panelGradient.addColorStop(0, 'rgba(4, 44, 52, 0.34)');
+    panelGradient.addColorStop(0.52, 'rgba(9, 71, 78, 0.2)');
+    panelGradient.addColorStop(1, 'rgba(3, 31, 43, 0.34)');
+    ctx.save();
+    ctx.shadowColor = 'rgba(0, 28, 34, 0.45)';
+    ctx.shadowBlur = W * 0.045;
+    roundRect(ctx, panelX, panelY, panelW, panelH, W * 0.055);
+    ctx.fillStyle = panelGradient;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(232, 215, 151, 0.18)';
+    ctx.lineWidth = W * 0.0022;
+    ctx.stroke();
+    ctx.restore();
+
     // 3. 绘制背面文字 (池畔手札)
     ctx.textAlign = 'center';
 
     // 3.1 标题
     ctx.save();
-    ctx.shadowColor = 'rgba(231, 199, 126, 0.4)';
-    ctx.shadowBlur = 8;
-    ctx.font = `bold ${W * 0.05}px "Inter", "SF Pro", "Microsoft YaHei", sans-serif`;
-    ctx.fillStyle = 'rgba(231, 199, 126, 0.95)';
+    ctx.shadowColor = 'rgba(0, 24, 32, 0.75)';
+    ctx.shadowBlur = W * 0.018;
+    ctx.font = `bold ${W * 0.052}px "Inter", "SF Pro", "Microsoft YaHei", sans-serif`;
+    ctx.lineWidth = W * 0.006;
+    ctx.strokeStyle = 'rgba(4, 30, 36, 0.72)';
+    ctx.fillStyle = 'rgba(255, 232, 150, 0.98)';
+    ctx.strokeText('池畔手札', W / 2, H * 0.31);
     ctx.fillText('池畔手札', W / 2, H * 0.31);
     ctx.restore();
 
@@ -192,8 +229,12 @@ function loadCardBackTexture(bgImgSrc, callback) {
     ctx.stroke();
 
     // 3.3 正文
-    ctx.fillStyle = 'rgba(245, 239, 227, 0.95)';
-    ctx.font = `500 ${W * 0.0295}px "Inter", "SF Pro", "Microsoft YaHei", sans-serif`;
+    ctx.fillStyle = 'rgba(252, 250, 238, 0.98)';
+    ctx.strokeStyle = 'rgba(1, 25, 32, 0.64)';
+    ctx.lineWidth = W * 0.0045;
+    ctx.shadowColor = 'rgba(0, 18, 24, 0.72)';
+    ctx.shadowBlur = W * 0.008;
+    ctx.font = `600 ${W * 0.031}px "Inter", "SF Pro", "Microsoft YaHei", sans-serif`;
     const startY = H * 0.415; // 590 / 1448 ~ 0.41
     const lineHeight = H * 0.048; // ~70px line height
 
@@ -207,12 +248,16 @@ function loadCardBackTexture(bgImgSrc, callback) {
     ];
 
     lines.forEach((line, idx) => {
+      ctx.strokeText(line, W / 2, startY + idx * lineHeight);
       ctx.fillText(line, W / 2, startY + idx * lineHeight);
     });
 
     // 3.4 署名
-    ctx.fillStyle = 'rgba(231, 199, 126, 0.85)';
-    ctx.font = `italic 500 ${W * 0.025}px "Inter", "SF Pro", "Microsoft YaHei", sans-serif`;
+    ctx.fillStyle = 'rgba(255, 232, 150, 0.94)';
+    ctx.strokeStyle = 'rgba(1, 25, 32, 0.64)';
+    ctx.lineWidth = W * 0.004;
+    ctx.font = `italic 600 ${W * 0.025}px "Inter", "SF Pro", "Microsoft YaHei", sans-serif`;
+    ctx.strokeText('—— 见习魔法师 · Singularity_Ye', W / 2, H * 0.74);
     ctx.fillText('—— 见习魔法师 · Singularity_Ye', W / 2, H * 0.74);
 
     const tex = new THREE.CanvasTexture(canvas);
@@ -243,8 +288,8 @@ function loadCardSilhouetteTexture(bgImgSrc, callback) {
       const b = data[i + 2];
       const dist = Math.sqrt((255 - r) ** 2 + (255 - g) ** 2 + (255 - b) ** 2);
       let alpha = 255;
-      if (dist < 45) alpha = 0;
-      else if (dist < 85) alpha = Math.round(((dist - 45) / 40) * 255);
+      if (dist < 8) alpha = 0;
+      else if (dist < 24) alpha = Math.round(((dist - 8) / 16) * 255);
 
       data[i] = 4;
       data[i + 1] = 12;
@@ -772,13 +817,12 @@ function FrogTongueBand({ maxSpeed = 50, minSpeed = 0, interactive = true }) {
             {cardBackTex && (
               <mesh position={[0, 0, -0.012]} rotation={[0, Math.PI, 0]}>
                 <planeGeometry args={[CARD_W, CARD_H]} />
-                <meshStandardMaterial
+                <meshBasicMaterial
                   map={cardBackTex}
                   transparent={true}
                   alphaTest={0.1}
                   depthWrite={true}
-                  roughness={0.45}
-                  metalness={0.12}
+                  toneMapped={false}
                   side={THREE.FrontSide}
                 />
               </mesh>
