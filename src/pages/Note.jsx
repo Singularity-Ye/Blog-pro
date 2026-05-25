@@ -80,25 +80,41 @@ const TocContainer = styled.div`
   padding: 1rem;
 `;
 
-const StickyTocContainer = styled(TocContainer)`
+const StickySidebarContent = styled.div`
   position: sticky;
   top: 80px;
-  max-height: calc(100vh - 120px);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-height: calc(100vh - 100px);
+`;
+
+const SidebarBackButton = styled(BackButton)`
+  width: 100%;
+  justify-content: center;
+  margin-bottom: 0;
+  flex-shrink: 0;
+`;
+
+const ScrollableToc = styled(TocContainer)`
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
+  overscroll-behavior: contain;
 
   /* Custom scrollbar to keep it premium */
   &::-webkit-scrollbar {
-    width: 4px;
+    width: 6px;
   }
   &::-webkit-scrollbar-track {
     background: transparent;
   }
   &::-webkit-scrollbar-thumb {
-    background: rgba(223, 198, 146, 0.2);
-    border-radius: 2px;
+    background: rgba(223, 198, 146, 0.3);
+    border-radius: 3px;
   }
   &::-webkit-scrollbar-thumb:hover {
-    background: rgba(223, 198, 146, 0.4);
+    background: rgba(223, 198, 146, 0.5);
   }
 `;
 
@@ -816,18 +832,27 @@ export default function Note() {
             </TocList>
           </TocContainer>
         )}
-        {headings.length > 0 && (
-          <StickyTocContainer>
-            <TocTitle>目录</TocTitle>
-            <TocList>
-              {headings.map((h, i) => (
-                <TocItem key={i} $level={h.level}>
-                  <a href={`#${h.id}`}>{h.text}</a>
-                </TocItem>
-              ))}
-            </TocList>
-          </StickyTocContainer>
-        )}
+        <StickySidebarContent>
+          <SidebarBackButton type="button" onClick={handleBackClick}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+              <line x1="19" y1="12" x2="5" y2="12"></line>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            返回上一页
+          </SidebarBackButton>
+          {headings.length > 0 && (
+            <ScrollableToc>
+              <TocTitle>目录</TocTitle>
+              <TocList>
+                {headings.map((h, i) => (
+                  <TocItem key={i} $level={h.level}>
+                    <a href={`#${h.id}`}>{h.text}</a>
+                  </TocItem>
+                ))}
+              </TocList>
+            </ScrollableToc>
+          )}
+        </StickySidebarContent>
       </NoteSidebar>
     </NoteLayout>
   );
