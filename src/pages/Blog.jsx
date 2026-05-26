@@ -39,6 +39,17 @@ const MinimapSVGLine = styled.line`
   stroke-dasharray: 4, 6;
   animation: ${mapLinePulse} 1.2s linear infinite;
 `;
+
+const TeleportFlash = styled(motion.div)`
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle, rgba(231, 199, 126, 0.15) 0%, rgba(8, 6, 16, 0.95) 100%);
+  mix-blend-mode: screen;
+  backdrop-filter: blur(12px) brightness(1.5);
+  -webkit-backdrop-filter: blur(12px) brightness(1.5);
+  z-index: 99999;
+  pointer-events: none;
+`;
 // -------------------------------------------------------------------------
 // 长廊场景配置定义 (Scene Corridor Config)
 // -------------------------------------------------------------------------
@@ -87,8 +98,8 @@ const BLOG_SCENES = {
         target: 'overview',
         label: '推门外出',
         desc: '推门离开松果屋，回到树屋门前的大厅。',
-        left: '8%',
-        top: '65%',
+        left: '36%',
+        top: '86%',
         color: '#fbbf24',
         icon: '🚪',
         styleType: 'door'
@@ -98,8 +109,8 @@ const BLOG_SCENES = {
         target: 'junction',
         label: '步入回廊',
         desc: '穿过书柜拱门，通往更深处的书脊回廊。',
-        left: '88%',
-        top: '50%',
+        left: '92%',
+        top: '65%',
         color: '#818cf8',
         icon: '🚪',
         styleType: 'door'
@@ -186,8 +197,8 @@ const BLOG_SCENES = {
         target: 'overview',
         label: '回到大厅',
         desc: '沿林间小路走回树屋门前的传送大门。',
-        left: '8%',
-        top: '65%',
+        left: '33%',
+        top: '88%',
         color: '#10b981',
         icon: '🏰',
         styleType: 'bridge'
@@ -197,8 +208,8 @@ const BLOG_SCENES = {
         target: 'travel',
         label: '前往 · 旅图案台',
         desc: '沿着林桥栈道左上行，通往临窗的旅行主题书案。',
-        left: '8%',
-        top: '30%',
+        left: '22%',
+        top: '65%',
         color: '#fb923c',
         icon: '🧭',
         styleType: 'compass'
@@ -259,8 +270,8 @@ const BLOG_SCENES = {
         target: 'outdoor',
         label: '返回林间',
         desc: '离开旅行书案，回到叶间书林之中。',
-        left: '8%',
-        top: '60%',
+        left: '72%',
+        top: '68%',
         color: '#10b981',
         icon: '🌿',
         styleType: 'bridge'
@@ -270,21 +281,23 @@ const BLOG_SCENES = {
       { 
         id: 'travel-map', 
         type: 'map-book', 
-        left: '12%', 
-        top: '36%', 
-        width: '180px', 
+        left: '9.57%', 
+        top: '45.70%', 
+        width: '19.14%', 
+        height: '26.57%',
         label: '杭州旅游地图册', 
-        transform: 'perspective(600px) rotateX(15deg) rotateY(10deg) rotateZ(-8deg) skewX(8deg)',
+        imgSrc: BLOG_NEW_ASSETS.travelMap,
         collections: ['travel'] 
       },
       { 
         id: 'travel-scroll', 
         type: 'scroll', 
-        left: '68%', 
-        top: '32%', 
-        width: '120px', 
+        left: '66.99%', 
+        top: '42.51%', 
+        width: '10.77%', 
+        height: '21.25%',
         label: '一日游路线指南', 
-        transform: 'rotate(5deg)',
+        imgSrc: BLOG_NEW_ASSETS.travelScroll,
         collections: ['travel'],
         filter: (notes) => notes.filter(n => n.title.includes('路线') || n.title.includes('行程') || n.title.includes('作战'))
       }
@@ -302,8 +315,8 @@ const BLOG_SCENES = {
         target: 'indoor',
         label: '返回大厅',
         desc: '离开书脊回廊，回到松果屋大厅。',
-        left: '8%',
-        top: '60%',
+        left: '42%',
+        top: '88%',
         color: '#f59e0b',
         icon: '🚪',
         styleType: 'door'
@@ -313,8 +326,8 @@ const BLOG_SCENES = {
         target: 'archive',
         label: '开启 · 旧札柜',
         desc: '推开左侧雕花木门，进入旧札柜阁分类检索抽屉。',
-        left: '42%',
-        top: '48%',
+        left: '22%',
+        top: '55%',
         color: '#a78bfa',
         icon: '🔑',
         styleType: 'key'
@@ -324,8 +337,8 @@ const BLOG_SCENES = {
         target: 'workshop',
         label: '进入 · 建站工坊',
         desc: '拉开右侧带有铜齿轮的厚重木门，进入建站工坊。',
-        left: '68%',
-        top: '52%',
+        left: '78%',
+        top: '65%',
         color: '#38bdf8',
         icon: '⚙️',
         styleType: 'gear'
@@ -345,8 +358,8 @@ const BLOG_SCENES = {
         target: 'junction',
         label: '返回回廊',
         desc: '推门离开旧札柜，回到书脊回廊的岔路口。',
-        left: '8%',
-        top: '60%',
+        left: '42%',
+        top: '90%',
         color: '#818cf8',
         icon: '🚪',
         styleType: 'door'
@@ -356,21 +369,23 @@ const BLOG_SCENES = {
       { 
         id: 'archive-drawer', 
         type: 'drawer', 
-        left: '12%', 
-        top: '32%', 
-        width: '190px', 
+        left: '10.77%', 
+        top: '43.57%', 
+        width: '16.75%', 
+        height: '26.57%',
         label: '博文索引抽屉 (搜索/标签)', 
-        transform: 'perspective(500px) rotateY(4deg) rotateZ(1deg) skewY(-1deg)',
+        imgSrc: BLOG_NEW_ASSETS.archiveDrawer,
         action: 'search'
       },
       { 
         id: 'archive-note-box', 
         type: 'note-box', 
-        left: '65%', 
-        top: '46%', 
-        width: '130px', 
+        left: '64.59%', 
+        top: '53.13%', 
+        width: '11.96%', 
+        height: '21.25%',
         label: '便签盒 (最近更新)', 
-        transform: 'perspective(400px) rotateX(10deg) rotateZ(-3deg) skewX(4deg)',
+        imgSrc: BLOG_NEW_ASSETS.archiveNoteBox,
         action: 'recent'
       }
     ],
@@ -398,21 +413,23 @@ const BLOG_SCENES = {
       { 
         id: 'workshop-blueprint', 
         type: 'blueprint', 
-        left: '30%', 
-        top: '42%', 
-        width: '220px', 
+        left: '26.91%', 
+        top: '51.01%', 
+        width: '25.12%', 
+        height: '27.63%',
         label: '建站工坊核心蓝图', 
-        transform: 'perspective(800px) rotateX(20deg) rotateY(-5deg) rotateZ(6deg) skewX(-8deg)',
+        imgSrc: BLOG_NEW_ASSETS.workshopBlueprint,
         collections: ['project', 'blog-design']
       },
       { 
         id: 'workshop-scroll', 
         type: 'scroll', 
-        left: '70%', 
-        top: '26%', 
-        width: '120px', 
+        left: '66.99%', 
+        top: '31.88%', 
+        width: '10.77%', 
+        height: '23.38%',
         label: '部署记录与技术长卷', 
-        transform: 'rotate(-5deg)',
+        imgSrc: BLOG_NEW_ASSETS.workshopScroll,
         collections: ['linux-notes', 'compiler-theory']
       }
     ],
@@ -433,6 +450,24 @@ const SceneContainer = styled.div`
   inset: 0;
   z-index: 2;
   overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const SceneCanvas = styled(motion.div)`
+  position: absolute;
+  top: -9999px;
+  bottom: -9999px;
+  left: -9999px;
+  right: -9999px;
+  margin: auto;
+  flex-shrink: 0;
+  width: max(100vw, calc(100vh * 1.777));
+  height: max(100vh, calc(100vw / 1.777));
+  aspect-ratio: 1672 / 941;
+  overflow: hidden;
+  pointer-events: none;
 `;
 
 const CanvasBackground = styled.canvas`
@@ -752,68 +787,6 @@ const MAP_EDGES = [
   { from: 'junction', to: 'workshop', label: '工坊', x1: 30, y1: 65, x2: 45, y2: 85, color: '#38bdf8' }
 ];
 
-const SignpostContainer = styled(motion.div)`
-  position: absolute;
-  bottom: 2.5rem;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 10;
-  display: flex;
-  gap: 0.75rem;
-  background: rgba(12, 10, 24, 0.82);
-  border: 1px solid rgba(231, 199, 126, 0.22);
-  border-radius: 30px;
-  padding: 6px 18px;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.55);
-  align-items: center;
-  
-  @media (max-width: 768px) {
-    width: 90vw;
-    overflow-x: auto;
-    border-radius: 20px;
-    padding: 6px 12px;
-    gap: 0.4rem;
-    
-    &::-webkit-scrollbar {
-      display: none;
-    }
-  }
-`;
-
-const SignpostLabel = styled.span`
-  font-size: 0.68rem;
-  color: rgba(231, 199, 126, 0.6);
-  font-weight: bold;
-  letter-spacing: 0.1em;
-  border-right: 1px solid rgba(231, 199, 126, 0.2);
-  padding-right: 0.6rem;
-  margin-right: 0.1rem;
-  white-space: nowrap;
-`;
-
-const SignpostItem = styled(motion.button)`
-  background: transparent;
-  border: none;
-  color: ${props => props.$active ? '#ffedd5' : 'rgba(254, 243, 199, 0.55)'};
-  font-size: 0.68rem;
-  font-weight: 700;
-  cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  transition: all 0.2s;
-  white-space: nowrap;
-
-  &:hover {
-    color: #e7c77e;
-    background: rgba(231, 199, 126, 0.08);
-  }
-`;
-
 // ── 二级近景场景 ──────────────────────────────────────────────
 const CloseUpContainer = styled(motion.div)`
   position: absolute;
@@ -902,7 +875,7 @@ const ScrollItem = styled(motion.div)`
   left: ${props => props.$left};
   top: ${props => props.$top};
   width: ${props => props.$width};
-  transform: ${props => props.$transform || 'none'};
+  height: ${props => props.$height || 'auto'};
   cursor: pointer;
   z-index: 20;
   display: flex;
@@ -917,11 +890,10 @@ const ScrollItem = styled(motion.div)`
   }
 
   &:hover {
-    transform: ${props => props.$transform ? `${props.$transform} translateY(-8px) scale(1.05)` : 'translateY(-8px) scale(1.05)'};
-    filter: ${props => getLightingFilter(props.$sceneId, true)} drop-shadow(0 15px 25px rgba(0,0,0,0.65));
+    filter: ${props => getLightingFilter(props.$sceneId, true)} drop-shadow(0 0 12px #e7c77e) brightness(1.2);
     
     img {
-      animation: ${scrollSway} 2.5s infinite ease-in-out;
+      animation: ${props => props.$imgSrc ? 'none' : `${scrollSway} 2.5s infinite ease-in-out`};
     }
   }
 `;
@@ -958,7 +930,7 @@ const MapBookItem = styled(motion.div)`
   left: ${props => props.$left};
   top: ${props => props.$top};
   width: ${props => props.$width};
-  transform: ${props => props.$transform || 'none'};
+  height: ${props => props.$height || 'auto'};
   cursor: pointer;
   z-index: 20;
   display: flex;
@@ -973,8 +945,7 @@ const MapBookItem = styled(motion.div)`
   }
 
   &:hover {
-    transform: ${props => props.$transform ? `${props.$transform} translateY(-8px) scale(1.05)` : 'translateY(-8px) scale(1.05)'};
-    filter: ${props => getLightingFilter(props.$sceneId, true)} drop-shadow(0 15px 25px rgba(0,0,0,0.65));
+    filter: ${props => getLightingFilter(props.$sceneId, true)} drop-shadow(0 0 15px #e7c77e) brightness(1.2);
   }
 `;
 
@@ -1010,7 +981,7 @@ const NoteBoxItem = styled(motion.div)`
   left: ${props => props.$left};
   top: ${props => props.$top};
   width: ${props => props.$width};
-  transform: ${props => props.$transform || 'none'};
+  height: ${props => props.$height || 'auto'};
   cursor: pointer;
   z-index: 20;
   display: flex;
@@ -1025,8 +996,7 @@ const NoteBoxItem = styled(motion.div)`
   }
 
   &:hover {
-    transform: ${props => props.$transform ? `${props.$transform} translateY(-8px) scale(1.05)` : 'translateY(-8px) scale(1.05)'};
-    filter: ${props => getLightingFilter(props.$sceneId, true)} drop-shadow(0 15px 25px rgba(0,0,0,0.65));
+    filter: ${props => getLightingFilter(props.$sceneId, true)} drop-shadow(0 0 12px #e7c77e) brightness(1.2);
   }
 `;
 
@@ -1062,7 +1032,7 @@ const DrawerItem = styled(motion.div)`
   left: ${props => props.$left};
   top: ${props => props.$top};
   width: ${props => props.$width};
-  transform: ${props => props.$transform || 'none'};
+  height: ${props => props.$height || 'auto'};
   cursor: pointer;
   z-index: 20;
   display: flex;
@@ -1077,8 +1047,7 @@ const DrawerItem = styled(motion.div)`
   }
 
   &:hover {
-    transform: ${props => props.$transform ? `${props.$transform} translateY(-8px) scale(1.05)` : 'translateY(-8px) scale(1.05)'};
-    filter: ${props => getLightingFilter(props.$sceneId, true)} drop-shadow(0 15px 25px rgba(0,0,0,0.65));
+    filter: ${props => getLightingFilter(props.$sceneId, true)} drop-shadow(0 0 15px #e7c77e) brightness(1.2);
   }
 `;
 
@@ -1114,7 +1083,7 @@ const BlueprintItem = styled(motion.div)`
   left: ${props => props.$left};
   top: ${props => props.$top};
   width: ${props => props.$width};
-  transform: ${props => props.$transform || 'none'};
+  height: ${props => props.$height || 'auto'};
   cursor: pointer;
   z-index: 20;
   display: flex;
@@ -1129,8 +1098,7 @@ const BlueprintItem = styled(motion.div)`
   }
 
   &:hover {
-    transform: ${props => props.$transform ? `${props.$transform} translateY(-8px) scale(1.05)` : 'translateY(-8px) scale(1.05)'};
-    filter: ${props => getLightingFilter(props.$sceneId, true)} drop-shadow(0 15px 25px rgba(0,0,0,0.65));
+    filter: ${props => getLightingFilter(props.$sceneId, true)} drop-shadow(0 0 15px #e7c77e) brightness(1.2);
   }
 `;
 
@@ -1253,6 +1221,20 @@ const MinimapTitle = styled.h4`
   }
 `;
 
+const MinimapCoordBadge = styled.div`
+  font-family: 'Courier New', monospace;
+  font-size: 0.58rem;
+  font-weight: 800;
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.12);
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  border-radius: 4px;
+  padding: 1px 5px;
+  letter-spacing: 0.05em;
+  box-shadow: 0 0 6px rgba(251, 191, 36, 0.2);
+  user-select: none;
+`;
+
 const MinimapCloseBtn = styled.button`
   background: transparent;
   border: none;
@@ -1274,8 +1256,9 @@ const MinimapCloseBtn = styled.button`
 const MinimapGraphArea = styled.div`
   flex: 1;
   position: relative;
-  background: rgba(6, 4, 10, 0.4);
-  border-radius: 6px;
+  background: rgba(6, 4, 10, 0.65) radial-gradient(rgba(231, 199, 126, 0.15) 1px, transparent 1px) 0 0 / 12px 12px;
+  border: 1px solid rgba(231, 199, 126, 0.15);
+  border-radius: 8px;
   overflow: hidden;
 `;
 
@@ -1339,10 +1322,27 @@ const MinimapNodeLabel = styled.div`
   text-shadow: 0 1px 2px rgba(0,0,0,0.9);
   white-space: nowrap;
   scale: 0.95;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  
+  span.coords-text {
+    font-family: 'Courier New', monospace;
+    font-size: 0.48rem;
+    opacity: 0.5;
+    font-weight: normal;
+    color: #a78bfa;
+    transition: opacity 0.2s, color 0.2s;
+  }
   
   ${MinimapNodeContainer}:hover & {
     color: #ffffff;
     text-shadow: 0 0 4px ${props => props.$themeColor || '#e7c77e'};
+    
+    span.coords-text {
+      opacity: 0.9;
+      color: #fbbf24;
+    }
   }
 `;
 
@@ -1740,6 +1740,7 @@ const Portal = ({ portal, onChangeScene }) => {
 export default function Blog() {
   const [sceneMode, setSceneMode] = useState('overview'); // overview, indoor, outdoor, travel, archive, workshop
   const [isMinimapOpen, setIsMinimapOpen] = useState(true);
+  const [isTeleporting, setIsTeleporting] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [notesData, setNotesData] = useState([]);
   
@@ -1753,11 +1754,16 @@ export default function Blog() {
   const currentScene = BLOG_SCENES[sceneMode];
 
   const changeScene = (mode) => {
-    setSceneMode(mode);
+    if (sceneMode === mode) return;
+    setIsTeleporting(true);
     setIsTransitioning(true);
     setTimeout(() => {
+      setSceneMode(mode);
+    }, 300);
+    setTimeout(() => {
       setIsTransitioning(false);
-    }, 750); // 稍微小于过渡动画 0.8s 的防抖锁定时间
+      setIsTeleporting(false);
+    }, 700);
   };
   const [notesLoading, setNotesLoading] = useState(true);
   
@@ -1790,10 +1796,10 @@ export default function Blog() {
   const springY = useSpring(mouseY, springConfig);
 
   // 创建映射：背景移动范围 [-1.2%, 1.2%]，前景物件移动范围 [-2.8%, 2.8%]
-  const bgX = useTransform(springX, [-0.5, 0.5], ['1.2%', '-1.2%']);
-  const bgY = useTransform(springY, [-0.5, 0.5], ['1.2%', '-1.2%']);
-  const itemX = useTransform(springX, [-0.5, 0.5], ['2.8%', '-2.8%']);
-  const itemY = useTransform(springY, [-0.5, 0.5], ['2.8%', '-2.8%']);
+  const bgX = useTransform(springX, [-0.5, 0.5], ['-1.2%', '1.2%']);
+  const bgY = useTransform(springY, [-0.5, 0.5], ['-1.2%', '1.2%']);
+  const itemX = useTransform(springX, [-0.5, 0.5], ['-2.8%', '2.8%']);
+  const itemY = useTransform(springY, [-0.5, 0.5], ['-2.8%', '2.8%']);
 
   // 保存实时标准化坐标的 ref，供 Canvas 粒子渲染系统读取，减少 React 调度开销
   const rawMouseRef = useRef({ x: 0, y: 0 });
@@ -2135,6 +2141,22 @@ export default function Blog() {
                 <MinimapTitle>
                   🧭 游园星图 <span>(双路径)</span>
                 </MinimapTitle>
+                {(() => {
+                  const coords = {
+                    overview: { x: 50, y: 15 },
+                    indoor: { x: 30, y: 40 },
+                    outdoor: { x: 70, y: 40 },
+                    travel: { x: 70, y: 75 },
+                    junction: { x: 30, y: 65 },
+                    archive: { x: 15, y: 85 },
+                    workshop: { x: 45, y: 85 }
+                  }[sceneMode] || { x: 50, y: 50 };
+                  return (
+                    <MinimapCoordBadge title="当前空间星象坐标">
+                      LOC: {coords.x}, {coords.y}
+                    </MinimapCoordBadge>
+                  );
+                })()}
                 <MinimapCloseBtn onClick={() => setIsMinimapOpen(false)}>
                   <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -2207,7 +2229,7 @@ export default function Blog() {
                         {coords.icon}
                       </MinimapMedallion>
                       <MinimapNodeLabel $isCurrent={isCurrent} $themeColor={scene.themeColor}>
-                        {coords.label}
+                        {coords.label} <span className="coords-text">[{coords.x},{coords.y}]</span>
                       </MinimapNodeLabel>
                       
                       {isCurrent && (
@@ -2231,126 +2253,75 @@ export default function Blog() {
       <CanvasBackground ref={canvasRef} />
 
       <SceneContainer>
-        {/* ─────────────────────────────────────────────────────────────
-           背景过渡层 (Cross-fading Backgrounds)
-           ───────────────────────────────────────────────────────────── */}
-        {Object.values(BLOG_SCENES).map((scene) => {
-          const bgVal = scene.background 
-            ? `url(${scene.background})` 
-            : `radial-gradient(circle at 50% 50%, ${scene.themeColor}15 0%, #030108 80%)`;
-          return (
-            <BgLayer
-              key={scene.id}
-              as={motion.div}
-              $bg={bgVal}
-              animate={{
-                opacity: sceneMode === scene.id ? 1 : 0,
-                scale: sceneMode === scene.id ? 1.05 : 1.15,
-              }}
-              transition={{
-                duration: 1.1,
-                ease: [0.25, 1, 0.5, 1]
-              }}
-              style={{
-                x: sceneMode === scene.id ? bgX : 0,
-                y: sceneMode === scene.id ? bgY : 0,
-                zIndex: sceneMode === scene.id ? 0 : -1,
-              }}
-            />
-          );
-        })}
-
-        {/* 统一的场景顶部叙事标牌 (Scene Narrative Header) */}
-        <AnimatePresence mode="wait">
-          <SceneHeaderContainer
-            key={sceneMode}
-            initial={{ opacity: 0, y: -15, x: '-50%' }}
-            animate={{ opacity: 1, y: 0, x: '-50%' }}
-            exit={{ opacity: 0, y: -15, x: '-50%' }}
-            transition={{ duration: 0.5, ease: 'easeOut' }}
-          >
-            <SceneHeaderTitle>{currentScene.title}</SceneHeaderTitle>
-            <SceneHeaderSubtitle>{currentScene.subtitle}</SceneHeaderSubtitle>
-          </SceneHeaderContainer>
-        </AnimatePresence>
-
-        {/* 统一的场景传送节点 (Portal Nodes) */}
+        {/* 🔮 传送时全屏魔力光晕 (Teleport spell screen flash) */}
         <AnimatePresence>
-          {currentScene.portals && currentScene.portals.map((portal) => (
-            <Portal
-              key={portal.id}
-              portal={portal}
-              onChangeScene={changeScene}
+          {isTeleporting && (
+            <TeleportFlash
+              initial={{ opacity: 0 }}
+              animate={{ opacity: [0, 1, 0] }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.7, times: [0, 0.4, 1], ease: 'easeInOut' }}
             />
-          ))}
+          )}
         </AnimatePresence>
 
-        {/* 场景长廊分岔路标 (始终在底部显示，方便快速传送) */}
-        <SignpostContainer
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
+        {/* 🪐 响应式 16:9 画布容器 (Centers background & overlay nodes relative to artwork aspect-ratio) */}
+        <SceneCanvas
+          style={{
+            x: bgX,
+            y: bgY,
+          }}
         >
-          <SignpostLabel>快速传送</SignpostLabel>
-          <SignpostItem 
-            $active={sceneMode === 'overview'} 
-            onClick={() => changeScene('overview')}
-          >
-            🏰 总览
-          </SignpostItem>
-          <SignpostItem 
-            $active={sceneMode === 'indoor'} 
-            onClick={() => changeScene('indoor')}
-          >
-            🚪 屋内
-          </SignpostItem>
-          <SignpostItem 
-            $active={sceneMode === 'outdoor'} 
-            onClick={() => changeScene('outdoor')}
-          >
-            🌿 屋外
-          </SignpostItem>
-          <SignpostItem 
-            $active={sceneMode === 'junction'} 
-            onClick={() => changeScene('junction')}
-          >
-            🧭 回廊
-          </SignpostItem>
-          <SignpostItem 
-            $active={sceneMode === 'travel'} 
-            onClick={() => changeScene('travel')}
-          >
-            🗺️ 旅案
-          </SignpostItem>
-          <SignpostItem 
-            $active={sceneMode === 'archive'} 
-            onClick={() => changeScene('archive')}
-          >
-            🗄️ 旧柜
-          </SignpostItem>
-          <SignpostItem 
-            $active={sceneMode === 'workshop'} 
-            onClick={() => changeScene('workshop')}
-          >
-            🛠️ 工坊
-          </SignpostItem>
-        </SignpostContainer>
+          {Object.values(BLOG_SCENES).map((scene) => {
+            const bgVal = scene.background 
+              ? `url(${scene.background})` 
+              : `radial-gradient(circle at 50% 50%, ${scene.themeColor}15 0%, #030108 80%)`;
+            return (
+              <BgLayer
+                key={scene.id}
+                as={motion.div}
+                $bg={bgVal}
+                animate={{
+                  opacity: sceneMode === scene.id ? 1 : 0,
+                  scale: sceneMode === scene.id ? 1.05 : 1.15,
+                }}
+                transition={{
+                  duration: 1.1,
+                  ease: [0.25, 1, 0.5, 1]
+                }}
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  zIndex: sceneMode === scene.id ? 0 : -1,
+                }}
+              />
+            );
+          })}
 
-        {/* ─────────────────────────────────────────────────────────────
-           2. 二级近景场景 (各场景交互物件)
-           ───────────────────────────────────────────────────────────── */}
-        <AnimatePresence mode="wait">
-          {sceneMode !== 'overview' && (
-            <CloseUpContainer
-              key={sceneMode}
-              $isTransitioning={isTransitioning}
-              initial={{ opacity: 0, scale: 1.05 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 1.05 }}
-              transition={{ duration: 0.6 }}
-            >
-              {/* 渲染具体的场景交互物 */}
-              {currentScene.items.map((item) => {
+          {/* 统一的场景传送节点 (Portal Nodes) */}
+          <AnimatePresence>
+            {currentScene.portals && currentScene.portals.map((portal) => (
+              <Portal
+                key={portal.id}
+                portal={portal}
+                onChangeScene={changeScene}
+              />
+            ))}
+          </AnimatePresence>
+
+          {/* 二级近景场景 (各场景交互物件) */}
+          <AnimatePresence mode="wait">
+            {sceneMode !== 'overview' && (
+              <CloseUpContainer
+                key={sceneMode}
+                $isTransitioning={isTransitioning}
+                initial={{ opacity: 0, scale: 1.02 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 1.02 }}
+                transition={{ duration: 0.6 }}
+              >
+                {/* 渲染具体的场景交互物 */}
+                {currentScene.items.map((item) => {
                 if (item.type === 'gold' || item.type === 'green') {
                   const isGold = item.type === 'gold';
                   return (
@@ -2387,12 +2358,12 @@ export default function Blog() {
                       $left={item.left}
                       $top={item.top}
                       $width={item.width}
-                      $transform={item.transform}
+                      $height={item.height}
                       $sceneId={currentScene.id}
-                      style={{ x: itemX, y: itemY }}
+                      $imgSrc={item.imgSrc}
                       onClick={() => handleItemClick(item)}
                     >
-                      <img src={imgSrc} alt={item.label} />
+                      <img src={item.imgSrc || imgSrc} alt={item.label} />
                       <ScrollLabel>{item.label}</ScrollLabel>
                     </ScrollItem>
                   );
@@ -2407,10 +2378,9 @@ export default function Blog() {
                       $width={item.width}
                       $transform={item.transform}
                       $sceneId={currentScene.id}
-                      style={{ x: itemX, y: itemY }}
                       onClick={() => handleItemClick(item)}
                     >
-                      <img src={BLOG_NEW_ASSETS.mapBook} alt={item.label} />
+                      <img src={item.imgSrc || BLOG_NEW_ASSETS.mapBook} alt={item.label} />
                       <MapBookLabel>{item.label}</MapBookLabel>
                     </MapBookItem>
                   );
@@ -2425,10 +2395,9 @@ export default function Blog() {
                       $width={item.width}
                       $transform={item.transform}
                       $sceneId={currentScene.id}
-                      style={{ x: itemX, y: itemY }}
                       onClick={() => handleItemClick(item)}
                     >
-                      <img src={BLOG_NEW_ASSETS.noteBox} alt={item.label} />
+                      <img src={item.imgSrc || BLOG_NEW_ASSETS.noteBox} alt={item.label} />
                       <NoteBoxLabel>{item.label}</NoteBoxLabel>
                     </NoteBoxItem>
                   );
@@ -2443,10 +2412,9 @@ export default function Blog() {
                       $width={item.width}
                       $transform={item.transform}
                       $sceneId={currentScene.id}
-                      style={{ x: itemX, y: itemY }}
                       onClick={() => handleItemClick(item)}
                     >
-                      <img src={BLOG_NEW_ASSETS.drawer} alt={item.label} />
+                      <img src={item.imgSrc || BLOG_NEW_ASSETS.drawer} alt={item.label} />
                       <DrawerLabel>{item.label}</DrawerLabel>
                     </DrawerItem>
                   );
@@ -2461,10 +2429,9 @@ export default function Blog() {
                       $width={item.width}
                       $transform={item.transform}
                       $sceneId={currentScene.id}
-                      style={{ x: itemX, y: itemY }}
                       onClick={() => handleItemClick(item)}
                     >
-                      <img src={BLOG_NEW_ASSETS.blueprint} alt={item.label} />
+                      <img src={item.imgSrc || BLOG_NEW_ASSETS.blueprint} alt={item.label} />
                       <BlueprintLabel>{item.label}</BlueprintLabel>
                     </BlueprintItem>
                   );
@@ -2474,6 +2441,21 @@ export default function Blog() {
               })}
             </CloseUpContainer>
           )}
+        </AnimatePresence>
+        </SceneCanvas>
+
+        {/* 统一的场景顶部叙事标牌 (Scene Narrative Header) */}
+        <AnimatePresence mode="wait">
+          <SceneHeaderContainer
+            key={sceneMode}
+            initial={{ opacity: 0, y: -15, x: '-50%' }}
+            animate={{ opacity: 1, y: 0, x: '-50%' }}
+            exit={{ opacity: 0, y: -15, x: '-50%' }}
+            transition={{ duration: 0.5, ease: 'easeOut' }}
+          >
+            <SceneHeaderTitle>{currentScene.title}</SceneHeaderTitle>
+            <SceneHeaderSubtitle>{currentScene.subtitle}</SceneHeaderSubtitle>
+          </SceneHeaderContainer>
         </AnimatePresence>
       </SceneContainer>
 

@@ -37,6 +37,14 @@ import drawer from '../assets/images/blog/drawer.png';
 import blueprint from '../assets/images/blog/blueprint.png';
 import scroll from '../assets/images/blog/scroll.png';
 
+// Cropped environmental items
+import travelMap from '../assets/images/blog/cropped/travel-map.png';
+import travelScroll from '../assets/images/blog/cropped/travel-scroll.png';
+import archiveDrawer from '../assets/images/blog/cropped/archive-drawer.png';
+import archiveNoteBox from '../assets/images/blog/cropped/archive-note-box.png';
+import workshopBlueprint from '../assets/images/blog/cropped/workshop-blueprint.png';
+import workshopScroll from '../assets/images/blog/cropped/workshop-scroll.png';
+
 export const BLOG_ASSETS = {
   interior: {
     master,
@@ -85,6 +93,12 @@ export const BLOG_NEW_ASSETS = {
   drawer,
   blueprint,
   scroll,
+  travelMap,
+  travelScroll,
+  archiveDrawer,
+  archiveNoteBox,
+  workshopBlueprint,
+  workshopScroll,
 };
 
 export const getBlogAssetByKey = (assetKey) => {
