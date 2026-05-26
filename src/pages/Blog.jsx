@@ -9,14 +9,21 @@ import { BLOG_NEW_ASSETS } from '../constants/blogAssets';
 // 动效定义 (Animations)
 // -------------------------------------------------------------------------
 
-const scrollIndicatorFloat = keyframes`
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
-`;
 
 const paperSlideIn = keyframes`
   from { transform: translateY(12px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
+`;
+
+const leafShake = keyframes`
+  0%, 100% { transform: rotate(0deg); }
+  20%, 60% { transform: rotate(-8deg); }
+  40%, 80% { transform: rotate(6deg); }
+`;
+
+const scrollSway = keyframes`
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(3deg) translateY(-2px); }
 `;
 // -------------------------------------------------------------------------
 // 长廊场景配置定义 (Scene Corridor Config)
@@ -25,19 +32,87 @@ const BLOG_SCENES = {
   overview: {
     id: 'overview',
     title: '松果屋总览',
-    subtitle: '叩门入室，或步入叶林。',
+    subtitle: '夜色落在树冠之间，灯火从木门与林桥深处慢慢亮起。\n这里是叶间书林的入口，也是所有手札、卷轴与旧档案的起点。',
     background: BLOG_NEW_ASSETS.bgMain,
     themeColor: '#fbbf24',
-    backLabel: '',
+    portals: [
+      {
+        id: 'overview-to-indoor',
+        target: 'indoor',
+        label: '叩门入室',
+        desc: '推开松果屋的木门，查看短札、随笔与屋内收藏。',
+        left: '28%',
+        top: '48%',
+        color: '#fbbf24',
+        icon: '🚪',
+        styleType: 'door'
+      },
+      {
+        id: 'overview-to-outdoor',
+        target: 'outdoor',
+        label: '步入林间',
+        desc: '沿着木桥进入叶间书林，翻阅长文、技术笔记与专题卷轴。',
+        left: '72%',
+        top: '52%',
+        color: '#10b981',
+        icon: '🌿',
+        styleType: 'bridge'
+      }
+    ],
     items: [],
   },
   indoor: {
     id: 'indoor',
     title: '碎叶墙 · 松果屋内',
-    subtitle: '温火烛光，随笔杂感。',
+    subtitle: '暖灯照着木墙，零散的想法像叶片一样被钉在这里。\n有些只是片刻灵感，有些会慢慢长成一篇完整的手札。',
     background: BLOG_NEW_ASSETS.bgWall,
-    themeColor: '#fbbf24',
-    backLabel: '🚪 返回大厅',
+    themeColor: '#f59e0b',
+    portals: [
+      {
+        id: 'indoor-to-overview',
+        target: 'overview',
+        label: '推门外出',
+        desc: '推门离开松果屋，回到树屋门前的大厅。',
+        left: '8%',
+        top: '65%',
+        color: '#fbbf24',
+        icon: '🚪',
+        styleType: 'door'
+      },
+      {
+        id: 'indoor-to-travel',
+        target: 'travel',
+        label: '前往 · 旅图案台',
+        desc: '移步至临窗的书案前，那里放置着杭州旅游地图册与远行的路线指南。',
+        left: '88%',
+        top: '30%',
+        color: '#d97706',
+        icon: '🧭',
+        styleType: 'compass'
+      },
+      {
+        id: 'indoor-to-archive',
+        target: 'archive',
+        label: '前往 · 旧札柜',
+        desc: '踏上阁楼木梯，尘封的博文索引抽屉柜与分类藏经阁就存放在那里。',
+        left: '88%',
+        top: '50%',
+        color: '#a78bfa',
+        icon: '🔑',
+        styleType: 'key'
+      },
+      {
+        id: 'indoor-to-workshop',
+        target: 'workshop',
+        label: '前往 · 建站工坊',
+        desc: '造访屋后隐秘的魔法工作室，桌上平铺着建站核心蓝图纸与部署长卷。',
+        left: '88%',
+        top: '70%',
+        color: '#6366f1',
+        icon: '⚙️',
+        styleType: 'gear'
+      }
+    ],
     items: [
       { 
         id: 'gold-1', 
@@ -109,11 +184,23 @@ const BLOG_SCENES = {
   },
   outdoor: {
     id: 'outdoor',
-    title: '叶间书林 · 灵木区',
-    subtitle: '古树高悬，仙卷竹册。',
+    title: '叶间书林',
+    subtitle: '木桥通往更深的森林，卷轴悬在枝叶与灯火之间。\n这里收藏着篇幅更长的记录：技术、建站、图谱与慢慢整理成形的思考。',
     background: BLOG_NEW_ASSETS.bgFores,
     themeColor: '#10b981',
-    backLabel: '🚪 返回大厅',
+    portals: [
+      {
+        id: 'outdoor-to-overview',
+        target: 'overview',
+        label: '回到大厅',
+        desc: '沿林间小路走回树屋门前的传送大门。',
+        left: '8%',
+        top: '65%',
+        color: '#10b981',
+        icon: '🏰',
+        styleType: 'bridge'
+      }
+    ],
     items: [
       { 
         id: 'bamboo-1', 
@@ -160,10 +247,22 @@ const BLOG_SCENES = {
   travel: {
     id: 'travel',
     title: '旅图案台',
-    subtitle: '地图漫记，红尘行脚。',
+    subtitle: '地图册摊在灯下，路线、地名与零散坐标被慢慢连成一条路。\n这里收着城市漫游、旅行攻略，以及那些尚未出发的计划。',
     background: BLOG_NEW_ASSETS.bgTravel,
     themeColor: '#fb923c',
-    backLabel: '🚪 返回大厅',
+    portals: [
+      {
+        id: 'travel-to-indoor',
+        target: 'indoor',
+        label: '返回大厅',
+        desc: '离开旅行书案，回到松果屋大厅。',
+        left: '8%',
+        top: '60%',
+        color: '#f59e0b',
+        icon: '🚪',
+        styleType: 'door'
+      }
+    ],
     items: [
       { 
         id: 'travel-map', 
@@ -191,10 +290,22 @@ const BLOG_SCENES = {
   archive: {
     id: 'archive',
     title: '旧札柜',
-    subtitle: '尘封索引，日月盈昃。',
+    subtitle: '旧抽屉里收着按时间、标签和主题整理过的手札。\n当你不想漫游，只想快速找到一篇文章，这里就是最可靠的索引柜。',
     background: BLOG_NEW_ASSETS.bgArchive,
     themeColor: '#c084fc',
-    backLabel: '🚪 返回大厅',
+    portals: [
+      {
+        id: 'archive-to-indoor',
+        target: 'indoor',
+        label: '返回大厅',
+        desc: '离开旧札柜，回到松果屋大厅。',
+        left: '8%',
+        top: '60%',
+        color: '#f59e0b',
+        icon: '🚪',
+        styleType: 'door'
+      }
+    ],
     items: [
       { 
         id: 'archive-drawer', 
@@ -221,10 +332,22 @@ const BLOG_SCENES = {
   workshop: {
     id: 'workshop',
     title: '建站工坊',
-    subtitle: '代码熔炉，工程铭牌。',
+    subtitle: '蓝图、卷轴和发光仪器堆在工作台上。\n这里记录着松果屋如何一点点搭起来，也收着那些被修好的 Bug 和没修好的奇怪想法。',
     background: BLOG_NEW_ASSETS.bgWorkshop,
     themeColor: '#38bdf8',
-    backLabel: '🚪 返回大厅',
+    portals: [
+      {
+        id: 'workshop-to-indoor',
+        target: 'indoor',
+        label: '返回大厅',
+        desc: '离开建站工坊，回到松果屋大厅。',
+        left: '8%',
+        top: '60%',
+        color: '#f59e0b',
+        icon: '🚪',
+        styleType: 'door'
+      }
+    ],
     items: [
       { 
         id: 'workshop-blueprint', 
@@ -292,74 +415,290 @@ const BgLayer = styled.div`
   background-image: ${props => props.$bg || 'none'};
 `;
 
-// ── 全景总览热区布局 ───────────────────────────────────────────
-const OverviewOverlay = styled.div`
+// ── 统一的场景顶部叙事标牌样式 ────────────────────────────────────────
+const SceneHeaderContainer = styled(motion.div)`
   position: absolute;
-  inset: 0;
-  z-index: 2;
-  display: flex;
-  width: 100%;
-  height: 100%;
-`;
-
-const OverviewHalf = styled.div`
-  flex: 1;
-  height: 100%;
-  position: relative;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  transition: background-color 0.4s ease;
-
-  &:hover {
-    background-color: ${props => props.$glowColor};
-  }
-`;
-
-const EntranceCard = styled(motion.div)`
-  background: rgba(12, 10, 24, 0.85);
-  border: 1.5px solid ${props => props.$borderColor};
+  top: 1.8rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  background: rgba(12, 10, 24, 0.72);
+  border: 1px solid rgba(231, 199, 126, 0.18);
   border-radius: 16px;
-  padding: 1.6rem 2rem;
-  max-width: 320px;
+  padding: 10px 20px;
+  width: min(540px, 90vw);
   text-align: center;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  box-shadow: 
-    0 15px 35px rgba(0,0,0,0.55),
-    0 0 25px ${props => props.$borderColor}30;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.45);
   display: flex;
   flex-direction: column;
-  gap: 0.8rem;
+  gap: 4px;
   pointer-events: none;
 `;
 
-const EntranceTitle = styled.h2`
-  font-size: 1.4rem;
+const SceneHeaderTitle = styled.h2`
+  font-size: 0.95rem;
   font-weight: 800;
   color: #ffedd5;
   margin: 0;
   letter-spacing: 0.05em;
 `;
 
-const EntranceDesc = styled.p`
-  font-size: 0.8rem;
-  color: rgba(254, 243, 199, 0.7);
-  line-height: 1.5;
+const SceneHeaderSubtitle = styled.p`
+  font-size: 0.72rem;
+  color: rgba(254, 243, 199, 0.68);
+  line-height: 1.45;
+  margin: 0;
+  white-space: pre-line;
+`;
+
+// ── 魔法传送门样式 ────────────────────────────────────────────────────
+const PortalContainer = styled(motion.div)`
+  position: absolute;
+  left: ${props => props.$left};
+  top: ${props => props.$top};
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: auto;
+  cursor: pointer;
+`;
+
+const pulseGlow = keyframes`
+  0%, 100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 4px 1px ${props => props.$color}aa;
+    opacity: 0.75;
+  }
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0 0 14px 4px ${props => props.$color}ff;
+    opacity: 1;
+  }
+`;
+
+const pulseRing = keyframes`
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+`;
+
+const PortalGlowRing = styled.div`
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 2px solid ${props => props.$color};
+  animation: ${pulseRing} 2.5s infinite ease-out;
+  pointer-events: none;
+`;
+
+const PortalAnchor = styled.div`
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(12, 10, 24, 0.85);
+  border: 2px solid ${props => props.$color};
+  box-shadow: 0 0 10px ${props => props.$color}cc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 14px;
+  color: #fff;
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  animation: ${pulseGlow} 2.5s infinite ease-in-out;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -5px;
+    border: 1px dashed ${props => props.$color}88;
+    border-radius: 50%;
+    animation: portalSpin 12s linear infinite;
+  }
+
+  @keyframes portalSpin {
+    to { transform: rotate(360deg); }
+  }
+
+  ${PortalContainer}:hover & {
+    transform: scale(1.2);
+    box-shadow: 
+      0 0 18px 6px ${props => props.$color}ff,
+      0 0 30px 10px ${props => props.$color}66;
+    border-color: #ffffff;
+    background: ${props => props.$color};
+  }
+`;
+
+const PortalIconWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+
+  ${PortalContainer}:hover & {
+    transform: ${props => {
+      if (props.$styleType === 'compass') return 'rotate(180deg)';
+      if (props.$styleType === 'gear') return 'rotate(360deg)';
+      if (props.$styleType === 'key') return 'scale(1.2) translateY(-2px)';
+      return 'scale(1.2)';
+    }};
+  }
+`;
+
+const PortalTooltip = styled(motion.div)`
+  position: absolute;
+  bottom: 44px;
+  width: 240px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(15, 11, 28, 0.94);
+  border: 1px solid ${props => props.$color}88;
+  box-shadow: 
+    0 10px 25px rgba(0, 0, 0, 0.6),
+    0 0 15px ${props => props.$color}22;
+  color: #f7eed7;
+  pointer-events: none;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 6px 6px 0;
+    border-style: solid;
+    border-color: rgba(15, 11, 28, 0.94) transparent transparent;
+    display: block;
+    width: 0;
+  }
+`;
+
+const PortalTooltipTitle = styled.h4`
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: ${props => props.$color};
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  letter-spacing: 0.05em;
+`;
+
+const PortalTooltipDesc = styled.p`
+  font-size: 0.72rem;
+  color: rgba(247, 238, 215, 0.72);
+  line-height: 1.45;
   margin: 0;
 `;
 
-const EntrancePrompt = styled.span`
-  font-size: 0.7rem;
-  font-weight: bold;
-  color: ${props => props.$activeColor};
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  animation: ${scrollIndicatorFloat} 2s infinite ease-in-out;
-  margin-top: 0.4rem;
+// ── 摘叶随笔纸条 (Leaf Paper Note) ──────────────────────────────────
+const LeafPaperNote = styled(motion.div)`
+  position: fixed;
+  left: 50%;
+  top: 48%;
+  transform: translate(-50%, -50%);
+  width: min(340px, calc(100% - 32px));
+  padding: 1.4rem;
+  border-radius: 14px;
+  background: 
+    linear-gradient(135deg, rgba(255, 250, 235, 0.96), rgba(245, 230, 200, 0.94)),
+    #fcf8ec;
+  border: 1px dashed #d97706;
+  box-shadow: 
+    0 20px 45px rgba(0, 0, 0, 0.45),
+    0 0 15px rgba(217, 119, 6, 0.15);
+  color: #4a2d1b;
+  z-index: 20000;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  backdrop-filter: blur(4px);
+  
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    border: 1px solid rgba(217, 119, 6, 0.2);
+    border-radius: 12px;
+    pointer-events: none;
+  }
 `;
+
+const LeafPaperTitle = styled.h3`
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #3d2212;
+  margin: 0;
+  line-height: 1.35;
+`;
+
+const LeafPaperMeta = styled.div`
+  font-size: 0.7rem;
+  color: rgba(91, 52, 22, 0.65);
+  font-weight: 700;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+`;
+
+const LeafPaperSnippet = styled.p`
+  font-size: 0.78rem;
+  color: rgba(61, 34, 18, 0.85);
+  line-height: 1.5;
+  margin: 0;
+  font-style: italic;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+`;
+
+const LeafPaperActions = styled.div`
+  display: flex;
+  gap: 12px;
+  margin-top: 4px;
+`;
+
+const LeafPaperBtn = styled(motion.button)`
+  flex: 1;
+  min-height: 34px;
+  border: 1px solid ${props => props.$primary ? 'transparent' : 'rgba(91, 52, 22, 0.28)'};
+  border-radius: 8px;
+  background: ${props => props.$primary ? '#78350f' : 'rgba(255, 255, 255, 0.4)'};
+  color: ${props => props.$primary ? '#fef3c7' : '#5b3416'};
+  font-weight: 800;
+  font-size: 0.75rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  transition: background 0.2s ease;
+  
+  &:hover {
+    background: ${props => props.$primary ? '#92400e' : 'rgba(255, 255, 255, 0.7)'};
+  }
+`;
+
 
 // ── 场景长廊分岔路标 ──────────────────────────────────────────
 const SignpostContainer = styled(motion.div)`
@@ -422,23 +761,7 @@ const CloseUpContainer = styled(motion.div)`
   pointer-events: ${props => props.$isTransitioning ? 'none' : 'auto'};
 `;
 
-const CloseUpTitleBar = styled.div`
-  position: absolute;
-  top: 1.8rem;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 10;
-  background: rgba(12, 10, 24, 0.75);
-  border: 1px solid rgba(231, 199, 126, 0.18);
-  border-radius: 50px;
-  padding: 6px 18px;
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: #ffedd5;
-  letter-spacing: 0.1em;
-  backdrop-filter: blur(8px);
-  box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-`;
+
 
 const getLightingFilter = (sceneId, hover = false) => {
   const baseFilters = {
@@ -472,6 +795,10 @@ const LeafItem = styled(motion.div)`
   img {
     width: 100%;
     height: auto;
+  }
+
+  &.shake img {
+    animation: ${leafShake} 0.6s ease-in-out;
   }
 
   &:hover {
@@ -529,6 +856,10 @@ const ScrollItem = styled(motion.div)`
   &:hover {
     transform: ${props => props.$transform ? `${props.$transform} translateY(-8px) scale(1.05)` : 'translateY(-8px) scale(1.05)'};
     filter: ${props => getLightingFilter(props.$sceneId, true)} drop-shadow(0 15px 25px rgba(0,0,0,0.65));
+    
+    img {
+      animation: ${scrollSway} 2.5s infinite ease-in-out;
+    }
   }
 `;
 
@@ -840,41 +1171,14 @@ const SearchTagButton = styled.button`
   }
 `;
 
-// ── 古典返回按钮 ──────────────────────────────────────────────
-const ReturnButton = styled(motion.button)`
-  position: absolute;
-  bottom: 2rem;
-  left: 2rem;
-  z-index: 30;
-  background: rgba(12, 10, 24, 0.8);
-  border: 1px solid rgba(231, 199, 126, 0.3);
-  border-radius: 30px;
-  padding: 8px 18px;
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: #e7c77e;
-  letter-spacing: 0.05em;
-  cursor: pointer;
-  backdrop-filter: blur(8px);
-  box-shadow: 0 6px 20px rgba(0,0,0,0.5);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  transition: all 0.2s;
 
-  &:hover {
-    border-color: #e7c77e;
-    color: #fff7df;
-    box-shadow: 0 6px 24px rgba(231,199,126,0.2);
-  }
-`;
 
 // ── 卷轴展开阅读面板 ───────────────────────────────────────────
 const ScrollBackdrop = styled(motion.div)`
   position: fixed;
   inset: 0;
-  background: rgba(3, 1, 8, 0.78);
-  backdrop-filter: blur(8px);
+  background: rgba(8, 6, 14, 0.52);
+  backdrop-filter: blur(4px);
   z-index: 10000;
   display: flex;
   align-items: center;
@@ -884,8 +1188,9 @@ const ScrollBackdrop = styled(motion.div)`
 
 const ScrollPanelContainer = styled(motion.div)`
   position: relative;
-  width: 780px;
-  height: 560px;
+  width: min(760px, 62vw);
+  height: min(540px, 48vh);
+  min-height: 480px;
   background-image: url(${props => props.$bgSrc});
   background-size: 100% 100%;
   background-repeat: no-repeat;
@@ -895,6 +1200,12 @@ const ScrollPanelContainer = styled(motion.div)`
   box-shadow: 0 25px 60px rgba(0,0,0,0.7);
   box-sizing: border-box;
   padding: 4.2rem 5.2rem 4.5rem 5.2rem;
+
+  @media (max-width: 760px) {
+    width: min(440px, 94vw);
+    height: 520px;
+    padding: 3.5rem 3rem 4rem 3rem;
+  }
 `;
 
 const ScrollHeader = styled.div`
@@ -1106,12 +1417,82 @@ function parseFrontmatter(markdown) {
 }
 
 // -------------------------------------------------------------------------
+// Helper functions & Portal Component
+// -------------------------------------------------------------------------
+const getNoteSnippet = (text) => {
+  let cleanText = text;
+  const frontmatterRegex = /^---\r?\n([\s\S]*?)\r?\n---\r?\n/;
+  const match = text.match(frontmatterRegex);
+  if (match) {
+    cleanText = text.slice(match[0].length);
+  }
+  cleanText = cleanText
+    .replace(/<!--[\s\S]*?-->/g, '') // remove comments
+    .replace(/^#+\s+.*$/gm, '')      // remove headings
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // simplify links
+    .replace(/[*_`#]/g, '')          // remove formatting
+    .replace(/\s+/g, ' ')            // collapse whitespace
+    .trim();
+  return cleanText.length > 120 ? cleanText.slice(0, 120) + '...' : cleanText;
+};
+
+const Portal = ({ portal, onChangeScene }) => {
+  const [isHovered, setIsHovered] = useState(false);
+  
+  return (
+    <PortalContainer
+      $left={portal.left}
+      $top={portal.top}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onClick={() => onChangeScene(portal.target)}
+      initial={{ scale: 0, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      transition={{ type: 'spring', stiffness: 90, damping: 15 }}
+    >
+      <PortalAnchor $color={portal.color}>
+        <PortalGlowRing $color={portal.color} />
+        <PortalIconWrapper $styleType={portal.styleType}>
+          {portal.icon}
+        </PortalIconWrapper>
+      </PortalAnchor>
+      
+      <AnimatePresence>
+        {isHovered && (
+          <PortalTooltip
+            $color={portal.color}
+            initial={{ opacity: 0, y: 8, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 8, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+          >
+            <PortalTooltipTitle $color={portal.color}>
+              {portal.icon} {portal.label}
+            </PortalTooltipTitle>
+            <PortalTooltipDesc>
+              {portal.desc}
+            </PortalTooltipDesc>
+          </PortalTooltip>
+        )}
+      </AnimatePresence>
+    </PortalContainer>
+  );
+};
+
+// -------------------------------------------------------------------------
 // 主组件 (Blog)
 // -------------------------------------------------------------------------
 export default function Blog() {
   const [sceneMode, setSceneMode] = useState('overview'); // overview, indoor, outdoor, travel, archive, workshop
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [notesData, setNotesData] = useState([]);
+  
+  // 摘叶子与传送节点交互状态
+  const [isLeafPreviewOpen, setIsLeafPreviewOpen] = useState(false);
+  const [activeLeafNote, setActiveLeafNote] = useState(null);
+  const [leafSnippet, setLeafSnippet] = useState('');
+  const [leafSnippetLoading, setLeafSnippetLoading] = useState(false);
+  const [shakingLeafId, setShakingLeafId] = useState(null);
   
   const currentScene = BLOG_SCENES[sceneMode];
 
@@ -1377,8 +1758,14 @@ export default function Blog() {
       return;
     }
 
-    // 普通：绿叶/金叶 符纸直接查看单篇文章
+    // 普通：绿叶/金叶 符纸触发摘叶随记预览 (小纸条)
     if (item.type === 'gold' || item.type === 'green') {
+      // 触发抖动
+      setShakingLeafId(item.id);
+      setTimeout(() => {
+        setShakingLeafId(null);
+      }, 600);
+
       let targetNote;
       if (item.filter) {
         targetNote = item.filter(notesData);
@@ -1386,21 +1773,40 @@ export default function Blog() {
         targetNote = notesData.find(n => n.collection === item.collection);
       }
       
+      setIsLeafPreviewOpen(true);
+      setLeafSnippetLoading(true);
+      setLeafSnippet('');
+
       if (!targetNote) {
-        setActiveScrollTitle(item.label || '松果札记');
-        setActiveScrollMeta('PINECONE NOTE');
-        setModalNotes([]);
-        setArticleTitle('林间碎语');
-        setArticleBody('“松果屋建在林间石道深处。屋外有潺潺池塘，屋内有炉火微微。道友沿石阶而上，累了不妨在此稍歇。每一片被风送入屋内的落叶，都写着一个未完的日常。”');
-        setSelectedArticleSlug('dummy-note');
-        setIsModalOpen(true);
+        const dummy = {
+          title: item.label || '松果随记',
+          collectionLabel: '日常札记',
+          tags: ['心境', '杂感'],
+          slug: 'dummy-note'
+        };
+        setActiveLeafNote(dummy);
+        setLeafSnippet('“松果屋建在林间石道深处。屋外有潺潺池塘，屋内有炉火微微。每一片被风送入屋内的落叶，都写着一个未完的日常。”');
+        setLeafSnippetLoading(false);
         return;
       }
       
-      setActiveScrollTitle(targetNote.title);
-      setActiveScrollMeta(`MANIFEST · ${targetNote.collectionLabel || 'NOTES'}`);
-      setSelectedArticleSlug(targetNote.slug);
-      setIsModalOpen(true);
+      setActiveLeafNote(targetNote);
+
+      fetch(`/notes/${targetNote.slug}.md`)
+        .then(r => {
+          if (!r.ok) throw new Error('Could not fetch note content');
+          return r.text();
+        })
+        .then(text => {
+          const snippet = getNoteSnippet(text);
+          setLeafSnippet(snippet);
+          setLeafSnippetLoading(false);
+        })
+        .catch(err => {
+          console.error(err);
+          setLeafSnippet('无法读取树叶上的法力印记，只隐约看到这是一篇关于「' + targetNote.title + '」的修行感悟。');
+          setLeafSnippetLoading(false);
+        });
     } else {
       // 卷轴、蓝图、地图册 展示文章列表
       let matchedNotes = notesData;
@@ -1416,6 +1822,31 @@ export default function Blog() {
       setModalNotes(matchedNotes);
       setIsModalOpen(true);
     }
+  };
+
+  const handleExpandLeafNote = () => {
+    if (!activeLeafNote) return;
+    setIsLeafPreviewOpen(false);
+    
+    // 初始化/重置 modal 状态
+    setSelectedArticleSlug(null);
+    setSearchQuery('');
+    setSelectedSearchTag('');
+    setArchiveMode(null);
+
+    setSelectedArticleSlug(activeLeafNote.slug);
+    
+    if (activeLeafNote.slug === 'dummy-note') {
+      setActiveScrollTitle('林间随记');
+      setActiveScrollMeta('PINECONE NOTE');
+      setModalNotes([]);
+      setArticleTitle('林间随记');
+      setArticleBody('“松果屋建在林间石道深处。屋外有潺潺池塘，屋内有炉火微微。每一片被风送入屋内的落叶，都写着一个未完的日常。”');
+    } else {
+      setActiveScrollTitle(activeLeafNote.title);
+      setActiveScrollMeta(`MANIFEST · ${activeLeafNote.collectionLabel || 'NOTES'}`);
+    }
+    setIsModalOpen(true);
   };
 
   return (
@@ -1453,59 +1884,29 @@ export default function Blog() {
           );
         })}
 
-        {/* ─────────────────────────────────────────────────────────────
-           1. 全景总览场景 (Overview Mode)
-           ───────────────────────────────────────────────────────────── */}
-        <AnimatePresence>
-          {sceneMode === 'overview' && (
-            <>
-              <OverviewOverlay>
-                {/* 左侧：松果屋入口 */}
-                <OverviewHalf 
-                  $glowColor="rgba(251, 191, 36, 0.08)"
-                  onClick={() => changeScene('indoor')}
-                >
-                  <EntranceCard
-                    $borderColor="#f59e0b"
-                    initial={{ opacity: 0, x: -30 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -30 }}
-                    transition={{ duration: 0.6, type: 'spring' }}
-                  >
-                    <EntranceTitle>叩门入室 · 松果屋</EntranceTitle>
-                    <EntranceDesc>
-                      推门进入温暖的松果木屋。在“碎叶墙”上，张贴着在下关于建站记录、日常琐碎与生活感悟的碎叶符纸。
-                    </EntranceDesc>
-                    <EntrancePrompt $activeColor="#fbbf24">
-                      ✦ 进入碎叶符纸区 ➔
-                    </EntrancePrompt>
-                  </EntranceCard>
-                </OverviewHalf>
+        {/* 统一的场景顶部叙事标牌 (Scene Narrative Header) */}
+        <AnimatePresence mode="wait">
+          <SceneHeaderContainer
+            key={sceneMode}
+            initial={{ opacity: 0, y: -15, x: '-50%' }}
+            animate={{ opacity: 1, y: 0, x: '-50%' }}
+            exit={{ opacity: 0, y: -15, x: '-50%' }}
+            transition={{ duration: 0.5, ease: 'easeOut' }}
+          >
+            <SceneHeaderTitle>{currentScene.title}</SceneHeaderTitle>
+            <SceneHeaderSubtitle>{currentScene.subtitle}</SceneHeaderSubtitle>
+          </SceneHeaderContainer>
+        </AnimatePresence>
 
-                {/* 右侧：屋外书林入口 */}
-                <OverviewHalf 
-                  $glowColor="rgba(16, 185, 129, 0.06)"
-                  onClick={() => changeScene('outdoor')}
-                >
-                  <EntranceCard
-                    $borderColor="#10b981"
-                    initial={{ opacity: 0, x: 30 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 30 }}
-                    transition={{ duration: 0.6, type: 'spring' }}
-                  >
-                    <EntranceTitle>步入林间 · 叶间书林</EntranceTitle>
-                    <EntranceDesc>
-                      沿着木桥步入森林深处。悬挂在灵木枝桠上的竹简与青绿玉简，封印着在下关于技术长文与编译法门。
-                    </EntranceDesc>
-                    <EntrancePrompt $activeColor="#10b981">
-                      ✦ 步入灵木卷轴区 ➔
-                    </EntrancePrompt>
-                  </EntranceCard>
-                </OverviewHalf>
-              </OverviewOverlay>
-            </>
-          )}
+        {/* 统一的场景传送节点 (Portal Nodes) */}
+        <AnimatePresence>
+          {currentScene.portals && currentScene.portals.map((portal) => (
+            <Portal
+              key={portal.id}
+              portal={portal}
+              onChangeScene={changeScene}
+            />
+          ))}
         </AnimatePresence>
 
         {/* 场景长廊分岔路标 (始终在底部显示，方便快速传送) */}
@@ -1566,8 +1967,6 @@ export default function Blog() {
               exit={{ opacity: 0, scale: 1.05 }}
               transition={{ duration: 0.6 }}
             >
-              <CloseUpTitleBar>{currentScene.title}</CloseUpTitleBar>
-
               {/* 渲染具体的场景交互物 */}
               {currentScene.items.map((item) => {
                 if (item.type === 'gold' || item.type === 'green') {
@@ -1580,6 +1979,7 @@ export default function Blog() {
                       $width={item.width}
                       $transform={item.transform}
                       $sceneId={currentScene.id}
+                      className={shakingLeafId === item.id ? 'shake' : ''}
                       style={{ x: itemX, y: itemY }}
                       onClick={() => handleItemClick(item)}
                     >
@@ -1690,18 +2090,66 @@ export default function Blog() {
 
                 return null;
               })}
-
-              <ReturnButton 
-                onClick={() => changeScene('overview')}
-                whileHover={{ scale: 1.05, x: 2 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                🏰 返回大厅
-              </ReturnButton>
             </CloseUpContainer>
           )}
         </AnimatePresence>
       </SceneContainer>
+
+      {/* ── 摘叶随笔纸条 (Leaf Paper Note Overlay) ── */}
+      <AnimatePresence>
+        {isLeafPreviewOpen && activeLeafNote && (
+          <LeafPaperNote
+            initial={{ opacity: 0, scale: 0.8, y: '-40%', x: '-50%' }}
+            animate={{ opacity: 1, scale: 1, y: '-50%', x: '-50%' }}
+            exit={{ opacity: 0, scale: 0.8, y: '-40%', x: '-50%' }}
+            transition={{ type: 'spring', damping: 18 }}
+          >
+            <LeafPaperTitle>{activeLeafNote.title}</LeafPaperTitle>
+            <LeafPaperMeta>
+              <span>📅 {activeLeafNote.date || '修真纪'}</span>
+              <span>🏷️ {activeLeafNote.collectionLabel || '日常'}</span>
+              {activeLeafNote.tags && activeLeafNote.tags.slice(0, 2).map(t => (
+                <span key={t}>#{t}</span>
+              ))}
+            </LeafPaperMeta>
+            
+            {leafSnippetLoading ? (
+              <LoadingWrapper style={{ minHeight: '60px', flexDirection: 'row', gap: '8px' }}>
+                <motion.span 
+                  animate={{ rotate: 360 }} 
+                  transition={{ repeat: Infinity, duration: 1.2, ease: 'linear' }}
+                  style={{ display: 'inline-block' }}
+                >
+                  🍃
+                </motion.span>
+                <span>正在从叶片读取灵印...</span>
+              </LoadingWrapper>
+            ) : (
+              <LeafPaperSnippet>
+                {leafSnippet || '点击下方按钮展开阅读全文...'}
+              </LeafPaperSnippet>
+            )}
+
+            <LeafPaperActions>
+              <LeafPaperBtn 
+                onClick={() => setIsLeafPreviewOpen(false)}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                挂回墙上
+              </LeafPaperBtn>
+              <LeafPaperBtn 
+                $primary 
+                onClick={handleExpandLeafNote}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                展开读卷
+              </LeafPaperBtn>
+            </LeafPaperActions>
+          </LeafPaperNote>
+        )}
+      </AnimatePresence>
 
       {/* ─────────────────────────────────────────────────────────────
          通用古卷弹出面板 Modal (Scroll/Map Expand Modal)
@@ -1717,9 +2165,9 @@ export default function Blog() {
             <ScrollPanelContainer
               $bgSrc={sceneMode === 'travel' ? BLOG_NEW_ASSETS.mapOpen : BLOG_NEW_ASSETS.scrollOpen}
               onClick={(e) => e.stopPropagation()}
-              initial={{ scale: 0.7, opacity: 0, width: 0 }}
-              animate={{ scale: 1, opacity: 1, width: 780 }}
-              exit={{ scale: 0.7, opacity: 0, width: 0 }}
+              initial={{ scale: 0.7, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.7, opacity: 0 }}
               transition={{ type: 'spring', stiffness: 85, damping: 14 }}
             >
               {/* 关闭按钮 */}

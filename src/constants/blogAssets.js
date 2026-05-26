@@ -17,7 +17,7 @@ import mapbookSource from '../assets/images/blog/proto/mapbook/source.png';
 // ── 导入新博客页的精简视觉资产 ─────────────────────────────────────
 import bgMain from '../assets/images/blog/bg-main.png';
 import bgWall from '../assets/images/blog/bg-wall.png';
-import bgFores from '../assets/images/blog/bg-fores.png';
+import bgFores from '../assets/images/blog/bg-forest.png';
 import bgTravel from '../assets/images/blog/bg-travel.png';
 import bgArchive from '../assets/images/blog/bg-archive.png';
 import bgWorkshop from '../assets/images/blog/bg-workshop.png';
