@@ -280,13 +280,13 @@ const BLOG_SCENES = {
     items: [
       { 
         id: 'travel-map', 
-        type: 'map-book', 
-        left: '9.57%', 
-        top: '45.70%', 
-        width: '19.14%', 
-        height: '26.57%',
+        type: 'map-cutout',
+        left: '0%',
+        top: '0%',
+        width: '100%',
+        height: '100%',
         label: '杭州旅游地图册', 
-        imgSrc: BLOG_NEW_ASSETS.travelMap,
+        imgSrc: BLOG_NEW_ASSETS.mapCutout,
         collections: ['travel'] 
       },
       { 
@@ -976,6 +976,63 @@ const MapBookLabel = styled.div`
   }
 `;
 
+const TravelMapCutoutItem = styled(motion.div)`
+  position: absolute;
+  left: ${props => props.$left};
+  top: ${props => props.$top};
+  width: ${props => props.$width};
+  height: ${props => props.$height || '100%'};
+  z-index: 19;
+  cursor: pointer;
+  clip-path: polygon(0 30%, 31% 27%, 39% 52%, 39% 66%, 5% 74%, 0 67%);
+  pointer-events: auto;
+  user-select: none;
+  -webkit-user-select: none;
+  background-image: url(${props => props.$imgSrc});
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  filter: ${props => getLightingFilter(props.$sceneId, false)} drop-shadow(0 12px 18px rgba(0, 0, 0, 0.48));
+  transform: scale(1.05);
+  transform-origin: center center;
+  transition: filter 0.35s ease, transform 0.35s ease;
+
+  &::after {
+    content: '';
+    position: absolute;
+    left: 2%;
+    top: 30%;
+    width: 36%;
+    height: 42%;
+    background: radial-gradient(ellipse at center, rgba(251, 191, 36, 0.24), rgba(251, 146, 60, 0.08) 45%, transparent 72%);
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    pointer-events: none;
+    mix-blend-mode: screen;
+  }
+
+  &:hover {
+    filter: ${props => getLightingFilter(props.$sceneId, true)} drop-shadow(0 0 18px rgba(251, 191, 36, 0.72)) brightness(1.12) saturate(1.08);
+    transform: scale(1.062);
+  }
+
+  &:hover::after {
+    opacity: 1;
+  }
+`;
+
+const TravelMapCutoutLabel = styled(MapBookLabel)`
+  position: absolute;
+  left: 18%;
+  top: 69%;
+  margin-top: 0;
+  transform: translate(-50%, 8px);
+
+  ${TravelMapCutoutItem}:hover & {
+    transform: translate(-50%, 0);
+  }
+`;
+
 const NoteBoxItem = styled(motion.div)`
   position: absolute;
   left: ${props => props.$left};
@@ -1293,7 +1350,17 @@ const MinimapGraphArea = styled.div`
   position: relative;
   background: transparent;
   border-radius: 50%;
-  overflow: hidden;
+  overflow: visible;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    pointer-events: none;
+    box-shadow: inset 0 0 35px rgba(3, 1, 8, 0.72);
+    z-index: 8;
+  }
 `;
 
 const MinimapEdgeLabel = styled.div`
@@ -1390,6 +1457,8 @@ const NodeTooltip = styled(motion.div)`
   left: 50%;
   transform: translateX(-50%);
   white-space: nowrap;
+  max-width: min(260px, 70vw);
+  overflow: visible;
   padding: 5px 10px;
   border-radius: 6px;
   background: rgba(12, 10, 24, 0.96);
@@ -2609,6 +2678,25 @@ export default function Blog() {
                       <img src={item.imgSrc || BLOG_NEW_ASSETS.mapBook} alt={item.label} />
                       <MapBookLabel>{item.label}</MapBookLabel>
                     </MapBookItem>
+                  );
+                }
+
+                if (item.type === 'map-cutout') {
+                  return (
+                    <TravelMapCutoutItem
+                      key={item.id}
+                      $left={item.left}
+                      $top={item.top}
+                      $width={item.width}
+                      $height={item.height}
+                      $imgSrc={item.imgSrc}
+                      $sceneId={currentScene.id}
+                      onClick={() => handleItemClick(item)}
+                      aria-label={item.label}
+                      role="button"
+                    >
+                      <TravelMapCutoutLabel>{item.label}</TravelMapCutoutLabel>
+                    </TravelMapCutoutItem>
                   );
                 }
 

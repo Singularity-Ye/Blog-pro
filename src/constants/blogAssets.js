@@ -31,6 +31,7 @@ import scrollJade from '../assets/images/blog/scroll-jade.png';
 import scrollOpen from '../assets/images/blog/scroll-open.png';
 
 import mapBook from '../assets/images/blog/map-book.png';
+import mapCutout from '../assets/images/blog/map-cutout.png';
 import mapOpen from '../assets/images/blog/map-open.png';
 import noteBox from '../assets/images/blog/note-box.png';
 import drawer from '../assets/images/blog/drawer.png';
@@ -88,6 +89,7 @@ export const BLOG_NEW_ASSETS = {
   scrollJade,
   scrollOpen,
   mapBook,
+  mapCutout,
   mapOpen,
   noteBox,
   drawer,
