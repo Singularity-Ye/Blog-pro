@@ -1138,7 +1138,8 @@ const MinimapContainer = styled.div`
   z-index: 1000;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: center;
+  gap: 10px;
 `;
 
 const MinimapCompass = styled(motion.button)`
@@ -1166,8 +1167,8 @@ const MinimapCompass = styled(motion.button)`
 `;
 
 const MinimapPaper = styled(motion.div)`
-  width: 250px;
-  height: 250px;
+  width: 280px;
+  height: 280px;
   border-radius: 50%;
   background-color: rgba(12, 10, 24, 0.75);
   background-image: 
@@ -1182,7 +1183,7 @@ const MinimapPaper = styled(motion.div)`
     inset 0 0 15px rgba(231, 199, 126, 0.15);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: visible; /* allow pendulum to hang outside */
   position: relative;
   pointer-events: auto;
   backdrop-filter: blur(12px);
@@ -1199,74 +1200,90 @@ const MinimapPaper = styled(motion.div)`
   }
 `;
 
-const MinimapHeader = styled.div`
-  position: absolute;
-  top: 15px;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 10;
-  pointer-events: none;
-`;
-
-const MinimapTitle = styled.h4`
-  font-size: 0.72rem;
+const MinimapTitle = styled(motion.h4)`
+  font-size: 0.8rem;
   font-weight: 800;
   color: #ffedd5;
   margin: 0;
   letter-spacing: 0.08em;
-  text-shadow: 0 1.5px 3px rgba(0, 0, 0, 0.95);
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.95);
+  background: rgba(12, 10, 24, 0.82);
+  border: 1px solid rgba(231, 199, 126, 0.35);
+  border-radius: 20px;
+  padding: 4px 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.5),
+    0 0 10px rgba(231, 199, 126, 0.15);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  pointer-events: auto;
+  user-select: none;
   
   span {
     color: #e7c77e;
+    font-size: 0.7rem;
+    opacity: 0.9;
   }
 `;
 
-const MinimapCoordBadge = styled.div`
-  position: absolute;
-  bottom: 14px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 20;
-  font-family: 'Courier New', monospace;
-  font-size: 0.55rem;
-  font-weight: 800;
-  color: #fbbf24;
-  background: rgba(12, 10, 24, 0.85);
-  border: 1px solid rgba(231, 199, 126, 0.35);
-  border-radius: 4px;
-  padding: 1px 6px;
-  letter-spacing: 0.05em;
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
-  user-select: none;
+const swingAnimation = keyframes`
+  0%, 100% { transform: translateX(-50%) rotate(-6deg); }
+  50% { transform: translateX(-50%) rotate(6deg); }
 `;
 
-const MinimapCloseBtn = styled.button`
+const MinimapPendulum = styled(motion.button)`
   position: absolute;
-  top: 14px;
-  right: 14px;
-  z-index: 25;
-  background: rgba(12, 10, 24, 0.8);
-  border: 1px solid rgba(231, 199, 126, 0.5);
-  cursor: pointer;
-  color: #e7c77e;
-  padding: 0;
+  bottom: -32px;
+  left: 50%;
+  transform: translateX(-50%);
+  transform-origin: top center;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  transition: all 0.25s ease;
-  width: 18px;
+  cursor: pointer;
+  z-index: 30;
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 0;
+  animation: ${swingAnimation} 3.5s ease-in-out infinite;
+
+  &:hover {
+    animation-play-state: paused;
+  }
+`;
+
+const PendulumChain = styled.div`
+  width: 1.5px;
   height: 18px;
+  background: linear-gradient(to bottom, #e7c77e 0%, rgba(231, 199, 126, 0.3) 100%);
+  box-shadow: 0 0 2px rgba(231, 199, 126, 0.4);
+`;
+
+const PendulumKey = styled.div`
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(12, 10, 24, 0.9);
+  border: 1.5px solid #e7c77e;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 11px;
+  color: #e7c77e;
+  box-shadow: 
+    0 0 10px rgba(231, 199, 126, 0.5),
+    0 4px 6px rgba(0, 0, 0, 0.6);
+  transition: all 0.25s ease;
 
   &:hover {
     background: #e7c77e;
     color: #0c0a18;
-    transform: rotate(90deg);
-    box-shadow: 0 0 10px rgba(231, 199, 126, 0.7);
-    border-color: #e7c77e;
+    box-shadow: 0 0 16px #e7c77e;
+    transform: scale(1.15);
   }
 `;
 
@@ -1275,6 +1292,8 @@ const MinimapGraphArea = styled.div`
   height: 100%;
   position: relative;
   background: transparent;
+  border-radius: 50%;
+  overflow: hidden;
 `;
 
 const MinimapEdgeLabel = styled.div`
@@ -2140,166 +2159,160 @@ export default function Blog() {
           {!isMinimapOpen ? (
             <MinimapCompass
               onClick={() => setIsMinimapOpen(true)}
-              whileHover={{ scale: 1.1, rotate: 15 }}
+              whileHover={{ scale: 1.15, rotate: 360 }}
               whileTap={{ scale: 0.9 }}
               title="展开游园星图"
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0, opacity: 0 }}
+              initial={{ scale: 0, opacity: 0, rotate: -180 }}
+              animate={{ scale: 1, opacity: 1, rotate: 0 }}
+              exit={{ scale: 0, opacity: 0, rotate: 180 }}
+              transition={{ type: 'spring', stiffness: 150, damping: 16 }}
             >
               🧭
             </MinimapCompass>
           ) : (
-            <MinimapPaper
-              $bgSrc={BLOG_NEW_ASSETS.bgMinimap}
-              initial={{ scale: 0.8, opacity: 0, x: 50, y: -50 }}
-              animate={{ scale: 1, opacity: 1, x: 0, y: 0 }}
-              exit={{ scale: 0.8, opacity: 0, x: 50, y: -50 }}
-              transition={{ type: 'spring', damping: 16 }}
-            >
-              <MinimapHeader>
-                <MinimapTitle>
-                  🧭 游园星图 <span>(双路径)</span>
-                </MinimapTitle>
-              </MinimapHeader>
-              
-              {(() => {
-                const coords = {
-                  overview: { x: 50, y: 18 },
-                  indoor: { x: 30, y: 40 },
-                  outdoor: { x: 70, y: 40 },
-                  travel: { x: 70, y: 72 },
-                  junction: { x: 30, y: 64 },
-                  archive: { x: 18, y: 82 },
-                  workshop: { x: 46, y: 82 }
-                }[sceneMode] || { x: 50, y: 50 };
-                return (
-                  <MinimapCoordBadge title="当前空间星象坐标">
-                    LOC: {coords.x}, {coords.y}
-                  </MinimapCoordBadge>
-                );
-              })()}
+            <>
+              {/* Title floating capsule above circular paper */}
+              <MinimapTitle
+                initial={{ opacity: 0, y: -15, scale: 0.8 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -15, scale: 0.8 }}
+                transition={{ type: 'spring', damping: 14 }}
+              >
+                🧭 游园星图 <span>(双路径)</span>
+              </MinimapTitle>
 
-              <MinimapCloseBtn onClick={() => setIsMinimapOpen(false)}>
-                <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-              </MinimapCloseBtn>
-              
-              <MinimapGraphArea>
-                {/* Connections & Celestial Astrolabe SVG Background */}
-                <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 1 }}>
-                  {/* Decorative astronomical concentric circles (Astrolabe grid) */}
-                  <circle cx="50%" cy="50%" r="22%" fill="none" stroke="rgba(231, 199, 126, 0.12)" strokeWidth="1" strokeDasharray="3 3" />
-                  <MinimapOrbitRing cx="50%" cy="50%" r="42%" fill="none" stroke="rgba(231, 199, 126, 0.08)" strokeWidth="1" strokeDasharray="6 4" />
-                  <circle cx="50%" cy="50%" r="62%" fill="none" stroke="rgba(231, 199, 126, 0.05)" strokeWidth="1" />
-                  <circle cx="50%" cy="50%" r="80%" fill="none" stroke="rgba(231, 199, 126, 0.03)" strokeWidth="1.5" strokeDasharray="10 5" />
-                  
-                  {/* Astronomical axis lines (crosshairs) */}
-                  <line x1="50%" y1="0%" x2="50%" y2="100%" stroke="rgba(231, 199, 126, 0.05)" strokeWidth="1" strokeDasharray="4 4" />
-                  <line x1="0%" y1="50%" x2="100%" y2="50%" stroke="rgba(231, 199, 126, 0.05)" strokeWidth="1" strokeDasharray="4 4" />
+              <MinimapPaper
+                $bgSrc={BLOG_NEW_ASSETS.bgMinimap}
+                initial={{ scale: 0, rotate: -360, opacity: 0 }}
+                animate={{ scale: 1, rotate: 0, opacity: 1 }}
+                exit={{ scale: 0, rotate: 360, opacity: 0 }}
+                transition={{ type: 'spring', stiffness: 100, damping: 16 }}
+              >
+                <MinimapGraphArea>
+                  {/* Connections & Celestial Astrolabe SVG Background */}
+                  <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 1 }}>
+                    {/* Decorative astronomical concentric circles (Astrolabe grid) */}
+                    <circle cx="50%" cy="50%" r="22%" fill="none" stroke="rgba(231, 199, 126, 0.12)" strokeWidth="1" strokeDasharray="3 3" />
+                    <MinimapOrbitRing cx="50%" cy="50%" r="42%" fill="none" stroke="rgba(231, 199, 126, 0.08)" strokeWidth="1" strokeDasharray="6 4" />
+                    <circle cx="50%" cy="50%" r="62%" fill="none" stroke="rgba(231, 199, 126, 0.05)" strokeWidth="1" />
+                    <circle cx="50%" cy="50%" r="80%" fill="none" stroke="rgba(231, 199, 126, 0.03)" strokeWidth="1.5" strokeDasharray="10 5" />
+                    
+                    {/* Astronomical axis lines (crosshairs) */}
+                    <line x1="50%" y1="0%" x2="50%" y2="100%" stroke="rgba(231, 199, 126, 0.05)" strokeWidth="1" strokeDasharray="4 4" />
+                    <line x1="0%" y1="50%" x2="100%" y2="50%" stroke="rgba(231, 199, 126, 0.05)" strokeWidth="1" strokeDasharray="4 4" />
 
-                  {/* Astrolabe Cardinal Direction Markers */}
-                  <text x="50%" y="9%" fill="rgba(231, 199, 126, 0.45)" fontSize="7" fontWeight="800" textAnchor="middle" fontFamily="Courier New, monospace">N</text>
-                  <text x="50%" y="94%" fill="rgba(231, 199, 126, 0.45)" fontSize="7" fontWeight="800" textAnchor="middle" fontFamily="Courier New, monospace">S</text>
-                  <text x="9%" y="52%" fill="rgba(231, 199, 126, 0.45)" fontSize="7" fontWeight="800" textAnchor="middle" fontFamily="Courier New, monospace">W</text>
-                  <text x="91%" y="52%" fill="rgba(231, 199, 126, 0.45)" fontSize="7" fontWeight="800" textAnchor="middle" fontFamily="Courier New, monospace">E</text>
+                    {/* Astrolabe Cardinal Direction Markers */}
+                    <text x="50%" y="9%" fill="rgba(231, 199, 126, 0.45)" fontSize="7" fontWeight="800" textAnchor="middle" fontFamily="Courier New, monospace">N</text>
+                    <text x="50%" y="94%" fill="rgba(231, 199, 126, 0.45)" fontSize="7" fontWeight="800" textAnchor="middle" fontFamily="Courier New, monospace">S</text>
+                    <text x="9%" y="52%" fill="rgba(231, 199, 126, 0.45)" fontSize="7" fontWeight="800" textAnchor="middle" fontFamily="Courier New, monospace">W</text>
+                    <text x="91%" y="52%" fill="rgba(231, 199, 126, 0.45)" fontSize="7" fontWeight="800" textAnchor="middle" fontFamily="Courier New, monospace">E</text>
 
-                  {/* Decorative twinkling stars */}
-                  <g className="twinkle-stars">
-                    <circle cx="15%" cy="25%" r="1" fill="#fff" opacity="0.6">
-                      <animate attributeName="opacity" values="0.2;1;0.2" dur="3s" repeatCount="indefinite" />
-                    </circle>
-                    <circle cx="85%" cy="20%" r="1.5" fill="#e7c77e" opacity="0.8">
-                      <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite" />
-                    </circle>
-                    <circle cx="12%" cy="75%" r="1.2" fill="#fff" opacity="0.5">
-                      <animate attributeName="opacity" values="0.1;0.9;0.1" dur="4s" repeatCount="indefinite" />
-                    </circle>
-                    <circle cx="88%" cy="85%" r="1" fill="#e7c77e" opacity="0.7">
-                      <animate attributeName="opacity" values="0.2;1;0.2" dur="2.5s" repeatCount="indefinite" />
-                    </circle>
-                  </g>
-
-                  {/* Node Connections */}
-                  {MAP_EDGES.map((edge, idx) => (
-                    <g key={idx}>
-                      {/* Background path track */}
-                      <line 
-                        x1={`${edge.x1}%`} 
-                        y1={`${edge.y1}%`} 
-                        x2={`${edge.x2}%`} 
-                        y2={`${edge.y2}%`} 
-                        stroke="rgba(231, 199, 126, 0.08)" 
-                        strokeWidth="1.5" 
-                        strokeLinecap="round"
-                      />
-                      {/* Flowing color light line */}
-                      <MinimapSVGLine 
-                        x1={`${edge.x1}%`} 
-                        y1={`${edge.y1}%`} 
-                        x2={`${edge.x2}%`} 
-                        y2={`${edge.y2}%`} 
-                        $color={edge.color}
-                      />
+                    {/* Decorative twinkling stars */}
+                    <g className="twinkle-stars">
+                      <circle cx="15%" cy="25%" r="1" fill="#fff" opacity="0.6">
+                        <animate attributeName="opacity" values="0.2;1;0.2" dur="3s" repeatCount="indefinite" />
+                      </circle>
+                      <circle cx="85%" cy="20%" r="1.5" fill="#e7c77e" opacity="0.8">
+                        <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite" />
+                      </circle>
+                      <circle cx="12%" cy="75%" r="1.2" fill="#fff" opacity="0.5">
+                        <animate attributeName="opacity" values="0.1;0.9;0.1" dur="4s" repeatCount="indefinite" />
+                      </circle>
+                      <circle cx="88%" cy="85%" r="1" fill="#e7c77e" opacity="0.7">
+                        <animate attributeName="opacity" values="0.2;1;0.2" dur="2.5s" repeatCount="indefinite" />
+                      </circle>
                     </g>
-                  ))}
-                </svg>
- 
-                {/* Edge Labels */}
-                {MAP_EDGES.map((edge, idx) => {
-                  const mx = (edge.x1 + edge.x2) / 2;
-                  const my = (edge.y1 + edge.y2) / 2;
-                  return (
-                    <MinimapEdgeLabel key={idx} style={{ left: `${mx}%`, top: `${my}%` }}>
-                      {edge.label}
-                    </MinimapEdgeLabel>
-                  );
-                })}
- 
-                {/* Scene Nodes */}
-                {Object.values(BLOG_SCENES).map((scene) => {
-                  const coords = {
-                    overview: { x: 50, y: 18, icon: '☼', label: '总览' },
-                    indoor: { x: 30, y: 40, icon: '⌂', label: '屋内' },
-                    outdoor: { x: 70, y: 40, icon: '☘', label: '林间' },
-                    travel: { x: 70, y: 72, icon: '⎈', label: '旅案' },
-                    junction: { x: 30, y: 64, icon: '☍', label: '回廊' },
-                    archive: { x: 18, y: 82, icon: '▤', label: '旧柜' },
-                    workshop: { x: 46, y: 82, icon: '⚙', label: '工坊' }
-                  }[scene.id] || { x: 50, y: 50, icon: '★', label: '未知' };
- 
-                  const isCurrent = sceneMode === scene.id;
- 
-                  return (
-                    <MinimapNodeContainer
-                      key={scene.id}
-                      $x={coords.x}
-                      $y={coords.y}
-                      onClick={() => changeScene(scene.id)}
-                      title={`传送到: ${scene.title}`}
-                    >
-                      <MinimapMedallion $isCurrent={isCurrent} $themeColor={scene.themeColor}>
-                        {coords.icon}
-                      </MinimapMedallion>
-                      <MinimapNodeLabel $isCurrent={isCurrent} $themeColor={scene.themeColor}>
-                        {coords.label}
-                      </MinimapNodeLabel>
-                      
-                      {isCurrent && (
-                        <MinimapPointerBadge
-                          animate={{ y: [-3, 1, -3] }}
-                          transition={{ repeat: Infinity, duration: 1.2 }}
-                        >
-                          ✨
-                        </MinimapPointerBadge>
-                      )}
-                    </MinimapNodeContainer>
-                  );
-                })}
-              </MinimapGraphArea>
-            </MinimapPaper>
+
+                    {/* Node Connections */}
+                    {MAP_EDGES.map((edge, idx) => (
+                      <g key={idx}>
+                        {/* Background path track */}
+                        <line 
+                          x1={`${edge.x1}%`} 
+                          y1={`${edge.y1}%`} 
+                          x2={`${edge.x2}%`} 
+                          y2={`${edge.y2}%`} 
+                          stroke="rgba(231, 199, 126, 0.08)" 
+                          strokeWidth="1.5" 
+                          strokeLinecap="round"
+                        />
+                        {/* Flowing color light line */}
+                        <MinimapSVGLine 
+                          x1={`${edge.x1}%`} 
+                          y1={`${edge.y1}%`} 
+                          x2={`${edge.x2}%`} 
+                          y2={`${edge.y2}%`} 
+                          $color={edge.color}
+                        />
+                      </g>
+                    ))}
+                  </svg>
+   
+                  {/* Edge Labels */}
+                  {MAP_EDGES.map((edge, idx) => {
+                    const mx = (edge.x1 + edge.x2) / 2;
+                    const my = (edge.y1 + edge.y2) / 2;
+                    return (
+                      <MinimapEdgeLabel key={idx} style={{ left: `${mx}%`, top: `${my}%` }}>
+                        {edge.label}
+                      </MinimapEdgeLabel>
+                    );
+                  })}
+   
+                  {/* Scene Nodes */}
+                  {Object.values(BLOG_SCENES).map((scene) => {
+                    const coords = {
+                      overview: { x: 50, y: 18, icon: '☼', label: '总览' },
+                      indoor: { x: 30, y: 40, icon: '⌂', label: '屋内' },
+                      outdoor: { x: 70, y: 40, icon: '☘', label: '林间' },
+                      travel: { x: 70, y: 72, icon: '⎈', label: '旅案' },
+                      junction: { x: 30, y: 64, icon: '☍', label: '回廊' },
+                      archive: { x: 20, y: 82, icon: '▤', label: '旧柜' },
+                      workshop: { x: 48, y: 82, icon: '⚙', label: '工坊' }
+                    }[scene.id] || { x: 50, y: 50, icon: '★', label: '未知' };
+   
+                    const isCurrent = sceneMode === scene.id;
+   
+                    return (
+                      <MinimapNodeContainer
+                        key={scene.id}
+                        $x={coords.x}
+                        $y={coords.y}
+                        onClick={() => changeScene(scene.id)}
+                        title={`传送到: ${scene.title}`}
+                      >
+                        <MinimapMedallion $isCurrent={isCurrent} $themeColor={scene.themeColor}>
+                          {coords.icon}
+                        </MinimapMedallion>
+                        <MinimapNodeLabel $isCurrent={isCurrent} $themeColor={scene.themeColor}>
+                          {coords.label}
+                        </MinimapNodeLabel>
+                        
+                        {isCurrent && (
+                          <MinimapPointerBadge
+                            animate={{ y: [-3, 1, -3] }}
+                            transition={{ repeat: Infinity, duration: 1.2 }}
+                          >
+                            ✨
+                          </MinimapPointerBadge>
+                        )}
+                      </MinimapNodeContainer>
+                    );
+                  })}
+                </MinimapGraphArea>
+
+                {/* Hanging mechanical swinging pendulum key to trigger closure */}
+                <MinimapPendulum
+                  onClick={() => setIsMinimapOpen(false)}
+                  title="锁上星图 (收起)"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <PendulumChain />
+                  <PendulumKey>🔑</PendulumKey>
+                </MinimapPendulum>
+              </MinimapPaper>
+            </>
           )}
         </AnimatePresence>
       </MinimapContainer>
