@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import styled, { keyframes } from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -893,7 +893,7 @@ const ScrollItem = styled(motion.div)`
     filter: ${props => getLightingFilter(props.$sceneId, true)} drop-shadow(0 0 12px #e7c77e) brightness(1.2);
     
     img {
-      animation: ${props => props.$imgSrc ? 'none' : `${scrollSway} 2.5s infinite ease-in-out`};
+      animation: ${props => props.$imgSrc ? 'none' : css`${scrollSway} 2.5s infinite ease-in-out`};
     }
   }
 `;
