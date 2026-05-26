@@ -1236,28 +1236,29 @@ const MinimapCoordBadge = styled.div`
 `;
 
 const MinimapCloseBtn = styled.button`
-  background: transparent;
-  border: none;
+  background: rgba(231, 199, 126, 0.08);
+  border: 1px solid rgba(231, 199, 126, 0.25);
   cursor: pointer;
-  color: rgba(254, 243, 199, 0.6);
-  padding: 2px;
+  color: #e7c77e;
+  padding: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
-  transition: all 0.2s;
+  border-radius: 6px;
+  transition: all 0.25s ease;
 
   &:hover {
-    background: rgba(231, 199, 126, 0.1);
-    color: #ffffff;
+    background: #e7c77e;
+    color: #0c0a18;
+    box-shadow: 0 0 8px rgba(231, 199, 126, 0.5);
   }
 `;
 
 const MinimapGraphArea = styled.div`
   flex: 1;
   position: relative;
-  background: rgba(6, 4, 10, 0.65) radial-gradient(rgba(231, 199, 126, 0.15) 1px, transparent 1px) 0 0 / 12px 12px;
-  border: 1px solid rgba(231, 199, 126, 0.15);
+  background: rgba(6, 4, 10, 0.72) radial-gradient(rgba(231, 199, 126, 0.18) 1.2px, transparent 1.2px) 0 0 / 12px 12px;
+  border: 1px solid rgba(231, 199, 126, 0.22);
   border-radius: 8px;
   overflow: hidden;
 `;
@@ -1265,12 +1266,12 @@ const MinimapGraphArea = styled.div`
 const MinimapEdgeLabel = styled.div`
   position: absolute;
   transform: translate(-50%, -50%);
-  background: rgba(15, 11, 28, 0.92);
-  border: 1px solid rgba(231, 199, 126, 0.18);
+  background: rgba(15, 11, 28, 0.95);
+  border: 1px solid rgba(231, 199, 126, 0.22);
   border-radius: 4px;
-  color: rgba(254, 243, 199, 0.75);
+  color: #ffedd5;
   font-size: 0.52rem;
-  padding: 1px 3px;
+  padding: 1px 4px;
   white-space: nowrap;
   z-index: 5;
   pointer-events: none;
@@ -1315,24 +1316,28 @@ const MinimapMedallion = styled.div`
 `;
 
 const MinimapNodeLabel = styled.div`
-  margin-top: 2px;
-  font-size: 0.55rem;
+  margin-top: 3px;
+  font-size: 0.58rem;
   font-weight: 800;
   color: ${props => props.$isCurrent ? '#fbbf24' : '#ffedd5'};
-  text-shadow: 0 1px 2px rgba(0,0,0,0.9);
+  text-shadow: 0 1.5px 3px rgba(0,0,0,0.95);
   white-space: nowrap;
   scale: 0.95;
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 2.5px;
   
   span.coords-text {
     font-family: 'Courier New', monospace;
-    font-size: 0.48rem;
-    opacity: 0.5;
-    font-weight: normal;
-    color: #a78bfa;
-    transition: opacity 0.2s, color 0.2s;
+    font-size: 0.52rem;
+    opacity: 0.88;
+    font-weight: bold;
+    color: #c084fc;
+    background: rgba(192, 132, 252, 0.12);
+    border: 1px solid rgba(192, 132, 252, 0.25);
+    border-radius: 3px;
+    padding: 0px 2px;
+    transition: all 0.2s ease;
   }
   
   ${MinimapNodeContainer}:hover & {
@@ -1340,8 +1345,10 @@ const MinimapNodeLabel = styled.div`
     text-shadow: 0 0 4px ${props => props.$themeColor || '#e7c77e'};
     
     span.coords-text {
-      opacity: 0.9;
+      opacity: 1;
       color: #fbbf24;
+      border-color: rgba(251, 191, 36, 0.55);
+      background: rgba(251, 191, 36, 0.18);
     }
   }
 `;
