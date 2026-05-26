@@ -1313,6 +1313,113 @@ const MinimapEdgeLabel = styled.div`
   -webkit-backdrop-filter: blur(2px);
 `;
 
+const CompassTooltip = styled(motion.div)`
+  position: absolute;
+  right: 56px;
+  top: 6px;
+  white-space: nowrap;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: rgba(12, 10, 24, 0.95);
+  border: 1px solid #e7c77e;
+  color: #ffedd5;
+  font-size: 0.75rem;
+  font-weight: 800;
+  box-shadow: 
+    0 6px 20px rgba(0, 0, 0, 0.75), 
+    0 0 10px rgba(231, 199, 126, 0.25);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  pointer-events: none;
+  z-index: 1001;
+  letter-spacing: 0.05em;
+
+  &::after {
+    content: '';
+    position: absolute;
+    right: -4px;
+    top: 50%;
+    width: 6px;
+    height: 6px;
+    background: rgba(12, 10, 24, 0.95);
+    border-right: 1px solid #e7c77e;
+    border-top: 1px solid #e7c77e;
+    transform: translateY(-50%) rotate(45deg);
+  }
+`;
+
+const PendulumTooltip = styled(motion.div)`
+  position: absolute;
+  top: 48px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: rgba(12, 10, 24, 0.95);
+  border: 1px solid #e7c77e;
+  color: #ffedd5;
+  font-size: 0.75rem;
+  font-weight: 800;
+  box-shadow: 
+    0 6px 20px rgba(0, 0, 0, 0.75), 
+    0 0 10px rgba(231, 199, 126, 0.25);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  pointer-events: none;
+  z-index: 1001;
+  letter-spacing: 0.05em;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: 50%;
+    width: 6px;
+    height: 6px;
+    background: rgba(12, 10, 24, 0.95);
+    border-left: 1px solid #e7c77e;
+    border-top: 1px solid #e7c77e;
+    transform: translateX(-50%) rotate(45deg);
+  }
+`;
+
+const NodeTooltip = styled(motion.div)`
+  position: absolute;
+  bottom: 34px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  padding: 5px 10px;
+  border-radius: 6px;
+  background: rgba(12, 10, 24, 0.96);
+  border: 1px solid ${props => props.$themeColor || '#e7c77e'};
+  color: #ffffff;
+  font-size: 0.7rem;
+  font-weight: 800;
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.6), 
+    0 0 8px ${props => props.$themeColor || '#e7c77e'}33;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  pointer-events: none;
+  z-index: 1001;
+  letter-spacing: 0.05em;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 50%;
+    width: 6px;
+    height: 6px;
+    background: rgba(12, 10, 24, 0.96);
+    border-right: 1px solid ${props => props.$themeColor || '#e7c77e'};
+    border-bottom: 1px solid ${props => props.$themeColor || '#e7c77e'};
+    transform: translateX(-50%) rotate(45deg);
+  }
+`;
+
 const MinimapNodeContainer = styled(motion.div)`
   position: absolute;
   left: ${props => props.$x}%;
@@ -1779,6 +1886,9 @@ const Portal = ({ portal, onChangeScene }) => {
 export default function Blog() {
   const [sceneMode, setSceneMode] = useState('overview'); // overview, indoor, outdoor, travel, archive, workshop
   const [isMinimapOpen, setIsMinimapOpen] = useState(true);
+  const [isCompassHovered, setIsCompassHovered] = useState(false);
+  const [isPendulumHovered, setIsPendulumHovered] = useState(false);
+  const [hoveredNodeId, setHoveredNodeId] = useState(null);
   const [isTeleporting, setIsTeleporting] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [notesData, setNotesData] = useState([]);
@@ -2157,18 +2267,35 @@ export default function Blog() {
       <MinimapContainer>
         <AnimatePresence>
           {!isMinimapOpen ? (
-            <MinimapCompass
-              onClick={() => setIsMinimapOpen(true)}
-              whileHover={{ scale: 1.15, rotate: 360 }}
-              whileTap={{ scale: 0.9 }}
-              title="展开游园星图"
-              initial={{ scale: 0, opacity: 0, rotate: -180 }}
-              animate={{ scale: 1, opacity: 1, rotate: 0 }}
-              exit={{ scale: 0, opacity: 0, rotate: 180 }}
-              transition={{ type: 'spring', stiffness: 150, damping: 16 }}
+            <div 
+              style={{ position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+              onMouseEnter={() => setIsCompassHovered(true)}
+              onMouseLeave={() => setIsCompassHovered(false)}
             >
-              🧭
-            </MinimapCompass>
+              <MinimapCompass
+                onClick={() => setIsMinimapOpen(true)}
+                whileHover={{ scale: 1.15, rotate: 360 }}
+                whileTap={{ scale: 0.9 }}
+                initial={{ scale: 0, opacity: 0, rotate: -180 }}
+                animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                exit={{ scale: 0, opacity: 0, rotate: 180 }}
+                transition={{ type: 'spring', stiffness: 150, damping: 16 }}
+              >
+                🧭
+              </MinimapCompass>
+              <AnimatePresence>
+                {isCompassHovered && (
+                  <CompassTooltip
+                    initial={{ opacity: 0, x: 12, scale: 0.9 }}
+                    animate={{ opacity: 1, x: 0, scale: 1 }}
+                    exit={{ opacity: 0, x: 12, scale: 0.9 }}
+                    transition={{ duration: 0.15 }}
+                  >
+                    展开游园星图
+                  </CompassTooltip>
+                )}
+              </AnimatePresence>
+            </div>
           ) : (
             <>
               {/* Title floating capsule above circular paper */}
@@ -2279,7 +2406,8 @@ export default function Blog() {
                         $x={coords.x}
                         $y={coords.y}
                         onClick={() => changeScene(scene.id)}
-                        title={`传送到: ${scene.title}`}
+                        onMouseEnter={() => setHoveredNodeId(scene.id)}
+                        onMouseLeave={() => setHoveredNodeId(null)}
                       >
                         <MinimapMedallion $isCurrent={isCurrent} $themeColor={scene.themeColor}>
                           {coords.icon}
@@ -2296,6 +2424,20 @@ export default function Blog() {
                             ✨
                           </MinimapPointerBadge>
                         )}
+
+                        <AnimatePresence>
+                          {hoveredNodeId === scene.id && (
+                            <NodeTooltip
+                              $themeColor={scene.themeColor}
+                              initial={{ opacity: 0, scale: 0.9 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              exit={{ opacity: 0, scale: 0.9 }}
+                              transition={{ duration: 0.15 }}
+                            >
+                              传送到: {scene.title}
+                            </NodeTooltip>
+                          )}
+                        </AnimatePresence>
                       </MinimapNodeContainer>
                     );
                   })}
@@ -2303,13 +2445,29 @@ export default function Blog() {
 
                 {/* Hanging mechanical swinging pendulum key to trigger closure */}
                 <MinimapPendulum
-                  onClick={() => setIsMinimapOpen(false)}
-                  title="锁上星图 (收起)"
+                  onClick={() => {
+                    setIsMinimapOpen(false);
+                    setIsPendulumHovered(false);
+                  }}
+                  onMouseEnter={() => setIsPendulumHovered(true)}
+                  onMouseLeave={() => setIsPendulumHovered(false)}
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.95 }}
                 >
                   <PendulumChain />
                   <PendulumKey>🔑</PendulumKey>
+                  <AnimatePresence>
+                    {isPendulumHovered && (
+                      <PendulumTooltip
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        transition={{ duration: 0.15 }}
+                      >
+                        锁上星图 (收起)
+                      </PendulumTooltip>
+                    )}
+                  </AnimatePresence>
                 </MinimapPendulum>
               </MinimapPaper>
             </>
