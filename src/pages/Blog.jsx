@@ -779,12 +779,12 @@ const LeafPaperBtn = styled(motion.button)`
 
 // ── 场景长廊分岔路标 ──────────────────────────────────────────
 const MAP_EDGES = [
-  { from: 'overview', to: 'indoor', label: '叩门', x1: 50, y1: 15, x2: 30, y2: 40, color: '#fbbf24' },
-  { from: 'overview', to: 'outdoor', label: '出林', x1: 50, y1: 15, x2: 70, y2: 40, color: '#10b981' },
-  { from: 'outdoor', to: 'travel', label: '栈道', x1: 70, y1: 40, x2: 70, y2: 75, color: '#fb923c' },
-  { from: 'indoor', to: 'junction', label: '拱门', x1: 30, y1: 40, x2: 30, y2: 65, color: '#818cf8' },
-  { from: 'junction', to: 'archive', label: '旧柜', x1: 30, y1: 65, x2: 15, y2: 85, color: '#c084fc' },
-  { from: 'junction', to: 'workshop', label: '工坊', x1: 30, y1: 65, x2: 45, y2: 85, color: '#38bdf8' }
+  { from: 'overview', to: 'indoor', label: '叩门', x1: 50, y1: 18, x2: 30, y2: 40, color: '#fbbf24' },
+  { from: 'overview', to: 'outdoor', label: '出林', x1: 50, y1: 18, x2: 70, y2: 40, color: '#10b981' },
+  { from: 'outdoor', to: 'travel', label: '栈道', x1: 70, y1: 40, x2: 70, y2: 72, color: '#fb923c' },
+  { from: 'indoor', to: 'junction', label: '拱门', x1: 30, y1: 40, x2: 30, y2: 64, color: '#818cf8' },
+  { from: 'junction', to: 'archive', label: '旧柜', x1: 30, y1: 64, x2: 18, y2: 82, color: '#c084fc' },
+  { from: 'junction', to: 'workshop', label: '工坊', x1: 30, y1: 64, x2: 46, y2: 82, color: '#38bdf8' }
 ];
 
 // ── 二级近景场景 ──────────────────────────────────────────────
@@ -1166,21 +1166,20 @@ const MinimapCompass = styled(motion.button)`
 `;
 
 const MinimapPaper = styled(motion.div)`
-  width: 280px;
-  height: 220px;
-  background-color: rgba(12, 10, 24, 0.88);
+  width: 250px;
+  height: 250px;
+  border-radius: 50%;
+  background-color: rgba(12, 10, 24, 0.75);
   background-image: 
-    radial-gradient(circle at center, rgba(231, 199, 126, 0.05) 0%, rgba(12, 10, 24, 0.88) 100%),
+    radial-gradient(circle at center, rgba(12, 10, 24, 0.35) 0%, rgba(12, 10, 24, 0.85) 100%),
     url(${props => props.$bgSrc});
   background-size: cover;
   background-position: center;
   border: 1.5px solid #e7c77e;
-  border-radius: 12px;
   box-shadow: 
     0 15px 35px rgba(0, 0, 0, 0.75),
     0 0 25px rgba(231, 199, 126, 0.25),
     inset 0 0 15px rgba(231, 199, 126, 0.15);
-  padding: 10px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -1193,31 +1192,32 @@ const MinimapPaper = styled(motion.div)`
     content: '';
     position: absolute;
     inset: 4px;
-    border: 1px solid rgba(231, 199, 126, 0.25);
-    border-radius: 8px;
+    border: 1px double rgba(231, 199, 126, 0.25);
+    border-radius: 50%;
     pointer-events: none;
+    z-index: 10;
   }
 `;
 
 const MinimapHeader = styled.div`
+  position: absolute;
+  top: 15px;
+  left: 0;
+  right: 0;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  border-bottom: 1px dashed rgba(231, 199, 126, 0.35);
-  padding-bottom: 5px;
-  margin-bottom: 7px;
   z-index: 10;
+  pointer-events: none;
 `;
 
 const MinimapTitle = styled.h4`
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 800;
   color: #ffedd5;
   margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
+  text-shadow: 0 1.5px 3px rgba(0, 0, 0, 0.95);
   
   span {
     color: #e7c77e;
@@ -1225,21 +1225,30 @@ const MinimapTitle = styled.h4`
 `;
 
 const MinimapCoordBadge = styled.div`
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
   font-family: 'Courier New', monospace;
-  font-size: 0.58rem;
+  font-size: 0.55rem;
   font-weight: 800;
   color: #fbbf24;
-  background: rgba(251, 191, 36, 0.12);
-  border: 1px solid rgba(251, 191, 36, 0.35);
+  background: rgba(12, 10, 24, 0.85);
+  border: 1px solid rgba(231, 199, 126, 0.35);
   border-radius: 4px;
-  padding: 1px 5px;
+  padding: 1px 6px;
   letter-spacing: 0.05em;
-  box-shadow: 0 0 6px rgba(251, 191, 36, 0.2);
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
   user-select: none;
 `;
 
 const MinimapCloseBtn = styled.button`
-  background: rgba(12, 10, 24, 0.6);
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 25;
+  background: rgba(12, 10, 24, 0.8);
   border: 1px solid rgba(231, 199, 126, 0.5);
   cursor: pointer;
   color: #e7c77e;
@@ -1249,8 +1258,8 @@ const MinimapCloseBtn = styled.button`
   justify-content: center;
   border-radius: 50%;
   transition: all 0.25s ease;
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
 
   &:hover {
     background: #e7c77e;
@@ -1262,21 +1271,17 @@ const MinimapCloseBtn = styled.button`
 `;
 
 const MinimapGraphArea = styled.div`
-  flex: 1;
+  width: 100%;
+  height: 100%;
   position: relative;
-  background: rgba(12, 10, 24, 0.45);
-  border: 1px solid rgba(231, 199, 126, 0.22);
-  border-radius: 8px;
-  overflow: hidden;
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
+  background: transparent;
 `;
 
 const MinimapEdgeLabel = styled.div`
   position: absolute;
   transform: translate(-50%, -50%);
-  background: rgba(15, 11, 28, 0.95);
-  border: 1px solid rgba(231, 199, 126, 0.22);
+  background: rgba(12, 10, 24, 0.75);
+  border: 1px solid rgba(231, 199, 126, 0.18);
   border-radius: 4px;
   color: #ffedd5;
   font-size: 0.52rem;
@@ -1284,7 +1289,9 @@ const MinimapEdgeLabel = styled.div`
   white-space: nowrap;
   z-index: 5;
   pointer-events: none;
-  scale: 0.9;
+  scale: 0.85;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
 `;
 
 const MinimapNodeContainer = styled(motion.div)`
@@ -1300,27 +1307,29 @@ const MinimapNodeContainer = styled(motion.div)`
 `;
 
 const MinimapMedallion = styled.div`
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
-  background: ${props => props.$isCurrent ? 'rgba(231, 199, 126, 0.35)' : 'rgba(12, 10, 24, 0.85)'};
+  background: ${props => props.$isCurrent ? 'rgba(231, 199, 126, 0.25)' : 'rgba(12, 10, 24, 0.6)'};
   border: 1.5px solid ${props => props.$isCurrent ? '#fbbf24' : props.$themeColor || '#e7c77e'};
   box-shadow: ${props => props.$isCurrent 
-    ? '0 0 10px #fbbf24, inset 0 0 5px rgba(251, 191, 36, 0.5)' 
+    ? '0 0 10px #fbbf24, inset 0 0 5px rgba(251, 191, 36, 0.3)' 
     : '0 2px 4px rgba(0,0,0,0.5)'};
   display: flex;
   justify-content: center;
   align-items: center;
   font-size: 11px;
-  color: #fff;
+  color: ${props => props.$isCurrent ? '#fbbf24' : '#e7c77e'};
+  text-shadow: 0 0 3px rgba(231, 199, 126, 0.4);
   transition: all 0.25s ease;
   position: relative;
 
   ${MinimapNodeContainer}:hover & {
-    transform: scale(1.2);
+    transform: scale(1.15);
     box-shadow: 0 0 12px ${props => props.$themeColor || '#e7c77e'};
     border-color: #ffffff;
-    background: ${props => props.$themeColor || '#e7c77e'};
+    color: #ffffff;
+    background: rgba(231, 199, 126, 0.85);
   }
 `;
 
@@ -1354,43 +1363,6 @@ const MinimapPointerBadge = styled(motion.div)`
   z-index: 12;
 `;
 
-const MinimapCorner = styled.div`
-  position: absolute;
-  width: 14px;
-  height: 14px;
-  border: 1.5px solid rgba(231, 199, 126, 0.65);
-  pointer-events: none;
-  z-index: 15;
-  
-  &.top-left {
-    top: 6px;
-    left: 6px;
-    border-right: none;
-    border-bottom: none;
-    border-top-left-radius: 4px;
-  }
-  &.top-right {
-    top: 6px;
-    right: 6px;
-    border-left: none;
-    border-bottom: none;
-    border-top-right-radius: 4px;
-  }
-  &.bottom-left {
-    bottom: 6px;
-    left: 6px;
-    border-right: none;
-    border-top: none;
-    border-bottom-left-radius: 4px;
-  }
-  &.bottom-right {
-    bottom: 6px;
-    right: 6px;
-    border-left: none;
-    border-top: none;
-    border-bottom-right-radius: 4px;
-  }
-`;
 
 const MinimapOrbitRing = styled.circle`
   transform-origin: center;
@@ -2185,39 +2157,35 @@ export default function Blog() {
               exit={{ scale: 0.8, opacity: 0, x: 50, y: -50 }}
               transition={{ type: 'spring', damping: 16 }}
             >
-              {/* Ornate corner ornaments */}
-              <MinimapCorner className="top-left" />
-              <MinimapCorner className="top-right" />
-              <MinimapCorner className="bottom-left" />
-              <MinimapCorner className="bottom-right" />
-
               <MinimapHeader>
                 <MinimapTitle>
                   🧭 游园星图 <span>(双路径)</span>
                 </MinimapTitle>
-                {(() => {
-                  const coords = {
-                    overview: { x: 50, y: 15 },
-                    indoor: { x: 30, y: 40 },
-                    outdoor: { x: 70, y: 40 },
-                    travel: { x: 70, y: 75 },
-                    junction: { x: 30, y: 65 },
-                    archive: { x: 15, y: 85 },
-                    workshop: { x: 45, y: 85 }
-                  }[sceneMode] || { x: 50, y: 50 };
-                  return (
-                    <MinimapCoordBadge title="当前空间星象坐标">
-                      LOC: {coords.x}, {coords.y}
-                    </MinimapCoordBadge>
-                  );
-                })()}
-                <MinimapCloseBtn onClick={() => setIsMinimapOpen(false)}>
-                  <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                  </svg>
-                </MinimapCloseBtn>
               </MinimapHeader>
+              
+              {(() => {
+                const coords = {
+                  overview: { x: 50, y: 18 },
+                  indoor: { x: 30, y: 40 },
+                  outdoor: { x: 70, y: 40 },
+                  travel: { x: 70, y: 72 },
+                  junction: { x: 30, y: 64 },
+                  archive: { x: 18, y: 82 },
+                  workshop: { x: 46, y: 82 }
+                }[sceneMode] || { x: 50, y: 50 };
+                return (
+                  <MinimapCoordBadge title="当前空间星象坐标">
+                    LOC: {coords.x}, {coords.y}
+                  </MinimapCoordBadge>
+                );
+              })()}
+
+              <MinimapCloseBtn onClick={() => setIsMinimapOpen(false)}>
+                <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </MinimapCloseBtn>
               
               <MinimapGraphArea>
                 {/* Connections & Celestial Astrolabe SVG Background */}
@@ -2231,6 +2199,12 @@ export default function Blog() {
                   {/* Astronomical axis lines (crosshairs) */}
                   <line x1="50%" y1="0%" x2="50%" y2="100%" stroke="rgba(231, 199, 126, 0.05)" strokeWidth="1" strokeDasharray="4 4" />
                   <line x1="0%" y1="50%" x2="100%" y2="50%" stroke="rgba(231, 199, 126, 0.05)" strokeWidth="1" strokeDasharray="4 4" />
+
+                  {/* Astrolabe Cardinal Direction Markers */}
+                  <text x="50%" y="9%" fill="rgba(231, 199, 126, 0.45)" fontSize="7" fontWeight="800" textAnchor="middle" fontFamily="Courier New, monospace">N</text>
+                  <text x="50%" y="94%" fill="rgba(231, 199, 126, 0.45)" fontSize="7" fontWeight="800" textAnchor="middle" fontFamily="Courier New, monospace">S</text>
+                  <text x="9%" y="52%" fill="rgba(231, 199, 126, 0.45)" fontSize="7" fontWeight="800" textAnchor="middle" fontFamily="Courier New, monospace">W</text>
+                  <text x="91%" y="52%" fill="rgba(231, 199, 126, 0.45)" fontSize="7" fontWeight="800" textAnchor="middle" fontFamily="Courier New, monospace">E</text>
 
                   {/* Decorative twinkling stars */}
                   <g className="twinkle-stars">
@@ -2257,8 +2231,8 @@ export default function Blog() {
                         y1={`${edge.y1}%`} 
                         x2={`${edge.x2}%`} 
                         y2={`${edge.y2}%`} 
-                        stroke="rgba(231, 199, 126, 0.12)" 
-                        strokeWidth="3" 
+                        stroke="rgba(231, 199, 126, 0.08)" 
+                        strokeWidth="1.5" 
                         strokeLinecap="round"
                       />
                       {/* Flowing color light line */}
@@ -2287,14 +2261,14 @@ export default function Blog() {
                 {/* Scene Nodes */}
                 {Object.values(BLOG_SCENES).map((scene) => {
                   const coords = {
-                    overview: { x: 50, y: 15, icon: '🏰', label: '总览' },
-                    indoor: { x: 30, y: 40, icon: '🚪', label: '屋内' },
-                    outdoor: { x: 70, y: 40, icon: '🌿', label: '林间' },
-                    travel: { x: 70, y: 75, icon: '🧭', label: '旅案' },
-                    junction: { x: 30, y: 65, icon: '🪟', label: '回廊' },
-                    archive: { x: 15, y: 85, icon: '🗄️', label: '旧柜' },
-                    workshop: { x: 45, y: 85, icon: '🛠️', label: '工坊' }
-                  }[scene.id] || { x: 50, y: 50, icon: '❓', label: '未知' };
+                    overview: { x: 50, y: 18, icon: '☼', label: '总览' },
+                    indoor: { x: 30, y: 40, icon: '⌂', label: '屋内' },
+                    outdoor: { x: 70, y: 40, icon: '☘', label: '林间' },
+                    travel: { x: 70, y: 72, icon: '⎈', label: '旅案' },
+                    junction: { x: 30, y: 64, icon: '☍', label: '回廊' },
+                    archive: { x: 18, y: 82, icon: '▤', label: '旧柜' },
+                    workshop: { x: 46, y: 82, icon: '⚙', label: '工坊' }
+                  }[scene.id] || { x: 50, y: 50, icon: '★', label: '未知' };
  
                   const isCurrent = sceneMode === scene.id;
  
