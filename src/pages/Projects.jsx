@@ -182,10 +182,44 @@ const ContentWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3.5rem;
+  gap: 3rem;
+`;
+
+const MainLayout = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  width: 100%;
+  
+  @media (min-width: 992px) {
+    grid-template-columns: 1.15fr 0.85fr;
+    align-items: start;
+    gap: 3.5rem;
+  }
+`;
+
+const LeftSection = styled.div`
+  width: 100%;
+`;
+
+const StickyRightSection = styled.div`
+  position: sticky;
+  top: 6.5rem;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 10;
+  
+  @media (max-width: 991px) {
+    position: relative;
+    top: 0;
+    margin-top: 2rem;
+  }
 `;
 
 const HeaderSection = styled(motion.div)`
+
   text-align: center;
   max-width: 650px;
   display: flex;
@@ -729,6 +763,56 @@ const CloseButton = styled.button`
 `;
 
 // -------------------------------------------------------------------------
+// 炼金坩埚样式 (Cauldron Styled Components)
+// -------------------------------------------------------------------------
+
+const CauldronContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 0.5rem;
+  position: relative;
+  z-index: 10;
+  width: 100%;
+`;
+
+const CauldronLabel = styled.div`
+  font-size: 0.9rem;
+  color: #e7c77e;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 0.6rem;
+  text-shadow: 0 0 10px rgba(231, 199, 126, 0.35);
+  transition: color 0.3s, text-shadow 0.3s;
+`;
+
+const CauldronDesc = styled.div`
+  font-size: 0.78rem;
+  color: rgba(254, 243, 199, 0.65);
+  max-width: 440px;
+  text-align: center;
+  line-height: 1.6;
+  min-height: 38px;
+  transition: all 0.3s ease;
+`;
+
+const CauldronPanel = styled.div`
+  background: rgba(12, 10, 24, 0.85);
+  border: 1px solid rgba(231, 199, 126, 0.16);
+  border-radius: 12px;
+  padding: 8px 18px;
+  margin-bottom: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  min-width: 280px;
+  justify-content: center;
+  transition: border-color 0.3s;
+`;
+
+// -------------------------------------------------------------------------
 // 渲染组件 (React Component)
 // -------------------------------------------------------------------------
 
@@ -736,7 +820,14 @@ const Projects = () => {
   const [activeFilter, setActiveFilter] = useState('all');
   const [selectedProject, setSelectedProject] = useState(null);
   const [shockwaveIndex, setShockwaveIndex] = useState(null);
+  const [hoveredProject, setHoveredProject] = useState(null);
   const canvasRef = useRef(null);
+  const hoveredProjectRef = useRef(null);
+
+  // 同步 hoveredProject 到 ref，供 Canvas 绘制回路无延迟读取
+  useEffect(() => {
+    hoveredProjectRef.current = hoveredProject;
+  }, [hoveredProject]);
 
   // 魔法微粒背景 Canvas 逻辑
   useEffect(() => {
@@ -746,6 +837,7 @@ const Projects = () => {
     let animationId;
     let particles = [];
     let trail = [];
+    let cauldronBubbles = [];
     let mouse = { x: null, y: null };
 
     const resize = () => {
@@ -844,6 +936,50 @@ const Projects = () => {
         p.draw();
       });
 
+      // 坩埚共鸣粒子喷吐
+      if (hoveredProjectRef.current) {
+        const cauldronEl = document.getElementById('alchemy-cauldron-svg');
+        if (cauldronEl) {
+          const rect = cauldronEl.getBoundingClientRect();
+          const canvasRect = canvas.getBoundingClientRect();
+          const cx = rect.left - canvasRect.left + rect.width / 2;
+          const cy = rect.top - canvasRect.top + 15; // 稍微高于坩埚口
+          
+          if (Math.random() < 0.38) {
+            cauldronBubbles.push({
+              x: cx + (Math.random() * 40 - 20),
+              y: cy,
+              size: Math.random() * 3.5 + 1.5,
+              speedY: -(Math.random() * 1.6 + 0.6),
+              speedX: Math.random() * 0.7 - 0.35,
+              color: hoveredProjectRef.current.elementColor,
+              life: 1.0,
+              decay: Math.random() * 0.02 + 0.012
+            });
+          }
+        }
+      }
+
+      // 更新与绘制坩埚气泡
+      for (let i = cauldronBubbles.length - 1; i >= 0; i--) {
+        const b = cauldronBubbles[i];
+        b.x += b.speedX;
+        b.y += b.speedY;
+        b.life -= b.decay;
+
+        if (b.life <= 0) {
+          cauldronBubbles.splice(i, 1);
+        } else {
+          ctx.fillStyle = b.color;
+          ctx.shadowBlur = b.size * 2.5;
+          ctx.shadowColor = b.color;
+          ctx.beginPath();
+          ctx.arc(b.x, b.y, b.size * b.life, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        }
+      }
+
       // 更新与绘制轨迹
       for (let i = trail.length - 1; i >= 0; i--) {
         const t = trail[i];
@@ -900,9 +1036,9 @@ const Projects = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <Title>奥术与创物秘库</Title>
+          <Title>幽霜析粹所 · 奥术法宝库</Title>
           <Subtitle>
-            记录在尘封卷轴上的开发实验与魔法造物，点击可 <span>展开法术卷轴</span>
+            在皑皑雪峰与极寒之下的魔法实验室，陈列着在下以冰霜冷凝、炼金釜析出的交互法宝。点击可 <span>展开法术卷轴</span>
           </Subtitle>
         </HeaderSection>
 
@@ -941,56 +1077,131 @@ const Projects = () => {
           })}
         </FilterContainer>
 
-        {/* 卡牌列表网格 */}
-        <GridContainer layout>
-          <AnimatePresence mode="popLayout">
-            {filteredProjects.map((proj) => (
-              <ProjectCard
-                key={proj.id}
-                $color={proj.elementColor}
-                layout
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.4 }}
-                onClick={() => setSelectedProject(proj)}
-                whileHover={{ y: -6 }}
-              >
-                <CardGlow $color={proj.elementColor} />
-                
-                {/* 魔法星盘图案 */}
-                <CardHeader $color={proj.elementColor}>
-                  <svg className="circle-outer" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="1.2">
-                    <circle cx="50" cy="50" r="45" strokeDasharray="3 3" />
-                    <circle cx="50" cy="50" r="38" />
-                    <polygon points="50 15 80 68 20 68" />
-                  </svg>
-                  <svg className="circle-inner" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="1">
-                    <circle cx="50" cy="50" r="28" strokeDasharray="2 2" />
-                    <polygon points="50 78 75 35 25 35" />
-                    <circle cx="50" cy="50" r="8" fill="currentColor" fillOpacity="0.2" />
-                  </svg>
-                </CardHeader>
+        {/* 主体双栏布局 */}
+        <MainLayout>
+          {/* 左栏：卡牌列表网格 */}
+          <LeftSection>
+            <GridContainer layout>
+              <AnimatePresence mode="popLayout">
+                {filteredProjects.map((proj) => (
+                  <ProjectCard
+                    key={proj.id}
+                    $color={proj.elementColor}
+                    layout
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    transition={{ duration: 0.4 }}
+                    onClick={() => setSelectedProject(proj)}
+                    onMouseEnter={() => setHoveredProject(proj)}
+                    onMouseLeave={() => setHoveredProject(null)}
+                    whileHover={{ y: -6 }}
+                  >
+                    <CardGlow $color={proj.elementColor} />
+                    
+                    {/* 魔法星盘图案 */}
+                    <CardHeader $color={proj.elementColor}>
+                      <svg className="circle-outer" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="1.2">
+                        <circle cx="50" cy="50" r="45" strokeDasharray="3 3" />
+                        <circle cx="50" cy="50" r="38" />
+                        <polygon points="50 15 80 68 20 68" />
+                      </svg>
+                      <svg className="circle-inner" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="1">
+                        <circle cx="50" cy="50" r="28" strokeDasharray="2 2" />
+                        <polygon points="50 78 75 35 25 35" />
+                        <circle cx="50" cy="50" r="8" fill="currentColor" fillOpacity="0.2" />
+                      </svg>
+                    </CardHeader>
 
-                <CardBody>
-                  <CardMeta>
-                    <ElementBadge $color={proj.elementColor}>{proj.element}</ElementBadge>
-                    <ManaCost>Mana {proj.mana}</ManaCost>
-                  </CardMeta>
-                  
-                  <CardTitle>{proj.title}</CardTitle>
-                  <CardDesc>{proj.shortDesc}</CardDesc>
-                  
-                  <CardIngredients>
-                    {proj.ingredients.map(ing => (
-                      <IngredientTag key={ing}>{ing}</IngredientTag>
-                    ))}
-                  </CardIngredients>
-                </CardBody>
-              </ProjectCard>
-            ))}
-          </AnimatePresence>
-        </GridContainer>
+                    <CardBody>
+                      <CardMeta>
+                        <ElementBadge $color={proj.elementColor}>{proj.element}</ElementBadge>
+                        <ManaCost>Mana {proj.mana}</ManaCost>
+                      </CardMeta>
+                      
+                      <CardTitle>{proj.title}</CardTitle>
+                      <CardDesc>{proj.shortDesc}</CardDesc>
+                      
+                      <CardIngredients>
+                        {proj.ingredients.map(ing => (
+                          <IngredientTag key={ing}>{ing}</IngredientTag>
+                        ))}
+                      </CardIngredients>
+                    </CardBody>
+                  </ProjectCard>
+                ))}
+              </AnimatePresence>
+            </GridContainer>
+          </LeftSection>
+
+          {/* 右栏：炼金坩埚 (Alchemist Cauldron) */}
+          <StickyRightSection>
+            <CauldronContainer id="alchemy-cauldron">
+              <AnimatePresence mode="wait">
+                {hoveredProject ? (
+                  <motion.div
+                    key={hoveredProject.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                    style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+                  >
+                    <CauldronLabel style={{ color: hoveredProject.elementColor, textShadow: `0 0 10px ${hoveredProject.elementColor}40` }}>
+                      坩埚共鸣 · {hoveredProject.title}
+                    </CauldronLabel>
+                    <CauldronPanel style={{ borderColor: `${hoveredProject.elementColor}40` }}>
+                      <span style={{ fontSize: '0.72rem', color: hoveredProject.elementColor, background: `${hoveredProject.elementColor}15`, padding: '2px 8px', borderRadius: '20px', border: `1px solid ${hoveredProject.elementColor}30`, fontWeight: '600' }}>
+                        {hoveredProject.element}
+                      </span>
+                      <span style={{ fontSize: '0.72rem', color: '#fbbf24', fontWeight: '600' }}>
+                        Mana 消耗: {hoveredProject.mana}
+                      </span>
+                    </CauldronPanel>
+                    <CauldronDesc>
+                      {hoveredProject.shortDesc}
+                    </CauldronDesc>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="idle"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+                  >
+                    <CauldronLabel>幽霜析粹坩埚</CauldronLabel>
+                    <CauldronPanel>
+                      <span style={{ fontSize: '0.72rem', color: 'rgba(254, 243, 199, 0.5)' }}>
+                        炉火微熄 · 暂无共鸣
+                      </span>
+                    </CauldronPanel>
+                    <CauldronDesc>
+                      将神识悬停在左侧多宝阁的造物法宝上，即可激发坩埚的属性共鸣，析出奥术晶华。
+                    </CauldronDesc>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* 坩埚本体 SVG */}
+              <motion.div
+                id="alchemy-cauldron-svg"
+                animate={{ y: [0, -6, 0] }}
+                transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+                style={{ marginTop: '1rem' }}
+              >
+                <svg width="120" height="90" viewBox="0 0 120 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M35 78 L20 88 M85 78 L100 88" stroke={hoveredProject ? hoveredProject.elementColor : '#fbbf24'} strokeWidth="4" strokeLinecap="round" style={{ transition: 'stroke 0.3s' }} />
+                  <path d="M15 28 C 15 8, 105 8, 105 28 C 105 38, 110 60, 92 78 C 80 88, 40 88, 28 78 C 10 60, 15 38, 15 28 Z" fill="#0f0c24" stroke={hoveredProject ? hoveredProject.elementColor : '#fbbf24'} strokeWidth="3" style={{ transition: 'stroke 0.3s' }} />
+                  <path d="M8 40 C 3 40, 3 52, 8 52" stroke={hoveredProject ? hoveredProject.elementColor : '#fbbf24'} strokeWidth="2.5" strokeLinecap="round" style={{ transition: 'stroke 0.3s' }} />
+                  <path d="M112 40 C 117 40, 117 52, 112 52" stroke={hoveredProject ? hoveredProject.elementColor : '#fbbf24'} strokeWidth="2.5" strokeLinecap="round" style={{ transition: 'stroke 0.3s' }} />
+                  <ellipse cx="60" cy="20" rx="42" ry="8" fill="#140f30" stroke={hoveredProject ? hoveredProject.elementColor : '#fbbf24'} strokeWidth="2.5" style={{ transition: 'stroke 0.3s' }} />
+                  <ellipse cx="60" cy="20" rx="38" ry="6" fill={hoveredProject ? `${hoveredProject.elementColor}40` : 'rgba(251, 191, 36, 0.15)'} style={{ transition: 'fill 0.3s' }} />
+                </svg>
+              </motion.div>
+            </CauldronContainer>
+          </StickyRightSection>
+        </MainLayout>
       </ContentWrapper>
 
       {/* 横向法术卷轴展开弹窗 (Scroll Expand Modal) */}

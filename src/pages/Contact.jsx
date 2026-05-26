@@ -29,7 +29,7 @@ import section02Img from '../assets/images/contact/section-02.png';
 import section03Img from '../assets/images/contact/section-03.png';
 
 /* ─────────────────────────────────────────
-   CSS 动画定义
+   CSS 动画定义 & 青蛙邮差样式
    ───────────────────────────────────────── */
 const textGlow = keyframes`
   0%, 100% {
@@ -44,6 +44,119 @@ const pulseDot = keyframes`
   0%, 100% { transform: scale(1); opacity: 0.85; }
   50% { transform: scale(1.3); opacity: 1; box-shadow: 0 0 10px #10b981; }
 `;
+
+const LeftColumnWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  
+  @media (min-width: 992px) {
+    margin-top: 2.2rem;
+  }
+`;
+
+const FrogSection = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  background: rgba(4, 12, 10, 0.35);
+  border: 1px solid rgba(231, 199, 126, 0.12);
+  border-radius: 20px;
+  padding: 1.2rem;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 
+    0 15px 30px rgba(0, 0, 0, 0.35),
+    inset 0 1px 1px rgba(255, 255, 255, 0.03);
+  width: 100%;
+  pointer-events: auto;
+  
+  @media (max-width: 576px) {
+    flex-direction: column;
+    align-items: center;
+    gap: 1.2rem;
+  }
+`;
+
+const FrogImageContainer = styled.div`
+  width: 70px;
+  height: 70px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+`;
+
+const FrogImage = styled(motion.img)`
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+`;
+
+const FrogPlaceholderBox = styled.div`
+  width: 100%;
+  height: 100%;
+  border: 1.5px dashed rgba(231, 199, 126, 0.3);
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: rgba(231, 199, 126, 0.65);
+  font-size: 0.65rem;
+  gap: 4px;
+  background: rgba(231, 199, 126, 0.05);
+  text-align: center;
+  font-weight: 700;
+`;
+
+const FrogSpeechBubble = styled(motion.div)`
+  position: relative;
+  background: #f5efe3;
+  color: #0c1a15;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.55;
+  flex: 1;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(12, 26, 21, 0.08);
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 100%;
+    transform: translateY(-50%);
+    border-width: 6px;
+    border-style: solid;
+    border-color: transparent #f5efe3 transparent transparent;
+  }
+
+  @media (max-width: 576px) {
+    &::after {
+      content: '';
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      right: auto;
+      transform: translateX(-50%);
+      border-width: 6px;
+      border-color: transparent transparent #f5efe3 transparent;
+    }
+  }
+`;
+
+const FROG_DIALOGS = {
+  idle: '（端起竿子）呱……闲来无事，在池边垂钓。道友若有传音手札，投入池中便可！',
+  hovered: '呱！别闹，惊走在下的鱼儿了！鱼儿游走就只能吃蚊子了……',
+  typing: '嗯？看道友神色凝重、运笔如飞，是要给在下捎信去松果屋么？',
+  submitting: '哟，飞剑传信落水了！看在下使一招【风生水起】，这就收线钓上来！',
+  success: '（收进背篓）呱！手札已稳稳钓起！在下这就带回松果屋，请道友静候回音！'
+};
 
 /* ─────────────────────────────────────────
    Styled Components 样式设计
@@ -672,6 +785,9 @@ export default function Contact() {
   const [toastMsg, setToastMsg] = useState('');
   const [isMobile, setIsMobile] = useState(false);
   const [mobileFlipped, setMobileFlipped] = useState(false);
+  const [frogState, setFrogState] = useState('idle');
+  const [isLetterFlying, setIsLetterFlying] = useState(false);
+  const [frogImageError, setFrogImageError] = useState(false);
  
   const canvasRef = useRef(null);
 
@@ -1253,12 +1369,23 @@ export default function Contact() {
     if (!formData.name || !formData.email || !formData.message) return;
 
     setIsSubmitting(true);
+    setIsLetterFlying(true);
+    setFrogState('submitting');
+    
+    // 1.2s后手札落水，被青蛙钓起
+    setTimeout(() => {
+      setIsLetterFlying(false);
+      setFrogState('success');
+    }, 1200);
+
+    // 3.2s后重置表单和青蛙状态
     setTimeout(() => {
       setIsSubmitting(false);
-      setToastMsg('留言投递成功！已通过鸽子邮差寄往松果屋...');
+      setToastMsg('手札已收纳！青蛙邮差已将信件钓入背篓，正捎回松果屋...');
       setShowToast(true);
       setFormData({ name: '', email: '', message: '' });
-    }, 1800);
+      setFrogState('idle');
+    }, 3200);
   };
 
   useEffect(() => {
@@ -1492,28 +1619,86 @@ export default function Contact() {
           />
           <StageContent style={{ opacity: sec3ContentOpacity, y: sec3ContentY, scale: sec3ContentScale, filter: sec3ContentFilter }}>
             <Section3Grid>
-              <GlassCardForm onSubmit={handleSubmit}>
-                <FormHeader>
-                  <h3>投递手札</h3>
-                  <span>pinecone-post v1.3</span>
-                </FormHeader>
-                <FormGroup>
-                  <label htmlFor="name">来信署名 / Name</label>
-                  <input id="name" type="text" placeholder="你想让我怎么称呼你..." value={formData.name} onChange={handleChange} required />
-                </FormGroup>
-                <FormGroup>
-                  <label htmlFor="email">回信地址 / Email</label>
-                  <input id="email" type="email" placeholder="方便我回信的联系方式..." value={formData.email} onChange={handleChange} required />
-                </FormGroup>
-                <FormGroup>
-                  <label htmlFor="message">纸短情长 / Message</label>
-                  <textarea id="message" placeholder="写下你的留言、合作意图或小秘密..." value={formData.message} onChange={handleChange} required />
-                </FormGroup>
-                <SubmitButton type="submit" disabled={isSubmitting || !formData.name || !formData.email || !formData.message} whileTap={{ scale: 0.97 }}>
-                  {isSubmitting ? <span>✉ 放入池塘中...</span> : <span>🛶 放入池塘 (投递手札)</span>}
-                </SubmitButton>
-              </GlassCardForm>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', height: '100%', justifyContent: 'space-between' }}>
+              <LeftColumnWrapper>
+                <GlassCardForm onSubmit={handleSubmit}>
+                  <FormHeader>
+                    <h3>投递手札</h3>
+                    <span>pinecone-post v1.3</span>
+                  </FormHeader>
+                  <FormGroup>
+                    <label htmlFor="name">来信署名 / Name</label>
+                    <input 
+                      id="name" 
+                      type="text" 
+                      placeholder="你想让我怎么称呼你..." 
+                      value={formData.name} 
+                      onChange={handleChange} 
+                      onFocus={() => setFrogState('typing')}
+                      onBlur={() => setFrogState('idle')}
+                      required 
+                    />
+                  </FormGroup>
+                  <FormGroup>
+                    <label htmlFor="email">回信地址 / Email</label>
+                    <input 
+                      id="email" 
+                      type="email" 
+                      placeholder="方便我回信的联系方式..." 
+                      value={formData.email} 
+                      onChange={handleChange} 
+                      onFocus={() => setFrogState('typing')}
+                      onBlur={() => setFrogState('idle')}
+                      required 
+                    />
+                  </FormGroup>
+                  <FormGroup>
+                    <label htmlFor="message">纸短情长 / Message</label>
+                    <textarea 
+                      id="message" 
+                      placeholder="写下你的留言、合作意图或小秘密..." 
+                      value={formData.message} 
+                      onChange={handleChange} 
+                      onFocus={() => setFrogState('typing')}
+                      onBlur={() => setFrogState('idle')}
+                      required 
+                    />
+                  </FormGroup>
+                  <SubmitButton type="submit" disabled={isSubmitting || !formData.name || !formData.email || !formData.message} whileTap={{ scale: 0.97 }}>
+                    {isSubmitting ? <span>✉ 放入池塘中...</span> : <span>🛶 放入池塘 (投递手札)</span>}
+                  </SubmitButton>
+                </GlassCardForm>
+
+                {/* 提交表单下方的青蛙邮差占位与气泡 */}
+                <FrogSection
+                  onMouseEnter={() => { if (frogState === 'idle') setFrogState('hovered'); }}
+                  onMouseLeave={() => { if (frogState === 'hovered') setFrogState('idle'); }}
+                >
+                  <FrogImageContainer>
+                    {!frogImageError ? (
+                      <FrogImage
+                        src="/assets/images/contact/frog_postman.png"
+                        alt="青蛙邮差"
+                        onError={() => setFrogImageError(true)}
+                        animate={frogState === 'submitting' ? { y: [0, -10, 0] } : frogState === 'success' ? { scale: [1, 1.1, 1], rotate: [0, 5, -5, 0] } : { y: [0, -4, 0] }}
+                        transition={frogState === 'submitting' ? { duration: 0.5, repeat: Infinity } : frogState === 'success' ? { duration: 0.6 } : { duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                      />
+                    ) : (
+                      <FrogPlaceholderBox>
+                        <div style={{ fontSize: '1.6rem' }}>🐸</div>
+                        <span>青蛙邮差</span>
+                      </FrogPlaceholderBox>
+                    )}
+                  </FrogImageContainer>
+                  <FrogSpeechBubble
+                    animate={frogState !== 'idle' ? { scale: [1, 1.02, 1] } : {}}
+                    transition={{ duration: 0.2 }}
+                  >
+                    {FROG_DIALOGS[frogState]}
+                  </FrogSpeechBubble>
+                </FrogSection>
+              </LeftColumnWrapper>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem', height: '100%', justifyContent: 'center' }}>
                 <FlowingMenuContainer style={{ marginTop: 0 }}>
                   <FlowingMenuHeader>
                     <h4>狂想碎片 / Fragments of Visions</h4>
@@ -1542,6 +1727,46 @@ export default function Contact() {
           />
         ))}
       </DotNav>
+
+      {/* 传音手札折叠飞向池塘（青蛙）的奥术特效 */}
+      <AnimatePresence>
+        {isLetterFlying && (
+          <motion.div
+            style={{
+              position: 'fixed',
+              left: '30%',
+              top: '55%',
+              zIndex: 99999,
+              width: '70px',
+              height: '45px',
+              background: '#fbf5e6',
+              border: '1.5px solid #b45309',
+              borderRadius: '6px',
+              boxShadow: '0 8px 24px rgba(0,0,0,0.6)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#7c2d12',
+              fontSize: '0.7rem',
+              fontWeight: '800',
+              letterSpacing: '1px',
+              pointerEvents: 'none',
+              fontFamily: 'Georgia, serif'
+            }}
+            initial={{ scale: 1, x: 0, y: 0, rotate: 0, opacity: 1 }}
+            animate={{
+              scale: [1, 1.2, 0.4, 0],
+              x: [0, 100, 240, 360],
+              y: [0, -180, -60, 80],
+              rotate: [0, 45, 180, 360],
+              opacity: [1, 1, 0.8, 0]
+            }}
+            transition={{ duration: 1.2, ease: 'easeInOut' }}
+          >
+            ✉ 手札
+          </motion.div>
+        )}
+      </AnimatePresence>
     </ContactWrapper>
   );
 }

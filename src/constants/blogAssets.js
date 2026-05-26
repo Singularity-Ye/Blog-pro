@@ -14,6 +14,27 @@ import notesSource from '../assets/images/blog/proto/notes/notes001.png';
 import notesStack from '../assets/images/blog/proto/notes/stack.png';
 import mapbookSource from '../assets/images/blog/proto/mapbook/source.png';
 
+// ── 导入新博客页的精简视觉资产 ─────────────────────────────────────
+import bgMain from '../assets/images/blog/bg-main.png';
+import bgWall from '../assets/images/blog/bg-wall.png';
+import bgFores from '../assets/images/blog/bg-fores.png';
+import bgTravel from '../assets/images/blog/bg-travel.png';
+import bgArchive from '../assets/images/blog/bg-archive.png';
+import bgWorkshop from '../assets/images/blog/bg-workshop.png';
+
+import leafGreen from '../assets/images/blog/leaf-green.png';
+import leafGold from '../assets/images/blog/leaf-gold.png';
+import scrollBamboo from '../assets/images/blog/scroll-bamboo.png';
+import scrollJade from '../assets/images/blog/scroll-jade.png';
+import scrollOpen from '../assets/images/blog/scroll-open.png';
+
+import mapBook from '../assets/images/blog/map-book.png';
+import mapOpen from '../assets/images/blog/map-open.png';
+import noteBox from '../assets/images/blog/note-box.png';
+import drawer from '../assets/images/blog/drawer.png';
+import blueprint from '../assets/images/blog/blueprint.png';
+import scroll from '../assets/images/blog/scroll.png';
+
 export const BLOG_ASSETS = {
   interior: {
     master,
@@ -40,6 +61,26 @@ export const BLOG_ASSETS = {
       source: mapbookSource,
     },
   },
+};
+
+export const BLOG_NEW_ASSETS = {
+  bgMain,
+  bgWall,
+  bgFores,
+  bgTravel,
+  bgArchive,
+  bgWorkshop,
+  leafGreen,
+  leafGold,
+  scrollBamboo,
+  scrollJade,
+  scrollOpen,
+  mapBook,
+  mapOpen,
+  noteBox,
+  drawer,
+  blueprint,
+  scroll,
 };
 
 export const getBlogAssetByKey = (assetKey) => {

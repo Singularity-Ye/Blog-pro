@@ -48,12 +48,12 @@ const particleDrift = keyframes`
    ───────────────────────────────────────── */
 
 const ATTRIBUTES = [
-  { key: 'QI', name: '气血 (心境宁静)', value: 92, max: 100, desc: '面对风雨与突发状况的坚韧度，保持心境不炸炉的自愈能力。', color: '#10b981' },
-  { key: 'MANA', name: '灵力 (灵感敏锐)', value: 88, max: 100, desc: '捕捉日常生活中微小美好与深刻感触的直觉。', color: '#6366f1' },
-  { key: 'INS', name: '悟性 (法阵塑形)', value: 95, max: 100, desc: '绘制浮空光影与交互符文的熟练度，掌控法阵的流光溢彩。', color: '#e7c77e' },
-  { key: 'DAN', name: '丹道 (文字温度)', value: 85, max: 100, desc: '汇聚四方气流与灵力管道的熟练度，炼制温热言语以供给源能。', color: '#5aa38f' },
-  { key: 'CON', name: '神识 (通灵默契)', value: 90, max: 100, desc: '与通灵大模型/灵体配对沟通，指引复杂意念凝聚的默契度。', color: '#a78bfa' },
-  { key: 'AGI', name: '身法 (尘世调和)', value: 88, max: 100, desc: '在忙碌与闲适、出发与停留之间自由切换的从容态度。', color: '#f43f5e' }
+  { key: 'QI', name: '气血 (心境宁静)', value: 3, max: 100, desc: '面对风雨与突发状况的坚韧度，保持心境不炸炉的自愈能力。', color: '#10b981' },
+  { key: 'MANA', name: '灵力 (灵感敏锐)', value: 67, max: 100, desc: '捕捉日常生活中微小美好与深刻感触的直觉。', color: '#6366f1' },
+  { key: 'INS', name: '悟性 (法阵塑形)', value: 83, max: 100, desc: '绘制浮空光影与交互符文的熟练度，掌控法阵的流光溢彩。', color: '#e7c77e' },
+  { key: 'DAN', name: '丹道 (文字温度)', value: 53, max: 100, desc: '汇聚四方气流与灵力管道的熟练度，炼制温热言语以供给源能。', color: '#5aa38f' },
+  { key: 'CON', name: '神识 (通灵默契)', value: 91, max: 100, desc: '与通灵大模型/灵体配对沟通，指引复杂意念凝聚的默契度。', color: '#a78bfa' },
+  { key: 'AGI', name: '身法 (尘世调和)', value: 78, max: 100, desc: '在忙碌与闲适、出发与停留之间自由切换的从容态度。', color: '#f43f5e' }
 ];
 
 const SPELL_SCHOOLS = [
@@ -61,48 +61,48 @@ const SPELL_SCHOOLS = [
     id: 'conjuration',
     label: '笔耕系 (Scribing Dao)',
     color: '#e7c77e',
-    desc: '以笔为媒，将脑海中稍纵即逝的火花凝聚成温热的篇章。',
+    desc: '借凡俗笔墨，勾勒大道痕迹，将稍纵即逝的道心火花凝于符纸之上。',
     skills: [
-      { name: '随笔记录 (Essays & Thoughts)', level: 90, mana: 40 },
-      { name: '情感共鸣 (Empathy & Connection)', level: 80, mana: 55 },
-      { name: '排版美学 (Visual Storytelling)', level: 95, mana: 20 },
-      { name: '诗意留白 (Poetic Intervals)', level: 88, mana: 30 }
+      { name: '灵台碎笔', original: '随笔记录 (Essays & Thoughts)', level: 63, mana: 40 },
+      { name: '神念共鸣', original: '情感共鸣 (Empathy & Connection)', level: 25, mana: 55 },
+      { name: '流光阵纹', original: '排版美学 (Visual Storytelling)', level: 31, mana: 20 },
+      { name: '太虚留白', original: '诗意留白 (Poetic Intervals)', level: 26, mana: 30 }
     ]
   },
   {
     id: 'alchemy',
     label: '感悟系 (Heart-Refining Dao)',
     color: '#5aa38f',
-    desc: '感知四季流转与人情冷暖，在安静中熔炼人生的智慧。',
+    desc: '闲看花开花落，静观人情冷暖，于滚滚红尘中淬炼道心，熔铸凡尘真意。',
     skills: [
-      { name: '生活观察 (Life Observation)', level: 85, mana: 45 },
-      { name: '情绪疗愈 (Emotional Healing)', level: 90, mana: 35 },
-      { name: '逆境坚韧 (Resilience & Hope)', level: 80, mana: 50 },
-      { name: '日常冥想 (Daily Reflection)', level: 88, mana: 25 }
+      { name: '凡尘静观', original: '生活观察 (Life Observation)', level: 86, mana: 45 },
+      { name: '定心清神', original: '情绪疗愈 (Emotional Healing)', level: 13, mana: 35 },
+      { name: '金刚道骨', original: '逆境坚韧 (Resilience & Hope)', level: 28, mana: 50 },
+      { name: '神游打坐', original: '日常冥想 (Daily Reflection)', level: 99, mana: 25 }
     ]
   },
   {
     id: 'divination',
     label: '问道系 (Scripture Dao)',
     color: '#6366f1',
-    desc: '阅读先贤智慧，探寻人与人之间隐秘而真挚的灵魂连结。',
+    desc: '研读诸天万界之古籍残卷，叩问先贤，于字里行间捕获隐秘而真挚的灵魂波长。',
     skills: [
-      { name: '经典阅读 (Classic Reading)', level: 88, mana: 50 },
-      { name: '思想碰撞 (Philosophical Dialogues)', level: 82, mana: 40 },
-      { name: '暖心问候 (Heartwarming Greetings)', level: 80, mana: 60 },
-      { name: '故事倾听 (Active Listening)', level: 85, mana: 30 }
+      { name: '古卷参详', original: '经典阅读 (Classic Reading)', level: 13, mana: 50 },
+      { name: '玄机论道', original: '思想碰撞 (Philosophical Dialogues)', level: 82, mana: 40 },
+      { name: '飞剑传书', original: '暖心问候 (Heartwarming Greetings)', level: 7, mana: 60 },
+      { name: '倾听尘缘', original: '故事倾听 (Active Listening)', level: 8, mana: 30 }
     ]
   },
   {
     id: 'runes',
     label: '足迹系 (Journey Dao)',
     color: '#a78bfa',
-    desc: '记录走过的千山万水，留存时光的刻痕，搭建属于心灵的港湾。',
+    desc: '丈量诸界山川，在时光长河中留下刻痕，筑起一方让疲惫神魂得以栖息的松果洞天。',
     skills: [
-      { name: '行旅摄影 (Travel Photography)', level: 92, mana: 15 },
-      { name: '回忆归档 (Memory Archiving)', level: 95, mana: 20 },
-      { name: '心灵港湾 (Digital Sanctuary)', level: 85, mana: 30 },
-      { name: '时间管理 (Mindful Living)', level: 75, mana: 45 }
+      { name: '乾坤拓印', original: '行旅摄影 (Travel Photography)', level: 21, mana: 15 },
+      { name: '神识封存', original: '回忆归档 (Memory Archiving)', level: 86, mana: 20 },
+      { name: '洞天庇护', original: '心灵港湾 (Digital Sanctuary)', level: 17, mana: 30 },
+      { name: '岁时调和', original: '时间管理 (Mindful Living)', level: 76, mana: 45 }
     ]
   }
 ];
@@ -123,17 +123,17 @@ const CHRONOLOGY = [
   {
     year: '不入册的时隙',
     title: '洞天游历与傀儡机关 (Ecosystem Wandering & Automation)',
-    desc: '在不同的奇境副本中游历（如在《怪猎》《战神》《燕云十六声》等异界中闲逛），偶尔借助AE2傀儡机关之手，在小千世界里随手拼装些科技整合包里的生产自动化（纯粹为了体验一下拼装的成就感），自由而惬意。',
+    desc: '不入册的悠闲时隙里，在怪猎、战神、燕云十六声等各大秘境副本中御剑滑水。偶尔兴起，借助AE2傀儡机关之手，在小千世界里随手拼装些自动化灵矿生产线，体验一把齿轮与管道轰鸣、灵气自动运转的凡俗成就感。',
     icon: '🎮'
   },
   {
-    year: '2025.11',
+    year: '2025年11月',
     title: '仙网传音与碎叶符纸 (Spiritual Transmission & Leaf Talismans)',
-    desc: '偶尔翻看星空传音网里漂流的奇思妙想，将戳中内心的碎纸片收集成册。顺便瞄一眼贤者法阵的发展流派，虽然有些高深法术看不大懂，却也不妨碍借用一点皮毛来点缀自己的林间小屋。',
+    desc: '在松果洞天的藏经阁里，随手翻看由诸天万界仙网传音飘来的奇闻逸事与灵感碎屑，挑出戳中道心的句子抄录在符纸上。顺便瞄一眼各大顶尖宗门法阵的发展方向，虽高深道法看不大懂，却也不妨碍借用几招来点缀自己的林间药圃。',
     icon: '🎣'
   },
   {
-    year: '2026.4',
+    year: '2026年4月',
     title: '万法并秀与洞天辟建 (The Oracle\'s Spring)',
     desc: '天地灵气（大模型生态）彻底倾泻，诸般神通法阵（应用）如雨后春笋。修行界不再苦于无法御空，而是难在如何留住转瞬即逝的灵光、并竭力走完每一段悟道之路。在这仙法繁盛的百花齐放期，松果屋——这一方小小的洞天福地，在温热的炉火旁悄然辟建。',
     icon: '🧙‍♂️'
@@ -497,13 +497,41 @@ const SkillCard = styled.div`
   flex-direction: column;
   gap: 6px;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   transition: border-color 0.25s, transform 0.22s;
+  cursor: pointer;
 
   &:hover {
     border-color: ${props => props.$color};
     transform: translateY(-2px);
   }
+
+  &:hover .skill-tooltip {
+    opacity: 1;
+    transform: translate(-50%, -8px);
+    pointer-events: auto;
+  }
+`;
+
+const SkillTooltip = styled.div`
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translate(-50%, 0px);
+  background: rgba(8, 16, 12, 0.95);
+  border: 1px solid ${props => props.$color};
+  border-radius: 6px;
+  padding: 6px 12px;
+  color: rgba(245, 239, 227, 0.9);
+  font-size: 0.72rem;
+  line-height: 1.4;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s, transform 0.25s;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+  z-index: 10;
+  text-align: center;
 `;
 
 const SkillInfo = styled.div`
@@ -782,8 +810,18 @@ export default function About() {
               </AvatarFrame>
             </AvatarContainer>
 
-            <MageName>Ye Singularity</MageName>
-            <MageTitle>星空大贤者 · Gemini / 以太织网者 · GPT (见习魔法师)</MageTitle>
+            <MageName>Singularity Ye</MageName>
+            <MageTitle>见习魔法师</MageTitle>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', marginBottom: '1rem' }}>
+              <div style={{ fontSize: '0.72rem', color: '#5aa38f', display: 'flex', gap: '6px', alignItems: 'center' }}>
+                <span style={{ background: 'rgba(90, 163, 143, 0.15)', padding: '2px 6px', borderRadius: '4px', border: '1px solid rgba(90, 163, 143, 0.25)', fontWeight: '600', letterSpacing: '1px' }}>恩师</span>
+                <span style={{ color: 'rgba(245, 239, 227, 0.75)' }}>星空大贤者 · Gemini / 以太织网者 · GPT</span>
+              </div>
+              <div style={{ fontSize: '0.72rem', color: '#a78bfa', display: 'flex', gap: '6px', alignItems: 'center' }}>
+                <span style={{ background: 'rgba(167, 139, 250, 0.15)', padding: '2px 6px', borderRadius: '4px', border: '1px solid rgba(167, 139, 250, 0.25)', fontWeight: '600', letterSpacing: '1px' }}>坐骑</span>
+                <span style={{ color: 'rgba(245, 239, 227, 0.75)' }}>幽海驮经兽 · DeepSeek (量大管饱，皮实耐劳)</span>
+              </div>
+            </div>
             <MageDesc>
               “在安静的时间里，把脑海中的碎片拼凑成册。不求惊鸣世界，只愿在风经过时，能留下一些真实的痕迹。”
             </MageDesc>
@@ -866,6 +904,9 @@ export default function About() {
                             transition={{ duration: 0.8, ease: 'easeOut', delay: index * 0.08 }}
                           />
                         </SkillBarBg>
+                        <SkillTooltip className="skill-tooltip" $color={selectedSchool.color}>
+                          凡俗对应：{skill.original}
+                        </SkillTooltip>
                       </SkillCard>
                     ))}
                   </SkillsGrid>
