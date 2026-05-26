@@ -1168,30 +1168,33 @@ const MinimapCompass = styled(motion.button)`
 const MinimapPaper = styled(motion.div)`
   width: 280px;
   height: 220px;
-  background-color: rgba(12, 10, 24, 0.94);
-  background-image: url(${props => props.$bgSrc});
+  background-color: rgba(12, 10, 24, 0.88);
+  background-image: 
+    radial-gradient(circle at center, rgba(231, 199, 126, 0.05) 0%, rgba(12, 10, 24, 0.88) 100%),
+    url(${props => props.$bgSrc});
   background-size: cover;
   background-position: center;
-  border: 1px solid rgba(231, 199, 126, 0.35);
+  border: 1.5px solid #e7c77e;
   border-radius: 12px;
   box-shadow: 
-    0 15px 35px rgba(0, 0, 0, 0.65),
-    0 0 20px rgba(231, 199, 126, 0.15);
+    0 15px 35px rgba(0, 0, 0, 0.75),
+    0 0 25px rgba(231, 199, 126, 0.25),
+    inset 0 0 15px rgba(231, 199, 126, 0.15);
   padding: 10px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   position: relative;
   pointer-events: auto;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 
   &::before {
     content: '';
     position: absolute;
-    inset: 3px;
-    border: 1px solid rgba(231, 199, 126, 0.12);
-    border-radius: 9px;
+    inset: 4px;
+    border: 1px solid rgba(231, 199, 126, 0.25);
+    border-radius: 8px;
     pointer-events: none;
   }
 `;
@@ -1200,9 +1203,9 @@ const MinimapHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px dashed rgba(231, 199, 126, 0.2);
-  padding-bottom: 4px;
-  margin-bottom: 6px;
+  border-bottom: 1px dashed rgba(231, 199, 126, 0.35);
+  padding-bottom: 5px;
+  margin-bottom: 7px;
   z-index: 10;
 `;
 
@@ -1236,31 +1239,37 @@ const MinimapCoordBadge = styled.div`
 `;
 
 const MinimapCloseBtn = styled.button`
-  background: rgba(231, 199, 126, 0.08);
-  border: 1px solid rgba(231, 199, 126, 0.25);
+  background: rgba(12, 10, 24, 0.6);
+  border: 1px solid rgba(231, 199, 126, 0.5);
   cursor: pointer;
   color: #e7c77e;
-  padding: 4px;
+  padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
+  border-radius: 50%;
   transition: all 0.25s ease;
+  width: 20px;
+  height: 20px;
 
   &:hover {
     background: #e7c77e;
     color: #0c0a18;
-    box-shadow: 0 0 8px rgba(231, 199, 126, 0.5);
+    transform: rotate(90deg);
+    box-shadow: 0 0 10px rgba(231, 199, 126, 0.7);
+    border-color: #e7c77e;
   }
 `;
 
 const MinimapGraphArea = styled.div`
   flex: 1;
   position: relative;
-  background: rgba(6, 4, 10, 0.72) radial-gradient(rgba(231, 199, 126, 0.18) 1.2px, transparent 1.2px) 0 0 / 12px 12px;
+  background: rgba(12, 10, 24, 0.45);
   border: 1px solid rgba(231, 199, 126, 0.22);
   border-radius: 8px;
   overflow: hidden;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
 `;
 
 const MinimapEdgeLabel = styled.div`
@@ -1317,39 +1326,23 @@ const MinimapMedallion = styled.div`
 
 const MinimapNodeLabel = styled.div`
   margin-top: 3px;
-  font-size: 0.58rem;
+  font-size: 0.65rem;
   font-weight: 800;
   color: ${props => props.$isCurrent ? '#fbbf24' : '#ffedd5'};
-  text-shadow: 0 1.5px 3px rgba(0,0,0,0.95);
+  text-shadow: 
+    0 1.5px 3px rgba(0, 0, 0, 0.95),
+    0 0 5px rgba(12, 10, 24, 0.8);
   white-space: nowrap;
   scale: 0.95;
   display: flex;
   align-items: center;
   gap: 2.5px;
-  
-  span.coords-text {
-    font-family: 'Courier New', monospace;
-    font-size: 0.52rem;
-    opacity: 0.88;
-    font-weight: bold;
-    color: #c084fc;
-    background: rgba(192, 132, 252, 0.12);
-    border: 1px solid rgba(192, 132, 252, 0.25);
-    border-radius: 3px;
-    padding: 0px 2px;
-    transition: all 0.2s ease;
-  }
+  letter-spacing: 0.05em;
+  transition: all 0.25s ease;
   
   ${MinimapNodeContainer}:hover & {
     color: #ffffff;
-    text-shadow: 0 0 4px ${props => props.$themeColor || '#e7c77e'};
-    
-    span.coords-text {
-      opacity: 1;
-      color: #fbbf24;
-      border-color: rgba(251, 191, 36, 0.55);
-      background: rgba(251, 191, 36, 0.18);
-    }
+    text-shadow: 0 0 5px ${props => props.$themeColor || '#e7c77e'};
   }
 `;
 
@@ -1359,6 +1352,54 @@ const MinimapPointerBadge = styled(motion.div)`
   font-size: 10px;
   pointer-events: none;
   z-index: 12;
+`;
+
+const MinimapCorner = styled.div`
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border: 1.5px solid rgba(231, 199, 126, 0.65);
+  pointer-events: none;
+  z-index: 15;
+  
+  &.top-left {
+    top: 6px;
+    left: 6px;
+    border-right: none;
+    border-bottom: none;
+    border-top-left-radius: 4px;
+  }
+  &.top-right {
+    top: 6px;
+    right: 6px;
+    border-left: none;
+    border-bottom: none;
+    border-top-right-radius: 4px;
+  }
+  &.bottom-left {
+    bottom: 6px;
+    left: 6px;
+    border-right: none;
+    border-top: none;
+    border-bottom-left-radius: 4px;
+  }
+  &.bottom-right {
+    bottom: 6px;
+    right: 6px;
+    border-left: none;
+    border-top: none;
+    border-bottom-right-radius: 4px;
+  }
+`;
+
+const MinimapOrbitRing = styled.circle`
+  transform-origin: center;
+  animation: rotateOrbit 60s linear infinite;
+  
+  @keyframes rotateOrbit {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
 `;
 
 const SearchInputWrapper = styled.div`
@@ -2144,6 +2185,12 @@ export default function Blog() {
               exit={{ scale: 0.8, opacity: 0, x: 50, y: -50 }}
               transition={{ type: 'spring', damping: 16 }}
             >
+              {/* Ornate corner ornaments */}
+              <MinimapCorner className="top-left" />
+              <MinimapCorner className="top-right" />
+              <MinimapCorner className="bottom-left" />
+              <MinimapCorner className="bottom-right" />
+
               <MinimapHeader>
                 <MinimapTitle>
                   🧭 游园星图 <span>(双路径)</span>
@@ -2165,7 +2212,7 @@ export default function Blog() {
                   );
                 })()}
                 <MinimapCloseBtn onClick={() => setIsMinimapOpen(false)}>
-                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
                     <line x1="6" y1="6" x2="18" y2="18"></line>
                   </svg>
@@ -2173,8 +2220,35 @@ export default function Blog() {
               </MinimapHeader>
               
               <MinimapGraphArea>
-                {/* Connections SVG */}
+                {/* Connections & Celestial Astrolabe SVG Background */}
                 <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 1 }}>
+                  {/* Decorative astronomical concentric circles (Astrolabe grid) */}
+                  <circle cx="50%" cy="50%" r="22%" fill="none" stroke="rgba(231, 199, 126, 0.12)" strokeWidth="1" strokeDasharray="3 3" />
+                  <MinimapOrbitRing cx="50%" cy="50%" r="42%" fill="none" stroke="rgba(231, 199, 126, 0.08)" strokeWidth="1" strokeDasharray="6 4" />
+                  <circle cx="50%" cy="50%" r="62%" fill="none" stroke="rgba(231, 199, 126, 0.05)" strokeWidth="1" />
+                  <circle cx="50%" cy="50%" r="80%" fill="none" stroke="rgba(231, 199, 126, 0.03)" strokeWidth="1.5" strokeDasharray="10 5" />
+                  
+                  {/* Astronomical axis lines (crosshairs) */}
+                  <line x1="50%" y1="0%" x2="50%" y2="100%" stroke="rgba(231, 199, 126, 0.05)" strokeWidth="1" strokeDasharray="4 4" />
+                  <line x1="0%" y1="50%" x2="100%" y2="50%" stroke="rgba(231, 199, 126, 0.05)" strokeWidth="1" strokeDasharray="4 4" />
+
+                  {/* Decorative twinkling stars */}
+                  <g className="twinkle-stars">
+                    <circle cx="15%" cy="25%" r="1" fill="#fff" opacity="0.6">
+                      <animate attributeName="opacity" values="0.2;1;0.2" dur="3s" repeatCount="indefinite" />
+                    </circle>
+                    <circle cx="85%" cy="20%" r="1.5" fill="#e7c77e" opacity="0.8">
+                      <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite" />
+                    </circle>
+                    <circle cx="12%" cy="75%" r="1.2" fill="#fff" opacity="0.5">
+                      <animate attributeName="opacity" values="0.1;0.9;0.1" dur="4s" repeatCount="indefinite" />
+                    </circle>
+                    <circle cx="88%" cy="85%" r="1" fill="#e7c77e" opacity="0.7">
+                      <animate attributeName="opacity" values="0.2;1;0.2" dur="2.5s" repeatCount="indefinite" />
+                    </circle>
+                  </g>
+
+                  {/* Node Connections */}
                   {MAP_EDGES.map((edge, idx) => (
                     <g key={idx}>
                       {/* Background path track */}
@@ -2198,7 +2272,7 @@ export default function Blog() {
                     </g>
                   ))}
                 </svg>
-
+ 
                 {/* Edge Labels */}
                 {MAP_EDGES.map((edge, idx) => {
                   const mx = (edge.x1 + edge.x2) / 2;
@@ -2209,7 +2283,7 @@ export default function Blog() {
                     </MinimapEdgeLabel>
                   );
                 })}
-
+ 
                 {/* Scene Nodes */}
                 {Object.values(BLOG_SCENES).map((scene) => {
                   const coords = {
@@ -2221,9 +2295,9 @@ export default function Blog() {
                     archive: { x: 15, y: 85, icon: '🗄️', label: '旧柜' },
                     workshop: { x: 45, y: 85, icon: '🛠️', label: '工坊' }
                   }[scene.id] || { x: 50, y: 50, icon: '❓', label: '未知' };
-
+ 
                   const isCurrent = sceneMode === scene.id;
-
+ 
                   return (
                     <MinimapNodeContainer
                       key={scene.id}
@@ -2236,7 +2310,7 @@ export default function Blog() {
                         {coords.icon}
                       </MinimapMedallion>
                       <MinimapNodeLabel $isCurrent={isCurrent} $themeColor={scene.themeColor}>
-                        {coords.label} <span className="coords-text">[{coords.x},{coords.y}]</span>
+                        {coords.label}
                       </MinimapNodeLabel>
                       
                       {isCurrent && (
