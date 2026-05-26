@@ -21,6 +21,8 @@ import bgFores from '../assets/images/blog/bg-forest.png';
 import bgTravel from '../assets/images/blog/bg-travel.png';
 import bgArchive from '../assets/images/blog/bg-archive.png';
 import bgWorkshop from '../assets/images/blog/bg-workshop.png';
+import bgHallway from '../assets/images/blog/junction.png';
+import bgMinimap from '../assets/images/blog/bg-minimap.png';
 
 import leafGreen from '../assets/images/blog/leaf-green.png';
 import leafGold from '../assets/images/blog/leaf-gold.png';
@@ -70,6 +72,8 @@ export const BLOG_NEW_ASSETS = {
   bgTravel,
   bgArchive,
   bgWorkshop,
+  bgHallway,
+  bgMinimap,
   leafGreen,
   leafGold,
   scrollBamboo,

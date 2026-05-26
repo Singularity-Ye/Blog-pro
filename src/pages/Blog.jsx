@@ -25,6 +25,20 @@ const scrollSway = keyframes`
   0%, 100% { transform: rotate(0deg); }
   50% { transform: rotate(3deg) translateY(-2px); }
 `;
+
+const mapLinePulse = keyframes`
+  to {
+    stroke-dashoffset: -20;
+  }
+`;
+
+const MinimapSVGLine = styled.line`
+  stroke: ${props => props.$color};
+  stroke-width: 1.5px;
+  stroke-linecap: round;
+  stroke-dasharray: 4, 6;
+  animation: ${mapLinePulse} 1.2s linear infinite;
+`;
 // -------------------------------------------------------------------------
 // 长廊场景配置定义 (Scene Corridor Config)
 // -------------------------------------------------------------------------
@@ -64,7 +78,7 @@ const BLOG_SCENES = {
   indoor: {
     id: 'indoor',
     title: '碎叶墙 · 松果屋内',
-    subtitle: '暖灯照着木墙，零散的想法像叶片一样被钉在这里。\n有些只是片刻灵感，有些会慢慢长成一篇完整的手札。',
+    subtitle: '暖灯照着木墙，零散的想法像叶片一样被钉在这里。\n有些倾刻灵感，有些会慢慢长成一篇完整的手札。',
     background: BLOG_NEW_ASSETS.bgWall,
     themeColor: '#f59e0b',
     portals: [
@@ -80,37 +94,15 @@ const BLOG_SCENES = {
         styleType: 'door'
       },
       {
-        id: 'indoor-to-travel',
-        target: 'travel',
-        label: '前往 · 旅图案台',
-        desc: '移步至临窗的书案前，那里放置着杭州旅游地图册与远行的路线指南。',
-        left: '88%',
-        top: '30%',
-        color: '#d97706',
-        icon: '🧭',
-        styleType: 'compass'
-      },
-      {
-        id: 'indoor-to-archive',
-        target: 'archive',
-        label: '前往 · 旧札柜',
-        desc: '踏上阁楼木梯，尘封的博文索引抽屉柜与分类藏经阁就存放在那里。',
+        id: 'indoor-to-junction',
+        target: 'junction',
+        label: '步入回廊',
+        desc: '穿过书柜拱门，通往更深处的书脊回廊。',
         left: '88%',
         top: '50%',
-        color: '#a78bfa',
-        icon: '🔑',
-        styleType: 'key'
-      },
-      {
-        id: 'indoor-to-workshop',
-        target: 'workshop',
-        label: '前往 · 建站工坊',
-        desc: '造访屋后隐秘的魔法工作室，桌上平铺着建站核心蓝图纸与部署长卷。',
-        left: '88%',
-        top: '70%',
-        color: '#6366f1',
-        icon: '⚙️',
-        styleType: 'gear'
+        color: '#818cf8',
+        icon: '🚪',
+        styleType: 'door'
       }
     ],
     items: [
@@ -199,6 +191,17 @@ const BLOG_SCENES = {
         color: '#10b981',
         icon: '🏰',
         styleType: 'bridge'
+      },
+      {
+        id: 'outdoor-to-travel',
+        target: 'travel',
+        label: '前往 · 旅图案台',
+        desc: '沿着林桥栈道左上行，通往临窗的旅行主题书案。',
+        left: '8%',
+        top: '30%',
+        color: '#fb923c',
+        icon: '🧭',
+        styleType: 'compass'
       }
     ],
     items: [
@@ -252,15 +255,15 @@ const BLOG_SCENES = {
     themeColor: '#fb923c',
     portals: [
       {
-        id: 'travel-to-indoor',
-        target: 'indoor',
-        label: '返回大厅',
-        desc: '离开旅行书案，回到松果屋大厅。',
+        id: 'travel-to-outdoor',
+        target: 'outdoor',
+        label: '返回林间',
+        desc: '离开旅行书案，回到叶间书林之中。',
         left: '8%',
         top: '60%',
-        color: '#f59e0b',
-        icon: '🚪',
-        styleType: 'door'
+        color: '#10b981',
+        icon: '🌿',
+        styleType: 'bridge'
       }
     ],
     items: [
@@ -287,6 +290,49 @@ const BLOG_SCENES = {
       }
     ],
   },
+  junction: {
+    id: 'junction',
+    title: '书脊回廊',
+    subtitle: '灯火微明，墙上书脊如石碑般延伸。\n这里是松果屋深处的转角，左通旧手札的柜阁，右达施展代码法阵的工坊。',
+    background: BLOG_NEW_ASSETS.bgHallway,
+    themeColor: '#818cf8',
+    portals: [
+      {
+        id: 'junction-to-indoor',
+        target: 'indoor',
+        label: '返回大厅',
+        desc: '离开书脊回廊，回到松果屋大厅。',
+        left: '8%',
+        top: '60%',
+        color: '#f59e0b',
+        icon: '🚪',
+        styleType: 'door'
+      },
+      {
+        id: 'junction-to-archive',
+        target: 'archive',
+        label: '开启 · 旧札柜',
+        desc: '推开左侧雕花木门，进入旧札柜阁分类检索抽屉。',
+        left: '42%',
+        top: '48%',
+        color: '#a78bfa',
+        icon: '🔑',
+        styleType: 'key'
+      },
+      {
+        id: 'junction-to-workshop',
+        target: 'workshop',
+        label: '进入 · 建站工坊',
+        desc: '拉开右侧带有铜齿轮的厚重木门，进入建站工坊。',
+        left: '68%',
+        top: '52%',
+        color: '#38bdf8',
+        icon: '⚙️',
+        styleType: 'gear'
+      }
+    ],
+    items: [],
+  },
   archive: {
     id: 'archive',
     title: '旧札柜',
@@ -295,13 +341,13 @@ const BLOG_SCENES = {
     themeColor: '#c084fc',
     portals: [
       {
-        id: 'archive-to-indoor',
-        target: 'indoor',
-        label: '返回大厅',
-        desc: '离开旧札柜，回到松果屋大厅。',
+        id: 'archive-to-junction',
+        target: 'junction',
+        label: '返回回廊',
+        desc: '推门离开旧札柜，回到书脊回廊的岔路口。',
         left: '8%',
         top: '60%',
-        color: '#f59e0b',
+        color: '#818cf8',
         icon: '🚪',
         styleType: 'door'
       }
@@ -337,13 +383,13 @@ const BLOG_SCENES = {
     themeColor: '#38bdf8',
     portals: [
       {
-        id: 'workshop-to-indoor',
-        target: 'indoor',
-        label: '返回大厅',
-        desc: '离开建站工坊，回到松果屋大厅。',
+        id: 'workshop-to-junction',
+        target: 'junction',
+        label: '返回回廊',
+        desc: '推门离开建站工坊，回到书脊回廊的岔路口。',
         left: '8%',
         top: '60%',
-        color: '#f59e0b',
+        color: '#818cf8',
         icon: '🚪',
         styleType: 'door'
       }
@@ -372,10 +418,6 @@ const BLOG_SCENES = {
     ],
   }
 };
-
-// -------------------------------------------------------------------------
-// 样式组件 (Styled Components)
-// -------------------------------------------------------------------------
 const PageWrapper = styled.div`
   width: 100vw;
   height: 100vh;
@@ -701,6 +743,15 @@ const LeafPaperBtn = styled(motion.button)`
 
 
 // ── 场景长廊分岔路标 ──────────────────────────────────────────
+const MAP_EDGES = [
+  { from: 'overview', to: 'indoor', label: '叩门', x1: 50, y1: 15, x2: 30, y2: 40, color: '#fbbf24' },
+  { from: 'overview', to: 'outdoor', label: '出林', x1: 50, y1: 15, x2: 70, y2: 40, color: '#10b981' },
+  { from: 'outdoor', to: 'travel', label: '栈道', x1: 70, y1: 40, x2: 70, y2: 75, color: '#fb923c' },
+  { from: 'indoor', to: 'junction', label: '拱门', x1: 30, y1: 40, x2: 30, y2: 65, color: '#818cf8' },
+  { from: 'junction', to: 'archive', label: '旧柜', x1: 30, y1: 65, x2: 15, y2: 85, color: '#c084fc' },
+  { from: 'junction', to: 'workshop', label: '工坊', x1: 30, y1: 65, x2: 45, y2: 85, color: '#38bdf8' }
+];
+
 const SignpostContainer = styled(motion.div)`
   position: absolute;
   bottom: 2.5rem;
@@ -717,6 +768,18 @@ const SignpostContainer = styled(motion.div)`
   -webkit-backdrop-filter: blur(8px);
   box-shadow: 0 8px 32px rgba(0,0,0,0.55);
   align-items: center;
+  
+  @media (max-width: 768px) {
+    width: 90vw;
+    overflow-x: auto;
+    border-radius: 20px;
+    padding: 6px 12px;
+    gap: 0.4rem;
+    
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
 `;
 
 const SignpostLabel = styled.span`
@@ -1099,6 +1162,198 @@ const BlueprintLabel = styled.div`
 `;
 
 // ── 博文检索与分类柜 UI (Search and Filter UI) ──
+// ── 游园星图 (Minimap) Styled Components ──────────────────────────────
+const MinimapContainer = styled.div`
+  position: absolute;
+  top: 1.8rem;
+  right: 1.8rem;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+`;
+
+const MinimapCompass = styled(motion.button)`
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(12, 10, 24, 0.85);
+  border: 2px solid #e7c77e;
+  box-shadow: 
+    0 0 12px rgba(231, 199, 126, 0.4),
+    0 4px 10px rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 20px;
+  cursor: pointer;
+  outline: none;
+  pointer-events: auto;
+  
+  &:hover {
+    background: #e7c77e;
+    color: #0c0a18;
+    box-shadow: 0 0 18px rgba(231, 199, 126, 0.7);
+  }
+`;
+
+const MinimapPaper = styled(motion.div)`
+  width: 280px;
+  height: 220px;
+  background-color: rgba(12, 10, 24, 0.94);
+  background-image: url(${props => props.$bgSrc});
+  background-size: cover;
+  background-position: center;
+  border: 1px solid rgba(231, 199, 126, 0.35);
+  border-radius: 12px;
+  box-shadow: 
+    0 15px 35px rgba(0, 0, 0, 0.65),
+    0 0 20px rgba(231, 199, 126, 0.15);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  pointer-events: auto;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    border: 1px solid rgba(231, 199, 126, 0.12);
+    border-radius: 9px;
+    pointer-events: none;
+  }
+`;
+
+const MinimapHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px dashed rgba(231, 199, 126, 0.2);
+  padding-bottom: 4px;
+  margin-bottom: 6px;
+  z-index: 10;
+`;
+
+const MinimapTitle = styled.h4`
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #ffedd5;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  letter-spacing: 0.05em;
+  
+  span {
+    color: #e7c77e;
+  }
+`;
+
+const MinimapCloseBtn = styled.button`
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: rgba(254, 243, 199, 0.6);
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s;
+
+  &:hover {
+    background: rgba(231, 199, 126, 0.1);
+    color: #ffffff;
+  }
+`;
+
+const MinimapGraphArea = styled.div`
+  flex: 1;
+  position: relative;
+  background: rgba(6, 4, 10, 0.4);
+  border-radius: 6px;
+  overflow: hidden;
+`;
+
+const MinimapEdgeLabel = styled.div`
+  position: absolute;
+  transform: translate(-50%, -50%);
+  background: rgba(15, 11, 28, 0.92);
+  border: 1px solid rgba(231, 199, 126, 0.18);
+  border-radius: 4px;
+  color: rgba(254, 243, 199, 0.75);
+  font-size: 0.52rem;
+  padding: 1px 3px;
+  white-space: nowrap;
+  z-index: 5;
+  pointer-events: none;
+  scale: 0.9;
+`;
+
+const MinimapNodeContainer = styled(motion.div)`
+  position: absolute;
+  left: ${props => props.$x}%;
+  top: ${props => props.$y}%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+`;
+
+const MinimapMedallion = styled.div`
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: ${props => props.$isCurrent ? 'rgba(231, 199, 126, 0.35)' : 'rgba(12, 10, 24, 0.85)'};
+  border: 1.5px solid ${props => props.$isCurrent ? '#fbbf24' : props.$themeColor || '#e7c77e'};
+  box-shadow: ${props => props.$isCurrent 
+    ? '0 0 10px #fbbf24, inset 0 0 5px rgba(251, 191, 36, 0.5)' 
+    : '0 2px 4px rgba(0,0,0,0.5)'};
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 11px;
+  color: #fff;
+  transition: all 0.25s ease;
+  position: relative;
+
+  ${MinimapNodeContainer}:hover & {
+    transform: scale(1.2);
+    box-shadow: 0 0 12px ${props => props.$themeColor || '#e7c77e'};
+    border-color: #ffffff;
+    background: ${props => props.$themeColor || '#e7c77e'};
+  }
+`;
+
+const MinimapNodeLabel = styled.div`
+  margin-top: 2px;
+  font-size: 0.55rem;
+  font-weight: 800;
+  color: ${props => props.$isCurrent ? '#fbbf24' : '#ffedd5'};
+  text-shadow: 0 1px 2px rgba(0,0,0,0.9);
+  white-space: nowrap;
+  scale: 0.95;
+  
+  ${MinimapNodeContainer}:hover & {
+    color: #ffffff;
+    text-shadow: 0 0 4px ${props => props.$themeColor || '#e7c77e'};
+  }
+`;
+
+const MinimapPointerBadge = styled(motion.div)`
+  position: absolute;
+  top: -12px;
+  font-size: 10px;
+  pointer-events: none;
+  z-index: 12;
+`;
+
 const SearchInputWrapper = styled.div`
   display: flex;
   align-items: center;
@@ -1484,6 +1739,7 @@ const Portal = ({ portal, onChangeScene }) => {
 // -------------------------------------------------------------------------
 export default function Blog() {
   const [sceneMode, setSceneMode] = useState('overview'); // overview, indoor, outdoor, travel, archive, workshop
+  const [isMinimapOpen, setIsMinimapOpen] = useState(true);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [notesData, setNotesData] = useState([]);
   
@@ -1534,10 +1790,10 @@ export default function Blog() {
   const springY = useSpring(mouseY, springConfig);
 
   // 创建映射：背景移动范围 [-1.2%, 1.2%]，前景物件移动范围 [-2.8%, 2.8%]
-  const bgX = useTransform(springX, [-0.5, 0.5], ['-1.2%', '1.2%']);
-  const bgY = useTransform(springY, [-0.5, 0.5], ['-1.2%', '1.2%']);
-  const itemX = useTransform(springX, [-0.5, 0.5], ['-2.8%', '2.8%']);
-  const itemY = useTransform(springY, [-0.5, 0.5], ['-2.8%', '2.8%']);
+  const bgX = useTransform(springX, [-0.5, 0.5], ['1.2%', '-1.2%']);
+  const bgY = useTransform(springY, [-0.5, 0.5], ['1.2%', '-1.2%']);
+  const itemX = useTransform(springX, [-0.5, 0.5], ['2.8%', '-2.8%']);
+  const itemY = useTransform(springY, [-0.5, 0.5], ['2.8%', '-2.8%']);
 
   // 保存实时标准化坐标的 ref，供 Canvas 粒子渲染系统读取，减少 React 调度开销
   const rawMouseRef = useRef({ x: 0, y: 0 });
@@ -1634,10 +1890,11 @@ export default function Blog() {
         this.wobble = Math.random() * Math.PI * 2;
         this.wobbleSpeed = Math.random() * 0.015 + 0.005;
         
-        if (sceneMode === 'indoor') {
+        const indoorScenes = ['indoor', 'junction', 'archive', 'workshop'];
+        if (indoorScenes.includes(sceneMode)) {
           // 屋内只有暖橙烛光浮粒
           this.color = `rgba(231, 199, 126, ${Math.random() * 0.4 + 0.18})`;
-        } else if (sceneMode === 'outdoor') {
+        } else if (sceneMode === 'outdoor' || sceneMode === 'travel') {
           // 屋外主要是深青/绿森林精灵
           this.color = `rgba(90, 163, 143, ${Math.random() * 0.4 + 0.18})`;
         } else {
@@ -1653,7 +1910,7 @@ export default function Blog() {
         this.y += this.speedY;
         this.wobble += this.wobbleSpeed;
         
-        const mouseShiftX = rawMouseRef.current.x * -25;
+        const mouseShiftX = rawMouseRef.current.x * 25;
         this.x += this.speedX + Math.sin(this.wobble) * 0.18;
         
         if (this.y < -10 || (this.x + mouseShiftX) < -10 || (this.x + mouseShiftX) > canvas.width + 10) {
@@ -1662,8 +1919,8 @@ export default function Blog() {
       }
       
       draw() {
-        const mouseShiftX = rawMouseRef.current.x * -25;
-        const mouseShiftY = rawMouseRef.current.y * -20;
+        const mouseShiftX = rawMouseRef.current.x * 25;
+        const mouseShiftY = rawMouseRef.current.y * 20;
         
         ctx.fillStyle = this.color;
         ctx.shadowBlur = this.size * 2.5;
@@ -1851,6 +2108,125 @@ export default function Blog() {
 
   return (
     <PageWrapper>
+      {/* 🗺️ 右上角游园星图 (Collapsible Minimap) */}
+      <MinimapContainer>
+        <AnimatePresence>
+          {!isMinimapOpen ? (
+            <MinimapCompass
+              onClick={() => setIsMinimapOpen(true)}
+              whileHover={{ scale: 1.1, rotate: 15 }}
+              whileTap={{ scale: 0.9 }}
+              title="展开游园星图"
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0, opacity: 0 }}
+            >
+              🧭
+            </MinimapCompass>
+          ) : (
+            <MinimapPaper
+              $bgSrc={BLOG_NEW_ASSETS.bgMinimap}
+              initial={{ scale: 0.8, opacity: 0, x: 50, y: -50 }}
+              animate={{ scale: 1, opacity: 1, x: 0, y: 0 }}
+              exit={{ scale: 0.8, opacity: 0, x: 50, y: -50 }}
+              transition={{ type: 'spring', damping: 16 }}
+            >
+              <MinimapHeader>
+                <MinimapTitle>
+                  🧭 游园星图 <span>(双路径)</span>
+                </MinimapTitle>
+                <MinimapCloseBtn onClick={() => setIsMinimapOpen(false)}>
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </MinimapCloseBtn>
+              </MinimapHeader>
+              
+              <MinimapGraphArea>
+                {/* Connections SVG */}
+                <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 1 }}>
+                  {MAP_EDGES.map((edge, idx) => (
+                    <g key={idx}>
+                      {/* Background path track */}
+                      <line 
+                        x1={`${edge.x1}%`} 
+                        y1={`${edge.y1}%`} 
+                        x2={`${edge.x2}%`} 
+                        y2={`${edge.y2}%`} 
+                        stroke="rgba(231, 199, 126, 0.12)" 
+                        strokeWidth="3" 
+                        strokeLinecap="round"
+                      />
+                      {/* Flowing color light line */}
+                      <MinimapSVGLine 
+                        x1={`${edge.x1}%`} 
+                        y1={`${edge.y1}%`} 
+                        x2={`${edge.x2}%`} 
+                        y2={`${edge.y2}%`} 
+                        $color={edge.color}
+                      />
+                    </g>
+                  ))}
+                </svg>
+
+                {/* Edge Labels */}
+                {MAP_EDGES.map((edge, idx) => {
+                  const mx = (edge.x1 + edge.x2) / 2;
+                  const my = (edge.y1 + edge.y2) / 2;
+                  return (
+                    <MinimapEdgeLabel key={idx} style={{ left: `${mx}%`, top: `${my}%` }}>
+                      {edge.label}
+                    </MinimapEdgeLabel>
+                  );
+                })}
+
+                {/* Scene Nodes */}
+                {Object.values(BLOG_SCENES).map((scene) => {
+                  const coords = {
+                    overview: { x: 50, y: 15, icon: '🏰', label: '总览' },
+                    indoor: { x: 30, y: 40, icon: '🚪', label: '屋内' },
+                    outdoor: { x: 70, y: 40, icon: '🌿', label: '林间' },
+                    travel: { x: 70, y: 75, icon: '🧭', label: '旅案' },
+                    junction: { x: 30, y: 65, icon: '🪟', label: '回廊' },
+                    archive: { x: 15, y: 85, icon: '🗄️', label: '旧柜' },
+                    workshop: { x: 45, y: 85, icon: '🛠️', label: '工坊' }
+                  }[scene.id] || { x: 50, y: 50, icon: '❓', label: '未知' };
+
+                  const isCurrent = sceneMode === scene.id;
+
+                  return (
+                    <MinimapNodeContainer
+                      key={scene.id}
+                      $x={coords.x}
+                      $y={coords.y}
+                      onClick={() => changeScene(scene.id)}
+                      title={`传送到: ${scene.title}`}
+                    >
+                      <MinimapMedallion $isCurrent={isCurrent} $themeColor={scene.themeColor}>
+                        {coords.icon}
+                      </MinimapMedallion>
+                      <MinimapNodeLabel $isCurrent={isCurrent} $themeColor={scene.themeColor}>
+                        {coords.label}
+                      </MinimapNodeLabel>
+                      
+                      {isCurrent && (
+                        <MinimapPointerBadge
+                          animate={{ y: [-3, 1, -3] }}
+                          transition={{ repeat: Infinity, duration: 1.2 }}
+                        >
+                          ✨
+                        </MinimapPointerBadge>
+                      )}
+                    </MinimapNodeContainer>
+                  );
+                })}
+              </MinimapGraphArea>
+            </MinimapPaper>
+          )}
+        </AnimatePresence>
+      </MinimapContainer>
+
       {/* 魔法 Canvas 浮光背景 */}
       <CanvasBackground ref={canvasRef} />
 
@@ -1933,6 +2309,12 @@ export default function Blog() {
             onClick={() => changeScene('outdoor')}
           >
             🌿 屋外
+          </SignpostItem>
+          <SignpostItem 
+            $active={sceneMode === 'junction'} 
+            onClick={() => changeScene('junction')}
+          >
+            🧭 回廊
           </SignpostItem>
           <SignpostItem 
             $active={sceneMode === 'travel'} 
