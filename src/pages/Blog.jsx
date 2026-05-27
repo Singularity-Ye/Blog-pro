@@ -997,8 +997,9 @@ const TravelMapCutoutItem = styled(motion.div)`
   -webkit-user-select: none;
 
   /* Match scale(1.05) of the active BgLayer exactly to prevent misalignment! */
-  transform: scale(1.05);
+  transform: ${props => props.$isHovered ? 'scale(1.075)' : 'scale(1.05)'};
   transform-origin: center center;
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
 `;
 
 const TravelMapCutoutHotspot = styled.button`
@@ -1012,8 +1013,7 @@ const TravelMapCutoutHotspot = styled.button`
   padding: 0;
   border: 0;
   background: transparent;
-  clip-path: polygon(0 16%, 72% 0, 100% 58%, 94% 79%, 65% 100%, 12% 93%, 0 72%);
-  cursor: pointer;
+  cursor: ${props => props.$isHovered ? 'pointer' : 'default'};
   pointer-events: auto;
   user-select: none;
   -webkit-user-select: none;
@@ -1086,21 +1086,18 @@ const TravelMapImage = styled.div`
     mask-repeat: no-repeat;
   }
 
-  ${TravelMapCutoutHotspot}:hover ~ &,
-  ${TravelMapCutoutHotspot}:focus-visible ~ & {
+  ${props => props.$isHovered && css`
     animation-play-state: paused;
     filter: ${props => getLightingFilter(props.$sceneId, true)} drop-shadow(0 0 25px rgba(231, 199, 126, 0.85)) brightness(1.15) saturate(1.1);
-  }
 
-  ${TravelMapCutoutHotspot}:hover ~ &::before,
-  ${TravelMapCutoutHotspot}:focus-visible ~ &::before {
-    background-position: -50% 0;
-  }
+    &::before {
+      background-position: -50% 0;
+    }
 
-  ${TravelMapCutoutHotspot}:hover ~ &::after,
-  ${TravelMapCutoutHotspot}:focus-visible ~ &::after {
-    opacity: 1;
-  }
+    &::after {
+      opacity: 1;
+    }
+  `}
 `;
 
 const TravelMapCutoutLabel = styled(MapBookLabel)`
@@ -1112,10 +1109,13 @@ const TravelMapCutoutLabel = styled(MapBookLabel)`
   z-index: 4;
   pointer-events: none;
 
-  ${TravelMapCutoutHotspot}:hover ~ &,
-  ${TravelMapCutoutHotspot}:focus-visible ~ & {
+  ${props => props.$isHovered && css`
+    opacity: 1;
     transform: translate(-50%, 0);
-  }
+    border-color: #d97706;
+    color: #f59e0b;
+    box-shadow: 0 0 10px rgba(217, 119, 6, 0.3);
+  `}
 `;
 
 const NoteBoxItem = styled(motion.div)`
@@ -2043,6 +2043,8 @@ export default function Blog() {
   const [isCompassHovered, setIsCompassHovered] = useState(false);
   const [isPendulumHovered, setIsPendulumHovered] = useState(false);
   const [hoveredNodeId, setHoveredNodeId] = useState(null);
+  const [mapOpacityGrid, setMapOpacityGrid] = useState(null);
+  const [isMapHovered, setIsMapHovered] = useState(false);
   const [isTeleporting, setIsTeleporting] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [notesData, setNotesData] = useState([]);
@@ -2055,6 +2057,55 @@ export default function Blog() {
   const [shakingLeafId, setShakingLeafId] = useState(null);
   
   const currentScene = BLOG_SCENES[sceneMode];
+
+  // Pre-calculate the opacity grid for the travel map
+  useEffect(() => {
+    const img = new Image();
+    img.src = BLOG_NEW_ASSETS.mapCutout;
+    img.onload = () => {
+      // 1/10th scale is plenty for mouse hover precision (167 x 94 grid)
+      const scale = 0.1;
+      const w = Math.floor(img.width * scale);
+      const h = Math.floor(img.height * scale);
+      
+      const canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.drawImage(img, 0, 0, w, h);
+        const imgData = ctx.getImageData(0, 0, w, h).data;
+        const grid = new Uint8Array(w * h);
+        for (let i = 0; i < grid.length; i++) {
+          grid[i] = imgData[i * 4 + 3] > 20 ? 1 : 0;
+        }
+        setMapOpacityGrid({ width: w, height: h, grid });
+      }
+    };
+  }, []);
+
+  const handleMapMouseMove = (e) => {
+    if (!mapOpacityGrid) return;
+    const parentContainer = e.currentTarget.parentElement;
+    if (!parentContainer) return;
+    const rect = parentContainer.getBoundingClientRect();
+    const rx = (e.clientX - rect.left) / rect.width;
+    const ry = (e.clientY - rect.top) / rect.height;
+    
+    if (rx >= 0 && rx <= 1 && ry >= 0 && ry <= 1) {
+      const gx = Math.floor(rx * mapOpacityGrid.width);
+      const gy = Math.floor(ry * mapOpacityGrid.height);
+      const index = gy * mapOpacityGrid.width + gx;
+      const isOpaque = mapOpacityGrid.grid[index] === 1;
+      setIsMapHovered(isOpaque);
+    } else {
+      setIsMapHovered(false);
+    }
+  };
+
+  const handleMapMouseLeave = () => {
+    setIsMapHovered(false);
+  };
 
   const changeScene = (mode) => {
     if (sceneMode === mode) return;
@@ -2775,14 +2826,18 @@ export default function Blog() {
                       $width={item.width}
                       $height={item.height}
                       $sceneId={currentScene.id}
+                      $isHovered={isMapHovered}
                     >
                       <TravelMapCutoutHotspot
                         type="button"
-                        onClick={() => handleItemClick(item)}
+                        $isHovered={isMapHovered}
+                        onMouseMove={handleMapMouseMove}
+                        onMouseLeave={handleMapMouseLeave}
+                        onClick={() => isMapHovered && handleItemClick(item)}
                         aria-label={item.label}
                       />
-                      <TravelMapImage $imgSrc={item.imgSrc} $sceneId={currentScene.id} />
-                      <TravelMapCutoutLabel>{item.label}</TravelMapCutoutLabel>
+                      <TravelMapImage $imgSrc={item.imgSrc} $sceneId={currentScene.id} $isHovered={isMapHovered} />
+                      <TravelMapCutoutLabel $isHovered={isMapHovered}>{item.label}</TravelMapCutoutLabel>
                     </TravelMapCutoutItem>
                   );
                 }
