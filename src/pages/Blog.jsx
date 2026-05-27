@@ -297,41 +297,22 @@ const BLOG_SCENES = {
         collections: ['travel'] 
       },
       {
-        id: 'travel-scroll-0503',
+        id: 'travel-map-scroll',
         type: 'cutout-scroll',
         left: '0%',
         top: '0%',
         width: '100%',
         height: '100%',
         label: '5月3日攻略',
-        imgSrc: BLOG_NEW_ASSETS.travelScroll01,
-        hitKey: 'travelScroll01',
-        hitLeft: '36.96%',
+        imgSrc: BLOG_NEW_ASSETS.mapScroll,
+        hitKey: 'mapScroll',
+        hitLeft: '36.9%',
         hitTop: '49.84%',
-        hitWidth: '7.06%',
-        hitHeight: '9.46%',
-        labelLeft: '40.6%',
+        hitWidth: '8.61%',
+        hitHeight: '9.56%',
+        labelLeft: '41.3%',
         labelTop: '59.8%',
         articleSlug: '杭州五一旅游攻略/5月3日攻略',
-        collections: ['travel']
-      },
-      {
-        id: 'travel-scroll-0504',
-        type: 'cutout-scroll',
-        left: '0%',
-        top: '0%',
-        width: '100%',
-        height: '100%',
-        label: '5月4日攻略',
-        imgSrc: BLOG_NEW_ASSETS.travelScroll02,
-        hitKey: 'travelScroll02',
-        hitLeft: '39.47%',
-        hitTop: '50.48%',
-        hitWidth: '5.98%',
-        hitHeight: '8.18%',
-        labelLeft: '42.8%',
-        labelTop: '59%',
-        articleSlug: '杭州五一旅游攻略/5月4日攻略',
         collections: ['travel']
       },
       { 
@@ -1035,8 +1016,7 @@ const travelMapPulse = keyframes`
 
 const CUTOUT_HIT_ASSETS = {
   travelMap: BLOG_NEW_ASSETS.mapCutout,
-  travelScroll01: BLOG_NEW_ASSETS.travelScroll01,
-  travelScroll02: BLOG_NEW_ASSETS.travelScroll02
+  mapScroll: BLOG_NEW_ASSETS.mapScroll
 };
 
 const TravelMapCutoutItem = styled(motion.div)`

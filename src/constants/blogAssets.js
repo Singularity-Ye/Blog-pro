@@ -37,8 +37,7 @@ import noteBox from '../assets/images/blog/note-box.png';
 import drawer from '../assets/images/blog/drawer.png';
 import blueprint from '../assets/images/blog/blueprint.png';
 import scroll from '../assets/images/blog/scroll.png';
-import travelScroll01 from '../assets/images/blog/scroll01.png';
-import travelScroll02 from '../assets/images/blog/scroll02.png';
+import mapScroll from '../assets/images/blog/map-scroll.png';
 
 // Cropped environmental items
 import travelMap from '../assets/images/blog/cropped/travel-map.png';
@@ -97,8 +96,7 @@ export const BLOG_NEW_ASSETS = {
   drawer,
   blueprint,
   scroll,
-  travelScroll01,
-  travelScroll02,
+  mapScroll,
   travelMap,
   travelScroll,
   archiveDrawer,
