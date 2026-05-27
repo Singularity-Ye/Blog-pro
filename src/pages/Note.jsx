@@ -359,6 +359,104 @@ const MarkdownBody = styled.div`
     border-top: 1px solid rgba(231, 199, 126, 0.16);
     margin: 2rem 0;
   }
+
+  .mermaid-rendered {
+    display: flex;
+    justify-content: center;
+    margin: 1.8rem auto;
+    padding: 1.2rem;
+    background: rgba(9, 19, 17, 0.5) !important;
+    border: 1px dashed rgba(231, 199, 126, 0.35) !important;
+    border-radius: 12px;
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.6), 0 8px 32px rgba(0, 0, 0, 0.4);
+    overflow-x: auto;
+
+    svg {
+      max-width: 100% !important;
+      height: auto !important;
+
+      /* Node boxes */
+      .node rect, .node circle, .node polygon, .node path {
+        fill: rgba(231, 199, 126, 0.08) !important;
+        stroke: rgba(231, 199, 126, 0.45) !important;
+        stroke-width: 1.5px !important;
+        rx: 8px !important;
+        ry: 8px !important;
+        transition: all 0.3s ease;
+      }
+
+      /* Hover effect */
+      .node:hover rect, .node:hover circle, .node:hover polygon, .node:hover path {
+        fill: rgba(231, 199, 126, 0.15) !important;
+        stroke: #e7c77e !important;
+        filter: drop-shadow(0 0 8px rgba(231, 199, 126, 0.35));
+      }
+
+      /* Text inside nodes */
+      .node .label, .node label, .node text, .node span, .node div {
+        fill: #ffedd5 !important;
+        color: #ffedd5 !important;
+        font-family: inherit !important;
+        font-size: 13px !important;
+        font-weight: 500 !important;
+      }
+
+      /* Connection lines */
+      .edgePath .path {
+        stroke: rgba(231, 199, 126, 0.45) !important;
+        stroke-width: 1.8px !important;
+        transition: all 0.3s ease;
+      }
+
+      .edgePath:hover .path {
+        stroke: #e7c77e !important;
+        stroke-width: 2.2px !important;
+      }
+
+      /* Edge labels background */
+      .edgeLabel rect {
+        fill: #0c0a18 !important;
+        rx: 4px !important;
+        ry: 4px !important;
+        opacity: 0.9 !important;
+      }
+
+      /* Edge labels text */
+      .edgeLabel text, .edgeLabel span, .edgeLabel div {
+        fill: #e7c77e !important;
+        color: #e7c77e !important;
+        font-size: 11px !important;
+        font-weight: 600 !important;
+      }
+
+      /* Arrowheads */
+      marker {
+        fill: rgba(231, 199, 126, 0.5) !important;
+        path {
+          fill: rgba(231, 199, 126, 0.5) !important;
+          stroke: none !important;
+          stroke-width: 0 !important;
+        }
+      }
+      
+      /* Clusters */
+      .cluster rect {
+        fill: rgba(255, 255, 255, 0.02) !important;
+        stroke: rgba(231, 199, 126, 0.15) !important;
+        stroke-width: 1.5px !important;
+        stroke-dasharray: 4 4 !important;
+        rx: 12px !important;
+        ry: 12px !important;
+      }
+      
+      .cluster label, .cluster span, .cluster text {
+        fill: rgba(255, 237, 213, 0.6) !important;
+        color: rgba(255, 237, 213, 0.6) !important;
+        font-size: 12px !important;
+        font-weight: 700 !important;
+      }
+    }
+  }
 `;
 
 // ── Wikilink 处理 ─────────────────────────────────────────────
@@ -582,11 +680,11 @@ function getDisplayValue(value) {
 if (typeof window !== 'undefined') {
   mermaid.initialize({
     startOnLoad: false,
-    theme: 'dark',
+    theme: 'base',
     securityLevel: 'loose',
     themeVariables: {
       background: 'transparent',
-      primaryColor: '#e7c77e',
+      primaryColor: 'rgba(231, 199, 126, 0.08)',
       textColor: '#ffedd5',
       lineColor: '#e7c77e',
     }

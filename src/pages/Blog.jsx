@@ -51,6 +51,96 @@ const TeleportFlash = styled(motion.div)`
   z-index: 99999;
   pointer-events: none;
 `;
+
+const LoadingScreen = styled(motion.div)`
+  position: fixed;
+  inset: 0;
+  background: #080610;
+  z-index: 999999;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+  color: #ffedd5;
+  user-select: none;
+  -webkit-user-select: none;
+  
+  .magic-circle {
+    width: 80px;
+    height: 80px;
+    border: 2px dashed rgba(231, 199, 126, 0.25);
+    border-radius: 50%;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: loadingSpin 15s linear infinite;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      width: 60px;
+      height: 60px;
+      border: 1px solid rgba(231, 199, 126, 0.45);
+      border-radius: 50%;
+      border-left-color: transparent;
+      border-right-color: transparent;
+      animation: loadingSpinCounter 6s linear infinite;
+    }
+    
+    &::after {
+      content: '🔮';
+      font-size: 1.5rem;
+      animation: loadingBreathe 2s ease-in-out infinite alternate;
+    }
+  }
+
+  .loading-text {
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    color: rgba(255, 237, 213, 0.85);
+    text-shadow: 0 0 10px rgba(231, 199, 126, 0.35);
+  }
+
+  .loading-bar-bg {
+    width: 140px;
+    height: 2px;
+    background: rgba(231, 199, 126, 0.1);
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .loading-bar-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, transparent, #e7c77e, transparent);
+    animation: loadingBarMove 1.5s infinite linear;
+  }
+
+  @keyframes loadingSpin {
+    to { transform: rotate(360deg); }
+  }
+
+  @keyframes loadingSpinCounter {
+    to { transform: rotate(-360deg); }
+  }
+
+  @keyframes loadingBreathe {
+    0% { transform: scale(0.9); opacity: 0.7; }
+    100% { transform: scale(1.1); opacity: 1; }
+  }
+
+  @keyframes loadingBarMove {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+`;
 // -------------------------------------------------------------------------
 // 长廊场景配置定义 (Scene Corridor Config)
 // -------------------------------------------------------------------------
@@ -295,7 +385,8 @@ const BLOG_SCENES = {
         hitHeight: '36.13%',
         labelLeft: '28%',
         labelTop: '56%',
-        collections: ['travel'] 
+        collections: ['travel'],
+        articleMeta: 'MAP · HANGZHOU'
       },
       {
         id: 'travel-map-scroll',
@@ -314,7 +405,8 @@ const BLOG_SCENES = {
         labelLeft: '41.3%',
         labelTop: '59.8%',
         articleSlug: '杭州五一旅游攻略/5月3日攻略',
-        collections: ['travel']
+        collections: ['travel'],
+        articleMeta: 'TRAVEL · SCHEDULE'
       },
       { 
         id: 'travel-scroll', 
@@ -1124,6 +1216,37 @@ const CUTOUT_HIT_ASSETS = {
   workshopPotions: BLOG_NEW_ASSETS.workshopPotions
 };
 
+const getItemThemeColor = (itemId, alpha = 1) => {
+  const colors = {
+    'workshop-astrolabe': `rgba(56, 189, 248, ${alpha})`, // Sky blue
+    'workshop-blueprint-map': `rgba(14, 165, 233, ${alpha})`, // Blueprint cyan
+    'workshop-potions': `rgba(249, 115, 22, ${alpha})`, // Potion orange
+    'travel-map': `rgba(245, 158, 11, ${alpha})`, // Gold/amber
+    'travel-map-scroll': `rgba(251, 146, 60, ${alpha})`, // Soft orange
+    'travel-scroll': `rgba(16, 185, 129, ${alpha})`, // Emerald green
+  };
+  return colors[itemId] || `rgba(251, 191, 36, ${alpha})`;
+};
+
+const getItemGlowFilter = (itemId) => {
+  switch (itemId) {
+    case 'workshop-astrolabe':
+      return 'drop-shadow(0 0 12px rgba(56, 189, 248, 0.95)) drop-shadow(0 0 28px rgba(129, 140, 248, 0.65)) brightness(1.2) saturate(1.2)';
+    case 'workshop-blueprint-map':
+      return 'drop-shadow(0 0 12px rgba(56, 189, 248, 0.95)) drop-shadow(0 0 28px rgba(14, 165, 233, 0.55)) brightness(1.18) saturate(1.1)';
+    case 'workshop-potions':
+      return 'drop-shadow(0 0 12px rgba(251, 146, 60, 0.95)) drop-shadow(0 0 28px rgba(239, 68, 68, 0.65)) brightness(1.25) saturate(1.2)';
+    case 'travel-map':
+      return 'drop-shadow(0 0 12px rgba(245, 158, 11, 0.95)) drop-shadow(0 0 28px rgba(217, 119, 6, 0.6)) brightness(1.15) saturate(1.15)';
+    case 'travel-map-scroll':
+      return 'drop-shadow(0 0 10px rgba(251, 146, 60, 0.95)) drop-shadow(0 0 20px rgba(244, 63, 94, 0.5)) brightness(1.2) saturate(1.1)';
+    case 'travel-scroll':
+      return 'drop-shadow(0 0 12px rgba(16, 185, 129, 0.95)) drop-shadow(0 0 25px rgba(52, 211, 153, 0.55)) brightness(1.2) saturate(1.15)';
+    default:
+      return 'drop-shadow(0 0 12px rgba(231, 199, 126, 0.95)) drop-shadow(0 0 28px rgba(217, 119, 6, 0.45)) brightness(1.18) saturate(1.15)';
+  }
+};
+
 const TravelMapCutoutItem = styled(motion.div)`
   position: absolute;
   left: ${props => props.$left};
@@ -1172,6 +1295,26 @@ const TravelMapImage = styled.div`
   filter: ${props => getLightingFilter(props.$sceneId, false)} drop-shadow(0 12px 18px rgba(0, 0, 0, 0.48));
   animation: ${travelMapPulse} 4s ease-in-out infinite alternate;
   transition: filter 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+
+  /* Add safety clip-path to prevent poorly cutout background pixels or lamps from other scenes lighting up */
+  clip-path: ${props => {
+    if (props.$hitLeft && props.$hitTop && props.$hitWidth && props.$hitHeight) {
+      const parse = (val) => parseFloat(val);
+      const l = parse(props.$hitLeft);
+      const t = parse(props.$hitTop);
+      const w = parse(props.$hitWidth);
+      const h = parse(props.$hitHeight);
+      
+      const margin = props.$sceneId === 'workshop' ? 3 : 6; // Tighter safety margin for workshop desk to prevent books bleed glow
+      const clipTop = Math.max(0, t - margin);
+      const clipLeft = Math.max(0, l - margin);
+      const clipBottom = Math.max(0, 100 - (t + h + margin));
+      const clipRight = Math.max(0, 100 - (l + w + margin));
+      
+      return `inset(${clipTop}% ${clipRight}% ${clipBottom}% ${clipLeft}%)`;
+    }
+    return 'none';
+  }};
 
   /* Gold Light Sheen Sweep Overlay */
   &::before {
@@ -1227,56 +1370,107 @@ const TravelMapImage = styled.div`
 
   ${props => props.$isHovered && css`
     animation-play-state: paused;
-    filter: ${props => getLightingFilter(props.$sceneId, true)} drop-shadow(0 0 12px rgba(231, 199, 126, 0.95)) drop-shadow(0 0 28px rgba(217, 119, 6, 0.45)) brightness(1.18) saturate(1.15);
+    filter: ${props => getLightingFilter(props.$sceneId, true)} ${props => getItemGlowFilter(props.$itemId)};
 
     &::before {
       background-position: -50% 0;
     }
 
     &::after {
-      opacity: 1;
+      opacity: ${props => props.$sceneId === 'travel' ? 1 : 0};
     }
   `}
 `;
 
-const TravelMapCutoutLabel = styled(MapBookLabel)`
+const TravelMapCutoutLabel = styled.div`
   position: absolute;
   left: ${props => props.$labelLeft || '28%'};
   top: ${props => props.$labelTop || '56%'};
   margin-top: 0;
   transform: translate(-50%, 0);
-  z-index: 4;
+  z-index: 25;
   pointer-events: none;
   opacity: 0.65;
-  border-color: rgba(217, 119, 6, 0.22);
+  border: 1px solid rgba(231, 199, 126, 0.22);
   background: rgba(12, 10, 24, 0.72);
+  border-radius: 20px;
+  padding: 5px 12px;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.45);
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  max-width: 180px;
+  overflow: hidden;
+  white-space: nowrap;
 
-  &::before {
-    content: '';
-    display: inline-block;
+  .label-dot {
     width: 6px;
     height: 6px;
     border-radius: 50%;
     background: #f59e0b;
     margin-right: 6px;
+    flex-shrink: 0;
     box-shadow: 0 0 6px rgba(245, 158, 11, 0.6);
     transition: all 0.3s ease;
   }
 
+  .label-text-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    transition: all 0.4s ease;
+  }
+
+  .label-title {
+    color: #ffedd5;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    transition: color 0.3s ease;
+  }
+
+  .label-meta {
+    max-height: 0;
+    opacity: 0;
+    font-size: 0.55rem;
+    font-weight: 800;
+    color: rgba(255, 237, 213, 0.45);
+    letter-spacing: 0.08em;
+    margin-top: 0px;
+    transition: all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
+    overflow: hidden;
+  }
+
   ${props => props.$isHovered && css`
     opacity: 1;
-    transform: translate(-50%, -4px);
-    border-color: #d97706;
-    color: #f59e0b;
-    background: rgba(12, 10, 24, 0.9);
-    box-shadow: 0 4px 20px rgba(217, 119, 6, 0.35), 0 0 10px rgba(217, 119, 6, 0.2);
+    transform: translate(-50%, -6px);
+    max-width: 280px;
+    padding: 6px 14px;
+    background: rgba(12, 10, 24, 0.92);
+    border-color: ${props => getItemThemeColor(props.$itemId, 0.8)};
+    box-shadow: 
+      0 8px 24px rgba(0, 0, 0, 0.5),
+      0 0 15px ${props => getItemThemeColor(props.$itemId, 0.35)};
     
-    &::before {
-      background: #d97706;
-      box-shadow: 0 0 10px #d97706, 0 0 4px #d97706;
+    .label-dot {
+      background: ${props => getItemThemeColor(props.$itemId)};
+      box-shadow: 
+        0 0 10px ${props => getItemThemeColor(props.$itemId)}, 
+        0 0 4px ${props => getItemThemeColor(props.$itemId)};
+    }
+
+    .label-title {
+      color: ${props => getItemThemeColor(props.$itemId)};
+    }
+
+    .label-meta {
+      max-height: 14px;
+      opacity: 1;
+      margin-top: 2px;
     }
   `}
 `;
@@ -2179,6 +2373,102 @@ const MarkdownBody = styled.div`
     color: rgba(74, 45, 27, 0.7);
     font-style: italic;
   }
+
+  .mermaid-rendered {
+    display: flex;
+    justify-content: center;
+    margin: 1.5rem auto;
+    padding: 1rem;
+    background: rgba(74, 45, 27, 0.03) !important;
+    border: 1px dashed rgba(74, 45, 27, 0.25) !important;
+    border-radius: 10px;
+    box-shadow: inset 0 0 12px rgba(74, 45, 27, 0.05);
+    overflow-x: auto;
+
+    svg {
+      max-width: 100% !important;
+      height: auto !important;
+
+      /* Node boxes */
+      .node rect, .node circle, .node polygon, .node path {
+        fill: #faf6eb !important;
+        stroke: rgba(74, 45, 27, 0.4) !important;
+        stroke-width: 1.5px !important;
+        rx: 6px !important;
+        ry: 6px !important;
+        transition: all 0.3s ease;
+      }
+
+      /* Hover effect */
+      .node:hover rect, .node:hover circle, .node:hover polygon, .node:hover path {
+        fill: #fff !important;
+        stroke: #854d0e !important;
+        filter: drop-shadow(0 2px 6px rgba(74, 45, 27, 0.15));
+      }
+
+      /* Text inside nodes */
+      .node .label, .node label, .node text, .node span, .node div {
+        fill: #4a2d1b !important;
+        color: #4a2d1b !important;
+        font-family: inherit !important;
+        font-size: 12.5px !important;
+        font-weight: 600 !important;
+      }
+
+      /* Connection lines */
+      .edgePath .path {
+        stroke: rgba(74, 45, 27, 0.45) !important;
+        stroke-width: 1.6px !important;
+      }
+
+      .edgePath:hover .path {
+        stroke: #854d0e !important;
+        stroke-width: 2px !important;
+      }
+
+      /* Edge labels background */
+      .edgeLabel rect {
+        fill: #fbf9f4 !important;
+        rx: 3px !important;
+        ry: 3px !important;
+        opacity: 0.95 !important;
+      }
+
+      /* Edge labels text */
+      .edgeLabel text, .edgeLabel span, .edgeLabel div {
+        fill: #854d0e !important;
+        color: #854d0e !important;
+        font-size: 10.5px !important;
+        font-weight: 700 !important;
+      }
+
+      /* Arrowheads */
+      marker {
+        fill: rgba(74, 45, 27, 0.5) !important;
+        path {
+          fill: rgba(74, 45, 27, 0.5) !important;
+          stroke: none !important;
+        }
+      }
+      
+      /* Clusters */
+      .cluster rect {
+        fill: rgba(74, 45, 27, 0.02) !important;
+        stroke: rgba(74, 45, 27, 0.2) !important;
+        stroke-width: 1.5px !important;
+        stroke-dasharray: 3 3 !important;
+        rx: 10px !important;
+        ry: 10px !important;
+      }
+      
+      .cluster label, .cluster span, .cluster text {
+        fill: rgba(74, 45, 27, 0.6) !important;
+        color: rgba(74, 45, 27, 0.6) !important;
+        font-size: 11.5px !important;
+        font-weight: 700 !important;
+      }
+    }
+  }
 `;
 
 // ── 简易 Frontmatter 解析器 ────────────────────────────────────
@@ -2272,13 +2562,13 @@ const Portal = ({ portal, onChangeScene }) => {
 if (typeof window !== 'undefined') {
   mermaid.initialize({
     startOnLoad: false,
-    theme: 'dark',
+    theme: 'base',
     securityLevel: 'loose',
     themeVariables: {
       background: 'transparent',
-      primaryColor: '#818cf8',
+      primaryColor: '#faf6eb',
       textColor: '#4a2d1b',
-      lineColor: '#818cf8',
+      lineColor: '#4a2d1b',
     }
   });
 }
@@ -2347,6 +2637,7 @@ const Mermaid = ({ value }) => {
 // -------------------------------------------------------------------------
 export default function Blog() {
   const [sceneMode, setSceneMode] = useState('overview'); // overview, indoor, outdoor, travel, archive, workshop
+  const [isPageLoading, setIsPageLoading] = useState(true);
   const [isMinimapOpen, setIsMinimapOpen] = useState(true);
   const [isCompassHovered, setIsCompassHovered] = useState(false);
   const [isPendulumHovered, setIsPendulumHovered] = useState(false);
@@ -2356,6 +2647,33 @@ export default function Blog() {
   const [isTeleporting, setIsTeleporting] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [notesData, setNotesData] = useState([]);
+
+  // Preload background images to prevent flash-on-load
+  useEffect(() => {
+    const preloadImages = async () => {
+      const primaryImages = [
+        BLOG_NEW_ASSETS.bgMain, // overview background
+        BLOG_NEW_ASSETS.bgWall,  // indoor background
+      ];
+
+      const promises = primaryImages.map((src) => {
+        return new Promise((resolve) => {
+          const img = new Image();
+          img.src = src;
+          img.onload = resolve;
+          img.onerror = resolve;
+        });
+      });
+
+      await Promise.all(promises);
+      // Brief delay for smooth fade-out
+      setTimeout(() => {
+        setIsPageLoading(false);
+      }, 700);
+    };
+
+    preloadImages();
+  }, []);
   
   // 摘叶子与传送节点交互状态
   const [isLeafPreviewOpen, setIsLeafPreviewOpen] = useState(false);
@@ -2808,6 +3126,23 @@ export default function Blog() {
 
   return (
     <PageWrapper>
+      {/* 🔮 载入画面 (Page Loading Screen Overlay) */}
+      <AnimatePresence>
+        {isPageLoading && (
+          <LoadingScreen
+            key="page-loader"
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0, transition: { duration: 0.6, ease: 'easeInOut' } }}
+          >
+            <div className="magic-circle" />
+            <div className="loading-text">正在唤醒树屋书斋...</div>
+            <div className="loading-bar-bg">
+              <div className="loading-bar-fill" />
+            </div>
+          </LoadingScreen>
+        )}
+      </AnimatePresence>
+
       {/* 🗺️ 右上角游园星图 (Collapsible Minimap) */}
       <MinimapContainer>
         <AnimatePresence>
@@ -3168,14 +3503,34 @@ export default function Blog() {
                       $height={item.height}
                       $sceneId={currentScene.id}
                       $isHovered={isCutoutHovered}
+                      $hitLeft={item.hitLeft}
+                      $hitTop={item.hitTop}
+                      $hitWidth={item.hitWidth}
+                      $hitHeight={item.hitHeight}
                     >
-                      <TravelMapImage $imgSrc={item.imgSrc} $sceneId={currentScene.id} $isHovered={isCutoutHovered} />
+                      <TravelMapImage 
+                        $imgSrc={item.imgSrc} 
+                        $sceneId={currentScene.id} 
+                        $isHovered={isCutoutHovered} 
+                        $itemId={item.id}
+                        $hitLeft={item.hitLeft}
+                        $hitTop={item.hitTop}
+                        $hitWidth={item.hitWidth}
+                        $hitHeight={item.hitHeight}
+                      />
                       <TravelMapCutoutLabel
                         $isHovered={isCutoutHovered}
                         $labelLeft={item.labelLeft}
                         $labelTop={item.labelTop}
+                        $itemId={item.id}
                       >
-                        {item.label}
+                        <div className="label-dot" />
+                        <div className="label-text-wrapper">
+                          <span className="label-title">{item.label}</span>
+                          {item.articleMeta && (
+                            <span className="label-meta">{item.articleMeta}</span>
+                          )}
+                        </div>
                       </TravelMapCutoutLabel>
                     </TravelMapCutoutItem>
                   );

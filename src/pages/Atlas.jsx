@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, Navigate, useLocation, useParams } from 'react-router-dom';
 import styled from 'styled-components';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import MiniGraph from '../components/GraphView/MiniGraph';
 import {
   filterGraphByCollection,
@@ -83,6 +83,96 @@ const Page = styled.div`
   @keyframes atlas-dust-drift {
     from { transform: translate3d(0, 0, 0); }
     to { transform: translate3d(-90px, 70px, 0); }
+  }
+`;
+
+const LoadingScreen = styled(motion.div)`
+  position: fixed;
+  inset: 0;
+  background: #060908;
+  z-index: 999999;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+  color: #ffedd5;
+  user-select: none;
+  -webkit-user-select: none;
+  
+  .astro-circle {
+    width: 90px;
+    height: 90px;
+    border: 1px dashed rgba(231, 199, 126, 0.2);
+    border-radius: 50%;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: loadingSpin 20s linear infinite;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      width: 70px;
+      height: 70px;
+      border: 1px solid rgba(90, 163, 143, 0.45);
+      border-radius: 50%;
+      border-top-color: transparent;
+      border-bottom-color: transparent;
+      animation: loadingSpinCounter 8s linear infinite;
+    }
+    
+    &::after {
+      content: '🪐';
+      font-size: 1.6rem;
+      animation: loadingBreathe 2.5s ease-in-out infinite alternate;
+    }
+  }
+
+  .loading-text {
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    color: rgba(245, 239, 227, 0.85);
+    text-shadow: 0 0 10px rgba(90, 163, 143, 0.35);
+  }
+
+  .loading-bar-bg {
+    width: 140px;
+    height: 2px;
+    background: rgba(90, 163, 143, 0.15);
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .loading-bar-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, transparent, #5aa38f, transparent);
+    animation: loadingBarMove 1.6s infinite linear;
+  }
+
+  @keyframes loadingSpin {
+    to { transform: rotate(360deg); }
+  }
+
+  @keyframes loadingSpinCounter {
+    to { transform: rotate(-360deg); }
+  }
+
+  @keyframes loadingBreathe {
+    0% { transform: scale(0.9) rotate(-10deg); opacity: 0.7; }
+    100% { transform: scale(1.1) rotate(10deg); opacity: 1; }
+  }
+
+  @keyframes loadingBarMove {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
   }
 `;
 
@@ -606,20 +696,34 @@ function getCollectionCounts(indexData) {
 function useAtlasData() {
   const [graphData, setGraphData] = useState({ nodes: [], links: [] });
   const [indexData, setIndexData] = useState({ notes: [], collections: [] });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/graph.json')
+    const fetchGraph = fetch('/graph.json')
       .then((response) => response.json())
       .then(setGraphData)
       .catch(() => setGraphData({ nodes: [], links: [] }));
 
-    fetch('/notes-index.json')
+    const fetchIndex = fetch('/notes-index.json')
       .then((response) => response.json())
       .then(setIndexData)
       .catch(() => setIndexData({ notes: [], collections: [] }));
+
+    const preloadBg = new Promise((resolve) => {
+      const img = new Image();
+      img.src = atlasArchiveBg;
+      img.onload = resolve;
+      img.onerror = resolve;
+    });
+
+    Promise.all([fetchGraph, fetchIndex, preloadBg]).then(() => {
+      setTimeout(() => {
+        setLoading(false);
+      }, 800);
+    });
   }, []);
 
-  return { graphData, indexData };
+  return { graphData, indexData, loading };
 }
 
 function AtlasRail({ activeSlug, counts, collections }) {
@@ -872,7 +976,7 @@ function AtlasDetail({ collection, graphData, indexData, counts, collections }) 
 
 export default function Atlas() {
   const { type } = useParams();
-  const { graphData, indexData } = useAtlasData();
+  const { graphData, indexData, loading } = useAtlasData();
   const counts = useMemo(() => getCollectionCounts(indexData), [indexData]);
 
   const collections = useMemo(() => {
@@ -913,28 +1017,44 @@ export default function Atlas() {
 
   const currentCollection = type ? collectionsMap.get(type) : null;
 
-  if (!type) {
-    return (
-      <AtlasHall
-        graphData={graphData}
-        indexData={indexData}
-        counts={counts}
-        collections={collections}
-      />
-    );
-  }
-
-  if (!currentCollection) {
+  if (type && !currentCollection) {
     return <Navigate to="/atlas" replace />;
   }
 
   return (
-    <AtlasDetail
-      collection={currentCollection}
-      graphData={graphData}
-      indexData={indexData}
-      counts={counts}
-      collections={collections}
-    />
+    <>
+      <AnimatePresence>
+        {loading && (
+          <LoadingScreen
+            key="atlas-loader"
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0, transition: { duration: 0.65, ease: 'easeInOut' } }}
+          >
+            <div className="astro-circle" />
+            <div className="loading-text">正在推演图谱星轨...</div>
+            <div className="loading-bar-bg">
+              <div className="loading-bar-fill" />
+            </div>
+          </LoadingScreen>
+        )}
+      </AnimatePresence>
+
+      {!type ? (
+        <AtlasHall
+          graphData={graphData}
+          indexData={indexData}
+          counts={counts}
+          collections={collections}
+        />
+      ) : (
+        <AtlasDetail
+          collection={currentCollection}
+          graphData={graphData}
+          indexData={indexData}
+          counts={counts}
+          collections={collections}
+        />
+      )}
+    </>
   );
 }
