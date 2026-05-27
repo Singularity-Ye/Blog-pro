@@ -976,6 +976,15 @@ const MapBookLabel = styled.div`
   }
 `;
 
+const travelMapPulse = keyframes`
+  0% {
+    filter: sepia(0.1) saturate(1.1) brightness(0.85) contrast(1.05) drop-shadow(0 4px 10px rgba(231, 199, 126, 0.15)) brightness(1.0);
+  }
+  100% {
+    filter: sepia(0.1) saturate(1.1) brightness(0.85) contrast(1.05) drop-shadow(0 8px 24px rgba(231, 199, 126, 0.38)) brightness(1.04);
+  }
+`;
+
 const TravelMapCutoutItem = styled(motion.div)`
   position: absolute;
   left: ${props => props.$left};
@@ -984,7 +993,7 @@ const TravelMapCutoutItem = styled(motion.div)`
   height: ${props => props.$height || '100%'};
   z-index: 19;
   cursor: pointer;
-  clip-path: polygon(0 30%, 31% 27%, 39% 52%, 39% 66%, 5% 74%, 0 67%);
+  clip-path: polygon(3.5% 25.5%, 48.5% 25.5%, 54% 77%, 46% 86%, 14% 98%, 3.5% 91%);
   pointer-events: auto;
   user-select: none;
   -webkit-user-select: none;
@@ -992,11 +1001,34 @@ const TravelMapCutoutItem = styled(motion.div)`
   background-size: cover;
   background-position: center center;
   background-repeat: no-repeat;
-  filter: ${props => getLightingFilter(props.$sceneId, false)} drop-shadow(0 12px 18px rgba(0, 0, 0, 0.48));
-  transform: scale(1.05);
+  
+  animation: ${travelMapPulse} 4s ease-in-out infinite alternate;
+  transform: scale(1.0);
   transform-origin: center center;
-  transition: filter 0.35s ease, transform 0.35s ease;
+  transition: filter 0.4s cubic-bezier(0.25, 1, 0.5, 1), transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
 
+  /* Gold Light Sheen Sweep Overlay */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      105deg,
+      transparent 30%,
+      rgba(255, 250, 230, 0.18) 40%,
+      rgba(255, 230, 150, 0.35) 50%,
+      rgba(255, 250, 230, 0.18) 60%,
+      transparent 70%
+    );
+    background-size: 200% 100%;
+    background-position: 150% 0;
+    transition: background-position 0.6s ease;
+    pointer-events: none;
+    mix-blend-mode: overlay;
+    z-index: 2;
+  }
+
+  /* Radial warm glow from the table lamp */
   &::after {
     content: '';
     position: absolute;
@@ -1012,8 +1044,13 @@ const TravelMapCutoutItem = styled(motion.div)`
   }
 
   &:hover {
-    filter: ${props => getLightingFilter(props.$sceneId, true)} drop-shadow(0 0 18px rgba(251, 191, 36, 0.72)) brightness(1.12) saturate(1.08);
-    transform: scale(1.062);
+    animation-play-state: paused;
+    filter: ${props => getLightingFilter(props.$sceneId, true)} drop-shadow(0 0 25px rgba(231, 199, 126, 0.85)) brightness(1.15) saturate(1.1);
+    transform: scale(1.025);
+  }
+
+  &:hover::before {
+    background-position: -50% 0;
   }
 
   &:hover::after {
@@ -1023,8 +1060,8 @@ const TravelMapCutoutItem = styled(motion.div)`
 
 const TravelMapCutoutLabel = styled(MapBookLabel)`
   position: absolute;
-  left: 18%;
-  top: 69%;
+  left: 28%;
+  top: 56%;
   margin-top: 0;
   transform: translate(-50%, 8px);
 
