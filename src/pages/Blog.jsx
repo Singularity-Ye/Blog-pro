@@ -521,8 +521,8 @@ const BLOG_SCENES = {
         hitTop: '43.46%', 
         hitWidth: '14.95%', 
         hitHeight: '21.57%',
-        labelLeft: '75.9%',
-        labelTop: '39%',
+        labelLeft: '68%',
+        labelTop: '48.5%',
         label: '问题总录与补救日志',
         articleMeta: 'ARCHIVE · ISSUES',
         imgSrc: BLOG_NEW_ASSETS.archiveDrawerStack02,
@@ -1419,7 +1419,7 @@ const TravelMapCutoutLabel = styled.div`
   left: ${props => props.$labelLeft || '28%'};
   top: ${props => props.$labelTop || '56%'};
   margin-top: 0;
-  transform: translate(-50%, 0);
+  transform: ${props => props.$itemId === 'archive-issue-logs' ? 'translate(-100%, 0)' : 'translate(-50%, 0)'};
   z-index: 25;
   pointer-events: none;
   opacity: 0.65;
@@ -1479,7 +1479,7 @@ const TravelMapCutoutLabel = styled.div`
 
   ${props => props.$isHovered && css`
     opacity: 1;
-    transform: translate(-50%, -6px);
+    transform: ${props => props.$itemId === 'archive-issue-logs' ? 'translate(-100%, -6px)' : 'translate(-50%, -6px)'};
     max-width: 280px;
     padding: 6px 14px;
     background: rgba(12, 10, 24, 0.92);
