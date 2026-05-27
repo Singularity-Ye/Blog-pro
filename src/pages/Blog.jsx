@@ -1003,13 +1003,16 @@ const TravelMapCutoutItem = styled(motion.div)`
 
 const TravelMapCutoutHotspot = styled.button`
   position: absolute;
-  inset: 0;
+  left: 5.92%;
+  top: 27.84%;
+  width: 34.03%;
+  height: 36.34%;
   z-index: 3;
   display: block;
   padding: 0;
   border: 0;
   background: transparent;
-  clip-path: polygon(3.5% 25.5%, 48.5% 25.5%, 54% 77%, 46% 86%, 14% 98%, 3.5% 91%);
+  clip-path: polygon(0 16%, 72% 0, 100% 58%, 94% 79%, 65% 100%, 12% 93%, 0 72%);
   cursor: pointer;
   pointer-events: auto;
   user-select: none;
@@ -1050,6 +1053,14 @@ const TravelMapImage = styled.div`
     pointer-events: none;
     mix-blend-mode: overlay;
     z-index: 2;
+    -webkit-mask-image: url(${props => props.$imgSrc});
+    mask-image: url(${props => props.$imgSrc});
+    -webkit-mask-size: cover;
+    mask-size: cover;
+    -webkit-mask-position: center center;
+    mask-position: center center;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
   }
 
   /* Radial warm glow from the table lamp */
@@ -1065,6 +1076,14 @@ const TravelMapImage = styled.div`
     transition: opacity 0.35s ease;
     pointer-events: none;
     mix-blend-mode: screen;
+    -webkit-mask-image: url(${props => props.$imgSrc});
+    mask-image: url(${props => props.$imgSrc});
+    -webkit-mask-size: cover;
+    mask-size: cover;
+    -webkit-mask-position: center center;
+    mask-position: center center;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
   }
 
   ${TravelMapCutoutHotspot}:hover ~ &,
