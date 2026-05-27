@@ -218,7 +218,7 @@ const BLOG_SCENES = {
         label: '建站秘辛', 
         collection: 'blog-design', 
         transform: 'rotate(-12deg)',
-        filter: (notes) => notes.filter(n => n.collection === 'blog-design')[0] 
+        filter: (notes) => notes.find(n => n.slug === '博客网站/博客页-废弃方案/近日手札/松果灵感书屋的诞生记')
       },
       { 
         id: 'gold-2', 
