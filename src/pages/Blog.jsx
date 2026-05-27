@@ -610,8 +610,7 @@ const BLOG_SCENES = {
         articleMeta: 'WORKSHOP · FUTURE',
         collections: ['blog-design'],
         filter: (notes) => notes.filter((note) => {
-          return /未来|未尽|计划/.test(note.title) && 
-                 !/代码审查|废弃方案/.test(note.slug);
+          return note.slug.includes('博客页-重制版');
         })
       }
     ],
