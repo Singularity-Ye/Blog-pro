@@ -488,12 +488,20 @@ const BLOG_SCENES = {
     items: [
       { 
         id: 'archive-legacy-plans', 
-        type: 'drawer', 
-        left: '9.75%', 
-        top: '17.64%', 
-        width: '11.36%', 
-        height: '32.84%',
+        type: 'cutout-prop', 
+        left: '0%', 
+        top: '0%', 
+        width: '100%', 
+        height: '100%',
+        hitKey: 'archiveLegacyPlans',
+        hitLeft: '9.75%', 
+        hitTop: '17.64%', 
+        hitWidth: '11.36%', 
+        hitHeight: '32.84%',
+        labelLeft: '15.4%',
+        labelTop: '13.5%',
         label: '旧方案与重制记录',
+        articleMeta: 'ARCHIVE · SCHEMES',
         imgSrc: BLOG_NEW_ASSETS.archiveDrawerStack01,
         collections: ['blog-design', 'project'],
         filter: (notes) => notes.filter((note) => {
@@ -502,35 +510,21 @@ const BLOG_SCENES = {
         })
       },
       { 
-        id: 'archive-search-drawer', 
-        type: 'drawer', 
-        left: '9.75%', 
-        top: '50.8%', 
-        width: '11.36%', 
-        height: '32.84%',
-        label: '全站分类检索',
-        imgSrc: BLOG_NEW_ASSETS.archiveDrawer,
-        action: 'search'
-      },
-      { 
-        id: 'archive-recent-notes', 
-        type: 'drawer', 
-        left: '68.42%', 
-        top: '21.5%', 
-        width: '14.95%', 
-        height: '21.57%',
-        label: '近期修真手札',
-        imgSrc: BLOG_NEW_ASSETS.archiveNoteBox,
-        action: 'recent'
-      },
-      { 
         id: 'archive-issue-logs', 
-        type: 'drawer', 
-        left: '68.42%', 
-        top: '43.46%', 
-        width: '14.95%', 
-        height: '21.57%',
+        type: 'cutout-prop', 
+        left: '0%', 
+        top: '0%', 
+        width: '100%', 
+        height: '100%',
+        hitKey: 'archiveIssueLogs',
+        hitLeft: '68.42%', 
+        hitTop: '43.46%', 
+        hitWidth: '14.95%', 
+        hitHeight: '21.57%',
+        labelLeft: '75.9%',
+        labelTop: '39%',
         label: '问题总录与补救日志',
+        articleMeta: 'ARCHIVE · ISSUES',
         imgSrc: BLOG_NEW_ASSETS.archiveDrawerStack02,
         collections: ['blog-design', 'project'],
         filter: (notes) => notes.filter((note) => {
@@ -1244,7 +1238,9 @@ const CUTOUT_HIT_ASSETS = {
   mapScroll: BLOG_NEW_ASSETS.mapScroll,
   workshopAstrolabe: BLOG_NEW_ASSETS.workshopAstrolabe,
   workshopBlueprintMap: BLOG_NEW_ASSETS.workshopBlueprintMap,
-  workshopPotions: BLOG_NEW_ASSETS.workshopPotions
+  workshopPotions: BLOG_NEW_ASSETS.workshopPotions,
+  archiveLegacyPlans: BLOG_NEW_ASSETS.archiveDrawerStack01,
+  archiveIssueLogs: BLOG_NEW_ASSETS.archiveDrawerStack02
 };
 
 const getItemThemeColor = (itemId, alpha = 1) => {
@@ -1255,6 +1251,8 @@ const getItemThemeColor = (itemId, alpha = 1) => {
     'travel-map': `rgba(245, 158, 11, ${alpha})`, // Gold/amber
     'travel-map-scroll': `rgba(251, 146, 60, ${alpha})`, // Soft orange
     'travel-scroll': `rgba(16, 185, 129, ${alpha})`, // Emerald green
+    'archive-legacy-plans': `rgba(192, 132, 252, ${alpha})`, // Purple/lavender
+    'archive-issue-logs': `rgba(192, 132, 252, ${alpha})`, // Purple/lavender
   };
   return colors[itemId] || `rgba(251, 191, 36, ${alpha})`;
 };
@@ -1273,6 +1271,9 @@ const getItemGlowFilter = (itemId) => {
       return 'drop-shadow(0 0 10px rgba(251, 146, 60, 0.95)) drop-shadow(0 0 20px rgba(244, 63, 94, 0.5)) brightness(1.2) saturate(1.1)';
     case 'travel-scroll':
       return 'drop-shadow(0 0 12px rgba(16, 185, 129, 0.95)) drop-shadow(0 0 25px rgba(52, 211, 153, 0.55)) brightness(1.2) saturate(1.15)';
+    case 'archive-legacy-plans':
+    case 'archive-issue-logs':
+      return 'drop-shadow(0 0 12px rgba(231, 199, 126, 0.95)) drop-shadow(0 0 28px rgba(192, 132, 252, 0.45)) brightness(1.2) saturate(1.15)';
     default:
       return 'drop-shadow(0 0 12px rgba(231, 199, 126, 0.95)) drop-shadow(0 0 28px rgba(217, 119, 6, 0.45)) brightness(1.18) saturate(1.15)';
   }
