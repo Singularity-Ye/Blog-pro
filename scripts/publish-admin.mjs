@@ -1,4 +1,4 @@
-﻿import fs from 'fs';
+import fs from 'fs';
 import http from 'http';
 import path from 'path';
 import { spawn } from 'child_process';
@@ -284,11 +284,26 @@ const server = http.createServer(async (req, res) => {
     if (req.method === 'GET' && url.pathname === '/api/vault-dirs') {
       const manifest = readJson(MANIFEST_PATH);
       const vpath = manifest.vaultPath;
+      const excludeDirs = new Set(manifest.excludeDirs || []);
       let dirs = [];
       if (fs.existsSync(vpath)) {
-        dirs = fs.readdirSync(vpath, { withFileTypes: true })
-          .filter(e => e.isDirectory() && !e.name.startsWith('.') && !['node_modules', 'templates'].includes(e.name))
+        const rootDirs = fs.readdirSync(vpath, { withFileTypes: true })
+          .filter(e => e.isDirectory() && !e.name.startsWith('.') && !['node_modules', 'templates'].includes(e.name) && !excludeDirs.has(e.name))
           .map(e => e.name);
+        
+        for (const rdir of rootDirs) {
+          if (['系统性知识整理', '路边小项目'].includes(rdir)) {
+            const subpath = path.join(vpath, rdir);
+            if (fs.existsSync(subpath)) {
+              const subdirs = fs.readdirSync(subpath, { withFileTypes: true })
+                .filter(e => e.isDirectory() && !e.name.startsWith('.') && !excludeDirs.has(e.name))
+                .map(e => `${rdir}/${e.name}`);
+              dirs.push(...subdirs);
+            }
+          } else {
+            dirs.push(rdir);
+          }
+        }
       }
       send(res, 200, { dirs });
       return;

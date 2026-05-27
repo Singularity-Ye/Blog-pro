@@ -137,7 +137,9 @@ function walkMarkdown(dir, base = '') {
 
 function toSlug(root, relPath) {
   const withoutExt = relPath.replace(/\.md$/i, '');
-  return normalizeRelPath(`${root}/${withoutExt}`);
+  const rawSlug = `${root}/${withoutExt}`;
+  const cleanedSlug = rawSlug.replace(/^(系统性知识整理|路边小项目)\//, '');
+  return normalizeRelPath(cleanedSlug);
 }
 
 function parseFrontmatter(content) {
