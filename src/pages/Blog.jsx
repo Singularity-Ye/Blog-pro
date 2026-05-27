@@ -992,33 +992,42 @@ const TravelMapCutoutItem = styled(motion.div)`
   width: ${props => props.$width};
   height: ${props => props.$height || '100%'};
   z-index: 19;
-  cursor: pointer;
-  clip-path: polygon(3.5% 25.5%, 48.5% 25.5%, 54% 77%, 46% 86%, 14% 98%, 3.5% 91%);
-  pointer-events: auto;
+  pointer-events: none;
   user-select: none;
   -webkit-user-select: none;
-  
+
   /* Match scale(1.05) of the active BgLayer exactly to prevent misalignment! */
   transform: scale(1.05);
   transform-origin: center center;
-  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+`;
 
-  &:hover {
-    /* Scale up slightly from 1.05 to 1.075 on hover for interactive pop-out */
-    transform: scale(1.075);
-  }
+const TravelMapCutoutHotspot = styled.button`
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: block;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  clip-path: polygon(3.5% 25.5%, 48.5% 25.5%, 54% 77%, 46% 86%, 14% 98%, 3.5% 91%);
+  cursor: pointer;
+  pointer-events: auto;
+  user-select: none;
+  -webkit-user-select: none;
 `;
 
 const TravelMapImage = styled.div`
   position: absolute;
   inset: 0;
+  z-index: 1;
   width: 100%;
   height: 100%;
   background-image: url(${props => props.$imgSrc});
   background-size: cover;
   background-position: center center;
   background-repeat: no-repeat;
-  
+  pointer-events: none;
+  filter: ${props => getLightingFilter(props.$sceneId, false)} drop-shadow(0 12px 18px rgba(0, 0, 0, 0.48));
   animation: ${travelMapPulse} 4s ease-in-out infinite alternate;
   transition: filter 0.4s cubic-bezier(0.25, 1, 0.5, 1);
 
@@ -1058,16 +1067,19 @@ const TravelMapImage = styled.div`
     mix-blend-mode: screen;
   }
 
-  ${TravelMapCutoutItem}:hover & {
+  ${TravelMapCutoutHotspot}:hover ~ &,
+  ${TravelMapCutoutHotspot}:focus-visible ~ & {
     animation-play-state: paused;
     filter: ${props => getLightingFilter(props.$sceneId, true)} drop-shadow(0 0 25px rgba(231, 199, 126, 0.85)) brightness(1.15) saturate(1.1);
   }
 
-  ${TravelMapCutoutItem}:hover &::before {
+  ${TravelMapCutoutHotspot}:hover ~ &::before,
+  ${TravelMapCutoutHotspot}:focus-visible ~ &::before {
     background-position: -50% 0;
   }
 
-  ${TravelMapCutoutItem}:hover &::after {
+  ${TravelMapCutoutHotspot}:hover ~ &::after,
+  ${TravelMapCutoutHotspot}:focus-visible ~ &::after {
     opacity: 1;
   }
 `;
@@ -1078,8 +1090,11 @@ const TravelMapCutoutLabel = styled(MapBookLabel)`
   top: 56%;
   margin-top: 0;
   transform: translate(-50%, 8px);
+  z-index: 4;
+  pointer-events: none;
 
-  ${TravelMapCutoutItem}:hover & {
+  ${TravelMapCutoutHotspot}:hover ~ &,
+  ${TravelMapCutoutHotspot}:focus-visible ~ & {
     transform: translate(-50%, 0);
   }
 `;
@@ -2741,10 +2756,12 @@ export default function Blog() {
                       $width={item.width}
                       $height={item.height}
                       $sceneId={currentScene.id}
-                      onClick={() => handleItemClick(item)}
-                      aria-label={item.label}
-                      role="button"
                     >
+                      <TravelMapCutoutHotspot
+                        type="button"
+                        onClick={() => handleItemClick(item)}
+                        aria-label={item.label}
+                      />
                       <TravelMapImage $imgSrc={item.imgSrc} $sceneId={currentScene.id} />
                       <TravelMapCutoutLabel>{item.label}</TravelMapCutoutLabel>
                     </TravelMapCutoutItem>
