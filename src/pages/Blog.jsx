@@ -229,7 +229,7 @@ const BLOG_SCENES = {
         label: '屋主札记', 
         collection: 'blog-design', 
         transform: 'rotate(8deg)',
-        filter: (notes) => notes.filter(n => n.collection === 'blog-design')[1] 
+        filter: (notes) => notes.find(n => n.slug === '嵌入式/树莓派SSH与VNC实验日志')
       },
       { 
         id: 'green-1', 
@@ -251,7 +251,7 @@ const BLOG_SCENES = {
         label: '修真见闻', 
         collection: 'travel', 
         transform: 'rotate(15deg)',
-        filter: (notes) => notes.filter(n => n.collection === 'travel' && n.tags?.includes('随笔'))[1] || notes.filter(n => n.collection === 'travel')[1] 
+        filter: (notes) => notes.find(n => n.slug === '知识杂货铺/你吃的每一根香蕉都是同一棵树的克隆体')
       },
       { 
         id: 'green-3', 
