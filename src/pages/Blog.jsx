@@ -1056,18 +1056,18 @@ const TravelMapCutoutItem = styled(motion.div)`
   transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
 `;
 
-const TravelMapCutoutHotspot = styled.button`
+const TravelCutoutHitLayer = styled.button`
   position: absolute;
-  left: ${props => props.$hitLeft};
-  top: ${props => props.$hitTop};
-  width: ${props => props.$hitWidth};
-  height: ${props => props.$hitHeight};
-  z-index: 3;
+  left: 0;
+  top: 22%;
+  width: 49%;
+  height: 48%;
+  z-index: 40;
   display: block;
   padding: 0;
   border: 0;
   background: transparent;
-  cursor: ${props => props.$isHovered ? 'pointer' : 'default'};
+  cursor: ${props => props.$hasHit ? 'pointer' : 'default'};
   pointer-events: auto;
   user-select: none;
   -webkit-user-select: none;
@@ -2118,6 +2118,7 @@ export default function Blog() {
   const [shakingLeafId, setShakingLeafId] = useState(null);
   
   const currentScene = BLOG_SCENES[sceneMode];
+  const travelCutoutItems = currentScene.items.filter(item => item.type === 'map-cutout' || item.type === 'cutout-scroll');
 
   // Pre-calculate compact opacity grids for transparent cutout assets.
   useEffect(() => {
@@ -2157,28 +2158,36 @@ export default function Blog() {
     };
   }, []);
 
-  const handleCutoutMouseMove = (item, e) => {
-    const opacityGrid = cutoutOpacityGrids[item.hitKey];
-    if (!opacityGrid) return;
-    const parentContainer = e.currentTarget.parentElement;
-    if (!parentContainer) return;
-    const rect = parentContainer.getBoundingClientRect();
-    const rx = (e.clientX - rect.left) / rect.width;
-    const ry = (e.clientY - rect.top) / rect.height;
-    
-    if (rx >= 0 && rx <= 1 && ry >= 0 && ry <= 1) {
+  const handleCutoutLayerMouseMove = (items, e) => {
+    const sceneLayer = e.currentTarget.parentElement;
+    if (!sceneLayer) return;
+
+    const rect = sceneLayer.getBoundingClientRect();
+    const screenRx = (e.clientX - rect.left) / rect.width;
+    const screenRy = (e.clientY - rect.top) / rect.height;
+    const rx = 0.5 + (screenRx - 0.5) / 1.05;
+    const ry = 0.5 + (screenRy - 0.5) / 1.05;
+
+    if (rx < 0 || rx > 1 || ry < 0 || ry > 1) {
+      setHoveredCutoutId(null);
+      return;
+    }
+
+    const hitItem = [...items].reverse().find(item => {
+      const opacityGrid = cutoutOpacityGrids[item.hitKey];
+      if (!opacityGrid) return false;
+
       const gx = Math.min(opacityGrid.width - 1, Math.max(0, Math.floor(rx * opacityGrid.width)));
       const gy = Math.min(opacityGrid.height - 1, Math.max(0, Math.floor(ry * opacityGrid.height)));
       const index = gy * opacityGrid.width + gx;
-      const isOpaque = opacityGrid.grid[index] === 1;
-      setHoveredCutoutId(isOpaque ? item.id : null);
-    } else {
-      setHoveredCutoutId(null);
-    }
+      return opacityGrid.grid[index] === 1;
+    });
+
+    setHoveredCutoutId(hitItem?.id || null);
   };
 
-  const handleCutoutMouseLeave = (item) => {
-    setHoveredCutoutId(current => current === item.id ? null : current);
+  const handleCutoutLayerMouseLeave = () => {
+    setHoveredCutoutId(null);
   };
 
   const changeScene = (mode) => {
@@ -2912,18 +2921,6 @@ export default function Blog() {
                       $sceneId={currentScene.id}
                       $isHovered={isCutoutHovered}
                     >
-                      <TravelMapCutoutHotspot
-                        type="button"
-                        $hitLeft={item.hitLeft}
-                        $hitTop={item.hitTop}
-                        $hitWidth={item.hitWidth}
-                        $hitHeight={item.hitHeight}
-                        $isHovered={isCutoutHovered}
-                        onMouseMove={(e) => handleCutoutMouseMove(item, e)}
-                        onMouseLeave={() => handleCutoutMouseLeave(item)}
-                        onClick={() => isCutoutHovered && handleItemClick(item)}
-                        aria-label={item.label}
-                      />
                       <TravelMapImage $imgSrc={item.imgSrc} $sceneId={currentScene.id} $isHovered={isCutoutHovered} />
                       <TravelMapCutoutLabel
                         $isHovered={isCutoutHovered}
@@ -2989,6 +2986,20 @@ export default function Blog() {
 
                 return null;
               })}
+
+              {sceneMode === 'travel' && travelCutoutItems.length > 0 && (
+                <TravelCutoutHitLayer
+                  type="button"
+                  $hasHit={Boolean(hoveredCutoutId)}
+                  onMouseMove={(e) => handleCutoutLayerMouseMove(travelCutoutItems, e)}
+                  onMouseLeave={handleCutoutLayerMouseLeave}
+                  onClick={() => {
+                    const hitItem = travelCutoutItems.find(item => item.id === hoveredCutoutId);
+                    if (hitItem) handleItemClick(hitItem);
+                  }}
+                  aria-label="旅行素材交互层"
+                />
+              )}
             </CloseUpContainer>
           )}
         </AnimatePresence>
