@@ -689,7 +689,7 @@ const Mermaid = ({ value }) => {
         }
       } catch (err) {
         removeMermaidErrorArtifacts();
-        console.error('Mermaid render error:', err);
+        console.warn('Mermaid render failed, showing raw diagram:', err.message);
         if (active) {
           setError(err);
           setSvg('');
@@ -767,7 +767,7 @@ export default function Note() {
     fetch('/graph.json')
       .then(r => r.json())
       .then(setGraphData)
-      .catch(console.error);
+      .catch((err) => { console.warn('[Note] Failed to load graph data:', err.message); });
   }, []);
 
   // 加载笔记内容

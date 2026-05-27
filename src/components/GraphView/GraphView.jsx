@@ -64,7 +64,7 @@ export default function GraphView({ modal = false, onClose }) {
     fetch('/graph.json')
       .then((response) => response.json())
       .then(setGraphData)
-      .catch(console.error);
+      .catch((err) => { console.warn('[GraphView] Failed to load graph data:', err.message); });
   }, []);
 
   const visibleGraphData = useMemo(() => {

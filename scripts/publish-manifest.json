@@ -27,7 +27,8 @@
         "**/*.md"
       ],
       "exclude": [
-        "杭州5月穿搭指南.md"
+        "杭州5月穿搭指南.md",
+        "5月4日路线地图.md"
       ]
     },
     {
@@ -108,16 +109,6 @@
     },
     {
       "enabled": true,
-      "label": "日常随笔",
-      "root": "日常随笔",
-      "kind": "notes",
-      "include": [
-        "**/*.md"
-      ],
-      "exclude": []
-    },
-    {
-      "enabled": true,
       "label": "内功心法",
       "root": "内功心法",
       "kind": "internal-skills",
@@ -141,16 +132,6 @@
       "label": "知识杂货铺",
       "root": "知识杂货铺",
       "kind": "knowledge-grocery",
-      "include": [
-        "**/*.md"
-      ],
-      "exclude": []
-    },
-    {
-      "enabled": true,
-      "label": "地图插件",
-      "root": "路边小项目/地图插件",
-      "kind": "map-plugin",
       "include": [
         "**/*.md"
       ],

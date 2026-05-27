@@ -185,7 +185,7 @@ export default function BookFlipUI({ bookId = 'notes-source', onClose }) {
         setLoading(false);
       })
       .catch((err) => {
-        console.error(err);
+        console.warn('[BookFlipUI] Failed to load notes index:', err.message);
         setLoading(false);
       });
   }, []);

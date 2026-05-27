@@ -51,7 +51,7 @@ export default function MiniGraph({ graphData: propGraphData, currentSlug: propC
     fetch('/graph.json')
       .then((response) => response.json())
       .then(setInternalGraphData)
-      .catch(console.error);
+      .catch((err) => { console.warn('[MiniGraph] Failed to load graph data:', err.message); });
   }, [propGraphData]);
 
   useEffect(() => {

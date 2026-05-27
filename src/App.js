@@ -1,19 +1,32 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import GlobalStyle from './styles/GlobalStyle';
 
-// 页面组件
+// Landing page loads eagerly
 import Home from './pages/Home';
-import Blog from './pages/Blog';
-import About from './pages/About';
-import Projects from './pages/Projects';
-import Contact from './pages/Contact';
-import Note from './pages/Note';
-import Atlas from './pages/Atlas';
-import GraphView from './components/GraphView/GraphView';
 import Layout from './components/Layout';
 import GlobalNav from './components/GlobalNav';
 import ErrorBoundary from './components/ErrorBoundary';
+
+// Heavy pages lazy-loaded for code splitting
+const Blog = lazy(() => import('./pages/Blog'));
+const About = lazy(() => import('./pages/About'));
+const Projects = lazy(() => import('./pages/Projects'));
+const Contact = lazy(() => import('./pages/Contact'));
+const Note = lazy(() => import('./pages/Note'));
+const Atlas = lazy(() => import('./pages/Atlas'));
+const GraphView = lazy(() => import('./components/GraphView/GraphView'));
+
+const PageFallback = () => (
+  <div style={{
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    minHeight: '60vh', color: 'rgba(245,239,227,0.45)',
+    fontFamily: '"Microsoft YaHei","PingFang SC",Inter,system-ui,sans-serif',
+    fontSize: '0.85rem',
+  }}>
+    正在展开卷轴...
+  </div>
+);
 
 function AppRoutes() {
   const location = useLocation();
@@ -28,6 +41,7 @@ function AppRoutes() {
     <>
       <Layout>
         <ErrorBoundary>
+        <Suspense fallback={<PageFallback />}>
         <Routes location={backgroundLocation || location}>
           <Route path="/" element={<Home />} />
           <Route path="/blog" element={<Blog />} />
@@ -40,9 +54,11 @@ function AppRoutes() {
           <Route path="/graph" element={<GraphView />} />
           <Route path="/note/*" element={<Note />} />
         </Routes>
+        </Suspense>
         </ErrorBoundary>
       </Layout>
       {backgroundLocation && (
+        <Suspense fallback={null}>
         <Routes>
           <Route 
             path="/graph" 
@@ -54,6 +70,7 @@ function AppRoutes() {
             } 
           />
         </Routes>
+        </Suspense>
       )}
       <GlobalNav />
     </>

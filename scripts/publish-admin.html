@@ -1,9 +1,9 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>鏉炬灉灞嬪彂甯冩帶鍒跺彴</title>
+  <title>松果屋发布控制台</title>
   <style>
     :root {
       --ink: #f5efe3; --muted: rgba(245,239,227,.55); --muted2: rgba(245,239,227,.35);
@@ -31,14 +31,14 @@
     button, input, textarea, select { font: inherit; color: inherit; }
     a { color: var(--gold); }
 
-    /* 鈹€鈹€ Layout 鈹€鈹€ */
+    /* ── Layout ── */
     .app {
       position: relative; z-index: 1;
       display: grid; grid-template-columns: 240px minmax(0,1fr);
       min-height: 100vh;
     }
 
-    /* 鈹€鈹€ Sidebar 鈹€鈹€ */
+    /* ── Sidebar ── */
     .sidebar {
       border-right: 1px solid var(--line);
       background: rgba(8,16,12,.88);
@@ -97,10 +97,10 @@
     .btn-ghost { border-color: transparent; background: transparent; }
     .btn-ghost:hover { background: var(--hover); border-color: transparent; }
 
-    /* 鈹€鈹€ Main area 鈹€鈹€ */
+    /* ── Main area ── */
     .main { padding: 24px 28px; display: flex; flex-direction: column; gap: 18px; min-height: 100vh; }
 
-    /* 鈹€鈹€ Top bar 鈹€鈹€ */
+    /* ── Top bar ── */
     .topbar {
       display: flex; align-items: center; justify-content: space-between; gap: 16px;
       padding-bottom: 16px; border-bottom: 1px solid var(--line);
@@ -109,7 +109,7 @@
     .topbar-sub { font-size: .78rem; color: var(--muted); margin-top: 2px; }
     .topbar-actions { display: flex; gap: 8px; flex-shrink: 0; }
 
-    /* 鈹€鈹€ Settings panel 鈹€鈹€ */
+    /* ── Settings panel ── */
     .settings-panel {
       border: 1px solid var(--line); border-radius: var(--r);
       background: var(--wood); backdrop-filter: blur(8px);
@@ -119,7 +119,7 @@
       color: var(--gold); list-style: none; user-select: none;
       display: flex; align-items: center; gap: 8px;
     }
-    .settings-panel summary::before { content: "鈻?; font-size: .65rem; transition: transform .2s; }
+    .settings-panel summary::before { content: "▶"; font-size: .65rem; transition: transform .2s; }
     .settings-panel[open] summary::before { transform: rotate(90deg); }
     .settings-body {
       padding: 0 16px 16px; display: grid; gap: 12px;
@@ -139,7 +139,7 @@
     }
     .toggle-label input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--pine); cursor: pointer; }
 
-    /* 鈹€鈹€ File Browser 鈹€鈹€ */
+    /* ── File Browser ── */
     .browser {
       flex: 1; border: 1px solid var(--line); border-radius: var(--r);
       background: var(--wood); backdrop-filter: blur(8px);
@@ -175,7 +175,7 @@
       scrollbar-width: thin; scrollbar-color: rgba(231,199,126,.2) transparent;
     }
 
-    /* 鈹€鈹€ Tree View 鈹€鈹€ */
+    /* ── Tree View ── */
     .tree-row {
       display: flex; align-items: center; gap: 6px;
       padding: 4px 8px; border-radius: 5px; cursor: default;
@@ -226,7 +226,7 @@
     .tree-row:hover .preview-btn { opacity: 1; }
     .preview-btn:hover { background: var(--hover); color: var(--gold); }
 
-    /* 鈹€鈹€ Search Results (flat list) 鈹€鈹€ */
+    /* ── Search Results (flat list) ── */
     .search-item {
       display: flex; align-items: center; gap: 8px;
       padding: 6px 10px; border-radius: 5px;
@@ -237,7 +237,7 @@
     .search-path .folder { color: var(--muted); }
     .search-path .match { color: var(--gold); font-weight: 700; }
 
-    /* 鈹€鈹€ Bottom panels 鈹€鈹€ */
+    /* ── Bottom panels ── */
     .bottom-section {
       border: 1px solid var(--line); border-radius: var(--r);
       background: var(--wood); backdrop-filter: blur(8px);
@@ -269,7 +269,7 @@
       font-family: "IBM Plex Mono","Fira Code",monospace;
     }
 
-    /* 鈹€鈹€ Modal 鈹€鈹€ */
+    /* ── Modal ── */
     .modal-overlay {
       position: fixed; inset: 0; z-index: 200;
       background: rgba(0,0,0,.6); backdrop-filter: blur(4px);
@@ -295,7 +295,7 @@
     .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
     .modal-msg { font-size: .85rem; line-height: 1.7; color: var(--ink); }
 
-    /* 鈹€鈹€ Toast 鈹€鈹€ */
+    /* ── Toast ── */
     .toast-container {
       position: fixed; top: 16px; right: 16px; z-index: 300;
       display: flex; flex-direction: column; gap: 8px;
@@ -311,27 +311,27 @@
       box-shadow: 0 8px 30px rgba(0,0,0,.3);
     }
     .toast-success { border-color: rgba(90,163,143,.4); }
-    .toast-success::before { content: "鉁?"; color: var(--pine); font-weight: 700; }
+    .toast-success::before { content: "✓ "; color: var(--pine); font-weight: 700; }
     .toast-error { border-color: rgba(196,92,92,.4); }
-    .toast-error::before { content: "鉁?"; color: var(--danger); font-weight: 700; }
-    .toast-info::before { content: "鈼?"; color: var(--gold); }
+    .toast-error::before { content: "✕ "; color: var(--danger); font-weight: 700; }
+    .toast-info::before { content: "● "; color: var(--gold); }
     .toast.fade-out { animation: fadeOut .25s ease forwards; }
 
-    /* 鈹€鈹€ Spinner 鈹€鈹€ */
+    /* ── Spinner ── */
     .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--muted2); border-top-color: var(--gold); border-radius: 50%; animation: spin .6s linear infinite; }
 
-    /* 鈹€鈹€ Animations 鈹€鈹€ */
+    /* ── Animations ── */
     @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
     @keyframes fadeOut { from { opacity: 1 } to { opacity: 0 } }
     @keyframes scaleIn { from { opacity: 0; transform: scale(.95) } to { opacity: 1; transform: scale(1) } }
     @keyframes slideInRight { from { opacity: 0; transform: translateX(40px) } to { opacity: 1; transform: translateX(0) } }
     @keyframes spin { to { transform: rotate(360deg) } }
 
-    /* 鈹€鈹€ Empty state 鈹€鈹€ */
+    /* ── Empty state ── */
     .empty-state { text-align: center; padding: 40px 20px; color: var(--muted); }
     .empty-state .icon { font-size: 2rem; margin-bottom: 10px; }
 
-    /* 鈹€鈹€ Responsive 鈹€鈹€ */
+    /* ── Responsive ── */
     @media (max-width: 860px) {
       .app { grid-template-columns: 1fr; }
       .sidebar { position: static; height: auto; flex-direction: row; flex-wrap: wrap; padding: 14px; gap: 10px; }
@@ -351,8 +351,8 @@
       <h3 id="modalTitle"></h3>
       <div id="modalBody"></div>
       <div class="modal-actions">
-        <button class="btn btn-ghost" id="modalCancel">鍙栨秷</button>
-        <button class="btn btn-primary" id="modalConfirm">纭</button>
+        <button class="btn btn-ghost" id="modalCancel">取消</button>
+        <button class="btn btn-primary" id="modalConfirm">确认</button>
       </div>
     </div>
   </div>
@@ -361,14 +361,14 @@
     <aside class="sidebar">
       <div class="brand">
         <small>Pinecone Archive</small>
-        <h1>鍙戝竷鎺у埗鍙?/h1>
+        <h1>发布控制台</h1>
       </div>
-      <div class="side-label">鍒嗙被鍒楄〃</div>
+      <div class="side-label">分类列表</div>
       <div id="colls"></div>
       <div class="side-actions">
-        <button class="btn btn-ghost" id="addCollBtn">+ 鏂板鍒嗙被</button>
+        <button class="btn btn-ghost" id="addCollBtn">+ 新增分类</button>
         <button class="btn btn-primary" id="syncBtn">
-          <span id="syncLabel">鍚屾鍙戝竷</span>
+          <span id="syncLabel">同步发布</span>
         </button>
       </div>
     </aside>
@@ -376,29 +376,29 @@
     <main class="main">
       <div class="topbar">
         <div>
-          <h2 id="title">鍙戝竷娓呭崟</h2>
+          <h2 id="title">发布清单</h2>
           <div class="topbar-sub" id="subtitle"></div>
         </div>
         <div class="topbar-actions">
-          <button class="btn btn-pine" id="saveBtn">淇濆瓨娓呭崟</button>
-          <button class="btn btn-danger btn-sm" id="deleteCollBtn">鍒犻櫎鍒嗙被</button>
+          <button class="btn btn-pine" id="saveBtn">保存清单</button>
+          <button class="btn btn-danger btn-sm" id="deleteCollBtn">删除分类</button>
         </div>
       </div>
 
       <details class="settings-panel" id="settingsPanel">
-        <summary>鍒嗙被璁剧疆</summary>
+        <summary>分类设置</summary>
         <div class="settings-body">
-          <label class="toggle-label"><input id="enabled" type="checkbox" /> 鍙戝竷杩欎釜鍒嗙被</label>
+          <label class="toggle-label"><input id="enabled" type="checkbox" /> 发布这个分类</label>
           <div class="field-grid field">
-            <label>鏄剧ず鍚嶇О<input id="label" /></label>
-            <label>Vault 鐩綍<input id="root" list="vaultDirs" autocomplete="off" /></label>
-            <label>鍒嗙被鏍囪瘑<input id="kind" /></label>
+            <label>显示名称<input id="label" /></label>
+            <label>Vault 目录<input id="root" list="vaultDirs" autocomplete="off" /></label>
+            <label>分类标识<input id="kind" /></label>
           </div>
           <div class="field">
-            <label>鍖呭惈瑙勫垯 (姣忚涓€涓?glob)<textarea id="include"></textarea></label>
+            <label>包含规则 (每行一个 glob)<textarea id="include"></textarea></label>
           </div>
           <div class="field">
-            <label>鎺掗櫎瑙勫垯 (姣忚涓€涓?glob)<textarea id="exclude"></textarea></label>
+            <label>排除规则 (每行一个 glob)<textarea id="exclude"></textarea></label>
           </div>
         </div>
       </details>
@@ -407,13 +407,14 @@
         <div class="browser-toolbar">
           <div class="search-box">
             <svg viewBox="0 0 24 24" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input id="searchInput" placeholder="鎼滅储绗旇鏂囦欢鍚嶆垨璺緞..." />
+            <input id="searchInput" placeholder="搜索笔记文件名或路径..." />
           </div>
           <div class="browser-stats">
-            <strong id="statIncluded">0</strong> / <span id="statTotal">0</span> 宸插彂甯?          </div>
+            <strong id="statIncluded">0</strong> / <span id="statTotal">0</span> 已发布
+          </div>
           <div class="batch-btns">
-            <button class="btn btn-sm btn-ghost" id="selectAllBtn">鍏ㄩ€?/button>
-            <button class="btn btn-sm btn-ghost" id="selectNoneBtn">鍏ㄤ笉閫?/button>
+            <button class="btn btn-sm btn-ghost" id="selectAllBtn">全选</button>
+            <button class="btn btn-sm btn-ghost" id="selectNoneBtn">全不选</button>
           </div>
         </div>
         <div class="filelist" id="filelist"></div>
@@ -421,22 +422,22 @@
 
       <section class="bottom-section">
         <div class="panel-tabs">
-          <button class="panel-tab active" data-tab="preview">棰勮</button>
-          <button class="panel-tab" data-tab="log">鎵ц鏃ュ織</button>
+          <button class="panel-tab active" data-tab="preview">预览</button>
+          <button class="panel-tab" data-tab="log">执行日志</button>
         </div>
         <div class="panel-body" id="previewPane">
-          <div class="preview-placeholder" id="previewPlaceholder">鐐瑰嚮鏂囦欢鍚嶅彲棰勮绗旇鍐呭</div>
+          <div class="preview-placeholder" id="previewPlaceholder">点击文件名可预览笔记内容</div>
           <div class="preview-content" id="previewContent" style="display:none"></div>
         </div>
         <div class="panel-body hidden" id="logPane">
-          <div class="log-content" id="logContent">绛夊緟鎿嶄綔...</div>
+          <div class="log-content" id="logContent">等待操作...</div>
         </div>
       </section>
     </main>
   </div>
 
   <script>
-    /* 鈹€鈹€ State 鈹€鈹€ */
+    /* ── State ── */
     var state = {
       manifest: null,
       active: 0,
@@ -450,20 +451,15 @@
 
     var $ = function(id) { return document.getElementById(id); };
 
-    /* 鈹€鈹€ API helper 鈹€鈹€ */
+    /* ── API helper ── */
     function api(path, options) {
-      options = options || {};
-      if (window.AUTH_TOKEN) {
-        options.headers = options.headers || {};
-        options.headers['Authorization'] = 'Bearer ' + window.AUTH_TOKEN;
-      }
       return fetch(path, options).then(function(res) {
         if (!res.ok) return res.text().then(function(t) { throw new Error(t); });
         return res.json();
       });
     }
 
-    /* 鈹€鈹€ Toast 鈹€鈹€ */
+    /* ── Toast ── */
     function showToast(msg, type) {
       var el = document.createElement('div');
       el.className = 'toast toast-' + (type || 'info');
@@ -475,7 +471,7 @@
       }, 3200);
     }
 
-    /* 鈹€鈹€ Modal 鈹€鈹€ */
+    /* ── Modal ── */
     function showModal(title, bodyHtml, onConfirm) {
       $('modalTitle').textContent = title;
       $('modalBody').innerHTML = bodyHtml;
@@ -487,19 +483,19 @@
       $('modalCancel').onclick = function() { $('modal').classList.add('hidden'); };
     }
 
-    /* 鈹€鈹€ Busy lock 鈹€鈹€ */
+    /* ── Busy lock ── */
     function setBusy(busy) {
       state.isBusy = busy;
       document.querySelectorAll('.btn').forEach(function(b) { b.disabled = busy; });
       document.querySelectorAll('.tree-check').forEach(function(c) { c.disabled = busy; });
     }
 
-    /* 鈹€鈹€ Load manifest 鈹€鈹€ */
+    /* ── Load manifest ── */
     function loadManifest() {
       return api('/api/manifest').then(function(data) { state.manifest = data; });
     }
 
-    /* 鈹€鈹€ Render collections sidebar 鈹€鈹€ */
+    /* ── Render collections sidebar ── */
     function renderCollections() {
       var html = '';
       state.manifest.collections.forEach(function(item, idx) {
@@ -523,7 +519,7 @@
       });
     }
 
-    /* 鈹€鈹€ Read form fields into manifest 鈹€鈹€ */
+    /* ── Read form fields into manifest ── */
     function readFormToManifest() {
       if (!state.manifest) return;
       var item = state.manifest.collections[state.active];
@@ -536,12 +532,12 @@
       item.exclude = $('exclude').value.split('\n').map(function(l) { return l.trim(); }).filter(Boolean);
     }
 
-    /* 鈹€鈹€ Write manifest fields to form 鈹€鈹€ */
+    /* ── Write manifest fields to form ── */
     function renderForm() {
       var item = state.manifest.collections[state.active];
       if (!item) return;
-      $('title').textContent = item.label || '鍙戝竷娓呭崟';
-      $('subtitle').textContent = 'Vault: ' + (item.root || '(鏈缃?') + '  路  绫诲瀷: ' + (item.kind || '-');
+      $('title').textContent = item.label || '发布清单';
+      $('subtitle').textContent = 'Vault: ' + (item.root || '(未设置)') + '  ·  类型: ' + (item.kind || '-');
       $('enabled').checked = item.enabled !== false;
       $('label').value = item.label || '';
       $('root').value = item.root || '';
@@ -550,7 +546,7 @@
       $('exclude').value = (item.exclude || []).join('\n');
     }
 
-    /* 鈹€鈹€ Load files from server 鈹€鈹€ */
+    /* ── Load files from server ── */
     function loadFiles() {
       return api('/api/files?collection=' + state.active).then(function(data) {
         state.files = data.files || [];
@@ -559,21 +555,21 @@
       });
     }
 
-    /* 鈹€鈹€ Update stats 鈹€鈹€ */
+    /* ── Update stats ── */
     function updateStats() {
       var included = state.files.filter(function(f) { return f.included; }).length;
       $('statIncluded').textContent = included;
       $('statTotal').textContent = state.files.length;
     }
 
-    /* 鈹€鈹€ HTML escape 鈹€鈹€ */
+    /* ── HTML escape ── */
     function esc(s) {
       var d = document.createElement('div');
       d.textContent = s;
       return d.innerHTML;
     }
 
-    /* 鈹€鈹€ Build tree from flat file list 鈹€鈹€ */
+    /* ── Build tree from flat file list ── */
     function buildTree(files) {
       var root = { name: '', path: '', children: [], fileItems: [] };
       files.forEach(function(file) {
@@ -596,7 +592,7 @@
       return root;
     }
 
-    /* 鈹€鈹€ Count helpers 鈹€鈹€ */
+    /* ── Count helpers ── */
     function countAll(node) {
       var c = node.fileItems.length;
       node.children.forEach(function(ch) { c += countAll(ch); });
@@ -608,14 +604,14 @@
       return c;
     }
 
-    /* 鈹€鈹€ Collect all rels under a folder node 鈹€鈹€ */
+    /* ── Collect all rels under a folder node ── */
     function collectRels(node) {
       var rels = node.fileItems.map(function(f) { return f.rel; });
       node.children.forEach(function(ch) { rels = rels.concat(collectRels(ch)); });
       return rels;
     }
 
-    /* 鈹€鈹€ Render tree node 鈹€鈹€ */
+    /* ── Render tree node ── */
     function renderTreeNode(node, depth) {
       var html = '';
       /* Sort: folders first, then files, both alphabetically */
@@ -631,7 +627,7 @@
         html += '<div class="tree-folder">';
         html += '<div class="tree-row" style="padding-left:' + (depth * 20 + 6) + 'px">';
         html += '<button class="tree-toggle' + (isOpen ? ' open' : '') + '" data-path="' + esc(child.path) + '">&#9654;</button>';
-        html += '<span class="tree-icon">' + (isOpen ? '馃搨' : '馃搧') + '</span>';
+        html += '<span class="tree-icon">' + (isOpen ? '📂' : '📁') + '</span>';
         html += '<span class="tree-label">' + esc(child.name) + '</span>';
         html += '<span class="' + badgeCls + '">' + incl + '/' + total + '</span>';
         html += '<input type="checkbox" class="tree-check" data-folder="' + esc(child.path) + '"'
@@ -651,7 +647,7 @@
         html += '<span style="width:18px"></span>';
         html += '<input type="checkbox" class="tree-check" data-file="' + encodeURIComponent(file.rel) + '"' + (file.included ? ' checked' : '') + '>';
         html += '<span class="file-name" data-preview="' + encodeURIComponent(file.rel) + '">' + esc(file.name.replace(/\.md$/i, '')) + '</span>';
-        html += '<button class="preview-btn" data-preview="' + encodeURIComponent(file.rel) + '" title="棰勮">馃憗</button>';
+        html += '<button class="preview-btn" data-preview="' + encodeURIComponent(file.rel) + '" title="预览">👁</button>';
         html += '</div>';
         html += '</div>';
       });
@@ -659,12 +655,12 @@
       return html;
     }
 
-    /* 鈹€鈹€ Render search results (flat filtered list) 鈹€鈹€ */
+    /* ── Render search results (flat filtered list) ── */
     function renderSearchResults(query) {
       var q = query.toLowerCase();
       var matches = state.files.filter(function(f) { return f.rel.toLowerCase().indexOf(q) !== -1; });
       if (matches.length === 0) {
-        return '<div class="empty-state"><div class="icon">馃攳</div><p>娌℃湁鎵惧埌鍖归厤鐨勭瑪璁?/p></div>';
+        return '<div class="empty-state"><div class="icon">🔍</div><p>没有找到匹配的笔记</p></div>';
       }
       var html = '';
       matches.forEach(function(file) {
@@ -683,20 +679,20 @@
         html += '<div class="' + cls + '">';
         html += '<input type="checkbox" class="tree-check" data-file="' + encodeURIComponent(file.rel) + '"' + (file.included ? ' checked' : '') + '>';
         html += '<span class="search-path file-name" data-preview="' + encodeURIComponent(file.rel) + '"><span class="folder">' + displayFolder + '</span>' + displayName + '</span>';
-        html += '<button class="preview-btn" data-preview="' + encodeURIComponent(file.rel) + '" title="棰勮" style="opacity:1">馃憗</button>';
+        html += '<button class="preview-btn" data-preview="' + encodeURIComponent(file.rel) + '" title="预览" style="opacity:1">👁</button>';
         html += '</div>';
       });
       return html;
     }
 
-    /* 鈹€鈹€ Main render file list 鈹€鈹€ */
+    /* ── Main render file list ── */
     function renderFileList() {
       var scrollTop = $('filelist').scrollTop;
       var q = state.searchQuery.trim();
       if (q) {
         $('filelist').innerHTML = renderSearchResults(q);
       } else if (state.files.length === 0) {
-        $('filelist').innerHTML = '<div class="empty-state"><div class="icon">馃摥</div><p>杩欎釜鍒嗙被涓嬫病鏈夋壘鍒颁换浣曠瑪璁版枃浠?/p></div>';
+        $('filelist').innerHTML = '<div class="empty-state"><div class="icon">📭</div><p>这个分类下没有找到任何笔记文件</p></div>';
       } else {
         var tree = buildTree(state.files);
         $('filelist').innerHTML = renderTreeNode(tree, 0);
@@ -706,7 +702,7 @@
       bindFileEvents();
     }
 
-    /* 鈹€鈹€ Bind events on file list items 鈹€鈹€ */
+    /* ── Bind events on file list items ── */
     function bindFileEvents() {
       /* File checkbox toggle */
       document.querySelectorAll('.tree-check[data-file]').forEach(function(cb) {
@@ -760,7 +756,7 @@
       });
     }
 
-    /* 鈹€鈹€ Find a folder node in tree by path 鈹€鈹€ */
+    /* ── Find a folder node in tree by path ── */
     function findNode(tree, path) {
       if (tree.path === path) return tree;
       for (var i = 0; i < tree.children.length; i++) {
@@ -770,7 +766,7 @@
       return null;
     }
 
-    /* 鈹€鈹€ Toggle single file via server API 鈹€鈹€ */
+    /* ── Toggle single file via server API ── */
     function toggleFile(rel, currentlyIncluded) {
       if (state.isBusy) return;
       readFormToManifest();
@@ -792,12 +788,12 @@
         renderFileList();
         setBusy(false);
       }).catch(function(err) {
-        showToast('鍒囨崲澶辫触: ' + err.message, 'error');
+        showToast('切换失败: ' + err.message, 'error');
         setBusy(false);
       });
     }
 
-    /* 鈹€鈹€ Toggle all files in a folder 鈹€鈹€ */
+    /* ── Toggle all files in a folder ── */
     function toggleFolder(folderPath, shouldInclude) {
       if (state.isBusy) return;
       readFormToManifest();
@@ -828,15 +824,15 @@
         }
         updateStats();
         renderFileList();
-        showToast((shouldInclude ? '宸插彂甯? : '宸叉帓闄?) + ' ' + toChange.length + ' 涓瑪璁?, 'success');
+        showToast((shouldInclude ? '已发布' : '已排除') + ' ' + toChange.length + ' 个笔记', 'success');
         setBusy(false);
       }).catch(function(err) {
-        showToast('鎵归噺鎿嶄綔澶辫触: ' + err.message, 'error');
+        showToast('批量操作失败: ' + err.message, 'error');
         setBusy(false);
       });
     }
 
-    /* 鈹€鈹€ Select All / None 鈹€鈹€ */
+    /* ── Select All / None ── */
     function batchToggle(action) {
       if (state.isBusy) return;
       readFormToManifest();
@@ -852,11 +848,11 @@
           toChange.push({ rel: f.rel, action: action });
         }
       });
-      if (toChange.length === 0) { showToast('娌℃湁闇€瑕佹洿鏀圭殑鏂囦欢', 'info'); return; }
+      if (toChange.length === 0) { showToast('没有需要更改的文件', 'info'); return; }
       if (toChange.length > 30) {
         showModal(
-          '纭鎵归噺鎿嶄綔',
-          '<p class="modal-msg">鍗冲皢' + (wantIncluded ? '鍙戝竷' : '鎺掗櫎') + ' <strong>' + toChange.length + '</strong> 涓瑪璁版枃浠讹紝纭畾缁х画鍚楋紵</p>',
+          '确认批量操作',
+          '<p class="modal-msg">即将' + (wantIncluded ? '发布' : '排除') + ' <strong>' + toChange.length + '</strong> 个笔记文件，确定继续吗？</p>',
           function() { executeBatch(toChange, wantIncluded); }
         );
       } else {
@@ -879,15 +875,15 @@
         }
         updateStats();
         renderFileList();
-        showToast('宸? + (wantIncluded ? '鍙戝竷' : '鎺掗櫎') + ' ' + toChange.length + ' 涓瑪璁?, 'success');
+        showToast('已' + (wantIncluded ? '发布' : '排除') + ' ' + toChange.length + ' 个笔记', 'success');
         setBusy(false);
       }).catch(function(err) {
-        showToast('鎵归噺鎿嶄綔澶辫触: ' + err.message, 'error');
+        showToast('批量操作失败: ' + err.message, 'error');
         setBusy(false);
       });
     }
 
-    /* 鈹€鈹€ Save manifest 鈹€鈹€ */
+    /* ── Save manifest ── */
     function saveManifest() {
       if (state.isBusy) return;
       readFormToManifest();
@@ -897,24 +893,24 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(state.manifest)
       }).then(function() {
-        showToast('娓呭崟宸蹭繚瀛?, 'success');
+        showToast('清单已保存', 'success');
         renderCollections();
         return loadFiles();
       }).then(function() {
         setBusy(false);
       }).catch(function(err) {
-        showToast('淇濆瓨澶辫触: ' + err.message, 'error');
+        showToast('保存失败: ' + err.message, 'error');
         setBusy(false);
       });
     }
 
-    /* 鈹€鈹€ Sync publish 鈹€鈹€ */
+    /* ── Sync publish ── */
     function syncPublish() {
       if (state.isBusy) return;
       readFormToManifest();
       setBusy(true);
-      $('syncLabel').innerHTML = '<span class="spinner"></span> 鍚屾涓?..';
-      $('logContent').textContent = '姝ｅ湪淇濆瓨娓呭崟骞跺悓姝?..';
+      $('syncLabel').innerHTML = '<span class="spinner"></span> 同步中...';
+      $('logContent').textContent = '正在保存清单并同步...';
       switchTab('log');
       api('/api/manifest', {
         method: 'POST',
@@ -923,36 +919,36 @@
       }).then(function() {
         return api('/api/sync', { method: 'POST' });
       }).then(function(result) {
-        $('logContent').textContent = result.output || '鍚屾瀹屾垚銆?;
-        showToast(result.ok ? '鍚屾鍙戝竷瀹屾垚锛? : '鍚屾鍑洪敊锛岃鏌ョ湅鏃ュ織', result.ok ? 'success' : 'error');
-        $('syncLabel').textContent = '鍚屾鍙戝竷';
+        $('logContent').textContent = result.output || '同步完成。';
+        showToast(result.ok ? '同步发布完成！' : '同步出错，请查看日志', result.ok ? 'success' : 'error');
+        $('syncLabel').textContent = '同步发布';
         setBusy(false);
         return loadFiles();
       }).catch(function(err) {
-        $('logContent').textContent = '鍚屾澶辫触: ' + err.message;
-        $('syncLabel').textContent = '鍚屾鍙戝竷';
-        showToast('鍚屾澶辫触: ' + err.message, 'error');
+        $('logContent').textContent = '同步失败: ' + err.message;
+        $('syncLabel').textContent = '同步发布';
+        showToast('同步失败: ' + err.message, 'error');
         setBusy(false);
       });
     }
 
-    /* 鈹€鈹€ Load preview 鈹€鈹€ */
+    /* ── Load preview ── */
     function loadPreview(rel) {
       switchTab('preview');
       $('previewPlaceholder').style.display = 'none';
       $('previewContent').style.display = 'block';
-      $('previewContent').textContent = '鍔犺浇涓?..';
+      $('previewContent').textContent = '加载中...';
       state.previewRel = rel;
       api('/api/preview?collection=' + state.active + '&rel=' + encodeURIComponent(rel))
         .then(function(data) {
           if (state.previewRel !== rel) return;
-          $('previewContent').textContent = data.content || '(绌烘枃浠?';
+          $('previewContent').textContent = data.content || '(空文件)';
         }).catch(function(err) {
-          $('previewContent').textContent = '棰勮澶辫触: ' + err.message;
+          $('previewContent').textContent = '预览失败: ' + err.message;
         });
     }
 
-    /* 鈹€鈹€ Tab switching 鈹€鈹€ */
+    /* ── Tab switching ── */
     function switchTab(tab) {
       state.activeTab = tab;
       document.querySelectorAll('.panel-tab').forEach(function(t) {
@@ -962,19 +958,19 @@
       $('logPane').classList.toggle('hidden', tab !== 'log');
     }
 
-    /* 鈹€鈹€ Add collection 鈹€鈹€ */
+    /* ── Add collection ── */
     function addCollectionModal() {
-      showModal('鏂板鍒嗙被', [
+      showModal('新增分类', [
         '<div class="modal-form">',
-        '<label>鏄剧ず鍚嶇О <input id="newLabel" placeholder="濡傦細鎴戠殑鏃呰鏃ヨ" /></label>',
-        '<label>Vault 鐩綍鍚?<input id="newRoot" list="vaultDirs" autocomplete="off" placeholder="濡傦細鏃呰鏃ヨ" /></label>',
-        '<label>鍒嗙被鏍囪瘑 <input id="newKind" placeholder="濡傦細travel" /></label>',
+        '<label>显示名称 <input id="newLabel" placeholder="如：我的旅行日记" /></label>',
+        '<label>Vault 目录名 <input id="newRoot" list="vaultDirs" autocomplete="off" placeholder="如：旅行日记" /></label>',
+        '<label>分类标识 <input id="newKind" placeholder="如：travel" /></label>',
         '</div>'
       ].join(''), function() {
         var label = document.getElementById('newLabel').value.trim();
         var root = document.getElementById('newRoot').value.trim();
         var kind = document.getElementById('newKind').value.trim();
-        if (!label || !root) { showToast('鍚嶇О鍜岀洰褰曚笉鑳戒负绌?, 'error'); return; }
+        if (!label || !root) { showToast('名称和目录不能为空', 'error'); return; }
         api('/api/collection/add', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -984,15 +980,15 @@
           state.active = state.manifest.collections.length - 1;
           state.expandedFolders = {};
           render();
-          showToast('鍒嗙被銆? + label + '銆嶅凡鍒涘缓', 'success');
-        }).catch(function(err) { showToast('鍒涘缓澶辫触: ' + err.message, 'error'); });
+          showToast('分类「' + label + '」已创建', 'success');
+        }).catch(function(err) { showToast('创建失败: ' + err.message, 'error'); });
       });
     }
 
-    /* 鈹€鈹€ Remove collection 鈹€鈹€ */
+    /* ── Remove collection ── */
     function removeCollectionModal() {
-      var name = state.manifest.collections[state.active]?.label || '鏈懡鍚?;
-      showModal('鍒犻櫎鍒嗙被', '<p class="modal-msg">纭畾瑕佸垹闄ゅ垎绫汇€?strong>' + esc(name) + '</strong>銆嶅悧锛熸鎿嶄綔涓嶅彲鎾ら攢銆?/p>',
+      var name = state.manifest.collections[state.active]?.label || '未命名';
+      showModal('删除分类', '<p class="modal-msg">确定要删除分类「<strong>' + esc(name) + '</strong>」吗？此操作不可撤销。</p>',
         function() {
           api('/api/collection/remove', {
             method: 'POST',
@@ -1004,20 +1000,20 @@
             if (state.active < 0) state.active = 0;
             state.expandedFolders = {};
             render();
-            showToast('鍒嗙被宸插垹闄?, 'success');
-          }).catch(function(err) { showToast('鍒犻櫎澶辫触: ' + err.message, 'error'); });
+            showToast('分类已删除', 'success');
+          }).catch(function(err) { showToast('删除失败: ' + err.message, 'error'); });
         }
       );
     }
 
-    /* 鈹€鈹€ Full render 鈹€鈹€ */
+    /* ── Full render ── */
     function render() {
       renderCollections();
       renderForm();
       return loadFiles();
     }
 
-    /* 鈹€鈹€ Search with debounce 鈹€鈹€ */
+    /* ── Search with debounce ── */
     var searchTimer = null;
     function onSearchInput(e) {
       state.searchQuery = e.target.value;
@@ -1025,7 +1021,7 @@
       searchTimer = setTimeout(function() { renderFileList(); }, 180);
     }
 
-    /* 鈹€鈹€ Bind global events 鈹€鈹€ */
+    /* ── Bind global events ── */
     function bindGlobalEvents() {
       $('saveBtn').onclick = saveManifest;
       $('syncBtn').onclick = syncPublish;
@@ -1052,7 +1048,7 @@
       });
     }
 
-    /* 鈹€鈹€ Init 鈹€鈹€ */
+    /* ── Init ── */
     function loadVaultDirs() {
       api('/api/vault-dirs').then(function(data) {
         var html = '';
@@ -1069,7 +1065,7 @@
         return render();
       }).catch(function(err) {
         $('logContent').textContent = 'Error: ' + (err.stack || String(err));
-        showToast('鍔犺浇澶辫触: ' + err.message, 'error');
+        showToast('加载失败: ' + err.message, 'error');
       });
     }
 

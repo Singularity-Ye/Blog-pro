@@ -159,7 +159,7 @@ pi@raspberrypi:~ $
 系统信息：`Linux raspberrypi 5.10.63-v7+ armv7l`
 
 > 📸 **截图 1 在此**：SSH 窗口可见 `pi@raspberrypi:~ $` 和系统信息。
-> ![Pasted image 20260524233212.png](/notes/attachments/%E4%B8%B4%E6%97%B6%E7%B4%A0%E6%9D%90/Pasted%20image%2020260524233212.png)
+> ![Pasted image 20260524233212.png](/notes/attachments/%E4%B8%B4%E6%97%B6%E5%9B%BE%E7%89%87%E5%AD%98%E6%94%BE%E5%A4%84/Pasted%20image%2020260524233212.png)
 
 ---
 
@@ -215,7 +215,7 @@ VNC Viewer 窗口中显示树莓派桌面。
 > 📸 **截图 2 在此**：VNC Viewer 窗口内为完整树莓派桌面。
 
 
-![Pasted image 20260524233312.png](/notes/attachments/%E4%B8%B4%E6%97%B6%E7%B4%A0%E6%9D%90/Pasted%20image%2020260524233312.png)
+![Pasted image 20260524233312.png](/notes/attachments/%E4%B8%B4%E6%97%B6%E5%9B%BE%E7%89%87%E5%AD%98%E6%94%BE%E5%A4%84/Pasted%20image%2020260524233312.png)
 ---
 
 ## 八、问题清单
@@ -275,5 +275,5 @@ VNC Viewer 连接：`10.203.22.213`，用户名 `pi`，密码 `raspberry`。
 
 ## 关联笔记
 
-- [[Linux学习笔记/Linux基础命令速查]]
-- [[Linux学习笔记/树莓派SSH与远程桌面连接指南]]
+- [[Linux基础命令速查]]
+- [[树莓派SSH与远程桌面连接指南]]
