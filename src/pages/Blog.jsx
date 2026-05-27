@@ -503,13 +503,9 @@ const BLOG_SCENES = {
         label: '旧方案与重制记录',
         articleMeta: 'ARCHIVE · SCHEMES',
         imgSrc: BLOG_NEW_ASSETS.archiveDrawerStack01,
-        collections: ['blog-design', 'project', 'internal-skills', 'knowledge-grocery'],
+        collections: ['blog-design'],
         filter: (notes) => notes.filter((note) => {
-          if (note.collection === 'knowledge-grocery' || note.collection === 'internal-skills') {
-            return !note.title.includes('索引') && !note.slug.includes('_索引');
-          }
-          const haystack = `${note.title || ''} ${note.slug || ''} ${note.collectionLabel || ''} ${(note.tags || []).join(' ')}`;
-          return /旧|重制|方案|架构|空间长廊|博客页|设计|流程/.test(haystack);
+          return note.slug.includes('博客页-废弃方案');
         })
       },
       { 
@@ -531,8 +527,8 @@ const BLOG_SCENES = {
         imgSrc: BLOG_NEW_ASSETS.archiveDrawerStack02,
         collections: ['blog-design', 'project'],
         filter: (notes) => notes.filter((note) => {
-          const haystack = `${note.title || ''} ${note.slug || ''} ${note.collectionLabel || ''} ${(note.tags || []).join(' ')}`;
-          return /问题|Bug|bug|复盘|故障|补救|日志|排查|错误|修复/.test(haystack);
+          return /代码审查报告|故障排查|错误复盘|排错记录/.test(note.title) || 
+                 /待解决问题|故障排查/.test(note.slug);
         })
       }
     ],
