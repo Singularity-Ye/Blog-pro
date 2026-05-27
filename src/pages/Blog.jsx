@@ -845,8 +845,8 @@ const LeafItem = styled(motion.div)`
 
 const LeafLabel = styled.div`
   margin-top: 0.35rem;
-  background: rgba(12, 10, 24, 0.82);
-  border: 1px solid rgba(231, 199, 126, 0.25);
+  background: rgba(12, 10, 24, 0.6);
+  border: 1px solid rgba(231, 199, 126, 0.15);
   border-radius: 6px;
   color: #ffedd5;
   font-size: 0.65rem;
@@ -856,17 +856,18 @@ const LeafLabel = styled.div`
   white-space: nowrap;
   pointer-events: none;
   font-weight: 700;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-  opacity: 0;
-  transform: translateY(6px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.35);
+  opacity: 0.65;
+  transform: translateY(0);
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   
   ${LeafItem}:hover & {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(-4px);
+    background: rgba(12, 10, 24, 0.9);
     border-color: #d4af37;
     color: #e7c77e;
-    box-shadow: 0 0 10px rgba(212,175,55,0.3);
+    box-shadow: 0 4px 15px rgba(212,175,55,0.45), 0 0 10px rgba(212,175,55,0.3);
   }
 `;
 
@@ -900,8 +901,8 @@ const ScrollItem = styled(motion.div)`
 
 const ScrollLabel = styled.div`
   margin-top: 0.35rem;
-  background: rgba(4, 12, 10, 0.85);
-  border: 1px solid rgba(16, 185, 129, 0.25);
+  background: rgba(4, 12, 10, 0.65);
+  border: 1px solid rgba(16, 185, 129, 0.15);
   border-radius: 6px;
   color: #e2fbf2;
   font-size: 0.68rem;
@@ -911,17 +912,18 @@ const ScrollLabel = styled.div`
   white-space: nowrap;
   pointer-events: none;
   font-weight: 800;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-  opacity: 0;
-  transform: translateY(6px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.35);
+  opacity: 0.65;
+  transform: translateY(0);
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   
   ${ScrollItem}:hover & {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(-4px);
+    background: rgba(4, 12, 10, 0.9);
     border-color: #10b981;
     color: #10b981;
-    box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.45), 0 0 10px rgba(16, 185, 129, 0.3);
   }
 `;
 
@@ -951,8 +953,8 @@ const MapBookItem = styled(motion.div)`
 
 const MapBookLabel = styled.div`
   margin-top: 0.3rem;
-  background: rgba(12, 10, 24, 0.85);
-  border: 1px solid rgba(245, 158, 11, 0.35);
+  background: rgba(12, 10, 24, 0.65);
+  border: 1px solid rgba(245, 158, 11, 0.18);
   border-radius: 6px;
   color: #ffedd5;
   font-size: 0.68rem;
@@ -962,17 +964,18 @@ const MapBookLabel = styled.div`
   white-space: nowrap;
   pointer-events: none;
   font-weight: 700;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.45);
-  opacity: 0;
-  transform: translateY(6px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+  opacity: 0.65;
+  transform: translateY(0);
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   
   ${MapBookItem}:hover & {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(-4px);
+    background: rgba(12, 10, 24, 0.9);
     border-color: #fb923c;
     color: #fb923c;
-    box-shadow: 0 0 10px rgba(251, 146, 60, 0.35);
+    box-shadow: 0 4px 15px rgba(251, 146, 60, 0.45), 0 0 10px rgba(251, 146, 60, 0.35);
   }
 `;
 
@@ -997,7 +1000,7 @@ const TravelMapCutoutItem = styled(motion.div)`
   -webkit-user-select: none;
 
   /* Match scale(1.05) of the active BgLayer exactly to prevent misalignment! */
-  transform: ${props => props.$isHovered ? 'scale(1.075)' : 'scale(1.05)'};
+  transform: scale(1.05);
   transform-origin: center center;
   transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
 `;
@@ -1088,7 +1091,7 @@ const TravelMapImage = styled.div`
 
   ${props => props.$isHovered && css`
     animation-play-state: paused;
-    filter: ${props => getLightingFilter(props.$sceneId, true)} drop-shadow(0 0 25px rgba(231, 199, 126, 0.85)) brightness(1.15) saturate(1.1);
+    filter: ${props => getLightingFilter(props.$sceneId, true)} drop-shadow(0 0 12px rgba(231, 199, 126, 0.95)) drop-shadow(0 0 28px rgba(217, 119, 6, 0.45)) brightness(1.18) saturate(1.15);
 
     &::before {
       background-position: -50% 0;
@@ -1105,16 +1108,20 @@ const TravelMapCutoutLabel = styled(MapBookLabel)`
   left: 28%;
   top: 56%;
   margin-top: 0;
-  transform: translate(-50%, 8px);
+  transform: translate(-50%, 0);
   z-index: 4;
   pointer-events: none;
+  opacity: 0.65;
+  border-color: rgba(217, 119, 6, 0.18);
+  background: rgba(12, 10, 24, 0.65);
 
   ${props => props.$isHovered && css`
     opacity: 1;
-    transform: translate(-50%, 0);
+    transform: translate(-50%, -4px);
     border-color: #d97706;
     color: #f59e0b;
-    box-shadow: 0 0 10px rgba(217, 119, 6, 0.3);
+    background: rgba(12, 10, 24, 0.9);
+    box-shadow: 0 4px 15px rgba(217, 119, 6, 0.45), 0 0 10px rgba(217, 119, 6, 0.3);
   `}
 `;
 
@@ -1144,8 +1151,8 @@ const NoteBoxItem = styled(motion.div)`
 
 const NoteBoxLabel = styled.div`
   margin-top: 0.3rem;
-  background: rgba(12, 10, 24, 0.85);
-  border: 1px solid rgba(231, 199, 126, 0.35);
+  background: rgba(12, 10, 24, 0.65);
+  border: 1px solid rgba(231, 199, 126, 0.18);
   border-radius: 6px;
   color: #ffedd5;
   font-size: 0.68rem;
@@ -1155,17 +1162,18 @@ const NoteBoxLabel = styled.div`
   white-space: nowrap;
   pointer-events: none;
   font-weight: 700;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.45);
-  opacity: 0;
-  transform: translateY(6px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+  opacity: 0.65;
+  transform: translateY(0);
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   
   ${NoteBoxItem}:hover & {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(-4px);
+    background: rgba(12, 10, 24, 0.9);
     border-color: #fcd34d;
     color: #fcd34d;
-    box-shadow: 0 0 10px rgba(252, 211, 77, 0.3);
+    box-shadow: 0 4px 15px rgba(252, 211, 77, 0.45), 0 0 10px rgba(252, 211, 77, 0.3);
   }
 `;
 
@@ -1195,8 +1203,8 @@ const DrawerItem = styled(motion.div)`
 
 const DrawerLabel = styled.div`
   margin-top: 0.3rem;
-  background: rgba(12, 10, 24, 0.85);
-  border: 1px solid rgba(192, 132, 252, 0.35);
+  background: rgba(12, 10, 24, 0.65);
+  border: 1px solid rgba(192, 132, 252, 0.18);
   border-radius: 6px;
   color: #f5f3ff;
   font-size: 0.68rem;
@@ -1206,17 +1214,18 @@ const DrawerLabel = styled.div`
   white-space: nowrap;
   pointer-events: none;
   font-weight: 700;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.45);
-  opacity: 0;
-  transform: translateY(6px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+  opacity: 0.65;
+  transform: translateY(0);
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   
   ${DrawerItem}:hover & {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(-4px);
+    background: rgba(12, 10, 24, 0.9);
     border-color: #a78bfa;
     color: #c084fc;
-    box-shadow: 0 0 10px rgba(167, 139, 250, 0.3);
+    box-shadow: 0 4px 15px rgba(167, 139, 250, 0.45), 0 0 10px rgba(167, 139, 250, 0.3);
   }
 `;
 
@@ -1246,8 +1255,8 @@ const BlueprintItem = styled(motion.div)`
 
 const BlueprintLabel = styled.div`
   margin-top: 0.3rem;
-  background: rgba(12, 10, 24, 0.85);
-  border: 1px solid rgba(56, 189, 248, 0.35);
+  background: rgba(12, 10, 24, 0.65);
+  border: 1px solid rgba(56, 189, 248, 0.18);
   border-radius: 6px;
   color: #f0f9ff;
   font-size: 0.68rem;
@@ -1257,17 +1266,18 @@ const BlueprintLabel = styled.div`
   white-space: nowrap;
   pointer-events: none;
   font-weight: 700;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.45);
-  opacity: 0;
-  transform: translateY(6px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+  opacity: 0.65;
+  transform: translateY(0);
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   
   ${BlueprintItem}:hover & {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(-4px);
+    background: rgba(12, 10, 24, 0.9);
     border-color: #38bdf8;
     color: #38bdf8;
-    box-shadow: 0 0 12px rgba(56, 189, 248, 0.35);
+    box-shadow: 0 4px 15px rgba(56, 189, 248, 0.45), 0 0 12px rgba(56, 189, 248, 0.35);
   }
 `;
 
