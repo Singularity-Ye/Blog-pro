@@ -248,7 +248,7 @@ const BLOG_SCENES = {
         left: '46%', 
         top: '42%', 
         width: '70px', 
-        label: '心境碎片', 
+        label: '修真见闻', 
         collection: 'travel', 
         transform: 'rotate(15deg)',
         filter: (notes) => notes.filter(n => n.collection === 'travel' && n.tags?.includes('随笔'))[1] || notes.filter(n => n.collection === 'travel')[1] 
@@ -259,10 +259,10 @@ const BLOG_SCENES = {
         left: '68%', 
         top: '38%', 
         width: '70px', 
-        label: '修真见闻', 
-        collection: 'travel', 
+        label: '心境碎片', 
+        collection: 'desk-thoughts', 
         transform: 'rotate(-20deg)',
-        filter: (notes) => notes.filter(n => n.collection === 'travel')[2] 
+        filter: (notes) => notes.filter(n => n.collection === 'desk-thoughts' && !n.title.includes('索引'))[0] || notes.filter(n => n.collection === 'desk-thoughts')[0] 
       },
       { 
         id: 'green-4', 
@@ -271,9 +271,9 @@ const BLOG_SCENES = {
         top: '56%', 
         width: '70px', 
         label: '松果碎语', 
-        collection: 'travel', 
+        collection: 'desk-thoughts', 
         transform: 'rotate(10deg)',
-        filter: (notes) => notes.filter(n => n.collection === 'travel')[3] 
+        filter: (notes) => notes.filter(n => n.collection === 'desk-thoughts' && !n.title.includes('索引'))[1] || notes.filter(n => n.collection === 'desk-thoughts')[1] 
       },
     ],
   },
@@ -324,9 +324,9 @@ const BLOG_SCENES = {
         left: '48%', 
         top: '46%', 
         width: '110px', 
-        label: 'Linux 法门', 
+        label: 'Linux与嵌入式', 
         transform: 'rotate(3deg)',
-        collections: ['linux-notes'] 
+        collections: ['linux-notes', 'embedded'] 
       },
       { 
         id: 'jade-1', 
@@ -503,8 +503,11 @@ const BLOG_SCENES = {
         label: '旧方案与重制记录',
         articleMeta: 'ARCHIVE · SCHEMES',
         imgSrc: BLOG_NEW_ASSETS.archiveDrawerStack01,
-        collections: ['blog-design', 'project'],
+        collections: ['blog-design', 'project', 'internal-skills', 'knowledge-grocery'],
         filter: (notes) => notes.filter((note) => {
+          if (note.collection === 'knowledge-grocery' || note.collection === 'internal-skills') {
+            return !note.title.includes('索引') && !note.slug.includes('_索引');
+          }
           const haystack = `${note.title || ''} ${note.slug || ''} ${note.collectionLabel || ''} ${(note.tags || []).join(' ')}`;
           return /旧|重制|方案|架构|空间长廊|博客页|设计|流程/.test(haystack);
         })
@@ -570,7 +573,7 @@ const BLOG_SCENES = {
         hitHeight: '20.62%',
         labelLeft: '38.3%',
         labelTop: '29%',
-        articleSlug: '日常随笔/Obsidian本质理解：Markdown、HTML 与 AI 时代的知识工作流',
+        articleSlug: '内功心法/Obsidian本质理解：Markdown、HTML 与 AI 时代的知识工作流',
         articleMeta: 'WORKSHOP · OBSIDIAN'
       },
       { 
@@ -3017,7 +3020,7 @@ const Mermaid = ({ value }) => {
         }
       } catch (err) {
         removeMermaidErrorArtifacts();
-        console.error('Mermaid render error:', err);
+        console.warn('Mermaid render failed, showing raw diagram:', err.message);
         if (active) {
           setError(err);
           setSvg('');
@@ -3281,7 +3284,7 @@ export default function Blog() {
         setNotesLoading(false);
       })
       .catch(err => {
-        console.error(err);
+        console.warn('[Blog] Failed to load notes index:', err.message);
         setNotesLoading(false);
       });
   }, []);
@@ -3528,7 +3531,7 @@ export default function Blog() {
           setLeafSnippetLoading(false);
         })
         .catch(err => {
-          console.error(err);
+          console.warn('[Blog] Failed to load leaf snippet:', err.message);
           setLeafSnippet('无法读取树叶上的法力印记，只隐约看到这是一篇关于「' + targetNote.title + '」的修行感悟。');
           setLeafSnippetLoading(false);
         });
