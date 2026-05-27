@@ -111,8 +111,8 @@ const CHRONOLOGY = [
   {
     year: '2024.6',
     title: '引气入体与强手降世 (Dou Zong & Qi Awakening)',
-    desc: '迈入大学，斗宗强者（各种AI，如 Copilot、Cursor 等）展现出种种浩瀚伟力。作为一个连基础引气决都念不周全的凡人，开始试着摸索如何去与之沟通、借阅并获取他们的力量。',
-    icon: '🪵'
+    desc: '迈入大学，斗宗强者（各种AI工具，如 Copilot、Cursor 等）展现出种种浩瀚伟力。作为一个连基础引气决都念不周全的凡人，开始试着摸索如何去与之沟通、借阅并获取他们的力量。',
+    icon: '🤡'
   },
   {
     year: '2025.1',
@@ -142,9 +142,9 @@ const CHRONOLOGY = [
 
 const RELICS = [
   { name: '鸣频共振信标', category: 'Music', desc: '在电子合成器与宏大原声带的音波震动中，激发灵感涟漪。', icon: '🎧', glow: 'rgba(99,102,241,0.25)' },
-  { name: '虚拟裂隙行者', category: 'Gaming', desc: '探索复杂宏大的世界观设定，钟爱高难度动作游戏与箱庭探索。', icon: '🎮', glow: 'rgba(244,63,94,0.25)' },
-  { name: '古旧典籍与奇闻怪志', category: 'Reading', desc: '涉猎历史、设计学与奇闻怪志，深信文字是跨次元传送门。', icon: '📚', glow: 'rgba(231,199,126,0.25)' },
-  { name: '微缩光影留存仪', category: 'Photography', desc: '利用光学棱镜捕捉瞬间的阴晴与颗粒，定格微弱的霓虹反差。', icon: '📷', glow: 'rgba(16,185,129,0.25)' }
+  { name: '虚拟裂隙行者', category: 'Gaming', desc: '探索复杂宏大的世界观设定，钟爱高难度动作游戏与箱庭探索(AI编的)。', icon: '🎮', glow: 'rgba(244,63,94,0.25)' },
+  { name: '古旧典籍与奇闻怪志', category: 'Reading', desc: '涉猎历史、设计学与奇闻怪志，深信文字是跨次元传送门(AI编的)。', icon: '📚', glow: 'rgba(231,199,126,0.25)' },
+  { name: '微缩光影留存仪', category: 'Photography', desc: '利用光学棱镜捕捉瞬间的阴晴与颗粒，定格微弱的霓虹反差(AI编的真挺像模像样的)。', icon: '📷', glow: 'rgba(16,185,129,0.25)' }
 ];
 
 /* ─────────────────────────────────────────

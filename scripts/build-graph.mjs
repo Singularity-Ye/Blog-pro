@@ -14,7 +14,7 @@
 import fs from 'fs';
 import path from 'path';
 
-const VAULT_PATH = String.raw`C:\Users\Yhx06\Documents\Obsidian Vault`;
+const VAULT_PATH = process.env.VAULT_PATH || String.raw`C:\Users\Yhx06\Documents\Obsidian Vault`;
 const PUBLIC_DIR = path.resolve('public');
 const NOTES_OUT = path.join(PUBLIC_DIR, 'notes');
 const GRAPH_OUT = path.join(PUBLIC_DIR, 'graph.json');

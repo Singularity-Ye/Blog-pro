@@ -3994,6 +3994,7 @@ export default function Blog() {
           >
             <ScrollPanelContainer
               $bgSrc={sceneMode === 'travel' ? BLOG_NEW_ASSETS.mapOpen : BLOG_NEW_ASSETS.scrollOpen}
+              $sceneMode={sceneMode}
               onClick={(e) => e.stopPropagation()}
               initial={{ scale: 0.7, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
@@ -4001,7 +4002,7 @@ export default function Blog() {
               transition={{ type: 'spring', stiffness: 85, damping: 14 }}
             >
               {/* 关闭按钮 */}
-              <ScrollCloseButton onClick={() => setIsModalOpen(false)}>
+              <ScrollCloseButton $sceneMode={sceneMode} onClick={() => setIsModalOpen(false)}>
                 <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="18" y1="6" x2="6" y2="18"></line>
                   <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -4009,13 +4010,13 @@ export default function Blog() {
               </ScrollCloseButton>
 
               {/* 卷轴头部 */}
-              <ScrollHeader>
-                <ScrollTitle>{activeScrollTitle}</ScrollTitle>
-                <ScrollMeta>{activeScrollMeta}</ScrollMeta>
+              <ScrollHeader $sceneMode={sceneMode}>
+                <ScrollTitle $sceneMode={sceneMode}>{activeScrollTitle}</ScrollTitle>
+                <ScrollMeta $sceneMode={sceneMode}>{activeScrollMeta}</ScrollMeta>
               </ScrollHeader>
 
               {/* 卷轴主要内容区 */}
-              <ScrollContentArea>
+              <ScrollContentArea $sceneMode={sceneMode}>
                 {archiveMode === 'search' ? (
                   /* ── 藏经分类阁 / 搜索模式 ── */
                   <>
@@ -4064,6 +4065,7 @@ export default function Blog() {
                         {filteredNotes.map((note) => (
                           <ArticleItem 
                             key={note.id} 
+                            $sceneMode={sceneMode}
                             onClick={() => handleOpenNote(note.slug)}
                           >
                             <ArticleHeaderRow>
@@ -4092,6 +4094,7 @@ export default function Blog() {
                         {modalNotes.map((note) => (
                           <ArticleItem 
                             key={note.id} 
+                            $sceneMode={sceneMode}
                             onClick={() => handleOpenNote(note.slug)}
                           >
                             <ArticleHeaderRow>

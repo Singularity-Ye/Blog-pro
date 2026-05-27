@@ -466,6 +466,15 @@ export default function GraphConstellationTest() {
     const isHighlight = highlightNodes.current.has(node.id);
     const radius = getRadius(node.degree);
     
+    // 防御性数值检查：如果 D3 引擎还没计算好初始 x, y 坐标，跳过此帧绘制防止 createRadialGradient 抛出非有限数值异常
+    if (
+      node.x === undefined || node.y === undefined || 
+      isNaN(node.x) || isNaN(node.y) ||
+      radius === undefined || isNaN(radius)
+    ) {
+      return;
+    }
+    
     const theme = CONSTELLATION_THEMES[node.collection] || CONSTELLATION_THEMES.default;
     
     ctx.save();
@@ -574,6 +583,16 @@ export default function GraphConstellationTest() {
     const target = link.target;
     
     if (typeof source !== 'object' || typeof target !== 'object') return;
+    
+    // 连线坐标防御检查
+    if (
+      source.x === undefined || source.y === undefined ||
+      target.x === undefined || target.y === undefined ||
+      isNaN(source.x) || isNaN(source.y) ||
+      isNaN(target.x) || isNaN(target.y)
+    ) {
+      return;
+    }
 
     ctx.save();
 
