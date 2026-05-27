@@ -1,7 +1,8 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { useParams, Link, useLocation, useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import mermaid from 'mermaid';
 import styled from 'styled-components';
 import MiniGraph from '../components/GraphView/MiniGraph';
 import { filterGraphByLocal } from '../utils/graphFilters';
@@ -577,6 +578,80 @@ function getDisplayValue(value) {
   return Array.isArray(value) ? value.join(' / ') : value;
 }
 
+// ── Mermaid 流程图渲染组件 ─────────────────────────────────────
+if (typeof window !== 'undefined') {
+  mermaid.initialize({
+    startOnLoad: false,
+    theme: 'dark',
+    securityLevel: 'loose',
+    themeVariables: {
+      background: 'transparent',
+      primaryColor: '#e7c77e',
+      textColor: '#ffedd5',
+      lineColor: '#e7c77e',
+    }
+  });
+}
+
+let mermaidIdCounter = 0;
+const Mermaid = ({ value }) => {
+  const [svg, setSvg] = useState('');
+  const [error, setError] = useState(null);
+  const elementId = useRef(`mermaid-${++mermaidIdCounter}`);
+
+  useEffect(() => {
+    let active = true;
+    const renderDiagram = async () => {
+      try {
+        const { svg: renderedSvg } = await mermaid.render(elementId.current, value);
+        if (active) {
+          setSvg(renderedSvg);
+          setError(null);
+        }
+      } catch (err) {
+        console.error('Mermaid render error:', err);
+        if (active) {
+          setError(err);
+        }
+      }
+    };
+    renderDiagram();
+    return () => {
+      active = false;
+    };
+  }, [value]);
+
+  if (error) {
+    return (
+      <pre style={{ background: 'rgba(220, 38, 38, 0.1)', border: '1px solid rgba(220, 38, 38, 0.3)', padding: '10px', borderRadius: '6px', overflowX: 'auto' }}>
+        <code>{value}</code>
+      </pre>
+    );
+  }
+
+  if (!svg) {
+    return <div style={{ padding: '20px', color: '#ffedd5', textAlign: 'center' }}>绘制星图导图中...</div>;
+  }
+
+  return (
+    <div 
+      className="mermaid-rendered" 
+      dangerouslySetInnerHTML={{ __html: svg }} 
+      style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        margin: '1.8rem auto',
+        padding: '1rem',
+        background: 'rgba(9, 19, 17, 0.4)',
+        border: '1px dashed rgba(231, 199, 126, 0.25)',
+        borderRadius: '12px',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+        overflowX: 'auto'
+      }} 
+    />
+  );
+};
+
 // ── 主组件 ────────────────────────────────────────────────────
 
 export default function Note() {
@@ -840,6 +915,15 @@ export default function Note() {
                   />
                 );
               },
+              code: (props) => {
+                const { className, children, ...rest } = props;
+                const match = /language-(\w+)/.exec(className || '');
+                const codeText = String(children).replace(/\n$/, '');
+                if (match && match[1] === 'mermaid') {
+                  return <Mermaid value={codeText} />;
+                }
+                return <code className={className} {...rest}>{children}</code>;
+              }
             }}
           >
             {parsedNote.body}

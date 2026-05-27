@@ -3,6 +3,7 @@ import styled, { keyframes, css } from 'styled-components';
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import mermaid from 'mermaid';
 import { BLOG_NEW_ASSETS } from '../constants/blogAssets';
 
 // -------------------------------------------------------------------------
@@ -437,26 +438,61 @@ const BLOG_SCENES = {
     ],
     items: [
       { 
-        id: 'workshop-blueprint', 
-        type: 'blueprint', 
-        left: '26.91%', 
-        top: '51.01%', 
-        width: '25.12%', 
-        height: '27.63%',
-        label: '建站工坊核心蓝图', 
-        imgSrc: BLOG_NEW_ASSETS.workshopBlueprint,
-        collections: ['project', 'blog-design']
+        id: 'workshop-astrolabe', 
+        type: 'cutout-prop', 
+        left: '0%', 
+        top: '0%', 
+        width: '100%', 
+        height: '100%',
+        label: 'Obsidian 知识星盘',
+        imgSrc: BLOG_NEW_ASSETS.workshopAstrolabe,
+        hitKey: 'workshopAstrolabe',
+        hitLeft: '34.03%',
+        hitTop: '33.05%',
+        hitWidth: '8.67%',
+        hitHeight: '20.62%',
+        labelLeft: '38.3%',
+        labelTop: '29%',
+        articleSlug: '日常随笔/Obsidian本质理解：Markdown、HTML 与 AI 时代的知识工作流',
+        articleMeta: 'WORKSHOP · OBSIDIAN'
       },
       { 
-        id: 'workshop-scroll', 
-        type: 'scroll', 
-        left: '66.99%', 
-        top: '31.88%', 
-        width: '10.77%', 
-        height: '23.38%',
-        label: '部署记录与技术长卷', 
-        imgSrc: BLOG_NEW_ASSETS.workshopScroll,
-        collections: ['linux-notes', 'compiler-theory']
+        id: 'workshop-blueprint-map', 
+        type: 'cutout-prop', 
+        left: '0%', 
+        top: '0%', 
+        width: '100%', 
+        height: '100%',
+        label: '空间长廊蓝图',
+        imgSrc: BLOG_NEW_ASSETS.workshopBlueprintMap,
+        hitKey: 'workshopBlueprintMap',
+        hitLeft: '40.13%',
+        hitTop: '57.17%',
+        hitWidth: '24.7%',
+        hitHeight: '16.9%',
+        labelLeft: '52.5%',
+        labelTop: '71%',
+        articleSlug: '博客网站/博客页-重制版/博客页空间长廊重构方案v0.2',
+        articleMeta: 'WORKSHOP · BLUEPRINT'
+      },
+      {
+        id: 'workshop-potions',
+        type: 'cutout-prop',
+        left: '0%',
+        top: '0%',
+        width: '100%',
+        height: '100%',
+        label: '部署复盘药剂',
+        imgSrc: BLOG_NEW_ASSETS.workshopPotions,
+        hitKey: 'workshopPotions',
+        hitLeft: '75.06%',
+        hitTop: '57.39%',
+        hitWidth: '10.29%',
+        hitHeight: '22.95%',
+        labelLeft: '80.2%',
+        labelTop: '82%',
+        articleSlug: '建站流程指南-静态网页/平台部署/Cloudflare Pages 部署错误复盘',
+        articleMeta: 'WORKSHOP · DEPLOY'
       }
     ],
   }
@@ -871,29 +907,51 @@ const LeafItem = styled(motion.div)`
 
 const LeafLabel = styled.div`
   margin-top: 0.35rem;
-  background: rgba(12, 10, 24, 0.6);
-  border: 1px solid rgba(231, 199, 126, 0.15);
-  border-radius: 6px;
+  background: rgba(12, 10, 24, 0.72);
+  border: 1px solid rgba(251, 191, 36, 0.22);
+  border-radius: 20px;
   color: #ffedd5;
-  font-size: 0.65rem;
-  padding: 3px 8px;
+  font-size: 0.68rem;
+  padding: 4px 12px;
   text-align: center;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   white-space: nowrap;
   pointer-events: none;
   font-weight: 700;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.35);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   opacity: 0.65;
   transform: translateY(0);
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  
+  &::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #fbbf24;
+    margin-right: 6px;
+    box-shadow: 0 0 6px rgba(251, 191, 36, 0.6);
+    transition: all 0.3s ease;
+  }
   
   ${LeafItem}:hover & {
     opacity: 1;
     transform: translateY(-4px);
     background: rgba(12, 10, 24, 0.9);
-    border-color: #d4af37;
-    color: #e7c77e;
-    box-shadow: 0 4px 15px rgba(212,175,55,0.45), 0 0 10px rgba(212,175,55,0.3);
+    border-color: #fbbf24;
+    color: #fbbf24;
+    box-shadow: 0 4px 20px rgba(251, 191, 36, 0.35), 0 0 10px rgba(251, 191, 36, 0.2);
+    
+    &::before {
+      background: #fbbf24;
+      box-shadow: 0 0 10px #fbbf24, 0 0 4px #fbbf24;
+    }
   }
 `;
 
@@ -927,21 +985,38 @@ const ScrollItem = styled(motion.div)`
 
 const ScrollLabel = styled.div`
   margin-top: 0.35rem;
-  background: rgba(4, 12, 10, 0.65);
-  border: 1px solid rgba(16, 185, 129, 0.15);
-  border-radius: 6px;
+  background: rgba(4, 12, 10, 0.72);
+  border: 1px solid rgba(16, 185, 129, 0.22);
+  border-radius: 20px;
   color: #e2fbf2;
   font-size: 0.68rem;
-  padding: 3px 10px;
+  padding: 4px 12px;
   text-align: center;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   white-space: nowrap;
   pointer-events: none;
   font-weight: 800;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.35);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   opacity: 0.65;
   transform: translateY(0);
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  
+  &::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #10b981;
+    margin-right: 6px;
+    box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
+    transition: all 0.3s ease;
+  }
   
   ${ScrollItem}:hover & {
     opacity: 1;
@@ -949,7 +1024,12 @@ const ScrollLabel = styled.div`
     background: rgba(4, 12, 10, 0.9);
     border-color: #10b981;
     color: #10b981;
-    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.45), 0 0 10px rgba(16, 185, 129, 0.3);
+    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.35), 0 0 10px rgba(16, 185, 129, 0.2);
+    
+    &::before {
+      background: #10b981;
+      box-shadow: 0 0 10px #10b981, 0 0 4px #10b981;
+    }
   }
 `;
 
@@ -979,21 +1059,38 @@ const MapBookItem = styled(motion.div)`
 
 const MapBookLabel = styled.div`
   margin-top: 0.3rem;
-  background: rgba(12, 10, 24, 0.65);
-  border: 1px solid rgba(245, 158, 11, 0.18);
-  border-radius: 6px;
+  background: rgba(12, 10, 24, 0.72);
+  border: 1px solid rgba(245, 158, 11, 0.22);
+  border-radius: 20px;
   color: #ffedd5;
   font-size: 0.68rem;
-  padding: 3px 8px;
+  padding: 4px 12px;
   text-align: center;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   white-space: nowrap;
   pointer-events: none;
   font-weight: 700;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   opacity: 0.65;
   transform: translateY(0);
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  
+  &::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #fb923c;
+    margin-right: 6px;
+    box-shadow: 0 0 6px rgba(251, 146, 60, 0.6);
+    transition: all 0.3s ease;
+  }
   
   ${MapBookItem}:hover & {
     opacity: 1;
@@ -1001,7 +1098,12 @@ const MapBookLabel = styled.div`
     background: rgba(12, 10, 24, 0.9);
     border-color: #fb923c;
     color: #fb923c;
-    box-shadow: 0 4px 15px rgba(251, 146, 60, 0.45), 0 0 10px rgba(251, 146, 60, 0.35);
+    box-shadow: 0 4px 20px rgba(251, 146, 60, 0.35), 0 0 10px rgba(251, 146, 60, 0.2);
+    
+    &::before {
+      background: #fb923c;
+      box-shadow: 0 0 10px #fb923c, 0 0 4px #fb923c;
+    }
   }
 `;
 
@@ -1016,7 +1118,10 @@ const travelMapPulse = keyframes`
 
 const CUTOUT_HIT_ASSETS = {
   travelMap: BLOG_NEW_ASSETS.mapCutout,
-  mapScroll: BLOG_NEW_ASSETS.mapScroll
+  mapScroll: BLOG_NEW_ASSETS.mapScroll,
+  workshopAstrolabe: BLOG_NEW_ASSETS.workshopAstrolabe,
+  workshopBlueprintMap: BLOG_NEW_ASSETS.workshopBlueprintMap,
+  workshopPotions: BLOG_NEW_ASSETS.workshopPotions
 };
 
 const TravelMapCutoutItem = styled(motion.div)`
@@ -1038,10 +1143,10 @@ const TravelMapCutoutItem = styled(motion.div)`
 
 const TravelCutoutHitLayer = styled.button`
   position: absolute;
-  left: 0;
-  top: 22%;
-  width: 49%;
-  height: 48%;
+  left: ${props => props.$left || 0};
+  top: ${props => props.$top || 0};
+  width: ${props => props.$width || '100%'};
+  height: ${props => props.$height || '100%'};
   z-index: 40;
   display: block;
   padding: 0;
@@ -1143,8 +1248,23 @@ const TravelMapCutoutLabel = styled(MapBookLabel)`
   z-index: 4;
   pointer-events: none;
   opacity: 0.65;
-  border-color: rgba(217, 119, 6, 0.18);
-  background: rgba(12, 10, 24, 0.65);
+  border-color: rgba(217, 119, 6, 0.22);
+  background: rgba(12, 10, 24, 0.72);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  &::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #f59e0b;
+    margin-right: 6px;
+    box-shadow: 0 0 6px rgba(245, 158, 11, 0.6);
+    transition: all 0.3s ease;
+  }
 
   ${props => props.$isHovered && css`
     opacity: 1;
@@ -1152,7 +1272,12 @@ const TravelMapCutoutLabel = styled(MapBookLabel)`
     border-color: #d97706;
     color: #f59e0b;
     background: rgba(12, 10, 24, 0.9);
-    box-shadow: 0 4px 15px rgba(217, 119, 6, 0.45), 0 0 10px rgba(217, 119, 6, 0.3);
+    box-shadow: 0 4px 20px rgba(217, 119, 6, 0.35), 0 0 10px rgba(217, 119, 6, 0.2);
+    
+    &::before {
+      background: #d97706;
+      box-shadow: 0 0 10px #d97706, 0 0 4px #d97706;
+    }
   `}
 `;
 
@@ -1182,21 +1307,38 @@ const NoteBoxItem = styled(motion.div)`
 
 const NoteBoxLabel = styled.div`
   margin-top: 0.3rem;
-  background: rgba(12, 10, 24, 0.65);
-  border: 1px solid rgba(231, 199, 126, 0.18);
-  border-radius: 6px;
+  background: rgba(12, 10, 24, 0.72);
+  border: 1px solid rgba(231, 199, 126, 0.22);
+  border-radius: 20px;
   color: #ffedd5;
   font-size: 0.68rem;
-  padding: 3px 8px;
+  padding: 4px 12px;
   text-align: center;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   white-space: nowrap;
   pointer-events: none;
   font-weight: 700;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   opacity: 0.65;
   transform: translateY(0);
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  
+  &::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #fcd34d;
+    margin-right: 6px;
+    box-shadow: 0 0 6px rgba(252, 211, 77, 0.6);
+    transition: all 0.3s ease;
+  }
   
   ${NoteBoxItem}:hover & {
     opacity: 1;
@@ -1204,7 +1346,12 @@ const NoteBoxLabel = styled.div`
     background: rgba(12, 10, 24, 0.9);
     border-color: #fcd34d;
     color: #fcd34d;
-    box-shadow: 0 4px 15px rgba(252, 211, 77, 0.45), 0 0 10px rgba(252, 211, 77, 0.3);
+    box-shadow: 0 4px 20px rgba(252, 211, 77, 0.35), 0 0 10px rgba(252, 211, 77, 0.2);
+    
+    &::before {
+      background: #fcd34d;
+      box-shadow: 0 0 10px #fcd34d, 0 0 4px #fcd34d;
+    }
   }
 `;
 
@@ -1234,21 +1381,38 @@ const DrawerItem = styled(motion.div)`
 
 const DrawerLabel = styled.div`
   margin-top: 0.3rem;
-  background: rgba(12, 10, 24, 0.65);
-  border: 1px solid rgba(192, 132, 252, 0.18);
-  border-radius: 6px;
+  background: rgba(12, 10, 24, 0.72);
+  border: 1px solid rgba(192, 132, 252, 0.22);
+  border-radius: 20px;
   color: #f5f3ff;
   font-size: 0.68rem;
-  padding: 3px 8px;
+  padding: 4px 12px;
   text-align: center;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   white-space: nowrap;
   pointer-events: none;
   font-weight: 700;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   opacity: 0.65;
   transform: translateY(0);
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  
+  &::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #c084fc;
+    margin-right: 6px;
+    box-shadow: 0 0 6px rgba(192, 132, 252, 0.6);
+    transition: all 0.3s ease;
+  }
   
   ${DrawerItem}:hover & {
     opacity: 1;
@@ -1256,7 +1420,12 @@ const DrawerLabel = styled.div`
     background: rgba(12, 10, 24, 0.9);
     border-color: #a78bfa;
     color: #c084fc;
-    box-shadow: 0 4px 15px rgba(167, 139, 250, 0.45), 0 0 10px rgba(167, 139, 250, 0.3);
+    box-shadow: 0 4px 20px rgba(167, 139, 250, 0.35), 0 0 10px rgba(167, 139, 250, 0.2);
+    
+    &::before {
+      background: #c084fc;
+      box-shadow: 0 0 10px #c084fc, 0 0 4px #c084fc;
+    }
   }
 `;
 
@@ -1286,21 +1455,38 @@ const BlueprintItem = styled(motion.div)`
 
 const BlueprintLabel = styled.div`
   margin-top: 0.3rem;
-  background: rgba(12, 10, 24, 0.65);
-  border: 1px solid rgba(56, 189, 248, 0.18);
-  border-radius: 6px;
+  background: rgba(12, 10, 24, 0.72);
+  border: 1px solid rgba(56, 189, 248, 0.22);
+  border-radius: 20px;
   color: #f0f9ff;
   font-size: 0.68rem;
-  padding: 3px 8px;
+  padding: 4px 12px;
   text-align: center;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   white-space: nowrap;
   pointer-events: none;
   font-weight: 700;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   opacity: 0.65;
   transform: translateY(0);
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  
+  &::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #38bdf8;
+    margin-right: 6px;
+    box-shadow: 0 0 6px rgba(56, 189, 248, 0.6);
+    transition: all 0.3s ease;
+  }
   
   ${BlueprintItem}:hover & {
     opacity: 1;
@@ -1308,7 +1494,12 @@ const BlueprintLabel = styled.div`
     background: rgba(12, 10, 24, 0.9);
     border-color: #38bdf8;
     color: #38bdf8;
-    box-shadow: 0 4px 15px rgba(56, 189, 248, 0.45), 0 0 12px rgba(56, 189, 248, 0.35);
+    box-shadow: 0 4px 20px rgba(56, 189, 248, 0.35), 0 0 12px rgba(56, 189, 248, 0.2);
+    
+    &::before {
+      background: #38bdf8;
+      box-shadow: 0 0 10px #38bdf8, 0 0 4px #38bdf8;
+    }
   }
 `;
 
@@ -2076,6 +2267,82 @@ const Portal = ({ portal, onChangeScene }) => {
 };
 
 // -------------------------------------------------------------------------
+// Mermaid 流程图渲染组件 (Mermaid)
+// -------------------------------------------------------------------------
+if (typeof window !== 'undefined') {
+  mermaid.initialize({
+    startOnLoad: false,
+    theme: 'dark',
+    securityLevel: 'loose',
+    themeVariables: {
+      background: 'transparent',
+      primaryColor: '#818cf8',
+      textColor: '#4a2d1b',
+      lineColor: '#818cf8',
+    }
+  });
+}
+
+let mermaidIdCounter = 0;
+const Mermaid = ({ value }) => {
+  const [svg, setSvg] = useState('');
+  const [error, setError] = useState(null);
+  const elementId = useRef(`mermaid-${++mermaidIdCounter}`);
+
+  useEffect(() => {
+    let active = true;
+    const renderDiagram = async () => {
+      try {
+        const { svg: renderedSvg } = await mermaid.render(elementId.current, value);
+        if (active) {
+          setSvg(renderedSvg);
+          setError(null);
+        }
+      } catch (err) {
+        console.error('Mermaid render error:', err);
+        if (active) {
+          setError(err);
+        }
+      }
+    };
+    renderDiagram();
+    return () => {
+      active = false;
+    };
+  }, [value]);
+
+  if (error) {
+    return (
+      <pre style={{ background: 'rgba(220, 38, 38, 0.1)', border: '1px solid rgba(220, 38, 38, 0.3)', padding: '10px', borderRadius: '6px', overflowX: 'auto' }}>
+        <code>{value}</code>
+      </pre>
+    );
+  }
+
+  if (!svg) {
+    return <div style={{ padding: '20px', color: '#4a2d1b', textAlign: 'center' }}>绘制星图导图中...</div>;
+  }
+
+  return (
+    <div 
+      className="mermaid-rendered" 
+      dangerouslySetInnerHTML={{ __html: svg }} 
+      style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        margin: '1.5rem auto',
+        padding: '0.8rem',
+        background: 'rgba(74, 45, 27, 0.05)',
+        border: '1px dashed rgba(74, 45, 27, 0.2)',
+        borderRadius: '10px',
+        boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
+        overflowX: 'auto'
+      }} 
+    />
+  );
+};
+
+// -------------------------------------------------------------------------
 // 主组件 (Blog)
 // -------------------------------------------------------------------------
 export default function Blog() {
@@ -2098,7 +2365,8 @@ export default function Blog() {
   const [shakingLeafId, setShakingLeafId] = useState(null);
   
   const currentScene = BLOG_SCENES[sceneMode];
-  const travelCutoutItems = currentScene.items.filter(item => item.type === 'map-cutout' || item.type === 'cutout-scroll');
+  const cutoutItems = currentScene.items.filter(item => item.type === 'map-cutout' || item.type === 'cutout-scroll' || item.type === 'cutout-prop');
+  const travelCutoutItems = cutoutItems;
 
   // Pre-calculate compact opacity grids for transparent cutout assets.
   useEffect(() => {
@@ -2889,7 +3157,7 @@ export default function Blog() {
                   );
                 }
 
-                if (item.type === 'map-cutout' || item.type === 'cutout-scroll') {
+                if (item.type === 'map-cutout' || item.type === 'cutout-scroll' || item.type === 'cutout-prop') {
                   const isCutoutHovered = hoveredCutoutId === item.id;
                   return (
                     <TravelMapCutoutItem
@@ -2967,7 +3235,7 @@ export default function Blog() {
                 return null;
               })}
 
-              {sceneMode === 'travel' && travelCutoutItems.length > 0 && (
+              {travelCutoutItems.length > 0 && (
                 <TravelCutoutHitLayer
                   type="button"
                   $hasHit={Boolean(hoveredCutoutId)}
@@ -3112,7 +3380,20 @@ export default function Blog() {
                       </EmptyState>
                     ) : (
                       <MarkdownBody>
-                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        <ReactMarkdown
+                          remarkPlugins={[remarkGfm]}
+                          components={{
+                            code: (props) => {
+                              const { className, children, ...rest } = props;
+                              const match = /language-(\w+)/.exec(className || '');
+                              const codeText = String(children).replace(/\n$/, '');
+                              if (match && match[1] === 'mermaid') {
+                                return <Mermaid value={codeText} />;
+                              }
+                              return <code className={className} {...rest}>{children}</code>;
+                            }
+                          }}
+                        >
                           {articleBody}
                         </ReactMarkdown>
                       </MarkdownBody>

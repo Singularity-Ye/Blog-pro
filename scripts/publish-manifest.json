@@ -102,6 +102,16 @@
       "exclude": [
         "编译原理对话记录/编译原理：自底向上语法分析.md"
       ]
+    },
+    {
+      "enabled": true,
+      "label": "日常随笔",
+      "root": "日常随笔",
+      "kind": "notes",
+      "include": [
+        "**/*.md"
+      ],
+      "exclude": []
     }
   ],
   "publicFrontmatterFields": [

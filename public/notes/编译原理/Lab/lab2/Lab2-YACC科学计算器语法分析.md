@@ -55,11 +55,11 @@ Bison/YACC 的科学计算器文法
 
 ### 2.2 内存操作
 
-| token | 含义 |
-|-------|------|
-| `MC` | Memory Clear — 清空内存 |
-| `MR` | Memory Recall — 读取内存值 |
-| `M+ expr` | Memory Add — `memory += expr` |
+| token     | 含义                                 |
+| --------- | ---------------------------------- |
+| `MC`      | Memory Clear — 清空内存                |
+| `MR`      | Memory Recall — 读取内存值              |
+| `M+ expr` | Memory Add — `memory += expr`      |
 | `M- expr` | Memory Subtract — `memory -= expr` |
 
 > ⚠️ Lexer 必须区分 `MR` 和 `M_PLUS`（`M+`）。不能把 `M+ 5` 误解析为 `MR + 5`。
@@ -291,14 +291,14 @@ lab2-scientific-calculator/
 
 ### Design Report
 
-| Section | Content |
-|---------|---------|
-| **Introduction** | Problem statement; why YACC/Bison was chosen; relation to [[编译原理/LR系列对比总览|LALR theory]] |
-| **Grammar Design** | Full BNF grammar; key production rules explained; precedence declarations rationale |
-| **Conflict Analysis** | State numbers, lookahead tokens, competing rules, root causes, resolution strategies (see [[#四、冲突分析（重点）|Section 4]]) |
-| **AST Design** | Node structure, `%union`/`%type` declarations, memory management, `printTree()` algorithm |
-| **Testing** | Test cases and actual vs. expected results |
-| **Conclusion** | Parser correctness; grammar hypothesis validation; [[编译原理/Yacc与LALR(1)|LALR parsing]] observations; error sources (conflicts, integration bugs, semantic action errors) |
+| Section               | Content                                                                                                 |                                                                                                  |
+| --------------------- | ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| **Introduction**      | Problem statement; why YACC/Bison was chosen; relation to [[编译原理/LR系列对比总览                               | LALR theory]]                                                                                    |
+| **Grammar Design**    | Full BNF grammar; key production rules explained; precedence declarations rationale                     |                                                                                                  |
+| **Conflict Analysis** | State numbers, lookahead tokens, competing rules, root causes, resolution strategies (see [[#四、冲突分析（重点） | Section 4]])                                                                                     |
+| **AST Design**        | Node structure, `%union`/`%type` declarations, memory management, `printTree()` algorithm               |                                                                                                  |
+| **Testing**           | Test cases and actual vs. expected results                                                              |                                                                                                  |
+| **Conclusion**        | Parser correctness; grammar hypothesis validation; [[编译原理/Yacc与LALR(1)                                  | LALR parsing]] observations; error sources (conflicts, integration bugs, semantic action errors) |
 
 ### Conflict Analysis Report
 
