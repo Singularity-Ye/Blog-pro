@@ -536,7 +536,7 @@ const BLOG_SCENES = {
   workshop: {
     id: 'workshop',
     title: '建站工坊',
-    subtitle: '蓝图、卷轴和发光仪器堆在工作台上。\n这里记录着松果屋如何一点点搭起来，也收着那些被修好的 Bug 和没修好的奇怪想法。',
+    subtitle: '蓝图、卷轴和发光仪器堆在工作台上。\n这里不仅记录着松果屋的搭造成长史，更陈列着正在调制中的未来企划与奇思妙想。',
     background: BLOG_NEW_ASSETS.bgWorkshop,
     themeColor: '#38bdf8',
     portals: [
@@ -598,7 +598,7 @@ const BLOG_SCENES = {
         top: '0%',
         width: '100%',
         height: '100%',
-        label: '部署复盘药剂',
+        label: '未来构想魔药',
         imgSrc: BLOG_NEW_ASSETS.workshopPotions,
         hitKey: 'workshopPotions',
         hitLeft: '75.06%',
@@ -607,8 +607,12 @@ const BLOG_SCENES = {
         hitHeight: '22.95%',
         labelLeft: '80.2%',
         labelTop: '82%',
-        articleSlug: '建站流程指南-静态网页/平台部署/Cloudflare Pages 部署错误复盘',
-        articleMeta: 'WORKSHOP · DEPLOY'
+        articleMeta: 'WORKSHOP · FUTURE',
+        collections: ['blog-design'],
+        filter: (notes) => notes.filter((note) => {
+          return /重构|方案|计划|设计|升级/.test(note.title) && 
+                 !/代码审查|废弃方案/.test(note.slug);
+        })
       }
     ],
   }
