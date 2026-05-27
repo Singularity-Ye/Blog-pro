@@ -693,28 +693,58 @@ function getCollectionCounts(indexData) {
   return counts;
 }
 
+// 全局静态数据与背景图缓存，避免多次后退产生加载动画
+let cachedGraphData = null;
+let cachedIndexData = null;
+let isBgPreloaded = false;
+
 function useAtlasData() {
-  const [graphData, setGraphData] = useState({ nodes: [], links: [] });
-  const [indexData, setIndexData] = useState({ notes: [], collections: [] });
-  const [loading, setLoading] = useState(true);
+  const [graphData, setGraphData] = useState(cachedGraphData || { nodes: [], links: [] });
+  const [indexData, setIndexData] = useState(cachedIndexData || { notes: [], collections: [] });
+  const [loading, setLoading] = useState(!cachedGraphData || !cachedIndexData || !isBgPreloaded);
 
   useEffect(() => {
-    const fetchGraph = fetch('/graph.json')
-      .then((response) => response.json())
-      .then(setGraphData)
-      .catch(() => setGraphData({ nodes: [], links: [] }));
+    // 若已有缓存，则跳过本次加载，直接展示
+    if (cachedGraphData && cachedIndexData && isBgPreloaded) {
+      return;
+    }
 
-    const fetchIndex = fetch('/notes-index.json')
-      .then((response) => response.json())
-      .then(setIndexData)
-      .catch(() => setIndexData({ notes: [], collections: [] }));
+    const fetchGraph = cachedGraphData
+      ? Promise.resolve(cachedGraphData)
+      : fetch('/graph.json')
+          .then((response) => response.json())
+          .then((data) => {
+            cachedGraphData = data;
+            setGraphData(data);
+            return data;
+          })
+          .catch(() => setGraphData({ nodes: [], links: [] }));
 
-    const preloadBg = new Promise((resolve) => {
-      const img = new Image();
-      img.src = atlasArchiveBg;
-      img.onload = resolve;
-      img.onerror = resolve;
-    });
+    const fetchIndex = cachedIndexData
+      ? Promise.resolve(cachedIndexData)
+      : fetch('/notes-index.json')
+          .then((response) => response.json())
+          .then((data) => {
+            cachedIndexData = data;
+            setIndexData(data);
+            return data;
+          })
+          .catch(() => setIndexData({ notes: [], collections: [] }));
+
+    const preloadBg = isBgPreloaded
+      ? Promise.resolve()
+      : new Promise((resolve) => {
+          const img = new Image();
+          img.src = atlasArchiveBg;
+          img.onload = () => {
+            isBgPreloaded = true;
+            resolve();
+          };
+          img.onerror = () => {
+            isBgPreloaded = true;
+            resolve();
+          };
+        });
 
     Promise.all([fetchGraph, fetchIndex, preloadBg]).then(() => {
       setTimeout(() => {

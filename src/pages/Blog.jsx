@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
@@ -487,26 +487,56 @@ const BLOG_SCENES = {
     ],
     items: [
       { 
-        id: 'archive-drawer', 
+        id: 'archive-legacy-plans', 
         type: 'drawer', 
-        left: '10.77%', 
-        top: '43.57%', 
-        width: '16.75%', 
-        height: '26.57%',
-        label: '博文索引抽屉 (搜索/标签)', 
+        left: '9.75%', 
+        top: '17.64%', 
+        width: '11.36%', 
+        height: '32.84%',
+        label: '旧方案与重制记录',
+        imgSrc: BLOG_NEW_ASSETS.archiveDrawerStack01,
+        collections: ['blog-design', 'project'],
+        filter: (notes) => notes.filter((note) => {
+          const haystack = `${note.title || ''} ${note.slug || ''} ${note.collectionLabel || ''} ${(note.tags || []).join(' ')}`;
+          return /旧|重制|方案|架构|空间长廊|博客页|设计|流程/.test(haystack);
+        })
+      },
+      { 
+        id: 'archive-search-drawer', 
+        type: 'drawer', 
+        left: '9.75%', 
+        top: '50.8%', 
+        width: '11.36%', 
+        height: '32.84%',
+        label: '全站分类检索',
         imgSrc: BLOG_NEW_ASSETS.archiveDrawer,
         action: 'search'
       },
       { 
-        id: 'archive-note-box', 
-        type: 'note-box', 
-        left: '64.59%', 
-        top: '53.13%', 
-        width: '11.96%', 
-        height: '21.25%',
-        label: '便签盒 (最近更新)', 
+        id: 'archive-recent-notes', 
+        type: 'drawer', 
+        left: '68.42%', 
+        top: '21.5%', 
+        width: '14.95%', 
+        height: '21.57%',
+        label: '近期修真手札',
         imgSrc: BLOG_NEW_ASSETS.archiveNoteBox,
         action: 'recent'
+      },
+      { 
+        id: 'archive-issue-logs', 
+        type: 'drawer', 
+        left: '68.42%', 
+        top: '43.46%', 
+        width: '14.95%', 
+        height: '21.57%',
+        label: '问题总录与补救日志',
+        imgSrc: BLOG_NEW_ASSETS.archiveDrawerStack02,
+        collections: ['blog-design', 'project'],
+        filter: (notes) => notes.filter((note) => {
+          const haystack = `${note.title || ''} ${note.slug || ''} ${note.collectionLabel || ''} ${(note.tags || []).join(' ')}`;
+          return /问题|Bug|bug|复盘|故障|补救|日志|排查|错误|修复/.test(haystack);
+        })
       }
     ],
   },
@@ -2190,9 +2220,24 @@ const ScrollPanelContainer = styled(motion.div)`
     padding: 6.4rem 8.6rem 5.4rem 8.6rem;
   `}
 
+  ${props => props.$sceneMode === 'travel' && css`
+    width: min(1120px, 84vw);
+    height: min(640px, 70vh);
+    min-height: 540px;
+    padding: 5.6rem 7.8rem 5.2rem 7.8rem;
+  `}
+
+  ${props => props.$sceneMode === 'archive' && css`
+    width: min(1080px, 82vw);
+    height: min(650px, 72vh);
+    min-height: 540px;
+    padding: 5.7rem 7.4rem 5.6rem 7.4rem;
+  `}
+
   @media (max-width: 760px) {
     width: min(440px, 94vw);
-    height: 520px;
+    height: min(520px, calc(100vh - 3rem));
+    min-height: 0;
     padding: 4.2rem 3.6rem 4.5rem 3.6rem;
   }
 `;
@@ -2210,6 +2255,16 @@ const ScrollHeader = styled.div`
     border-bottom-color: rgba(231, 199, 126, 0.26);
     margin-bottom: 0.75rem;
   `}
+
+  ${props => props.$sceneMode === 'travel' && css`
+    border-bottom-color: rgba(82, 142, 164, 0.26);
+    margin-bottom: 0.75rem;
+  `}
+
+  ${props => props.$sceneMode === 'archive' && css`
+    border-bottom-color: rgba(104, 65, 32, 0.22);
+    margin-bottom: 0.75rem;
+  `}
 `;
 
 const ScrollTitle = styled.h2`
@@ -2223,6 +2278,16 @@ const ScrollTitle = styled.h2`
     color: #f6d99a;
     text-shadow: 0 2px 8px rgba(0, 0, 0, 0.72);
   `}
+
+  ${props => props.$sceneMode === 'travel' && css`
+    color: #245169;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+  `}
+
+  ${props => props.$sceneMode === 'archive' && css`
+    color: #3f2816;
+    text-shadow: 0 1px 0 rgba(255, 248, 223, 0.72), 0 6px 18px rgba(72, 39, 18, 0.18);
+  `}
 `;
 
 const ScrollMeta = styled.span`
@@ -2235,6 +2300,16 @@ const ScrollMeta = styled.span`
   ${props => props.$sceneMode === 'outdoor' && css`
     color: rgba(246, 217, 154, 0.72);
     text-shadow: 0 2px 8px rgba(0, 0, 0, 0.65);
+  `}
+
+  ${props => props.$sceneMode === 'travel' && css`
+    color: rgba(46, 98, 122, 0.76);
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
+  `}
+
+  ${props => props.$sceneMode === 'archive' && css`
+    color: rgba(91, 54, 24, 0.72);
+    text-shadow: 0 1px 0 rgba(255, 248, 223, 0.7);
   `}
 `;
 
@@ -2257,6 +2332,14 @@ const ScrollCloseButton = styled.button`
   ${props => props.$sceneMode === 'outdoor' && css`
     color: #d99645;
     text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+  `}
+
+  ${props => props.$sceneMode === 'travel' && css`
+    color: #2e6f88;
+  `}
+
+  ${props => props.$sceneMode === 'archive' && css`
+    color: #6b3f1f;
   `}
 
   &:hover {
@@ -2288,6 +2371,28 @@ const ScrollContentArea = styled.div`
     box-shadow:
       inset 0 0 30px rgba(0, 0, 0, 0.28),
       0 12px 28px rgba(0, 0, 0, 0.22);
+  `}
+
+  ${props => props.$sceneMode === 'travel' && css`
+    padding: 0.65rem 0.75rem 0.8rem;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.44), rgba(225, 244, 246, 0.28)),
+      rgba(222, 242, 244, 0.24);
+    border: 1px solid rgba(82, 142, 164, 0.18);
+    box-shadow:
+      inset 0 0 26px rgba(82, 142, 164, 0.08),
+      0 12px 28px rgba(43, 93, 116, 0.12);
+  `}
+
+  ${props => props.$sceneMode === 'archive' && css`
+    padding: 0.7rem 0.8rem 0.85rem;
+    background:
+      linear-gradient(180deg, rgba(255, 247, 221, 0.52), rgba(218, 181, 122, 0.22)),
+      rgba(245, 224, 181, 0.28);
+    border: 1px solid rgba(104, 65, 32, 0.18);
+    box-shadow:
+      inset 0 0 28px rgba(117, 71, 31, 0.08),
+      0 14px 30px rgba(61, 36, 18, 0.16);
   `}
 
   /* Custom subtle scrollbar matching scroll theme */
@@ -2510,6 +2615,32 @@ const ArticleItem = styled.div`
     box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
   `}
 
+  ${props => props.$sceneMode === 'travel' && css`
+    --article-title: #24465a;
+    --article-meta: #2e6f88;
+    --article-desc: rgba(36, 70, 90, 0.74);
+    --article-pill-bg: rgba(120, 176, 194, 0.16);
+    --article-pill-border: rgba(82, 142, 164, 0.2);
+    background:
+      linear-gradient(135deg, rgba(255, 255, 255, 0.82), rgba(218, 239, 243, 0.62)),
+      rgba(229, 246, 248, 0.58);
+    border-color: rgba(82, 142, 164, 0.2);
+    box-shadow: 0 9px 20px rgba(43, 93, 116, 0.1);
+  `}
+
+  ${props => props.$sceneMode === 'archive' && css`
+    --article-title: #3b2414;
+    --article-meta: #7a4a22;
+    --article-desc: rgba(68, 40, 20, 0.74);
+    --article-pill-bg: rgba(126, 79, 36, 0.12);
+    --article-pill-border: rgba(126, 79, 36, 0.22);
+    background:
+      linear-gradient(135deg, rgba(255, 247, 224, 0.88), rgba(226, 194, 139, 0.68)),
+      rgba(236, 208, 156, 0.58);
+    border-color: rgba(116, 72, 31, 0.24);
+    box-shadow: 0 9px 20px rgba(68, 39, 17, 0.12);
+  `}
+
   &:hover {
     background: linear-gradient(135deg, rgba(255, 250, 235, 0.96), rgba(250, 229, 184, 0.86));
     border-color: rgba(118, 73, 26, 0.48);
@@ -2522,6 +2653,22 @@ const ArticleItem = styled.div`
         rgba(34, 20, 10, 0.68);
       border-color: rgba(246, 217, 154, 0.48);
       box-shadow: 0 14px 30px rgba(0, 0, 0, 0.3), 0 0 18px rgba(231, 199, 126, 0.12);
+    `}
+
+    ${props => props.$sceneMode === 'travel' && css`
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.94), rgba(204, 235, 241, 0.78)),
+        rgba(232, 249, 251, 0.78);
+      border-color: rgba(82, 142, 164, 0.42);
+      box-shadow: 0 12px 26px rgba(43, 93, 116, 0.16), 0 0 18px rgba(115, 185, 207, 0.14);
+    `}
+
+    ${props => props.$sceneMode === 'archive' && css`
+      background:
+        linear-gradient(135deg, rgba(255, 250, 235, 0.96), rgba(236, 202, 145, 0.82)),
+        rgba(242, 216, 165, 0.76);
+      border-color: rgba(116, 72, 31, 0.46);
+      box-shadow: 0 12px 26px rgba(68, 39, 17, 0.18), 0 0 18px rgba(198, 141, 62, 0.12);
     `}
   }
 `;
@@ -2543,7 +2690,7 @@ const ArticleTitle = styled.span`
 const ArticleMeta = styled.span`
   font-size: 0.68rem;
   color: var(--article-meta);
-  background: rgba(118, 73, 26, 0.08);
+  background: var(--article-pill-bg);
   padding: 2px 6px;
   border-radius: 4px;
   font-weight: bold;
@@ -3329,7 +3476,7 @@ export default function Blog() {
     if (item.articleSlug) {
       setSelectedArticleSlug(item.articleSlug);
       setActiveScrollTitle(item.label || '旅行攻略');
-      setActiveScrollMeta('TRAVEL · HANGZHOU');
+      setActiveScrollMeta(item.articleMeta || 'TRAVEL · HANGZHOU');
       setModalNotes([]);
       setIsReaderOpen(true);
       return;
@@ -3862,6 +4009,7 @@ export default function Blog() {
                       $left={item.left}
                       $top={item.top}
                       $width={item.width}
+                      $height={item.height}
                       $transform={item.transform}
                       $sceneId={currentScene.id}
                       onClick={() => handleItemClick(item)}
@@ -3993,7 +4141,7 @@ export default function Blog() {
             onClick={() => setIsModalOpen(false)}
           >
             <ScrollPanelContainer
-              $bgSrc={sceneMode === 'travel' ? BLOG_NEW_ASSETS.mapOpen : BLOG_NEW_ASSETS.scrollOpen}
+              $bgSrc={sceneMode === 'travel' ? BLOG_NEW_ASSETS.oceanMap : sceneMode === 'archive' ? BLOG_NEW_ASSETS.archiveIndexBg : BLOG_NEW_ASSETS.scrollOpen}
               $sceneMode={sceneMode}
               onClick={(e) => e.stopPropagation()}
               initial={{ scale: 0.7, opacity: 0 }}

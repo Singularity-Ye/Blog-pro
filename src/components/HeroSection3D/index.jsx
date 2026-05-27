@@ -8,6 +8,7 @@ import * as THREE from 'three';
 import heroMapBackground from '../../assets/images/home/hero-map-background.png';
 import { BIOMES, BIOME_ORDER } from './BlogPlanet/biomeConfig';
 import Scene from './Scene';
+import ErrorBoundary from '../ErrorBoundary';
 
 const pulseAnim = keyframes`
   0%, 100% { opacity: 0.42; }
@@ -715,6 +716,7 @@ function HeroSection3D() {
   return (
     <HeroWrapper>
       <CanvasWrapper>
+        <ErrorBoundary>
         <Canvas
           camera={{ position: [0, 0.05, 5.9], fov: 48 }}
           gl={{ alpha: true, antialias: true }}
@@ -737,6 +739,7 @@ function HeroSection3D() {
             <Preload all />
           </Suspense>
         </Canvas>
+        </ErrorBoundary>
       </CanvasWrapper>
 
       <Overlay>

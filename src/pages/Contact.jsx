@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { motion, AnimatePresence, useTransform, useMotionValue, animate } from 'framer-motion';
 import Lanyard from '../components/Lanyard/Lanyard';
+import ErrorBoundary from '../components/ErrorBoundary';
 import FlowingMenu from '../components/Animations/FlowingMenu';
 import Marquee from '../components/Animations/Marquee';
 import VariableProximity from '../components/Animations/VariableProximity';
@@ -1567,7 +1568,9 @@ export default function Contact() {
             pointerEvents: activeSection === 1 ? 'auto' : 'none',
           }}
         >
+          <ErrorBoundary>
           <Lanyard position={[0, 0, 30]} gravity={[0, -40, 0]} interactive={activeSection === 1} />
+          </ErrorBoundary>
         </motion.div>
       )}
 

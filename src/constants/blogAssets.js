@@ -39,12 +39,16 @@ import blueprint from '../assets/images/blog/shared/blueprint.png';
 import scroll from '../assets/images/blog/shared/scroll.png';
 import mapScroll from '../assets/images/blog/travel/map-scroll.png';
 import parchmentReader from '../assets/images/blog/shared/parchment-reader.png';
+import oceanMap from '../assets/images/blog/shared/ocean-map.png';
 
 // Cropped environmental items
 import travelMap from '../assets/images/blog/travel/travel-map.png';
 import travelScroll from '../assets/images/blog/travel/travel-scroll.png';
 import archiveDrawer from '../assets/images/blog/archive/drawer.png';
 import archiveNoteBox from '../assets/images/blog/archive/note-box.png';
+import archiveIndexBg from '../assets/images/blog/archive/archive-drawer.png';
+import archiveDrawerStack01 from '../assets/images/blog/archive/drawer-stack01.png';
+import archiveDrawerStack02 from '../assets/images/blog/archive/drawer-stack02.png';
 import workshopBlueprint from '../assets/images/blog/workshop/workshop-blueprint-old.png';
 import workshopScroll from '../assets/images/blog/workshop/workshop-scroll-old.png';
 import workshopBlueprintMap from '../assets/images/blog/workshop/blueprint-map.png';
@@ -102,10 +106,14 @@ export const BLOG_NEW_ASSETS = {
   scroll,
   mapScroll,
   parchmentReader,
+  oceanMap,
   travelMap,
   travelScroll,
   archiveDrawer,
   archiveNoteBox,
+  archiveIndexBg,
+  archiveDrawerStack01,
+  archiveDrawerStack02,
   workshopBlueprint,
   workshopScroll,
   workshopBlueprintMap,
