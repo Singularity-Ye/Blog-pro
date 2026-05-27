@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import mermaid from 'mermaid';
 import { BLOG_NEW_ASSETS } from '../constants/blogAssets';
+import { parseFrontmatter } from '../utils/frontmatter';
 
 // -------------------------------------------------------------------------
 // 动效定义 (Animations)
@@ -847,8 +848,8 @@ const LeafPaperNote = styled(motion.div)`
   left: 50%;
   top: 48%;
   transform: translate(-50%, -50%);
-  width: min(340px, calc(100% - 32px));
-  padding: 1.4rem;
+  width: min(420px, calc(100% - 32px));
+  padding: 1.45rem;
   border-radius: 14px;
   background: 
     linear-gradient(135deg, rgba(255, 250, 235, 0.96), rgba(245, 230, 200, 0.94)),
@@ -892,13 +893,13 @@ const LeafPaperMeta = styled.div`
 `;
 
 const LeafPaperSnippet = styled.p`
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   color: rgba(61, 34, 18, 0.85);
-  line-height: 1.5;
+  line-height: 1.58;
   margin: 0;
   font-style: italic;
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
   overflow: hidden;
 `;
@@ -2182,6 +2183,13 @@ const ScrollPanelContainer = styled(motion.div)`
   box-sizing: border-box;
   padding: 4.8rem 6.2rem 5rem 6.2rem; /* Constrain content vertically and horizontally to prevent rod/edge overlapping */
 
+  ${props => props.$sceneMode === 'outdoor' && css`
+    width: min(1080px, 82vw);
+    height: min(680px, 74vh);
+    min-height: 560px;
+    padding: 6.4rem 8.6rem 5.4rem 8.6rem;
+  `}
+
   @media (max-width: 760px) {
     width: min(440px, 94vw);
     height: 520px;
@@ -2197,6 +2205,11 @@ const ScrollHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   font-family: Georgia, serif;
+
+  ${props => props.$sceneMode === 'outdoor' && css`
+    border-bottom-color: rgba(231, 199, 126, 0.26);
+    margin-bottom: 0.75rem;
+  `}
 `;
 
 const ScrollTitle = styled.h2`
@@ -2205,6 +2218,11 @@ const ScrollTitle = styled.h2`
   color: #3a2413;
   margin: 0;
   letter-spacing: 0.05em;
+
+  ${props => props.$sceneMode === 'outdoor' && css`
+    color: #f6d99a;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.72);
+  `}
 `;
 
 const ScrollMeta = styled.span`
@@ -2213,6 +2231,11 @@ const ScrollMeta = styled.span`
   font-family: monospace;
   text-transform: uppercase;
   font-weight: bold;
+
+  ${props => props.$sceneMode === 'outdoor' && css`
+    color: rgba(246, 217, 154, 0.72);
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.65);
+  `}
 `;
 
 const ScrollCloseButton = styled.button`
@@ -2231,6 +2254,11 @@ const ScrollCloseButton = styled.button`
   transition: background 0.2s ease;
   z-index: 200;
 
+  ${props => props.$sceneMode === 'outdoor' && css`
+    color: #d99645;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+  `}
+
   &:hover {
     background: rgba(118, 73, 26, 0.1);
   }
@@ -2244,8 +2272,23 @@ const ScrollCloseButton = styled.button`
 const ScrollContentArea = styled.div`
   flex: 1;
   overflow-y: auto;
-  padding-right: 8px;
+  padding: 0.75rem 10px 0.9rem 0.75rem;
   box-sizing: border-box;
+  border-radius: 12px;
+  background: rgba(255, 246, 222, 0.24);
+  box-shadow: inset 0 0 24px rgba(118, 73, 26, 0.08);
+  backdrop-filter: blur(2px);
+
+  ${props => props.$sceneMode === 'outdoor' && css`
+    padding: 0.65rem 0.7rem 0.8rem;
+    background:
+      linear-gradient(180deg, rgba(37, 23, 12, 0.58), rgba(18, 11, 7, 0.42)),
+      rgba(12, 8, 5, 0.34);
+    border: 1px solid rgba(231, 199, 126, 0.16);
+    box-shadow:
+      inset 0 0 30px rgba(0, 0, 0, 0.28),
+      0 12px 28px rgba(0, 0, 0, 0.22);
+  `}
 
   /* Custom subtle scrollbar matching scroll theme */
   &::-webkit-scrollbar {
@@ -2276,14 +2319,14 @@ const ReaderBackdrop = styled(motion.div)`
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1.5rem;
+  padding: clamp(0.4rem, 1.2vw, 1rem);
 `;
 
 const ReaderPanel = styled(motion.div)`
   position: relative;
-  width: min(840px, 88vw);
-  height: min(84vh, 760px);
-  min-height: 520px;
+  width: min(1280px, 96vw);
+  height: min(92vh, 860px);
+  min-height: 620px;
   background-image: url(${props => props.$bgSrc});
   background-size: 100% 100%;
   background-repeat: no-repeat;
@@ -2295,10 +2338,10 @@ const ReaderPanel = styled(motion.div)`
   flex-direction: column;
   overflow: hidden;
   box-sizing: border-box;
-  padding: 4.8rem 5.8rem 5rem 5.8rem;
+  padding: 3.2rem clamp(7.4rem, 8.2vw, 9rem) 4.6rem clamp(6.2rem, 7vw, 7.6rem);
 
   @media (max-width: 768px) {
-    padding: 3.5rem 2.2rem 3.8rem 2.2rem;
+    padding: 2.8rem 2rem 3.8rem 2.2rem;
     width: min(460px, 94vw);
     height: min(90vh, 640px);
   }
@@ -2306,11 +2349,11 @@ const ReaderPanel = styled(motion.div)`
 
 const ReaderHeader = styled.div`
   border-bottom: 2px dashed rgba(118, 73, 26, 0.2);
-  padding-bottom: 0.8rem;
-  margin-bottom: 1.2rem;
+  padding-bottom: 0.55rem;
+  margin-bottom: 0.75rem;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
   font-family: Georgia, serif;
 `;
 
@@ -2322,7 +2365,7 @@ const ReaderTitleRow = styled.div`
 `;
 
 const ReaderTitle = styled.h2`
-  font-size: 1.4rem;
+  font-size: clamp(1.18rem, 2.2vw, 1.4rem);
   font-weight: 900;
   color: #3a2413;
   margin: 0;
@@ -2350,7 +2393,7 @@ const ReaderMetaLabel = styled.span`
 
 const ReaderCloseButton = styled.button`
   position: absolute;
-  top: 3.2rem;
+  top: 2.7rem;
   right: 4.2rem;
   background: transparent;
   border: none;
@@ -2378,7 +2421,7 @@ const ReaderCloseButton = styled.button`
 const ReaderContentArea = styled.div`
   flex: 1;
   overflow-y: auto;
-  padding-right: 12px;
+  padding: 0 18px 0.6rem 0;
   box-sizing: border-box;
 
   /* Custom scrollbar matching paper theme */
@@ -2435,24 +2478,51 @@ const LoadingWrapper = styled.div`
 `;
 
 const ArticleItem = styled.div`
+  --article-title: #3a2413;
+  --article-meta: #76491a;
+  --article-desc: rgba(72, 42, 20, 0.78);
+  --article-pill-bg: rgba(118, 73, 26, 0.08);
+  --article-pill-border: rgba(118, 73, 26, 0.16);
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 10px 14px;
+  gap: 7px;
+  padding: 12px 15px;
   border-radius: 8px;
-  background: rgba(255, 236, 188, 0.35);
-  border: 1px solid rgba(118, 73, 26, 0.16);
+  background: linear-gradient(135deg, rgba(255, 250, 235, 0.88), rgba(240, 220, 178, 0.72));
+  border: 1px solid rgba(118, 73, 26, 0.24);
   margin-bottom: 10px;
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
   animation: ${paperSlideIn} 0.35s ease both;
-  box-shadow: 0 2px 4px rgba(118, 73, 26, 0.03);
+  box-shadow: 0 8px 18px rgba(34, 20, 10, 0.08);
+  backdrop-filter: blur(2px);
+
+  ${props => props.$sceneMode === 'outdoor' && css`
+    --article-title: #fff0c9;
+    --article-meta: #f2c36d;
+    --article-desc: rgba(255, 235, 198, 0.78);
+    --article-pill-bg: rgba(255, 232, 174, 0.12);
+    --article-pill-border: rgba(255, 232, 174, 0.2);
+    background:
+      linear-gradient(135deg, rgba(67, 39, 19, 0.86), rgba(117, 75, 31, 0.62)),
+      rgba(24, 14, 8, 0.58);
+    border-color: rgba(231, 199, 126, 0.24);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+  `}
 
   &:hover {
-    background: rgba(255, 236, 188, 0.65);
-    border-color: rgba(118, 73, 26, 0.4);
+    background: linear-gradient(135deg, rgba(255, 250, 235, 0.96), rgba(250, 229, 184, 0.86));
+    border-color: rgba(118, 73, 26, 0.48);
     transform: translateX(6px);
-    box-shadow: 0 4px 8px rgba(118, 73, 26, 0.08);
+    box-shadow: 0 10px 22px rgba(34, 20, 10, 0.14);
+
+    ${props => props.$sceneMode === 'outdoor' && css`
+      background:
+        linear-gradient(135deg, rgba(92, 54, 24, 0.92), rgba(144, 91, 35, 0.78)),
+        rgba(34, 20, 10, 0.68);
+      border-color: rgba(246, 217, 154, 0.48);
+      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.3), 0 0 18px rgba(231, 199, 126, 0.12);
+    `}
   }
 `;
 
@@ -2464,15 +2534,15 @@ const ArticleHeaderRow = styled.div`
 `;
 
 const ArticleTitle = styled.span`
-  font-size: 0.88rem;
-  font-weight: bold;
-  color: #3a2413;
+  font-size: 0.9rem;
+  font-weight: 850;
+  color: var(--article-title);
   text-shadow: 0 1px 0 rgba(255, 248, 230, 0.6);
 `;
 
 const ArticleMeta = styled.span`
   font-size: 0.68rem;
-  color: #76491a;
+  color: var(--article-meta);
   background: rgba(118, 73, 26, 0.08);
   padding: 2px 6px;
   border-radius: 4px;
@@ -2480,8 +2550,8 @@ const ArticleMeta = styled.span`
 `;
 
 const ArticleDesc = styled.div`
-  font-size: 0.72rem;
-  color: rgba(118, 73, 26, 0.72);
+  font-size: 0.74rem;
+  color: var(--article-desc);
   line-height: 1.4;
   display: flex;
   gap: 8px;
@@ -2489,9 +2559,9 @@ const ArticleDesc = styled.div`
   align-items: center;
   
   .tag-pill {
-    background: rgba(118, 73, 26, 0.05);
-    border: 0.5px solid rgba(118, 73, 26, 0.12);
-    padding: 1px 4px;
+    background: var(--article-pill-bg);
+    border: 0.5px solid var(--article-pill-border);
+    padding: 1px 5px;
     border-radius: 3px;
     font-size: 0.68rem;
   }
@@ -2643,29 +2713,6 @@ const MarkdownBody = styled.div`
   }
 `;
 
-// ── 简易 Frontmatter 解析器 ────────────────────────────────────
-function parseFrontmatter(markdown) {
-  const normalized = String(markdown || '').replace(/^\uFEFF/, '').replace(/\r\n?/g, '\n');
-  const match = normalized.match(/^---\n([\s\S]*?)\n---\n?/);
-  if (!match) return { body: markdown, title: '' };
-
-  const raw = match[1].split('\n');
-  let title = '';
-  for (const line of raw) {
-    const pair = line.match(/^title:\s*["']?(.+?)["']?\s*$/);
-    if (pair) {
-      title = pair[1].replace(/^["']|["']$/g, '');
-      break;
-    }
-  }
-
-  return {
-    body: normalized.slice(match[0].length),
-    title,
-  };
-}
-
-// -------------------------------------------------------------------------
 // Helper functions & Portal Component
 // -------------------------------------------------------------------------
 const getNoteSnippet = (text) => {
@@ -2675,14 +2722,66 @@ const getNoteSnippet = (text) => {
   if (match) {
     cleanText = text.slice(match[0].length);
   }
+
   cleanText = cleanText
-    .replace(/<!--[\s\S]*?-->/g, '') // remove comments
-    .replace(/^#+\s+.*$/gm, '')      // remove headings
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // simplify links
-    .replace(/[*_`#]/g, '')          // remove formatting
-    .replace(/\s+/g, ' ')            // collapse whitespace
+    .replace(/<!--[\s\S]*?-->/g, '')
+    .replace(/```[\s\S]*?```/g, '')
+    .replace(/~~~[\s\S]*?~~~/g, '')
+    .replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (_, title, alias) => alias || title)
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+
+  const normalizeLine = (line) => line
+    .replace(/^>\s*/, '')
+    .replace(/^[-*+]\s+\[[ xX]\]\s+/, '')
+    .replace(/^[-*+]\s+/, '')
+    .replace(/^\d+\.\s+/, '')
+    .replace(/[*_`#]/g, '')
+    .replace(/\s+/g, ' ')
     .trim();
-  return cleanText.length > 120 ? cleanText.slice(0, 120) + '...' : cleanText;
+
+  const isNoiseLine = (line) => {
+    const trimmed = line.trim();
+    if (!trimmed) return true;
+    if (/^#{1,6}\s+/.test(trimmed)) return true;
+    if (/^[-*_]{3,}$/.test(trimmed)) return true;
+    if (/^\|?[\s:-]+\|[\s|:-]*$/.test(trimmed)) return true;
+    if (/^\|.*\|$/.test(trimmed)) return true;
+    if (/^>\s*(obsidian|wikilink|todo|tip|note|warning|注意|提示|应变|手机端|离线|全程|遇到)/i.test(trimmed)) return true;
+    if (/^(obsidian|wikilink|todo|tip|note|warning|注意|提示|应变|手机端|离线|全程|遇到)/i.test(trimmed)) return true;
+    return false;
+  };
+
+  const paragraphs = cleanText
+    .split(/\n{2,}/)
+    .map(block => block
+      .split(/\r?\n/)
+      .filter(line => !isNoiseLine(line))
+      .map(normalizeLine)
+      .filter(Boolean)
+      .join(' ')
+      .trim()
+    )
+    .filter(Boolean);
+
+  const scoreParagraph = (paragraph) => {
+    const chineseCount = (paragraph.match(/[\u4e00-\u9fa5]/g) || []).length;
+    const punctuationCount = (paragraph.match(/[。！？；，、]/g) || []).length;
+    const metaPenalty = /(obsidian|wikilink|todo|提示|注意|应变|手机端|离线|全程|遇到|物品|原因)/i.test(paragraph) ? 80 : 0;
+    const shortPenalty = paragraph.length < 28 ? 40 : 0;
+    return chineseCount * 2 + punctuationCount * 8 + Math.min(paragraph.length, 160) - metaPenalty - shortPenalty;
+  };
+
+  const best = paragraphs
+    .map(paragraph => ({ paragraph, score: scoreParagraph(paragraph) }))
+    .sort((a, b) => b.score - a.score)[0]?.paragraph || '';
+
+  const snippet = best || cleanText
+    .split(/\r?\n/)
+    .map(normalizeLine)
+    .filter(Boolean)
+    .find(line => !isNoiseLine(line)) || '';
+
+  return snippet.length > 150 ? `${snippet.slice(0, 150)}...` : snippet;
 };
 
 const Portal = ({ portal, onChangeScene }) => {
@@ -2734,6 +2833,7 @@ const Portal = ({ portal, onChangeScene }) => {
 if (typeof window !== 'undefined') {
   mermaid.initialize({
     startOnLoad: false,
+    suppressErrors: true,
     theme: 'base',
     securityLevel: 'loose',
     themeVariables: {
@@ -2753,29 +2853,39 @@ const Mermaid = ({ value }) => {
 
   useEffect(() => {
     let active = true;
+    const removeMermaidErrorArtifacts = () => {
+      if (typeof document === 'undefined') return;
+      [elementId.current, `d${elementId.current}`].forEach((id) => {
+        document.getElementById(id)?.remove();
+      });
+    };
     const renderDiagram = async () => {
       try {
+        await mermaid.parse(value, { suppressErrors: true });
         const { svg: renderedSvg } = await mermaid.render(elementId.current, value);
         if (active) {
           setSvg(renderedSvg);
           setError(null);
         }
       } catch (err) {
+        removeMermaidErrorArtifacts();
         console.error('Mermaid render error:', err);
         if (active) {
           setError(err);
+          setSvg('');
         }
       }
     };
     renderDiagram();
     return () => {
       active = false;
+      removeMermaidErrorArtifacts();
     };
   }, [value]);
 
   if (error) {
     return (
-      <pre style={{ background: 'rgba(220, 38, 38, 0.1)', border: '1px solid rgba(220, 38, 38, 0.3)', padding: '10px', borderRadius: '6px', overflowX: 'auto' }}>
+      <pre style={{ background: 'rgba(74, 45, 27, 0.06)', border: '1px dashed rgba(118, 73, 26, 0.25)', padding: '10px', borderRadius: '6px', overflowX: 'auto' }}>
         <code>{value}</code>
       </pre>
     );
@@ -3049,7 +3159,7 @@ export default function Blog() {
         setArticleBody(parsed.body);
         // 如果 frontmatter 里面没有 title，解析文件名
         const fileName = selectedArticleSlug.split('/').pop().replace('.md', '');
-        setArticleTitle(parsed.title || fileName);
+        setArticleTitle(parsed.data.title || fileName);
         setArticleLoading(false);
       })
       .catch(err => {

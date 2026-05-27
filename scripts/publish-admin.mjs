@@ -1357,7 +1357,8 @@ const server = http.createServer(async (req, res) => {
 
     send(res, 404, { error: 'Not found' });
   } catch (error) {
-    send(res, 500, { error: error.message, stack: error.stack });
+    console.error('[publish-admin]', error);
+    send(res, 500, { error: 'Internal server error' });
   }
 });
 

@@ -11,8 +11,10 @@ import Contact from './pages/Contact';
 import Note from './pages/Note';
 import Atlas from './pages/Atlas';
 import GraphView from './components/GraphView/GraphView';
+import GraphConstellationTest from './pages/GraphConstellationTest';
 import Layout from './components/Layout';
 import GlobalNav from './components/GlobalNav';
+import ErrorBoundary from './components/ErrorBoundary';
 
 function AppRoutes() {
   const location = useLocation();
@@ -26,6 +28,7 @@ function AppRoutes() {
   return (
     <>
       <Layout>
+        <ErrorBoundary>
         <Routes location={backgroundLocation || location}>
           <Route path="/" element={<Home />} />
           <Route path="/blog" element={<Blog />} />
@@ -36,8 +39,10 @@ function AppRoutes() {
           <Route path="/atlas" element={<Atlas />} />
           <Route path="/atlas/:type" element={<Atlas />} />
           <Route path="/graph" element={<GraphView />} />
+          <Route path="/graph-test" element={<GraphConstellationTest />} />
           <Route path="/note/*" element={<Note />} />
         </Routes>
+        </ErrorBoundary>
       </Layout>
       {backgroundLocation && (
         <Routes>

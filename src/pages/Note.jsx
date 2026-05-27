@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useRef } from 'react';
+﻿import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { useParams, Link, useLocation, useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -6,6 +6,7 @@ import mermaid from 'mermaid';
 import styled from 'styled-components';
 import MiniGraph from '../components/GraphView/MiniGraph';
 import { filterGraphByLocal } from '../utils/graphFilters';
+import { parseFrontmatter } from '../utils/frontmatter';
 import atlasArchiveBg from '../assets/images/atlas/pinecone-observatory-bg.png';
 
 // ── 样式 ──────────────────────────────────────────────────────
@@ -624,40 +625,18 @@ const TYPE_LABELS = {
   guide: '指南',
 };
 
-function parseValue(value) {
-  const trimmed = value.trim();
-  if (trimmed === 'true') return '是';
-  if (trimmed === 'false') return '否';
-  if (trimmed === '[]') return '';
-  return trimmed.replace(/^["']|["']$/g, '');
+function toDisplayValue(val) {
+  if (val === true) return '是';
+  if (val === false) return '否';
+  return val;
 }
 
-function parseFrontmatter(markdown) {
-  const normalized = String(markdown || '').replace(/^\uFEFF/, '').replace(/\r\n?/g, '\n');
-  const match = normalized.match(/^---\n([\s\S]*?)\n---\n?/);
-  if (!match) return { body: markdown, properties: [] };
-
-  const raw = match[1].split('\n');
-  const data = {};
-  let currentKey = null;
-
-  for (const line of raw) {
-    const listItem = line.match(/^\s*-\s+(.+)$/);
-    if (listItem && currentKey) {
-      data[currentKey] = [...(Array.isArray(data[currentKey]) ? data[currentKey] : []), parseValue(listItem[1])];
-      continue;
-    }
-
-    const pair = line.match(/^([A-Za-z0-9_-]+):\s*(.*)$/);
-    if (!pair) continue;
-    currentKey = pair[1];
-    data[currentKey] = pair[2] ? parseValue(pair[2]) : [];
-  }
-
-  const properties = PROPERTY_ORDER
-    .filter((key) => data[key] && PROPERTY_LABELS[key])
+function buildProperties(data) {
+  return PROPERTY_ORDER
+    .filter((key) => data[key] != null && data[key] !== '' && PROPERTY_LABELS[key])
     .map((key) => {
-      const value = Array.isArray(data[key]) ? data[key].filter(Boolean) : data[key];
+      const raw = data[key];
+      const value = Array.isArray(raw) ? raw.filter(Boolean).map(toDisplayValue) : toDisplayValue(raw);
       return {
         key,
         label: PROPERTY_LABELS[key],
@@ -665,13 +644,7 @@ function parseFrontmatter(markdown) {
       };
     })
     .filter((item) => (Array.isArray(item.value) ? item.value.length : item.value));
-
-  return {
-    body: normalized.slice(match[0].length),
-    properties,
-  };
 }
-
 function getDisplayValue(value) {
   return Array.isArray(value) ? value.join(' / ') : value;
 }
@@ -680,6 +653,7 @@ function getDisplayValue(value) {
 if (typeof window !== 'undefined') {
   mermaid.initialize({
     startOnLoad: false,
+    suppressErrors: true,
     theme: 'base',
     securityLevel: 'loose',
     themeVariables: {
@@ -699,29 +673,39 @@ const Mermaid = ({ value }) => {
 
   useEffect(() => {
     let active = true;
+    const removeMermaidErrorArtifacts = () => {
+      if (typeof document === 'undefined') return;
+      [elementId.current, `d${elementId.current}`].forEach((id) => {
+        document.getElementById(id)?.remove();
+      });
+    };
     const renderDiagram = async () => {
       try {
+        await mermaid.parse(value, { suppressErrors: true });
         const { svg: renderedSvg } = await mermaid.render(elementId.current, value);
         if (active) {
           setSvg(renderedSvg);
           setError(null);
         }
       } catch (err) {
+        removeMermaidErrorArtifacts();
         console.error('Mermaid render error:', err);
         if (active) {
           setError(err);
+          setSvg('');
         }
       }
     };
     renderDiagram();
     return () => {
       active = false;
+      removeMermaidErrorArtifacts();
     };
   }, [value]);
 
   if (error) {
     return (
-      <pre style={{ background: 'rgba(220, 38, 38, 0.1)', border: '1px solid rgba(220, 38, 38, 0.3)', padding: '10px', borderRadius: '6px', overflowX: 'auto' }}>
+      <pre style={{ background: 'rgba(9, 19, 17, 0.45)', border: '1px dashed rgba(231, 199, 126, 0.25)', padding: '10px', borderRadius: '6px', overflowX: 'auto' }}>
         <code>{value}</code>
       </pre>
     );
@@ -813,7 +797,10 @@ export default function Note() {
       });
   }, [decodedSlug]);
 
-  const parsedNote = useMemo(() => parseFrontmatter(markdown), [markdown]);
+  const parsedNote = useMemo(() => {
+    const { body, data } = parseFrontmatter(markdown);
+    return { body, properties: buildProperties(data) };
+  }, [markdown]);
   const headings = useMemo(() => extractHeadings(parsedNote.body), [parsedNote.body]);
   const localGraphData = useMemo(
     () => (graphData ? filterGraphByLocal(graphData, decodedSlug) : null),
