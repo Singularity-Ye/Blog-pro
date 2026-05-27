@@ -997,15 +997,30 @@ const TravelMapCutoutItem = styled(motion.div)`
   pointer-events: auto;
   user-select: none;
   -webkit-user-select: none;
+  
+  /* Match scale(1.05) of the active BgLayer exactly to prevent misalignment! */
+  transform: scale(1.05);
+  transform-origin: center center;
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+
+  &:hover {
+    /* Scale up slightly from 1.05 to 1.075 on hover for interactive pop-out */
+    transform: scale(1.075);
+  }
+`;
+
+const TravelMapImage = styled.div`
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   background-image: url(${props => props.$imgSrc});
   background-size: cover;
   background-position: center center;
   background-repeat: no-repeat;
   
   animation: ${travelMapPulse} 4s ease-in-out infinite alternate;
-  transform: scale(1.0);
-  transform-origin: center center;
-  transition: filter 0.4s cubic-bezier(0.25, 1, 0.5, 1), transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  transition: filter 0.4s cubic-bezier(0.25, 1, 0.5, 1);
 
   /* Gold Light Sheen Sweep Overlay */
   &::before {
@@ -1043,17 +1058,16 @@ const TravelMapCutoutItem = styled(motion.div)`
     mix-blend-mode: screen;
   }
 
-  &:hover {
+  ${TravelMapCutoutItem}:hover & {
     animation-play-state: paused;
     filter: ${props => getLightingFilter(props.$sceneId, true)} drop-shadow(0 0 25px rgba(231, 199, 126, 0.85)) brightness(1.15) saturate(1.1);
-    transform: scale(1.025);
   }
 
-  &:hover::before {
+  ${TravelMapCutoutItem}:hover &::before {
     background-position: -50% 0;
   }
 
-  &:hover::after {
+  ${TravelMapCutoutItem}:hover &::after {
     opacity: 1;
   }
 `;
@@ -2726,12 +2740,12 @@ export default function Blog() {
                       $top={item.top}
                       $width={item.width}
                       $height={item.height}
-                      $imgSrc={item.imgSrc}
                       $sceneId={currentScene.id}
                       onClick={() => handleItemClick(item)}
                       aria-label={item.label}
                       role="button"
                     >
+                      <TravelMapImage $imgSrc={item.imgSrc} $sceneId={currentScene.id} />
                       <TravelMapCutoutLabel>{item.label}</TravelMapCutoutLabel>
                     </TravelMapCutoutItem>
                   );
