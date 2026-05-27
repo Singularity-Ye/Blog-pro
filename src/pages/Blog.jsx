@@ -287,7 +287,52 @@ const BLOG_SCENES = {
         height: '100%',
         label: '杭州旅游地图册', 
         imgSrc: BLOG_NEW_ASSETS.mapCutout,
+        hitKey: 'travelMap',
+        hitLeft: '5.98%',
+        hitTop: '27.95%',
+        hitWidth: '33.91%',
+        hitHeight: '36.13%',
+        labelLeft: '28%',
+        labelTop: '56%',
         collections: ['travel'] 
+      },
+      {
+        id: 'travel-scroll-0503',
+        type: 'cutout-scroll',
+        left: '0%',
+        top: '0%',
+        width: '100%',
+        height: '100%',
+        label: '5月3日攻略',
+        imgSrc: BLOG_NEW_ASSETS.travelScroll01,
+        hitKey: 'travelScroll01',
+        hitLeft: '36.96%',
+        hitTop: '49.84%',
+        hitWidth: '7.06%',
+        hitHeight: '9.46%',
+        labelLeft: '40.6%',
+        labelTop: '59.8%',
+        articleSlug: '杭州五一旅游攻略/5月3日攻略',
+        collections: ['travel']
+      },
+      {
+        id: 'travel-scroll-0504',
+        type: 'cutout-scroll',
+        left: '0%',
+        top: '0%',
+        width: '100%',
+        height: '100%',
+        label: '5月4日攻略',
+        imgSrc: BLOG_NEW_ASSETS.travelScroll02,
+        hitKey: 'travelScroll02',
+        hitLeft: '39.47%',
+        hitTop: '50.48%',
+        hitWidth: '5.98%',
+        hitHeight: '8.18%',
+        labelLeft: '42.8%',
+        labelTop: '59%',
+        articleSlug: '杭州五一旅游攻略/5月4日攻略',
+        collections: ['travel']
       },
       { 
         id: 'travel-scroll', 
@@ -988,6 +1033,12 @@ const travelMapPulse = keyframes`
   }
 `;
 
+const CUTOUT_HIT_ASSETS = {
+  travelMap: BLOG_NEW_ASSETS.mapCutout,
+  travelScroll01: BLOG_NEW_ASSETS.travelScroll01,
+  travelScroll02: BLOG_NEW_ASSETS.travelScroll02
+};
+
 const TravelMapCutoutItem = styled(motion.div)`
   position: absolute;
   left: ${props => props.$left};
@@ -1007,10 +1058,10 @@ const TravelMapCutoutItem = styled(motion.div)`
 
 const TravelMapCutoutHotspot = styled.button`
   position: absolute;
-  left: 5.92%;
-  top: 27.84%;
-  width: 34.03%;
-  height: 36.34%;
+  left: ${props => props.$hitLeft};
+  top: ${props => props.$hitTop};
+  width: ${props => props.$hitWidth};
+  height: ${props => props.$hitHeight};
   z-index: 3;
   display: block;
   padding: 0;
@@ -1105,8 +1156,8 @@ const TravelMapImage = styled.div`
 
 const TravelMapCutoutLabel = styled(MapBookLabel)`
   position: absolute;
-  left: 28%;
-  top: 56%;
+  left: ${props => props.$labelLeft || '28%'};
+  top: ${props => props.$labelTop || '56%'};
   margin-top: 0;
   transform: translate(-50%, 0);
   z-index: 4;
@@ -2053,8 +2104,8 @@ export default function Blog() {
   const [isCompassHovered, setIsCompassHovered] = useState(false);
   const [isPendulumHovered, setIsPendulumHovered] = useState(false);
   const [hoveredNodeId, setHoveredNodeId] = useState(null);
-  const [mapOpacityGrid, setMapOpacityGrid] = useState(null);
-  const [isMapHovered, setIsMapHovered] = useState(false);
+  const [cutoutOpacityGrids, setCutoutOpacityGrids] = useState({});
+  const [hoveredCutoutId, setHoveredCutoutId] = useState(null);
   const [isTeleporting, setIsTeleporting] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [notesData, setNotesData] = useState([]);
@@ -2068,34 +2119,47 @@ export default function Blog() {
   
   const currentScene = BLOG_SCENES[sceneMode];
 
-  // Pre-calculate the opacity grid for the travel map
+  // Pre-calculate compact opacity grids for transparent cutout assets.
   useEffect(() => {
-    const img = new Image();
-    img.src = BLOG_NEW_ASSETS.mapCutout;
-    img.onload = () => {
-      // 1/10th scale is plenty for mouse hover precision (167 x 94 grid)
-      const scale = 0.1;
-      const w = Math.floor(img.width * scale);
-      const h = Math.floor(img.height * scale);
-      
-      const canvas = document.createElement('canvas');
-      canvas.width = w;
-      canvas.height = h;
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
+    let cancelled = false;
+
+    Object.entries(CUTOUT_HIT_ASSETS).forEach(([key, src]) => {
+      const img = new Image();
+      img.src = src;
+      img.onload = () => {
+        const scale = 0.1;
+        const w = Math.floor(img.width * scale);
+        const h = Math.floor(img.height * scale);
+        const canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
         ctx.drawImage(img, 0, 0, w, h);
         const imgData = ctx.getImageData(0, 0, w, h).data;
         const grid = new Uint8Array(w * h);
         for (let i = 0; i < grid.length; i++) {
           grid[i] = imgData[i * 4 + 3] > 20 ? 1 : 0;
         }
-        setMapOpacityGrid({ width: w, height: h, grid });
-      }
+
+        if (!cancelled) {
+          setCutoutOpacityGrids(prev => ({
+            ...prev,
+            [key]: { width: w, height: h, grid }
+          }));
+        }
+      };
+    });
+
+    return () => {
+      cancelled = true;
     };
   }, []);
 
-  const handleMapMouseMove = (e) => {
-    if (!mapOpacityGrid) return;
+  const handleCutoutMouseMove = (item, e) => {
+    const opacityGrid = cutoutOpacityGrids[item.hitKey];
+    if (!opacityGrid) return;
     const parentContainer = e.currentTarget.parentElement;
     if (!parentContainer) return;
     const rect = parentContainer.getBoundingClientRect();
@@ -2103,18 +2167,18 @@ export default function Blog() {
     const ry = (e.clientY - rect.top) / rect.height;
     
     if (rx >= 0 && rx <= 1 && ry >= 0 && ry <= 1) {
-      const gx = Math.floor(rx * mapOpacityGrid.width);
-      const gy = Math.floor(ry * mapOpacityGrid.height);
-      const index = gy * mapOpacityGrid.width + gx;
-      const isOpaque = mapOpacityGrid.grid[index] === 1;
-      setIsMapHovered(isOpaque);
+      const gx = Math.min(opacityGrid.width - 1, Math.max(0, Math.floor(rx * opacityGrid.width)));
+      const gy = Math.min(opacityGrid.height - 1, Math.max(0, Math.floor(ry * opacityGrid.height)));
+      const index = gy * opacityGrid.width + gx;
+      const isOpaque = opacityGrid.grid[index] === 1;
+      setHoveredCutoutId(isOpaque ? item.id : null);
     } else {
-      setIsMapHovered(false);
+      setHoveredCutoutId(null);
     }
   };
 
-  const handleMapMouseLeave = () => {
-    setIsMapHovered(false);
+  const handleCutoutMouseLeave = (item) => {
+    setHoveredCutoutId(current => current === item.id ? null : current);
   };
 
   const changeScene = (mode) => {
@@ -2381,6 +2445,15 @@ export default function Blog() {
       // 按照默认顺序截取最近的 15 篇
       const recent = [...notesData].slice(0, 15);
       setModalNotes(recent);
+      setIsModalOpen(true);
+      return;
+    }
+
+    if (item.articleSlug) {
+      setSelectedArticleSlug(item.articleSlug);
+      setActiveScrollTitle(item.label || '旅行攻略');
+      setActiveScrollMeta('TRAVEL · HANGZHOU');
+      setModalNotes([]);
       setIsModalOpen(true);
       return;
     }
@@ -2827,7 +2900,8 @@ export default function Blog() {
                   );
                 }
 
-                if (item.type === 'map-cutout') {
+                if (item.type === 'map-cutout' || item.type === 'cutout-scroll') {
+                  const isCutoutHovered = hoveredCutoutId === item.id;
                   return (
                     <TravelMapCutoutItem
                       key={item.id}
@@ -2836,18 +2910,28 @@ export default function Blog() {
                       $width={item.width}
                       $height={item.height}
                       $sceneId={currentScene.id}
-                      $isHovered={isMapHovered}
+                      $isHovered={isCutoutHovered}
                     >
                       <TravelMapCutoutHotspot
                         type="button"
-                        $isHovered={isMapHovered}
-                        onMouseMove={handleMapMouseMove}
-                        onMouseLeave={handleMapMouseLeave}
-                        onClick={() => isMapHovered && handleItemClick(item)}
+                        $hitLeft={item.hitLeft}
+                        $hitTop={item.hitTop}
+                        $hitWidth={item.hitWidth}
+                        $hitHeight={item.hitHeight}
+                        $isHovered={isCutoutHovered}
+                        onMouseMove={(e) => handleCutoutMouseMove(item, e)}
+                        onMouseLeave={() => handleCutoutMouseLeave(item)}
+                        onClick={() => isCutoutHovered && handleItemClick(item)}
                         aria-label={item.label}
                       />
-                      <TravelMapImage $imgSrc={item.imgSrc} $sceneId={currentScene.id} $isHovered={isMapHovered} />
-                      <TravelMapCutoutLabel $isHovered={isMapHovered}>{item.label}</TravelMapCutoutLabel>
+                      <TravelMapImage $imgSrc={item.imgSrc} $sceneId={currentScene.id} $isHovered={isCutoutHovered} />
+                      <TravelMapCutoutLabel
+                        $isHovered={isCutoutHovered}
+                        $labelLeft={item.labelLeft}
+                        $labelTop={item.labelTop}
+                      >
+                        {item.label}
+                      </TravelMapCutoutLabel>
                     </TravelMapCutoutItem>
                   );
                 }
