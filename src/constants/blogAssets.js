@@ -38,6 +38,7 @@ import drawer from '../assets/images/blog/shared/drawer.png';
 import blueprint from '../assets/images/blog/shared/blueprint.png';
 import scroll from '../assets/images/blog/shared/scroll.png';
 import mapScroll from '../assets/images/blog/travel/map-scroll.png';
+import parchmentReader from '../assets/images/blog/shared/parchment-reader.png';
 
 // Cropped environmental items
 import travelMap from '../assets/images/blog/travel/travel-map.png';
@@ -100,6 +101,7 @@ export const BLOG_NEW_ASSETS = {
   blueprint,
   scroll,
   mapScroll,
+  parchmentReader,
   travelMap,
   travelScroll,
   archiveDrawer,

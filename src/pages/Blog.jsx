@@ -2169,7 +2169,7 @@ const ScrollBackdrop = styled(motion.div)`
 
 const ScrollPanelContainer = styled(motion.div)`
   position: relative;
-  width: min(760px, 62vw);
+  width: min(780px, 64vw);
   height: min(540px, 48vh);
   min-height: 480px;
   background-image: url(${props => props.$bgSrc});
@@ -2180,19 +2180,19 @@ const ScrollPanelContainer = styled(motion.div)`
   overflow: hidden;
   box-shadow: 0 25px 60px rgba(0,0,0,0.7);
   box-sizing: border-box;
-  padding: 4.2rem 5.2rem 4.5rem 5.2rem;
+  padding: 4.8rem 6.2rem 5rem 6.2rem; /* Constrain content vertically and horizontally to prevent rod/edge overlapping */
 
   @media (max-width: 760px) {
     width: min(440px, 94vw);
     height: 520px;
-    padding: 3.5rem 3rem 4rem 3rem;
+    padding: 4.2rem 3.6rem 4.5rem 3.6rem;
   }
 `;
 
 const ScrollHeader = styled.div`
-  border-bottom: 2px dashed rgba(74, 45, 27, 0.2);
-  padding-bottom: 0.5rem;
-  margin-bottom: 0.8rem;
+  border-bottom: 2px dashed rgba(118, 73, 26, 0.18);
+  padding-bottom: 0.6rem;
+  margin-bottom: 1rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -2202,26 +2202,27 @@ const ScrollHeader = styled.div`
 const ScrollTitle = styled.h2`
   font-size: 1.25rem;
   font-weight: 800;
-  color: #4a2d1b;
+  color: #3a2413;
   margin: 0;
   letter-spacing: 0.05em;
 `;
 
 const ScrollMeta = styled.span`
   font-size: 0.7rem;
-  color: rgba(74, 45, 27, 0.55);
+  color: #76491a;
   font-family: monospace;
   text-transform: uppercase;
+  font-weight: bold;
 `;
 
 const ScrollCloseButton = styled.button`
   position: absolute;
-  top: 2.8rem;
-  right: 3.2rem;
+  top: 3.2rem;
+  right: 3.8rem;
   background: transparent;
   border: none;
   cursor: pointer;
-  color: #4a2d1b;
+  color: #3a2413;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2231,7 +2232,12 @@ const ScrollCloseButton = styled.button`
   z-index: 200;
 
   &:hover {
-    background: rgba(74, 45, 27, 0.1);
+    background: rgba(118, 73, 26, 0.1);
+  }
+  
+  @media (max-width: 760px) {
+    top: 2.8rem;
+    right: 2.2rem;
   }
 `;
 
@@ -2241,40 +2247,177 @@ const ScrollContentArea = styled.div`
   padding-right: 8px;
   box-sizing: border-box;
 
-  /* Custom scrollbar matching scroll theme */
+  /* Custom subtle scrollbar matching scroll theme */
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+  &::-webkit-scrollbar-track {
+    background: rgba(118, 73, 26, 0.04);
+    border-radius: 3px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(118, 73, 26, 0.28);
+    border-radius: 3px;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: rgba(118, 73, 26, 0.45);
+  }
+`;
+
+
+
+// ── 新松果档案阅读面板 (Parchment Reader Modal) ──
+const ReaderBackdrop = styled(motion.div)`
+  position: fixed;
+  inset: 0;
+  background: rgba(6, 4, 10, 0.72);
+  backdrop-filter: blur(8px);
+  z-index: 10100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+`;
+
+const ReaderPanel = styled(motion.div)`
+  position: relative;
+  width: min(840px, 88vw);
+  height: min(84vh, 760px);
+  min-height: 520px;
+  background-image: url(${props => props.$bgSrc});
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  border-radius: 16px;
+  box-shadow: 
+    0 35px 80px rgba(0, 0, 0, 0.65),
+    inset 0 0 50px rgba(118, 73, 26, 0.08);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
+  padding: 4.8rem 5.8rem 5rem 5.8rem;
+
+  @media (max-width: 768px) {
+    padding: 3.5rem 2.2rem 3.8rem 2.2rem;
+    width: min(460px, 94vw);
+    height: min(90vh, 640px);
+  }
+`;
+
+const ReaderHeader = styled.div`
+  border-bottom: 2px dashed rgba(118, 73, 26, 0.2);
+  padding-bottom: 0.8rem;
+  margin-bottom: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-family: Georgia, serif;
+`;
+
+const ReaderTitleRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+`;
+
+const ReaderTitle = styled.h2`
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: #3a2413;
+  margin: 0;
+  letter-spacing: 0.02em;
+  line-height: 1.35;
+`;
+
+const ReaderMetaRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+`;
+
+const ReaderMetaLabel = styled.span`
+  font-size: 0.72rem;
+  color: #76491a;
+  background: rgba(118, 73, 26, 0.08);
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-family: monospace;
+`;
+
+const ReaderCloseButton = styled.button`
+  position: absolute;
+  top: 3.2rem;
+  right: 4.2rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #76491a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: 50%;
+  transition: all 0.2s;
+  z-index: 210;
+
+  &:hover {
+    background: rgba(118, 73, 26, 0.08);
+    transform: scale(1.1);
+  }
+  
+  @media (max-width: 768px) {
+    top: 2rem;
+    right: 2rem;
+  }
+`;
+
+const ReaderContentArea = styled.div`
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 12px;
+  box-sizing: border-box;
+
+  /* Custom scrollbar matching paper theme */
   &::-webkit-scrollbar {
     width: 6px;
   }
   &::-webkit-scrollbar-track {
-    background: rgba(74, 45, 27, 0.05);
+    background: rgba(118, 73, 26, 0.04);
     border-radius: 3px;
   }
   &::-webkit-scrollbar-thumb {
-    background: rgba(74, 45, 27, 0.35);
+    background: rgba(118, 73, 26, 0.28);
     border-radius: 3px;
   }
   &::-webkit-scrollbar-thumb:hover {
-    background: rgba(74, 45, 27, 0.55);
+    background: rgba(118, 73, 26, 0.45);
   }
 `;
 
-const ScrollBackButton = styled.button`
-  background: transparent;
-  border: 1px solid #4a2d1b;
-  border-radius: 4px;
-  color: #4a2d1b;
-  padding: 3px 8px;
-  font-size: 0.72rem;
+const ReaderBackButton = styled.button`
+  align-self: flex-start;
+  background: rgba(118, 73, 26, 0.05);
+  border: 1px solid rgba(118, 73, 26, 0.35);
+  border-radius: 6px;
+  color: #76491a;
+  padding: 5px 12px;
+  font-size: 0.78rem;
   font-weight: 700;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   transition: all 0.2s;
-  margin-bottom: 0.8rem;
+  margin-bottom: 1rem;
 
   &:hover {
-    background: rgba(74, 45, 27, 0.08);
+    background: rgba(118, 73, 26, 0.12);
+    border-color: #76491a;
+    transform: translateY(-1px);
   }
 `;
 
@@ -2293,36 +2436,65 @@ const LoadingWrapper = styled.div`
 
 const ArticleItem = styled.div`
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 12px;
-  border-radius: 6px;
-  background: rgba(74, 45, 27, 0.04);
-  border: 1px solid rgba(74, 45, 27, 0.08);
-  margin-bottom: 8px;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: rgba(255, 236, 188, 0.35);
+  border: 1px solid rgba(118, 73, 26, 0.16);
+  margin-bottom: 10px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
   animation: ${paperSlideIn} 0.35s ease both;
+  box-shadow: 0 2px 4px rgba(118, 73, 26, 0.03);
 
   &:hover {
-    background: rgba(74, 45, 27, 0.09);
-    border-color: rgba(74, 45, 27, 0.3);
-    transform: translateX(4px);
+    background: rgba(255, 236, 188, 0.65);
+    border-color: rgba(118, 73, 26, 0.4);
+    transform: translateX(6px);
+    box-shadow: 0 4px 8px rgba(118, 73, 26, 0.08);
   }
 `;
 
+const ArticleHeaderRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+`;
+
 const ArticleTitle = styled.span`
-  font-size: 0.85rem;
+  font-size: 0.88rem;
   font-weight: bold;
-  color: #4a2d1b;
+  color: #3a2413;
+  text-shadow: 0 1px 0 rgba(255, 248, 230, 0.6);
 `;
 
 const ArticleMeta = styled.span`
   font-size: 0.68rem;
-  color: rgba(74, 45, 27, 0.6);
-  background: rgba(74, 45, 27, 0.08);
+  color: #76491a;
+  background: rgba(118, 73, 26, 0.08);
   padding: 2px 6px;
   border-radius: 4px;
+  font-weight: bold;
+`;
+
+const ArticleDesc = styled.div`
+  font-size: 0.72rem;
+  color: rgba(118, 73, 26, 0.72);
+  line-height: 1.4;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  
+  .tag-pill {
+    background: rgba(118, 73, 26, 0.05);
+    border: 0.5px solid rgba(118, 73, 26, 0.12);
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-size: 0.68rem;
+  }
 `;
 
 const EmptyState = styled.div`
@@ -2772,6 +2944,7 @@ export default function Blog() {
   
   // Modal / Reader State
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isReaderOpen, setIsReaderOpen] = useState(false);
   const [activeScrollTitle, setActiveScrollTitle] = useState('');
   const [activeScrollMeta, setActiveScrollMeta] = useState('');
   const [modalNotes, setModalNotes] = useState([]);
@@ -2787,6 +2960,25 @@ export default function Blog() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSearchTag, setSelectedSearchTag] = useState('');
   const [archiveMode, setArchiveMode] = useState(null); // 'search' or 'recent' or null
+
+  const handleOpenNote = (slug) => {
+    setSelectedArticleSlug(slug);
+    setIsModalOpen(false);
+    setIsReaderOpen(true);
+  };
+
+  const handleBackToCatalog = () => {
+    setIsReaderOpen(false);
+    if (modalNotes.length > 0 || archiveMode) {
+      setIsModalOpen(true);
+    }
+    setSelectedArticleSlug(null);
+  };
+
+  const handleCloseReader = () => {
+    setIsReaderOpen(false);
+    setSelectedArticleSlug(null);
+  };
 
   const canvasRef = useRef(null);
 
@@ -3029,7 +3221,7 @@ export default function Blog() {
       setActiveScrollTitle(item.label || '旅行攻略');
       setActiveScrollMeta('TRAVEL · HANGZHOU');
       setModalNotes([]);
-      setIsModalOpen(true);
+      setIsReaderOpen(true);
       return;
     }
 
@@ -3121,7 +3313,7 @@ export default function Blog() {
       setActiveScrollTitle(activeLeafNote.title);
       setActiveScrollMeta(`MANIFEST · ${activeLeafNote.collectionLabel || 'NOTES'}`);
     }
-    setIsModalOpen(true);
+    setIsReaderOpen(true);
   };
 
   return (
@@ -3708,53 +3900,13 @@ export default function Blog() {
 
               {/* 卷轴头部 */}
               <ScrollHeader>
-                <ScrollTitle>{selectedArticleSlug ? articleTitle : activeScrollTitle}</ScrollTitle>
+                <ScrollTitle>{activeScrollTitle}</ScrollTitle>
                 <ScrollMeta>{activeScrollMeta}</ScrollMeta>
               </ScrollHeader>
 
               {/* 卷轴主要内容区 */}
               <ScrollContentArea>
-                {selectedArticleSlug ? (
-                  /* ── 阅读单篇文章状态 ── */
-                  <>
-                    {/* 如果是从文章列表/搜索进来的，提供返回列表按钮 */}
-                    {(modalNotes.length > 0 || archiveMode) && (
-                      <ScrollBackButton onClick={() => setSelectedArticleSlug(null)}>
-                        ← 返回列表
-                      </ScrollBackButton>
-                    )}
-
-                    {articleLoading ? (
-                      <LoadingWrapper>
-                        <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1.5, ease: 'linear' }} style={{ fontSize: '1.5rem' }}>📜</motion.div>
-                        <span>正在展开法术古卷...</span>
-                      </LoadingWrapper>
-                    ) : articleError ? (
-                      <EmptyState>
-                        <p>⚠️ 卷页失效：{articleError}</p>
-                      </EmptyState>
-                    ) : (
-                      <MarkdownBody>
-                        <ReactMarkdown
-                          remarkPlugins={[remarkGfm]}
-                          components={{
-                            code: (props) => {
-                              const { className, children, ...rest } = props;
-                              const match = /language-(\w+)/.exec(className || '');
-                              const codeText = String(children).replace(/\n$/, '');
-                              if (match && match[1] === 'mermaid') {
-                                return <Mermaid value={codeText} />;
-                              }
-                              return <code className={className} {...rest}>{children}</code>;
-                            }
-                          }}
-                        >
-                          {articleBody}
-                        </ReactMarkdown>
-                      </MarkdownBody>
-                    )}
-                  </>
-                ) : archiveMode === 'search' ? (
+                {archiveMode === 'search' ? (
                   /* ── 藏经分类阁 / 搜索模式 ── */
                   <>
                     <SearchInputWrapper>
@@ -3802,10 +3954,19 @@ export default function Blog() {
                         {filteredNotes.map((note) => (
                           <ArticleItem 
                             key={note.id} 
-                            onClick={() => setSelectedArticleSlug(note.slug)}
+                            onClick={() => handleOpenNote(note.slug)}
                           >
-                            <ArticleTitle>✦ {note.title}</ArticleTitle>
-                            <ArticleMeta>{note.collectionLabel || '归档'}</ArticleMeta>
+                            <ArticleHeaderRow>
+                              <ArticleTitle>✦ {note.title}</ArticleTitle>
+                              <ArticleMeta>{note.collectionLabel || '归档'}</ArticleMeta>
+                            </ArticleHeaderRow>
+                            {note.tags && note.tags.length > 0 && (
+                              <ArticleDesc>
+                                {note.tags.slice(0, 4).map(t => (
+                                  <span key={t} className="tag-pill">#{t}</span>
+                                ))}
+                              </ArticleDesc>
+                            )}
                           </ArticleItem>
                         ))}
                       </div>
@@ -3821,10 +3982,19 @@ export default function Blog() {
                         {modalNotes.map((note) => (
                           <ArticleItem 
                             key={note.id} 
-                            onClick={() => setSelectedArticleSlug(note.slug)}
+                            onClick={() => handleOpenNote(note.slug)}
                           >
-                            <ArticleTitle>✦ {note.title}</ArticleTitle>
-                            <ArticleMeta>{note.collectionLabel || '归档'}</ArticleMeta>
+                            <ArticleHeaderRow>
+                              <ArticleTitle>✦ {note.title}</ArticleTitle>
+                              <ArticleMeta>{note.collectionLabel || '归档'}</ArticleMeta>
+                            </ArticleHeaderRow>
+                            {note.tags && note.tags.length > 0 && (
+                              <ArticleDesc>
+                                {note.tags.slice(0, 4).map(t => (
+                                  <span key={t} className="tag-pill">#{t}</span>
+                                ))}
+                              </ArticleDesc>
+                            )}
                           </ArticleItem>
                         ))}
                       </div>
@@ -3834,6 +4004,91 @@ export default function Blog() {
               </ScrollContentArea>
             </ScrollPanelContainer>
           </ScrollBackdrop>
+        )}
+      </AnimatePresence>
+
+      {/* ─────────────────────────────────────────────────────────────
+         新松果档案正文阅读器 Modal (NoteReaderModal)
+         ───────────────────────────────────────────────────────────── */}
+      <AnimatePresence>
+        {isReaderOpen && (
+          <ReaderBackdrop
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={handleCloseReader}
+          >
+            <ReaderPanel
+              $bgSrc={BLOG_NEW_ASSETS.parchmentReader}
+              onClick={(e) => e.stopPropagation()}
+              initial={{ y: 60, scale: 0.92, opacity: 0 }}
+              animate={{ y: 0, scale: 1, opacity: 1 }}
+              exit={{ y: 60, scale: 0.92, opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 95, damping: 15 }}
+            >
+              {/* 关闭按钮 */}
+              <ReaderCloseButton onClick={handleCloseReader} title="收起法典">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </ReaderCloseButton>
+
+              {/* 阅读器头部 */}
+              <ReaderHeader>
+                <ReaderTitleRow>
+                  <ReaderTitle>{articleTitle || '无标题'}</ReaderTitle>
+                </ReaderTitleRow>
+                <ReaderMetaRow>
+                  {activeScrollMeta && (
+                    <ReaderMetaLabel>
+                      {activeScrollMeta}
+                    </ReaderMetaLabel>
+                  )}
+                </ReaderMetaRow>
+              </ReaderHeader>
+
+              {/* 返回列表按钮 */}
+              {(modalNotes.length > 0 || archiveMode) && (
+                <ReaderBackButton onClick={handleBackToCatalog}>
+                  ← 返回目录
+                </ReaderBackButton>
+              )}
+
+              {/* 核心正文阅读区 */}
+              <ReaderContentArea>
+                {articleLoading ? (
+                  <LoadingWrapper>
+                    <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1.5, ease: 'linear' }} style={{ fontSize: '1.8rem' }}>📖</motion.div>
+                    <span>正在翻开羊皮手卷...</span>
+                  </LoadingWrapper>
+                ) : articleError ? (
+                  <EmptyState>
+                    <p>⚠️ 卷页失效：{articleError}</p>
+                  </EmptyState>
+                ) : (
+                  <MarkdownBody>
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      components={{
+                        code: (props) => {
+                          const { className, children, ...rest } = props;
+                          const match = /language-(\w+)/.exec(className || '');
+                          const codeText = String(children).replace(/\n$/, '');
+                          if (match && match[1] === 'mermaid') {
+                            return <Mermaid value={codeText} />;
+                          }
+                          return <code className={className} {...rest}>{children}</code>;
+                        }
+                      }}
+                    >
+                      {articleBody}
+                    </ReactMarkdown>
+                  </MarkdownBody>
+                )}
+              </ReaderContentArea>
+            </ReaderPanel>
+          </ReaderBackdrop>
         )}
       </AnimatePresence>
 
