@@ -426,17 +426,17 @@ export default function GraphView({ modal = false, onClose }) {
         <div className="graph-mobile-header">
           <div className="graph-mobile-title">{graphModeTitle}</div>
           <div className="graph-mobile-stats">
-            {filteredNodes.length} / {visibleGraphData?.nodes.length ?? 0} 篇
+            ✨ {filteredNodes.length} / {visibleGraphData?.nodes.length ?? 0} 篇星沙档案
           </div>
           <button onClick={handleClose} className="graph-mobile-close-btn">
-            {modal ? '关闭' : '返回'}
+            {modal ? '✦ 关闭' : '✦ 隐入夜幕'}
           </button>
         </div>
         
         <div className="graph-mobile-search-bar">
           <input 
             type="text" 
-            placeholder="搜索天文台档案..." 
+            placeholder="🔍 搜索星沙档案..." 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="graph-mobile-input"
@@ -449,7 +449,7 @@ export default function GraphView({ modal = false, onClose }) {
               className={`graph-mobile-tab ${activeTab === 'all' ? 'active' : ''}`}
               onClick={() => setActiveTab('all')}
             >
-              全部
+              ✦ 全部
             </button>
             {Object.entries(COLLECTION_LABELS).map(([key, label]) => (
               <button 
@@ -482,7 +482,7 @@ export default function GraphView({ modal = false, onClose }) {
                         {COLLECTION_LABELS[node.collection] || '一般笔记'}
                       </span>
                       <span className="graph-mobile-card-conn">
-                        🔗 {node.degree} 关联
+                        ✦ {node.degree} 星轨关联
                       </span>
                     </div>
                   </div>
@@ -552,24 +552,24 @@ export default function GraphView({ modal = false, onClose }) {
         style={{ left: tooltip.x, top: tooltip.y }}
       >
         <div className="tooltip-title">{tooltip.title}</div>
-        <div className="tooltip-connections">{tooltip.connections} 个连接</div>
+        <div className="tooltip-connections">✦ {tooltip.connections} 颗星沙连结</div>
       </div>
       <div className="graph-mode-badge">
         <strong>{graphModeTitle}</strong>
         <span>
-          {visibleGraphData?.nodes.length ?? 0} 篇笔记 · {visibleGraphData?.links.length ?? 0} 条关系
+          ✨ {visibleGraphData?.nodes.length ?? 0} 篇星沙档案 · ✦ {visibleGraphData?.links.length ?? 0} 条星轨关联
         </span>
       </div>
       <div className="graph-controls">
-        <button onClick={handleReset}>重置视图</button>
-        <button onClick={handleClose}>{modal ? '关闭' : '返回'}</button>
+        <button onClick={handleReset}>✦ 重置星轨</button>
+        <button onClick={handleClose}>{modal ? '✦ 关闭' : '✦ 隐入夜幕'}</button>
         {localFilter && currentNode?.collection && (
           <button onClick={() => navigate(`/graph?collection=${encodeURIComponent(currentNode.collection)}`)}>
-            分类全局图
+            ★ 分类全局图
           </button>
         )}
         {(collectionFilter || localFilter) && (
-          <button onClick={() => navigate('/graph')}>全站图谱</button>
+          <button onClick={() => navigate('/graph')}>✦ 全站图谱</button>
         )}
       </div>
     </div>

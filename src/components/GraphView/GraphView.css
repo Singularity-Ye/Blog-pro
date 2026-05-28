@@ -4,9 +4,10 @@
   position: relative;
   overflow: hidden;
   background:
-    radial-gradient(circle at 18% 20%, rgba(185, 130, 52, 0.12), transparent 28%),
-    radial-gradient(circle at 82% 80%, rgba(36, 91, 74, 0.12), transparent 30%),
-    #f1eadb;
+    radial-gradient(circle at center, rgba(231, 199, 126, 0.09) 0%, transparent 65%),
+    radial-gradient(circle at 18% 20%, rgba(196, 154, 69, 0.15) 0%, transparent 35%),
+    radial-gradient(circle at 82% 80%, rgba(36, 91, 74, 0.16) 0%, transparent 35%),
+    #f2ebd9; /* Parchment sand base */
 }
 
 .graph-modal-backdrop {
@@ -35,9 +36,10 @@
 
 .graph-view-container.is-local {
   background:
-    radial-gradient(circle at 24% 18%, rgba(36, 91, 74, 0.1), transparent 30%),
-    radial-gradient(circle at 80% 72%, rgba(185, 130, 52, 0.1), transparent 28%),
-    #f4eedf;
+    radial-gradient(circle at center, rgba(36, 91, 74, 0.08) 0%, transparent 65%),
+    radial-gradient(circle at 24% 18%, rgba(36, 91, 74, 0.12) 0%, transparent 35%),
+    radial-gradient(circle at 80% 72%, rgba(196, 154, 69, 0.12) 0%, transparent 35%),
+    #f5f0e2;
 }
 
 .graph-view-container canvas {
@@ -57,18 +59,27 @@
   inset: 0;
   pointer-events: none;
   background:
-    linear-gradient(rgba(91, 70, 48, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(91, 70, 48, 0.035) 1px, transparent 1px);
-  background-size: 42px 42px;
-  mask-image: radial-gradient(circle at center, black, transparent 78%);
+    /* 星轨/天球环 */
+    radial-gradient(circle at 50% 50%, transparent 15%, rgba(118, 93, 68, 0.035) 15%, rgba(118, 93, 68, 0.035) 16%, transparent 16%),
+    radial-gradient(circle at 50% 50%, transparent 30%, rgba(118, 93, 68, 0.04) 30%, rgba(118, 93, 68, 0.04) 31.5%, transparent 31.5%),
+    radial-gradient(circle at 50% 50%, transparent 45%, rgba(118, 93, 68, 0.025) 45%, rgba(118, 93, 68, 0.025) 46%, transparent 46%),
+    radial-gradient(circle at 50% 50%, transparent 60%, rgba(118, 93, 68, 0.045) 60%, rgba(118, 93, 68, 0.045) 61.5%, transparent 61.5%),
+    radial-gradient(circle at 50% 50%, transparent 75%, rgba(118, 93, 68, 0.02) 75%, rgba(118, 93, 68, 0.02) 76%, transparent 76%),
+    /* 天体子午线/经纬线 */
+    linear-gradient(45deg, transparent 49.8%, rgba(118, 93, 68, 0.025) 49.8%, rgba(118, 93, 68, 0.025) 50.2%, transparent 50.2%),
+    linear-gradient(-45deg, transparent 49.8%, rgba(118, 93, 68, 0.025) 49.8%, rgba(118, 93, 68, 0.025) 50.2%, transparent 50.2%),
+    linear-gradient(90deg, transparent 49.8%, rgba(118, 93, 68, 0.03) 49.8%, rgba(118, 93, 68, 0.03) 50.2%, transparent 50.2%),
+    linear-gradient(0deg, transparent 49.8%, rgba(118, 93, 68, 0.03) 49.8%, rgba(118, 93, 68, 0.03) 50.2%, transparent 50.2%);
+  mask-image: radial-gradient(circle at center, black 20%, rgba(0, 0, 0, 0.8) 55%, transparent 95%);
+  -webkit-mask-image: radial-gradient(circle at center, black 20%, rgba(0, 0, 0, 0.8) 55%, transparent 95%);
 }
 
 .graph-view-container::after {
-  content: '松果屋关系图谱';
+  content: '星沙浑天图谱 · Celestial Sands Map';
   position: absolute;
   right: 18px;
   bottom: 14px;
-  color: rgba(54, 45, 34, 0.42);
+  color: rgba(142, 101, 42, 0.45);
   font-size: 0.68rem;
   letter-spacing: 0.08em;
   pointer-events: none;
@@ -78,12 +89,14 @@
   position: absolute;
   pointer-events: none;
   z-index: 10;
-  min-width: 120px;
-  padding: 0.58rem 0.72rem;
-  border: 1px solid rgba(91, 70, 48, 0.2);
-  border-radius: 2px;
-  background: rgba(255, 250, 238, 0.94);
-  box-shadow: 0 12px 32px rgba(54, 45, 34, 0.16);
+  min-width: 130px;
+  padding: 0.65rem 0.85rem;
+  border: 1.5px solid rgba(196, 154, 69, 0.25);
+  border-radius: 8px;
+  background: rgba(253, 250, 243, 0.9);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 12px 36px rgba(91, 70, 48, 0.16);
   color: #362d22;
   font-size: 0.78rem;
   white-space: nowrap;
@@ -100,14 +113,14 @@
 .graph-tooltip .tooltip-title {
   max-width: 240px;
   overflow: hidden;
-  color: #245b4a;
+  color: #8e652a;
   font-weight: 800;
   text-overflow: ellipsis;
 }
 
 .graph-tooltip .tooltip-connections {
   margin-top: 2px;
-  color: rgba(54, 45, 34, 0.58);
+  color: rgba(54, 45, 34, 0.62);
   font-size: 0.72rem;
 }
 
@@ -121,24 +134,28 @@
 }
 
 .graph-controls button {
-  min-height: 34px;
-  padding: 0 0.78rem;
-  border: 1px solid rgba(36, 91, 74, 0.28);
-  border-radius: 2px;
-  background: rgba(255, 250, 238, 0.86);
-  color: #245b4a;
+  min-height: 36px;
+  padding: 0 0.9rem;
+  border: 1px solid rgba(196, 154, 69, 0.32);
+  border-radius: 8px;
+  background: rgba(246, 239, 225, 0.78);
+  color: #8e652a;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   font-size: 0.76rem;
-  font-weight: 900;
-  letter-spacing: 0.04em;
+  font-weight: 800;
+  letter-spacing: 0.05em;
   cursor: pointer;
-  box-shadow: 0 10px 24px rgba(54, 45, 34, 0.1);
-  transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+  box-shadow: 0 8px 24px rgba(91, 70, 48, 0.08);
+  transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 .graph-controls button:hover {
-  border-color: rgba(36, 91, 74, 0.6);
-  background: #fffaf0;
-  transform: translateY(-1px);
+  border-color: rgba(196, 154, 69, 0.8);
+  background: rgba(253, 247, 234, 0.94);
+  color: #c49a45;
+  box-shadow: 0 0 14px rgba(196, 154, 69, 0.25);
+  transform: translateY(-1.5px);
 }
 
 .graph-mode-badge {
@@ -149,11 +166,14 @@
   display: grid;
   gap: 0.25rem;
   max-width: min(440px, calc(100% - 40px));
-  padding: 0.74rem 0.9rem;
-  border: 1px solid rgba(91, 70, 48, 0.2);
-  border-left: 4px solid #245b4a;
-  background: rgba(255, 250, 238, 0.84);
-  box-shadow: 0 12px 36px rgba(54, 45, 34, 0.12);
+  padding: 0.8rem 1.1rem;
+  border: 1px solid rgba(196, 154, 69, 0.28);
+  border-left: 4px solid #c49a45;
+  border-radius: 8px;
+  background: rgba(246, 239, 225, 0.72);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 12px 36px rgba(91, 70, 48, 0.12);
   color: #362d22;
 }
 
@@ -161,10 +181,11 @@
   font-size: 0.88rem;
   font-weight: 900;
   letter-spacing: 0.04em;
+  color: #8e652a;
 }
 
 .graph-mode-badge span {
-  color: rgba(54, 45, 34, 0.56);
+  color: rgba(54, 45, 34, 0.6);
   font-size: 0.72rem;
 }
 
@@ -252,13 +273,14 @@
 }
 
 /* ── 移动端列表视图 (Mobile List View) ── */
+/* ── 移动端列表视图 (Mobile List View) ── */
 .graph-mobile-wrapper {
   display: flex;
   flex-direction: column;
   width: 100%;
   height: 100%;
   box-sizing: border-box;
-  background: #f1eadb;
+  background: #f2ebd9;
   overflow: hidden;
   padding: 1.2rem;
 }
@@ -269,13 +291,13 @@
   justify-content: space-between;
   margin-bottom: 0.8rem;
   padding-bottom: 0.6rem;
-  border-bottom: 1.5px dashed rgba(118, 73, 26, 0.15);
+  border-bottom: 1.5px dashed rgba(196, 154, 69, 0.22);
 }
 
 .graph-mobile-title {
   font-size: 0.95rem;
   font-weight: 900;
-  color: #245b4a;
+  color: #8e652a;
   letter-spacing: 0.04em;
 }
 
@@ -286,16 +308,25 @@
 }
 
 .graph-mobile-close-btn {
-  min-height: 28px;
-  padding: 0 0.75rem;
-  border: 1px solid rgba(36, 91, 74, 0.3);
-  border-radius: 2px;
-  background: #faf6eb;
-  color: #245b4a;
+  min-height: 30px;
+  padding: 0 0.85rem;
+  border: 1px solid rgba(196, 154, 69, 0.32);
+  border-radius: 8px;
+  background: rgba(246, 239, 225, 0.82);
+  color: #8e652a;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   font-size: 0.72rem;
   font-weight: 800;
   cursor: pointer;
   box-shadow: 0 2px 5px rgba(54, 45, 34, 0.05);
+  transition: all 0.2s ease;
+}
+
+.graph-mobile-close-btn:hover {
+  background: rgba(253, 247, 234, 0.94);
+  border-color: rgba(196, 154, 69, 0.6);
+  color: #c49a45;
 }
 
 .graph-mobile-search-bar {
@@ -307,18 +338,19 @@
   box-sizing: border-box;
   height: 38px;
   padding: 0 0.8rem;
-  border: 1px solid rgba(118, 73, 26, 0.24);
-  border-radius: 4px;
-  background: #faf6eb;
+  border: 1.5px solid rgba(196, 154, 69, 0.28);
+  border-radius: 8px;
+  background: rgba(250, 246, 235, 0.85);
   color: #362d22;
   font-size: 0.8rem;
   font-family: inherit;
   outline: none;
-  transition: border-color 0.2s;
+  transition: all 0.25s ease;
 }
 
 .graph-mobile-input:focus {
-  border-color: #245b4a;
+  border-color: rgba(196, 154, 69, 0.8);
+  box-shadow: 0 0 10px rgba(196, 154, 69, 0.15);
 }
 
 .graph-mobile-tabs {
@@ -338,10 +370,10 @@
   flex-shrink: 0;
   height: 28px;
   padding: 0 0.8rem;
-  border: 1px solid rgba(118, 73, 26, 0.16);
+  border: 1px solid rgba(196, 154, 69, 0.2);
   border-radius: 99px;
-  background: rgba(240, 230, 210, 0.4);
-  color: rgba(54, 45, 34, 0.8);
+  background: rgba(240, 230, 210, 0.35);
+  color: rgba(54, 45, 34, 0.75);
   font-size: 0.7rem;
   font-weight: 600;
   cursor: pointer;
@@ -349,9 +381,10 @@
 }
 
 .graph-mobile-tab.active {
-  background: var(--tab-accent, #245b4a);
+  background: var(--tab-accent, #c49a45);
   color: #fff;
-  border-color: var(--tab-accent, #245b4a);
+  border-color: var(--tab-accent, #c49a45);
+  box-shadow: 0 4px 10px rgba(196, 154, 69, 0.2);
 }
 
 .graph-mobile-list {
@@ -368,17 +401,19 @@
   align-items: center;
   justify-content: space-between;
   padding: 0.75rem 0.9rem;
-  border: 1px solid rgba(118, 73, 26, 0.12);
-  border-left: 4px solid #245b4a;
-  border-radius: 4px;
-  background: #faf6eb;
+  border: 1px solid rgba(196, 154, 69, 0.18);
+  border-left: 4px solid #c49a45;
+  border-radius: 8px;
+  background: rgba(250, 246, 235, 0.72);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   box-shadow: 0 2px 6px rgba(118, 73, 26, 0.03);
   cursor: pointer;
   transition: transform 0.15s, background 0.15s;
 }
 
 .graph-mobile-card:active {
-  background: #fdfaf2;
+  background: rgba(253, 247, 234, 0.85);
   transform: scale(0.98);
 }
 
@@ -418,7 +453,7 @@
 }
 
 .graph-mobile-card-arrow {
-  color: rgba(118, 73, 26, 0.4);
+  color: rgba(196, 154, 69, 0.5);
   display: flex;
   align-items: center;
 }
