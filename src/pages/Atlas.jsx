@@ -8,49 +8,178 @@ import {
   getGraphStats,
   normalizeGraph,
 } from '../utils/graphFilters';
-import atlasArchiveBg from '../assets/images/atlas/pinecone-observatory-bg.png';
+import atlasArchiveBg from '../assets/images/atlas/Celestial-Sands-Field.png';
 
 const METADATA_COLLECTIONS = [
+  // 1. 落沙寻迹图录 (原 travel)
   {
     slug: 'travel',
     kind: 'travel',
-    title: '杭州五一旅游攻略',
-    eyebrow: '旅行笔记库',
-    description: '路线、景点、美食、活动与逐日计划组成的旅行知识地图。',
-    accent: '#5aa38f',
+    title: '落沙寻迹图录',
+    eyebrow: 'GEOMANTIC RECORDING MATRIX',
+    description: '烙印在神州地脉之上的行走轨迹，凡人眼中的凡尘路线、烟火美味与逐日景致，在此阵中化作被封存的星沙坐标。',
+    accent: '#d8a247',
   },
+  // 2. 万象建站炼成阵 (原 project / 对应 02_楼阁)
   {
     slug: 'project',
     kind: 'project',
-    title: '建站流程指南',
-    eyebrow: '发布流程库',
-    description: '域名、部署、DNS、Cloudflare、Vercel 与 Quartz 建站流程。',
+    title: '万象建站炼成阵',
+    eyebrow: 'AETHERIC RECONSTRUCTION GRAPH',
+    description: '探寻数字迷雾的营造法则。域名敕令、节点部署、DNS 织网、Cloudflare 避雷、Vercel 唤醒与 Quartz 雕琢，皆是可被逆向推演的构筑星轨。',
     accent: '#c8933f',
   },
+  // 3. 叶间林径编织手稿 (原 blog-design / 对应 01_天工)
   {
     slug: 'blog-design',
     kind: 'blog-design',
-    title: '博客网站设计思路',
-    eyebrow: '松果屋设计档案',
-    description: '首页、博客页、图谱页、交互物件和视觉资产的设计记录。',
-    accent: '#9b8ac7',
+    title: '叶间林径编织手稿',
+    eyebrow: 'LEAF-BORDERED SANCTUARY ENTRANCE',
+    description: '描绘彼端‘叶间树林’容貌的设计残卷。涵盖门户、文库、图谱大厅之营造图法，此间手稿借由星沙传送阵，与叶间树林的阅读法阵紧密呼应。',
+    accent: '#c7a46a',
   },
+  // 4. 筑梦现场
+  {
+    slug: 'dream-site',
+    kind: 'dream-site',
+    title: '造化筑梦之阶',
+    eyebrow: 'GENESIS FABRICATION SITE',
+    description: '此间为万物破土之界。以意驭神，构筑大千世界之根基，记录一切重制与超凡创思的炼成仪轨。',
+    accent: '#cfa258',
+  },
+  // 5. 天衡 (流程与规范)
+  {
+    slug: 'tianheng',
+    kind: '天衡',
+    title: '天衡星轨纪律',
+    eyebrow: 'HEAVENLY BALANCE REGULATION',
+    description: '洞悉天道运转之法则。仙门大典之流程、修行契约之规范，于此间被归纳平整，使诸般万象不离常轨。',
+    accent: '#cca552',
+  },
+  // 6. 天工 (美学与设计)
+  {
+    slug: 'tiangong',
+    kind: '天工',
+    title: '巧夺天工秘卷',
+    eyebrow: 'DIVINE CRAFT DESIGN AESTHETICS',
+    description: '仙界奇观之图解，美轮美奂的排版法则与配色心诀，汇聚此中，夺天地之造化以饰仙居门庭。',
+    accent: '#c49a45',
+  },
+  // 7. 楼阁 (页面与开发)
+  {
+    slug: 'louge',
+    kind: '楼阁',
+    title: '万象楼阁构筑',
+    eyebrow: 'STELLAR PAVILION ARCHITECTURE',
+    description: '起手而平地生楼阁，虚实相生。探寻仙网界面的构筑秘符，一砖一瓦皆是仙元演化的代码玉简。',
+    accent: '#bfa261',
+  },
+  // 8. 造物 (玩具与工坊)
+  {
+    slug: 'zaowu',
+    kind: '造物',
+    title: '太初造物秘传',
+    eyebrow: 'ARCHETYPAL MANUFACTURE WORKSHOP',
+    description: '收录工坊之中所铸奇珍傀儡、法宝玩物。奇巧机关，造化玄机，皆可在此间一窥其以气运驭之妙术。',
+    accent: '#cca15a',
+  },
+  // 9. 秘术 / 技术札记
+  {
+    slug: 'mixu',
+    kind: '秘术',
+    title: '天玄奥道秘术',
+    eyebrow: 'OCCULT AETHERIC METHODOLOGIES',
+    description: '修真界诸般攻防真诀，包括系统性技术心得、算法符箓与道法传承，是克敌机先、稳固根基的无上古卷。',
+    accent: '#cca362',
+  },
+  // 兼容老的分类
+  {
+    slug: 'compiler-theory',
+    kind: 'compiler-theory',
+    title: '天玄奥道秘术 · 编译卷',
+    eyebrow: 'OCCULT AETHERIC METHODOLOGIES',
+    description: '修真界诸般攻防真诀，包括系统性技术心得、算法符箓与道法传承，是克敌机先、稳固根基的无上古卷。',
+    accent: '#cca362',
+  },
+  {
+    slug: 'linux-notes',
+    kind: 'linux-notes',
+    title: '天玄奥道秘术 · 筑基卷',
+    eyebrow: 'OCCULT AETHERIC METHODOLOGIES',
+    description: '修真界诸般攻防真诀，包括系统性技术心得、算法符箓与道法传承，是克敌机先、稳固根基的无上古卷。',
+    accent: '#cca362',
+  },
+  {
+    slug: 'embedded',
+    kind: 'embedded',
+    title: '天玄奥道秘术 · 金石卷',
+    eyebrow: 'OCCULT AETHERIC METHODOLOGIES',
+    description: '修真界诸般攻防真诀，包括系统性技术心得、算法符箓与道法传承，是克敌机先、稳固根基的无上古卷。',
+    accent: '#cca362',
+  },
+  // 10. 闲情 (幕后与手札)
+  {
+    slug: 'xianqing',
+    kind: '闲情',
+    title: '青灯余暇闲情',
+    eyebrow: 'TRANQUIL MEDITATION JOURNAL',
+    description: '修行有得，提笔著书。红尘游历、心魔感悟与道友杂谈，皆温存入纸，可堪在风定雨歇时佐茶细读。',
+    accent: '#caa866',
+  },
+  {
+    slug: 'desk-thoughts',
+    kind: 'desk-thoughts',
+    title: '青灯余暇闲情 · 案头卷',
+    eyebrow: 'TRANQUIL MEDITATION JOURNAL',
+    description: '修行有得，提笔著书。红尘游历、心魔感悟与道友杂谈，皆温存入纸，可堪在风定雨歇时佐茶细读。',
+    accent: '#caa866',
+  },
+  {
+    slug: 'knowledge-grocery',
+    kind: 'knowledge-grocery',
+    title: '青灯余暇闲情 · 杂货卷',
+    eyebrow: 'TRANQUIL MEDITATION JOURNAL',
+    description: '修行有得，提笔著书。红尘游历、心魔感悟与道友杂谈，皆温存入纸，可堪在风定雨歇时佐茶细读。',
+    accent: '#caa866',
+  },
+  // 11. 内功心法
+  {
+    slug: 'internal-skills',
+    kind: 'internal-skills',
+    title: '太玄内功心法',
+    eyebrow: 'INNER CULTIVATION DIRECTIVES',
+    description: '修仙者筑基长生、洗髓伐脉之底层核心心诀。吐纳归真，洗涤俗虑，重塑神识周天之根本。',
+    accent: '#cca362',
+  },
+  // 12. 纪要 (缺陷与工单)
+  {
+    slug: 'jiyao',
+    kind: '纪要',
+    title: '业障天道补缀',
+    eyebrow: 'AETHERIC REPAIR RESOLUTIONS',
+    description: '记载修行中遇阻的天道疏漏与缺陷因果，是消除破障、斩断业报、调顺仙力周天的补天纪要。',
+    accent: '#caa75b',
+  },
+  // 13. 遗迹 (历史陈迹)
+  {
+    slug: 'yiji',
+    kind: '遗迹',
+    title: '太古历史遗迹',
+    eyebrow: 'ANCIENT ARCHIVE RELICS',
+    description: '过往修持之残篇、未尽之演算法阵，虽然尘封已久，却在岁月中凝结为值得回溯警醒的太古遗迹。',
+    accent: '#b8a682',
+  }
 ];
 
 const Page = styled.div`
   min-height: 100vh;
   position: relative;
   isolation: isolate;
-  overflow: hidden;
-  background:
-    linear-gradient(90deg, rgba(5, 12, 10, 0.16), rgba(8, 15, 14, 0.1) 44%, rgba(11, 8, 5, 0.28)),
-    linear-gradient(180deg, rgba(5, 10, 8, 0.06), rgba(5, 10, 8, 0.34)),
-    url(${atlasArchiveBg}) center top / cover fixed,
-    #122018;
+  overflow-x: hidden;
+  background: #07100e;
   color: #f5efe3;
 
-  &::before,
-  &::after {
+  &::before {
     content: '';
     position: fixed;
     inset: 0;
@@ -58,26 +187,10 @@ const Page = styled.div`
   }
 
   &::before {
-    z-index: -2;
-    opacity: 0.16;
+    z-index: 0;
     background:
-      linear-gradient(rgba(215, 187, 135, 0.035) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(215, 187, 135, 0.025) 1px, transparent 1px),
-      radial-gradient(circle at 22% 30%, rgba(245, 239, 227, 0.05), transparent 18%),
-      radial-gradient(circle at 74% 62%, rgba(199, 147, 63, 0.05), transparent 20%);
-    background-size: 46px 46px, 46px 46px, 100% 100%, 100% 100%;
-    mask-image: radial-gradient(circle at 50% 42%, black, transparent 78%);
-  }
-
-  &::after {
-    z-index: -1;
-    opacity: 0.42;
-    background:
-      radial-gradient(circle at 18% 24%, rgba(246, 213, 139, 0.12) 0 1px, transparent 2px),
-      radial-gradient(circle at 48% 62%, rgba(90, 163, 143, 0.1) 0 1px, transparent 2px),
-      radial-gradient(circle at 82% 38%, rgba(245, 239, 227, 0.08) 0 1px, transparent 2px);
-    background-size: 180px 180px, 240px 240px, 210px 210px;
-    animation: atlas-dust-drift 28s linear infinite;
+      url(${atlasArchiveBg}) center center / cover no-repeat,
+      #07100e;
   }
 
   @keyframes atlas-dust-drift {
@@ -85,6 +198,30 @@ const Page = styled.div`
     to { transform: translate3d(-90px, 70px, 0); }
   }
 `;
+
+const AtlasStars = styled.div`
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.52;
+  background:
+    radial-gradient(circle at 22% 30%, rgba(245, 239, 227, 0.12) 0 1px, transparent 2px),
+    radial-gradient(circle at 48% 62%, rgba(90, 163, 143, 0.1) 0 1px, transparent 2px),
+    radial-gradient(circle at 82% 38%, rgba(231, 199, 126, 0.11) 0 1px, transparent 2px),
+    linear-gradient(rgba(215, 187, 135, 0.026) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(215, 187, 135, 0.018) 1px, transparent 1px);
+  background-size: 180px 180px, 240px 240px, 210px 210px, 52px 52px, 52px 52px;
+  mask-image: radial-gradient(circle at 52% 38%, black 0%, black 38%, transparent 82%);
+  animation: atlas-dust-drift 34s linear infinite;
+`;
+
+const AtlasFrame = ({ children }) => (
+  <Page>
+    <AtlasStars />
+    {children}
+  </Page>
+);
 
 const LoadingScreen = styled(motion.div)`
   position: fixed;
@@ -153,7 +290,7 @@ const LoadingScreen = styled(motion.div)`
     left: 0;
     height: 100%;
     width: 100%;
-    background: linear-gradient(90deg, transparent, #5aa38f, transparent);
+    background: linear-gradient(90deg, transparent, #d8a247, transparent);
     animation: loadingBarMove 1.6s infinite linear;
   }
 
@@ -178,16 +315,16 @@ const LoadingScreen = styled(motion.div)`
 
 const Shell = styled.div`
   position: relative;
-  z-index: 1;
+  z-index: 4;
   display: grid;
-  grid-template-columns: minmax(210px, 260px) minmax(0, 1fr) minmax(300px, 380px);
+  grid-template-columns: minmax(190px, 236px) minmax(0, 1fr) minmax(300px, 380px);
   gap: clamp(1rem, 2vw, 1.5rem);
   width: min(1500px, 100%);
   margin: 0 auto;
   padding: clamp(1rem, 2.5vw, 2rem);
 
   @media (max-width: 1120px) {
-    grid-template-columns: minmax(190px, 230px) minmax(0, 1fr);
+    grid-template-columns: minmax(180px, 220px) minmax(0, 1fr);
   }
 
   @media (max-width: 780px) {
@@ -199,64 +336,101 @@ const Rail = styled.aside`
   position: sticky;
   top: 1.25rem;
   align-self: start;
-  min-height: calc(100vh - 2.5rem);
-  padding: 1rem 0.8rem;
-  border-right: 1px solid rgba(223, 198, 146, 0.18);
+  max-height: calc(100vh - 2.5rem);
+  padding: 1rem 0.75rem;
+  overflow: auto;
+  border: 1px solid rgba(216, 162, 71, 0.34);
+  border-left: 2px solid rgba(231, 199, 126, 0.58);
+  border-radius: 10px;
+  background:
+    linear-gradient(180deg, rgba(255, 244, 218, 0.26), rgba(99, 61, 26, 0.2)),
+    radial-gradient(circle at 85% 8%, rgba(255, 225, 151, 0.24), transparent 32%),
+    rgba(38, 25, 18, 0.46);
+  box-shadow:
+    0 18px 42px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 247, 223, 0.24),
+    inset 0 0 28px rgba(231, 199, 126, 0.05);
+  backdrop-filter: blur(4px) saturate(1.12);
+  -webkit-backdrop-filter: blur(4px) saturate(1.12);
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(231, 199, 126, 0.34);
+    border-radius: 999px;
+  }
 
   @media (max-width: 780px) {
     position: static;
-    min-height: auto;
-    border-right: 0;
-    border-bottom: 1px solid rgba(223, 198, 146, 0.18);
+    max-height: none;
+    border-left-width: 1px;
+    background: rgba(82, 52, 26, 0.48);
+    border-radius: 12px;
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
   }
 `;
 
 const RailTitle = styled(Link)`
   display: block;
-  margin-bottom: 1rem;
-  color: #e7c77e;
-  font-size: 0.9rem;
+  margin: 0 0.35rem 0.8rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(255, 225, 151, 0.24);
+  color: #ffe197;
+  font-size: 0.82rem;
   font-weight: 900;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  text-shadow: 0 0 16px rgba(231, 199, 126, 0.28);
 `;
 
 const NavList = styled.nav`
   display: grid;
-  gap: 0.45rem;
+  gap: 0.22rem;
 `;
 
 const NavLink = styled(Link)`
   display: grid;
-  grid-template-columns: 10px 1fr auto;
+  grid-template-columns: 8px 1fr auto;
   align-items: center;
-  gap: 0.65rem;
-  min-height: 44px;
-  padding: 0.55rem 0.65rem;
+  gap: 0.55rem;
+  min-height: 38px;
+  padding: 0.46rem 0.58rem;
   border-radius: 6px;
-  color: ${({ $active }) => ($active ? '#fff7df' : 'rgba(245, 239, 227, 0.68)')};
-  background: ${({ $active, $accent }) => ($active ? `${$accent}1f` : 'transparent')};
-  border: 1px solid ${({ $active, $accent }) => ($active ? `${$accent}55` : 'transparent')};
-  font-size: 0.88rem;
+  color: ${({ $active }) => ($active ? '#fff7df' : 'rgba(255, 240, 212, 0.94)')};
+  text-shadow: 
+    0 1px 2px rgba(12, 9, 6, 0.76),
+    ${({ $active }) => ($active ? '0 0 10px rgba(231, 199, 126, 0.42)' : 'none')};
+  background: ${({ $active, $accent }) => ($active ? `linear-gradient(90deg, ${$accent}30, rgba(255, 247, 223, 0.08))` : 'transparent')};
+  border: 1px solid ${({ $active, $accent }) => ($active ? `${$accent}66` : 'transparent')};
+  font-size: 0.8rem;
+  text-decoration: none;
   line-height: 1.25;
+  transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
 
   &::before {
     content: '';
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
     background: ${({ $accent }) => $accent};
-    box-shadow: 0 0 14px ${({ $accent }) => $accent};
+    box-shadow: ${({ $active, $accent }) => ($active ? `0 0 14px ${$accent}` : `0 0 8px ${$accent}80`)};
   }
 
   &:hover {
     color: #fff7df;
-    background: rgba(255, 255, 255, 0.06);
+    background: rgba(255, 225, 151, 0.12);
+    border-color: rgba(255, 225, 151, 0.28);
+    transform: translateX(2px);
   }
 `;
 
 const Count = styled.span`
-  color: rgba(245, 239, 227, 0.45);
-  font-size: 0.72rem;
+  color: rgba(255, 225, 151, 0.78);
+  font-size: 0.68rem;
+  font-variant-numeric: tabular-nums;
 `;
 
 const Main = styled.main`
@@ -284,6 +458,9 @@ const Title = styled(motion.h1)`
   font-size: clamp(2.3rem, 7vw, 5.2rem);
   font-weight: 300;
   line-height: 1.02;
+  text-shadow: 
+    0 0 12px rgba(231, 199, 126, 0.35),
+    0 2px 4px rgba(0, 0, 0, 0.8);
 `;
 
 const Lead = styled.p`
@@ -315,27 +492,40 @@ const CollectionCard = styled(Link)`
   display: grid;
   min-height: 148px;
   padding: 1rem;
-  border-radius: 8px;
-  border: 1px solid ${({ $accent }) => `${$accent}35`};
+  border-radius: 10px;
+  border: 1px solid rgba(231, 199, 126, 0.28);
+  border-left: 2px solid ${({ $accent }) => `${$accent}aa`};
   background:
-    linear-gradient(135deg, ${({ $accent }) => `${$accent}20`}, rgba(231, 199, 126, 0.055)),
-    rgba(9, 19, 17, 0.76);
-  color: #fff7df;
-  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+    linear-gradient(135deg, rgba(10, 20, 34, 0.72), rgba(20, 16, 23, 0.46)),
+    radial-gradient(circle at 82% 14%, ${({ $accent }) => `${$accent}22`}, transparent 36%),
+    rgba(8, 13, 22, 0.36);
+  color: #f5efe3;
+  backdrop-filter: blur(3px) saturate(1.08);
+  -webkit-backdrop-filter: blur(3px) saturate(1.08);
+  box-shadow:
+    0 18px 38px rgba(0, 0, 0, 0.18),
+    inset 0 1px 0 rgba(255, 247, 223, 0.06);
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+  text-decoration: none;
 
   &:hover {
     transform: translateY(-3px);
-    border-color: ${({ $accent }) => `${$accent}aa`};
+    border-color: ${({ $accent }) => $accent};
+    box-shadow: 
+      0 18px 42px rgba(0, 0, 0, 0.24),
+      0 0 16px ${({ $accent }) => `${$accent}40`};
   }
 
   strong {
     font-size: 1.12rem;
     line-height: 1.25;
+    color: #f5d98f;
+    text-shadow: 0 1px 2px rgba(12, 9, 6, 0.78);
   }
 
   span {
     align-self: end;
-    color: rgba(245, 239, 227, 0.68);
+    color: rgba(245, 239, 227, 0.72);
     font-size: 0.9rem;
     line-height: 1.55;
   }
@@ -354,13 +544,18 @@ const NoteItem = styled(Link)`
   min-height: 52px;
   padding: 0.78rem 0.9rem;
   border-radius: 8px;
-  border: 1px solid rgba(223, 198, 146, 0.16);
-  background: rgba(10, 23, 20, 0.68);
-  color: #fff7df;
+  border: 1px solid rgba(231, 199, 126, 0.22);
+  background: rgba(10, 20, 34, 0.48);
+  color: #f5efe3;
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  text-decoration: none;
 
   &:hover {
-    border-color: ${({ $accent }) => `${$accent}77`};
-    background: ${({ $accent }) => `${$accent}16`};
+    border-color: ${({ $accent }) => $accent};
+    background: rgba(231, 199, 126, 0.1);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
   }
 
   strong {
@@ -368,10 +563,11 @@ const NoteItem = styled(Link)`
     text-overflow: ellipsis;
     white-space: nowrap;
     font-size: 0.94rem;
+    color: #fff7df;
   }
 
   span {
-    color: rgba(245, 239, 227, 0.46);
+    color: rgba(245, 217, 143, 0.62);
     font-size: 0.72rem;
   }
 `;
@@ -380,11 +576,23 @@ const TreeContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
-  background: rgba(10, 23, 20, 0.48);
-  border: 1px solid rgba(223, 198, 146, 0.12);
-  border-radius: 8px;
-  padding: 1rem;
+  background:
+    linear-gradient(135deg, rgba(255, 244, 218, 0.32), rgba(111, 72, 28, 0.22)),
+    radial-gradient(circle at 82% 10%, rgba(255, 225, 151, 0.24), transparent 34%),
+    rgba(38, 25, 18, 0.44);
+  border: 1px solid rgba(216, 162, 71, 0.34);
+  border-left: 2px solid rgba(231, 199, 126, 0.54);
+  border-radius: 10px;
+  padding: 1.1rem;
   margin-top: 1rem;
+  outline: 1px solid rgba(255, 247, 223, 0.18);
+  outline-offset: -4px;
+  box-shadow:
+    0 22px 50px rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(255, 247, 223, 0.22),
+    inset 0 0 24px rgba(231, 199, 126, 0.06);
+  backdrop-filter: blur(4px) saturate(1.12);
+  -webkit-backdrop-filter: blur(4px) saturate(1.12);
 `;
 
 const TreeNodeWrapper = styled.div`
@@ -404,13 +612,14 @@ const TreeRow = styled.div`
   min-width: 0;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.04);
+    background: rgba(255, 225, 151, 0.12);
   }
 `;
 
 const FolderRow = styled(TreeRow)`
-  color: #fff7df;
+  color: #ffe197;
   font-weight: 600;
+  text-shadow: 0 1px 2px rgba(12, 9, 6, 0.74);
 `;
 
 const FileRow = styled(Link)`
@@ -419,13 +628,13 @@ const FileRow = styled(Link)`
   gap: 0.5rem;
   padding: 0.45rem 0.6rem;
   border-radius: 6px;
-  color: rgba(245, 239, 227, 0.85);
+  color: rgba(255, 240, 212, 0.84);
   text-decoration: none;
   min-width: 0;
   transition: background 0.2s ease, color 0.2s ease;
 
   &:hover {
-    background: ${({ $accent }) => `${$accent}16`};
+    background: ${({ $accent }) => `${$accent}18`};
     color: #fff7df;
   }
 `;
@@ -440,26 +649,26 @@ const NodeName = styled.span`
 
 const FolderCount = styled.span`
   font-size: 0.72rem;
-  color: rgba(245, 239, 227, 0.36);
+  color: rgba(255, 225, 151, 0.64);
   margin-left: 0.35rem;
   font-weight: normal;
 `;
 
 const FileMeta = styled.span`
   font-size: 0.72rem;
-  color: rgba(245, 239, 227, 0.38);
+  color: rgba(255, 225, 151, 0.56);
   margin-left: auto;
   padding-left: 0.5rem;
   flex-shrink: 0;
 `;
 
 const SubTree = styled.div`
-  margin-left: 10px;
-  padding-left: 10px;
-  border-left: 1px dashed rgba(223, 198, 146, 0.12);
+  margin-left: 12px;
+  padding-left: 12px;
+  border-left: 1px dashed rgba(255, 225, 151, 0.28);
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 0.25rem;
 `;
 
 const ChevronSvg = ({ isOpen }) => (
@@ -504,7 +713,7 @@ const FileSvg = () => (
     height="16"
     viewBox="0 0 24 24"
     fill="none"
-    stroke="rgba(245, 239, 227, 0.65)"
+    stroke="rgba(111, 70, 22, 0.72)"
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
@@ -588,11 +797,20 @@ const RightPanel = styled.aside`
 `;
 
 const PreviewPanel = styled.div`
-  border: 1px solid rgba(91, 70, 48, 0.28);
-  background: #f1eadb;
-  color: #362d22;
+  border: 1px solid rgba(216, 162, 71, 0.36);
+  border-left: 2.5px solid rgba(231, 199, 126, 0.7);
+  border-radius: 10px;
+  background:
+    linear-gradient(135deg, rgba(255, 244, 218, 0.08), rgba(99, 61, 26, 0.04)),
+    radial-gradient(circle at 82% 10%, rgba(255, 225, 151, 0.24), transparent 34%),
+    rgba(28, 18, 12, 0.52);
+  color: #fff7df;
   overflow: hidden;
-  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.18);
+  box-shadow:
+    0 20px 48px rgba(0, 0, 0, 0.24),
+    inset 0 1px 0 rgba(255, 247, 223, 0.22);
+  backdrop-filter: blur(12px) saturate(1.2);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
 `;
 
 const PanelHeader = styled.div`
@@ -602,14 +820,12 @@ const PanelHeader = styled.div`
   gap: 0.75rem;
   min-height: 50px;
   padding: 0 0.9rem;
-  border-bottom: 1px solid rgba(91, 70, 48, 0.22);
-  background:
-    linear-gradient(90deg, rgba(255, 250, 238, 0.88), rgba(241, 234, 219, 0.78)),
-    #f1eadb;
+  border-bottom: 1px solid rgba(216, 162, 71, 0.24);
+  background: rgba(20, 13, 8, 0.45);
 `;
 
 const PanelTitle = styled.span`
-  color: #362d22;
+  color: #ffe197;
   font-size: 0.86rem;
   font-weight: 900;
   letter-spacing: 0.04em;
@@ -627,12 +843,13 @@ const GraphPill = styled(Link)`
   align-items: center;
   min-height: 30px;
   padding: 0 0.68rem;
-  border: 1px solid rgba(36, 91, 74, 0.24);
-  background: rgba(255, 250, 238, 0.78);
-  color: #245b4a;
+  border: 1px solid rgba(216, 162, 71, 0.4);
+  background: rgba(28, 18, 12, 0.6);
+  color: #ffe197;
   font-size: 0.72rem;
   font-weight: 900;
   letter-spacing: 0.03em;
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
 
   &::after {
     content: '';
@@ -641,10 +858,24 @@ const GraphPill = styled(Link)`
     bottom: -6px;
     width: 10px;
     height: 10px;
-    border-right: 1px solid rgba(36, 91, 74, 0.24);
-    border-bottom: 1px solid rgba(36, 91, 74, 0.24);
-    background: rgba(255, 250, 238, 0.78);
+    border-right: 1px solid rgba(216, 162, 71, 0.4);
+    border-bottom: 1px solid rgba(216, 162, 71, 0.4);
+    background: rgba(28, 18, 12, 0.6);
     transform: translateX(-50%) rotate(45deg);
+    transition: border-color 0.18s ease, background 0.18s ease;
+  }
+
+  &:hover {
+    transform: translateY(-1px);
+    border-color: #c49a45;
+    background: rgba(216, 162, 71, 0.2);
+    color: #fff7df;
+    box-shadow: 0 0 18px rgba(216, 162, 71, 0.3);
+  }
+
+  &:hover::after {
+    border-color: #c49a45;
+    background: rgba(216, 162, 71, 0.2);
   }
 `;
 
@@ -653,18 +884,27 @@ const GraphIcon = styled(Link)`
   place-items: center;
   width: 32px;
   height: 32px;
-  color: #245b4a;
+  color: #ffe197;
   font-size: 1.35rem;
   font-weight: 900;
+  transition: transform 0.18s ease, color 0.18s ease, text-shadow 0.18s ease;
+
+  &:hover {
+    color: #fff7df;
+    text-shadow: 0 0 16px rgba(216, 162, 71, 0.48);
+    transform: translate(2px, -2px);
+  }
 `;
 
 const PreviewBody = styled.div`
   aspect-ratio: 1 / 1;
   min-height: 280px;
+  background: rgba(0, 0, 0, 0.15);
 
   .mini-graph-container {
     height: 100%;
     border: 0;
+    background: transparent;
   }
 `;
 
@@ -672,16 +912,16 @@ const SideList = styled.div`
   display: grid;
   gap: 0.55rem;
   padding: 0.9rem;
-  background: rgba(255, 251, 241, 0.35);
+  background: rgba(0, 0, 0, 0.15);
 
   a,
   span {
-    color: rgba(54, 45, 34, 0.74);
+    color: rgba(255, 240, 212, 0.84);
     font-size: 0.88rem;
   }
 
   a:hover {
-    color: #245b4a;
+    color: #ffe197;
   }
 `;
 
@@ -830,26 +1070,26 @@ function RightSidebar({ graphData, indexData, activeCollection }) {
 
 function AtlasHall({ graphData, indexData, counts, collections }) {
   return (
-    <Page>
+    <AtlasFrame>
       <Shell>
         <AtlasRail activeSlug="hall" counts={counts} collections={collections} />
         <Main>
           <Hero id="overview">
-            <Eyebrow $accent="#e7c77e">Pinecone Archive</Eyebrow>
+            <Eyebrow $accent="#e7c77e">STELLAR SANDS ASTROLABE</Eyebrow>
             <Title
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.45 }}
             >
-              图谱大厅
+              星砂浑天图谱
             </Title>
             <Lead>
-              这里展示的是从 Obsidian Vault 选择性发布到博客站点的真实笔记网络。
-              右侧关系图谱会按当前内容区过滤，展开后进入当前分类的全局图谱。
+              星砂汇聚，凝为棋局。此阵乃沟通大千的虚空节点，每一枚知识玉简皆落在星沙棋盘上，化作引力交织的星砂坐标。
+              藉由眼前的星轨坐标，启迪传送法阵，即可越过无垠沙海，神游于‘叶间树林’的阅读殿堂中。
             </Lead>
           </Hero>
  
-          <SectionTitle id="entries">已发布内容区</SectionTitle>
+          <SectionTitle id="entries">虚空定位仪轨</SectionTitle>
           <CardGrid>
             {collections.map((item) => (
               <CollectionCard key={item.slug} to={`/atlas/${item.slug}`} $accent={item.accent}>
@@ -863,7 +1103,7 @@ function AtlasHall({ graphData, indexData, counts, collections }) {
             ))}
           </CardGrid>
  
-          <SectionTitle id="notes">最近发布的笔记</SectionTitle>
+          <SectionTitle id="notes">近来浮光的星砂玉简</SectionTitle>
           <NoteList>
             {indexData.notes.slice(0, 12).map((note) => (
               <NoteItem key={note.slug} to={`/note/${note.slug}`} $accent="#a78bfa">
@@ -875,7 +1115,7 @@ function AtlasHall({ graphData, indexData, counts, collections }) {
         </Main>
         <RightSidebar graphData={graphData} indexData={indexData} />
       </Shell>
-    </Page>
+    </AtlasFrame>
   );
 }
 
@@ -963,7 +1203,7 @@ function AtlasDetail({ collection, graphData, indexData, counts, collections }) 
   };
 
   return (
-    <Page>
+    <AtlasFrame>
       <Shell>
         <AtlasRail activeSlug={collection.slug} counts={counts} collections={collections} />
         <Main>
@@ -1000,7 +1240,7 @@ function AtlasDetail({ collection, graphData, indexData, counts, collections }) 
         </Main>
         <RightSidebar graphData={graphData} indexData={indexData} activeCollection={collection} />
       </Shell>
-    </Page>
+    </AtlasFrame>
   );
 }
 
@@ -1014,7 +1254,11 @@ export default function Atlas() {
     
     // Merge indexData collections with predefined metadata
     for (const c of indexData?.collections ?? []) {
-      const matched = METADATA_COLLECTIONS.find((item) => item.kind === c.kind);
+      const matched = METADATA_COLLECTIONS.find((item) => 
+        item.kind === c.kind || 
+        c.kind.toLowerCase().includes(item.kind.toLowerCase()) ||
+        c.label.toLowerCase().includes(item.kind.toLowerCase())
+      );
       if (matched) {
         list.push({
           ...matched,

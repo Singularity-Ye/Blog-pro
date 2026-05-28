@@ -27,64 +27,57 @@ const floatAnim = keyframes`
 
 const PROJECTS_DATA = [
   {
-    id: 'pinecone-globe',
-    title: '松果星寰仪',
-    category: 'webgl',
-    categoryLabel: '幻镜术',
-    element: 'Aether (以太)',
-    elementColor: '#06b6d4',
-    mana: '85',
-    power: '95',
-    ingredients: ['Three.js', 'R3F', 'WebGL', 'Framer Motion'],
-    shortDesc: '以太交织而成的幻象之茧，封印了全站的大陆传送门。拨动命运星体，即可开启时空之门。',
-    longDesc: '这是个人世界观的沉浸式三维大门。本法阵利用 React Three Fiber 与 Three.js 将潮汐湾、叶间书林、星沙图原、幽霜析粹所与池畔信亭五片生态大陆渲染在了一个缓缓流转的三维球体表面。结合极地物理阻尼旋转与射线投射（Raycasting）机制，让探求者在旋转、缩放间与这颗充满魔法粒子的大脑节点交互，自由传送进入不同的次元。',
-    demoUrl: '/',
-    codeUrl: 'https://github.com',
-  },
-  {
-    id: 'obsidian-graph',
-    title: '黑曜石灵感图谱',
-    category: 'frontend',
-    categoryLabel: '塑形术',
-    element: 'Void (虚空)',
-    elementColor: '#8b5cf6',
-    mana: '60',
-    power: '88',
-    ingredients: ['React', 'D3.js', 'Force Graph', 'Markdown'],
-    shortDesc: '将错综复杂的Markdown笔记连结为灵感星图的塑形咒。知识节点沿重力网络传导。',
-    longDesc: '用于将松果书屋的个人Markdown知识库可视化的动态网络。采用 D3.js 力导向算法计算节点位置，利用 Canvas 渲染多达数百个笔记节点与它们之间的引用连线。支持笔记节点的拖拽物理模拟、关系高亮显示，并集成了浮窗预览机制，可直接以悬浮窗的形式阅读特定笔记，避免了频繁页面切换。',
-    demoUrl: '/atlas',
-    codeUrl: 'https://github.com',
-  },
-  {
-    id: 'alchemy-chat',
-    title: '炼金试剂配方器',
-    category: 'backend',
-    categoryLabel: '炼金术',
-    element: 'Mercury (水银)',
-    elementColor: '#10b981',
-    mana: '75',
-    power: '90',
-    ingredients: ['Node.js', 'SSE', 'Gemini API', 'Express'],
-    shortDesc: '调和Gemini大语言模型试剂的炼金配方。提供流式智能心智火花，实时凝结知识结晶。',
-    longDesc: '结合大语言模型的智能聊天交互端。后端基于 Node.js 与 Express 搭建，使用 Server-Sent Events (SSE) 技术实现超低延迟的打字机流式传输。具备智能上下文剪枝算法，就像调配炼金比例一样，动态管理上下文的 Mana 消耗，支持 Markdown 渲染和多线程配方切换。',
-    demoUrl: '/contact',
-    codeUrl: 'https://github.com',
-  },
-  {
-    id: 'frog-guide',
-    title: '青蛙森之向导',
+    id: 'daimao-new-year',
+    title: '怪猎呆猫贺新春',
     category: 'creative',
     categoryLabel: '构装术',
-    element: 'Gaia (大地)',
-    elementColor: '#ef4444',
-    mana: '50',
-    power: '82',
-    ingredients: ['React', 'Framer Motion', 'Local Storage', 'Math.js'],
-    shortDesc: '召唤三只性格迥异的童话青蛙守卫木桥。指针靠近时，它们会低述博客屋外的法术提示。',
-    longDesc: '博客屋外入口场景的趣味交互模块。三只不同的青蛙导游（望远镜青蛙、抱灯笼青蛙、挥手向导青蛙）被接入到了童话森林木桥上。运用复用的 placement 调参工具精细布置图层，并配合 Framer Motion 实现了跟随指针视差、高光遮罩清理，以及青蛙们气泡口述的博客功能引导。',
-    demoUrl: '/blog',
-    codeUrl: 'https://github.com',
+    element: 'Festival (春火)',
+    elementColor: '#f59e0b',
+    mana: '70',
+    power: '84',
+    ingredients: ['节庆视觉', '角色主题', '互动网页', '新春氛围'],
+    shortDesc: '以怪猎呆猫为主题的贺新春网站，是当前项目工坊中最成形、可直接访问的节日造物。',
+    longDesc: '这是一座偏节庆展示向的主题小站，以怪猎呆猫为核心意象，承载新春祝福、角色氛围与轻量互动。它适合作为项目页第一件正式陈列的作品：体量不必庞大，但主题明确、入口真实、能体现独立完成一个完整网页体验的能力。后续若补齐截图、动效拆解与制作复盘，就能沉淀成一篇很完整的项目札记。',
+    demoUrl: 'https://xinchun.daimao.fun',
+  },
+  {
+    id: 'fictional-world-map',
+    title: '异世地理志地图工坊',
+    category: 'frontend',
+    categoryLabel: '塑形术',
+    element: 'Cartography (地脉)',
+    elementColor: '#06b6d4',
+    mana: '66',
+    power: '79',
+    ingredients: ['Leaflet', '地图瓦片', 'TTRPG', '世界观设定'],
+    shortDesc: '把现实地图魔改成小说与桌游世界观地图，借现实地理骨架生成异世界地脉。',
+    longDesc: '这个方向借鉴 Obsidian TTRPG 类项目的世界观地图玩法：先用 Leaflet 承载现实地图与瓦片数据，再在此基础上进行地点改名、地貌重绘、势力范围标注、路线与事件点叠加，最终把现实地理转译成小说或桌游世界观可用的地图界面。它的价值不只是地图展示，而是把设定、路线、阵营、剧情节点统一落在一个可交互空间里。',
+  },
+  {
+    id: 'bear-runner-agent',
+    title: '熊大快跑自动化跑酷脚本',
+    category: 'backend',
+    categoryLabel: '炼金术',
+    element: 'Vision (目识)',
+    elementColor: '#8b5cf6',
+    mana: '92',
+    power: '68',
+    ingredients: ['场景识别', 'AssetRipper', 'Unity', 'ML-Agents'],
+    shortDesc: '从场景识别版地铁跑酷脚本获得灵感，尝试为熊大快跑构筑自动化判断与跑酷决策链路。',
+    longDesc: '这是一个仍在技术验证期的高难方案：先尝试整理游戏素材，使用 AssetRipper 统一碎片资源，再在 Unity 中恢复 3D 场景素材；随后接入 ML-Agents，对场景素材进行多角度旋转拍照，生成训练样本，最终让 AI 学习障碍、道路与可行动作之间的对应关系。这个路线不一定能完全走通，但它很适合记录为一次“视觉识别 + 游戏素材复原 + 强化学习/模仿学习”的探索项目。',
+  },
+  {
+    id: 'hangzhou-travel-map',
+    title: '杭州灵游 3D 路线图',
+    category: 'webgl',
+    categoryLabel: '幻镜术',
+    element: 'Terrain (山水)',
+    elementColor: '#10b981',
+    mana: '78',
+    power: '76',
+    ingredients: ['Obsidian 路线', '3D 地图', '路线规划', '2D 降维'],
+    shortDesc: '把 Obsidian 里的杭州旅行路线转化为 3D 城市地图，并按需要降维成 2D 路线规划图。',
+    longDesc: '这个项目从个人 Obsidian 旅行路线出发，将景点、交通、时间与笔记节点映射到一张 3D 版杭州地图中，形成更有空间感的旅行预演界面。当实际规划需要更高效率时，再把 3D 视角降维为 2D 地图，用来做路线排序、节点筛选与行程复盘。它既是旅行工具，也是把笔记系统和地图系统接起来的一次可视化实验。',
   }
 ];
 
@@ -188,34 +181,11 @@ const ContentWrapper = styled.div`
 const MainLayout = styled.div`
   display: grid;
   grid-template-columns: 1fr;
-  gap: 2rem;
   width: 100%;
-  
-  @media (min-width: 992px) {
-    grid-template-columns: 1.15fr 0.85fr;
-    align-items: start;
-    gap: 3.5rem;
-  }
 `;
 
 const LeftSection = styled.div`
   width: 100%;
-`;
-
-const StickyRightSection = styled.div`
-  position: sticky;
-  top: 6.5rem;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  z-index: 10;
-  
-  @media (max-width: 991px) {
-    position: relative;
-    top: 0;
-    margin-top: 2rem;
-  }
 `;
 
 const HeaderSection = styled(motion.div)`
@@ -251,6 +221,28 @@ const Subtitle = styled.p`
     color: #f59e0b;
     font-weight: 600;
   }
+`;
+
+const IncubationSeal = styled.div`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  max-width: min(100%, 760px);
+  padding: 0.65rem 1rem;
+  border: 1px dashed rgba(251, 191, 36, 0.48);
+  border-radius: 10px;
+  color: #fde68a;
+  background:
+    linear-gradient(135deg, rgba(120, 53, 15, 0.18), rgba(15, 12, 28, 0.58)),
+    rgba(251, 191, 36, 0.06);
+  box-shadow:
+    inset 0 0 18px rgba(251, 191, 36, 0.06),
+    0 10px 26px rgba(0, 0, 0, 0.24);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  line-height: 1.65;
+  text-align: center;
 `;
 
 // -------------------------------------------------------------------------
@@ -763,56 +755,6 @@ const CloseButton = styled.button`
 `;
 
 // -------------------------------------------------------------------------
-// 炼金坩埚样式 (Cauldron Styled Components)
-// -------------------------------------------------------------------------
-
-const CauldronContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 0.5rem;
-  position: relative;
-  z-index: 10;
-  width: 100%;
-`;
-
-const CauldronLabel = styled.div`
-  font-size: 0.9rem;
-  color: #e7c77e;
-  font-weight: 800;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  margin-bottom: 0.6rem;
-  text-shadow: 0 0 10px rgba(231, 199, 126, 0.35);
-  transition: color 0.3s, text-shadow 0.3s;
-`;
-
-const CauldronDesc = styled.div`
-  font-size: 0.78rem;
-  color: rgba(254, 243, 199, 0.65);
-  max-width: 440px;
-  text-align: center;
-  line-height: 1.6;
-  min-height: 38px;
-  transition: all 0.3s ease;
-`;
-
-const CauldronPanel = styled.div`
-  background: rgba(12, 10, 24, 0.85);
-  border: 1px solid rgba(231, 199, 126, 0.16);
-  border-radius: 12px;
-  padding: 8px 18px;
-  margin-bottom: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  min-width: 280px;
-  justify-content: center;
-  transition: border-color 0.3s;
-`;
-
-// -------------------------------------------------------------------------
 // 渲染组件 (React Component)
 // -------------------------------------------------------------------------
 
@@ -820,14 +762,7 @@ const Projects = () => {
   const [activeFilter, setActiveFilter] = useState('all');
   const [selectedProject, setSelectedProject] = useState(null);
   const [shockwaveIndex, setShockwaveIndex] = useState(null);
-  const [hoveredProject, setHoveredProject] = useState(null);
   const canvasRef = useRef(null);
-  const hoveredProjectRef = useRef(null);
-
-  // 同步 hoveredProject 到 ref，供 Canvas 绘制回路无延迟读取
-  useEffect(() => {
-    hoveredProjectRef.current = hoveredProject;
-  }, [hoveredProject]);
 
   // 魔法微粒背景 Canvas 逻辑
   useEffect(() => {
@@ -837,7 +772,6 @@ const Projects = () => {
     let animationId;
     let particles = [];
     let trail = [];
-    let cauldronBubbles = [];
     let mouse = { x: null, y: null };
 
     const resize = () => {
@@ -936,50 +870,6 @@ const Projects = () => {
         p.draw();
       });
 
-      // 坩埚共鸣粒子喷吐
-      if (hoveredProjectRef.current) {
-        const cauldronEl = document.getElementById('alchemy-cauldron-svg');
-        if (cauldronEl) {
-          const rect = cauldronEl.getBoundingClientRect();
-          const canvasRect = canvas.getBoundingClientRect();
-          const cx = rect.left - canvasRect.left + rect.width / 2;
-          const cy = rect.top - canvasRect.top + 15; // 稍微高于坩埚口
-          
-          if (Math.random() < 0.38) {
-            cauldronBubbles.push({
-              x: cx + (Math.random() * 40 - 20),
-              y: cy,
-              size: Math.random() * 3.5 + 1.5,
-              speedY: -(Math.random() * 1.6 + 0.6),
-              speedX: Math.random() * 0.7 - 0.35,
-              color: hoveredProjectRef.current.elementColor,
-              life: 1.0,
-              decay: Math.random() * 0.02 + 0.012
-            });
-          }
-        }
-      }
-
-      // 更新与绘制坩埚气泡
-      for (let i = cauldronBubbles.length - 1; i >= 0; i--) {
-        const b = cauldronBubbles[i];
-        b.x += b.speedX;
-        b.y += b.speedY;
-        b.life -= b.decay;
-
-        if (b.life <= 0) {
-          cauldronBubbles.splice(i, 1);
-        } else {
-          ctx.fillStyle = b.color;
-          ctx.shadowBlur = b.size * 2.5;
-          ctx.shadowColor = b.color;
-          ctx.beginPath();
-          ctx.arc(b.x, b.y, b.size * b.life, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.shadowBlur = 0;
-        }
-      }
-
       // 更新与绘制轨迹
       for (let i = trail.length - 1; i >= 0; i--) {
         const t = trail[i];
@@ -1036,10 +926,13 @@ const Projects = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <Title>幽霜析粹所 · 奥术法宝库</Title>
+          <Title>幽霜析粹所 · 项目孵化炉</Title>
           <Subtitle>
-            在皑皑雪峰与极寒之下的魔法实验室，陈列着在下以冰霜冷凝、炼金釜析出的交互法宝。点击可 <span>展开法术卷轴</span>
+            在皑皑雪峰与极寒之下的魔法实验室，陈列着已成形、正炼制与待验证的项目造物。点击可 <span>展开法术卷轴</span>
           </Subtitle>
+          <IncubationSeal>
+            孵化封条：本页仍在打磨中，当前开放为项目预览与 UI 试炼场。内容可点开查看，但部分造物尚未接入正式演示与复盘手札。
+          </IncubationSeal>
         </HeaderSection>
 
         {/* 符文分类栏 */}
@@ -1093,8 +986,6 @@ const Projects = () => {
                     exit={{ opacity: 0, scale: 0.9 }}
                     transition={{ duration: 0.4 }}
                     onClick={() => setSelectedProject(proj)}
-                    onMouseEnter={() => setHoveredProject(proj)}
-                    onMouseLeave={() => setHoveredProject(null)}
                     whileHover={{ y: -6 }}
                   >
                     <CardGlow $color={proj.elementColor} />
@@ -1134,73 +1025,6 @@ const Projects = () => {
             </GridContainer>
           </LeftSection>
 
-          {/* 右栏：炼金坩埚 (Alchemist Cauldron) */}
-          <StickyRightSection>
-            <CauldronContainer id="alchemy-cauldron">
-              <AnimatePresence mode="wait">
-                {hoveredProject ? (
-                  <motion.div
-                    key={hoveredProject.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.2 }}
-                    style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
-                  >
-                    <CauldronLabel style={{ color: hoveredProject.elementColor, textShadow: `0 0 10px ${hoveredProject.elementColor}40` }}>
-                      坩埚共鸣 · {hoveredProject.title}
-                    </CauldronLabel>
-                    <CauldronPanel style={{ borderColor: `${hoveredProject.elementColor}40` }}>
-                      <span style={{ fontSize: '0.72rem', color: hoveredProject.elementColor, background: `${hoveredProject.elementColor}15`, padding: '2px 8px', borderRadius: '20px', border: `1px solid ${hoveredProject.elementColor}30`, fontWeight: '600' }}>
-                        {hoveredProject.element}
-                      </span>
-                      <span style={{ fontSize: '0.72rem', color: '#fbbf24', fontWeight: '600' }}>
-                        Mana 消耗: {hoveredProject.mana}
-                      </span>
-                    </CauldronPanel>
-                    <CauldronDesc>
-                      {hoveredProject.shortDesc}
-                    </CauldronDesc>
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="idle"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
-                  >
-                    <CauldronLabel>幽霜析粹坩埚</CauldronLabel>
-                    <CauldronPanel>
-                      <span style={{ fontSize: '0.72rem', color: 'rgba(254, 243, 199, 0.5)' }}>
-                        炉火微熄 · 暂无共鸣
-                      </span>
-                    </CauldronPanel>
-                    <CauldronDesc>
-                      将神识悬停在左侧多宝阁的造物法宝上，即可激发坩埚的属性共鸣，析出奥术晶华。
-                    </CauldronDesc>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              {/* 坩埚本体 SVG */}
-              <motion.div
-                id="alchemy-cauldron-svg"
-                animate={{ y: [0, -6, 0] }}
-                transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-                style={{ marginTop: '1rem' }}
-              >
-                <svg width="120" height="90" viewBox="0 0 120 90" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M35 78 L20 88 M85 78 L100 88" stroke={hoveredProject ? hoveredProject.elementColor : '#fbbf24'} strokeWidth="4" strokeLinecap="round" style={{ transition: 'stroke 0.3s' }} />
-                  <path d="M15 28 C 15 8, 105 8, 105 28 C 105 38, 110 60, 92 78 C 80 88, 40 88, 28 78 C 10 60, 15 38, 15 28 Z" fill="#0f0c24" stroke={hoveredProject ? hoveredProject.elementColor : '#fbbf24'} strokeWidth="3" style={{ transition: 'stroke 0.3s' }} />
-                  <path d="M8 40 C 3 40, 3 52, 8 52" stroke={hoveredProject ? hoveredProject.elementColor : '#fbbf24'} strokeWidth="2.5" strokeLinecap="round" style={{ transition: 'stroke 0.3s' }} />
-                  <path d="M112 40 C 117 40, 117 52, 112 52" stroke={hoveredProject ? hoveredProject.elementColor : '#fbbf24'} strokeWidth="2.5" strokeLinecap="round" style={{ transition: 'stroke 0.3s' }} />
-                  <ellipse cx="60" cy="20" rx="42" ry="8" fill="#140f30" stroke={hoveredProject ? hoveredProject.elementColor : '#fbbf24'} strokeWidth="2.5" style={{ transition: 'stroke 0.3s' }} />
-                  <ellipse cx="60" cy="20" rx="38" ry="6" fill={hoveredProject ? `${hoveredProject.elementColor}40` : 'rgba(251, 191, 36, 0.15)'} style={{ transition: 'fill 0.3s' }} />
-                </svg>
-              </motion.div>
-            </CauldronContainer>
-          </StickyRightSection>
         </MainLayout>
       </ContentWrapper>
 
@@ -1298,29 +1122,37 @@ const Projects = () => {
                   </ParchmentLayout>
 
                   {/* 底部魔力传送门链接 */}
-                  <PortalButtonWrapper>
-                    <PortalButton 
-                      href={selectedProject.codeUrl} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                    >
-                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transform: 'translateY(0.5px)' }}>
-                        <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
-                      </svg>
-                      源码秘典 (Codex)
-                    </PortalButton>
-                    <PortalButton 
-                      $primary 
-                      href={selectedProject.demoUrl}
-                    >
-                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transform: 'translateY(0.5px)' }}>
-                        <polyline points="15 3 21 3 21 9" />
-                        <line x1="10" y1="14" x2="21" y2="3" />
-                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                      </svg>
-                      镜面通道 (Portal)
-                    </PortalButton>
-                  </PortalButtonWrapper>
+                  {(selectedProject.codeUrl || selectedProject.demoUrl) && (
+                    <PortalButtonWrapper>
+                      {selectedProject.codeUrl && (
+                        <PortalButton
+                          href={selectedProject.codeUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transform: 'translateY(0.5px)' }}>
+                            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
+                          </svg>
+                          源码秘典 (Codex)
+                        </PortalButton>
+                      )}
+                      {selectedProject.demoUrl && (
+                        <PortalButton
+                          $primary
+                          href={selectedProject.demoUrl}
+                          target={selectedProject.demoUrl.startsWith('http') ? '_blank' : undefined}
+                          rel={selectedProject.demoUrl.startsWith('http') ? 'noopener noreferrer' : undefined}
+                        >
+                          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transform: 'translateY(0.5px)' }}>
+                            <polyline points="15 3 21 3 21 9" />
+                            <line x1="10" y1="14" x2="21" y2="3" />
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                          </svg>
+                          镜面通道 (Portal)
+                        </PortalButton>
+                      )}
+                    </PortalButtonWrapper>
+                  )}
                 </ParchmentInner>
               </ParchmentPaper>
 

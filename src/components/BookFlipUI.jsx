@@ -58,7 +58,7 @@ export default function BookFlipUI({ bookId = 'notes-source', onClose }) {
         defaultTab: 'routes',
         filterNotes: (notes, activeTab) => {
           const travelNotes = notes.filter(
-            (note) => note.collection === 'travel' || note.id.startsWith('杭州五一旅游攻略')
+            (note) => note.collection === 'travel' || note.id.startsWith('杭州旅游攻略')
           );
           if (activeTab === 'routes') {
             return travelNotes.filter(

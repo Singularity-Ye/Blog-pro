@@ -1,12 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import mermaid from 'mermaid';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { BLOG_NEW_ASSETS } from '../constants/blogAssets';
 import { parseFrontmatter } from '../utils/frontmatter';
-import { fetchNotesIndex } from '../utils/publishData';
+import { fetchNotesIndex, fetchGraphData } from '../utils/publishData';
 
 // -------------------------------------------------------------------------
 // 动效定义 (Animations)
@@ -406,7 +407,7 @@ const BLOG_SCENES = {
         hitHeight: '9.56%',
         labelLeft: '41.3%',
         labelTop: '59.8%',
-        articleSlug: '杭州五一旅游攻略/5月3日攻略',
+        articleSlug: '杭州旅游攻略/五一路线/5月3日攻略',
         collections: ['travel'],
         articleMeta: 'TRAVEL · SCHEDULE'
       },
@@ -2573,6 +2574,43 @@ const ReaderBackButton = styled.button`
   }
 `;
 
+const ReaderTeleportLink = styled(Link)`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(231, 199, 126, 0.08);
+  border: 1px dashed rgba(196, 154, 69, 0.5);
+  border-radius: 20px;
+  color: #8e652a;
+  padding: 5px 12px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(118, 73, 26, 0.04);
+  flex-shrink: 0;
+  white-space: nowrap;
+
+  &:hover {
+    background: rgba(196, 154, 69, 0.16);
+    border-style: solid;
+    border-color: #c49a45;
+    color: #76491a;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(196, 154, 69, 0.18);
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+
+  @media (max-width: 480px) {
+    padding: 4px 8px;
+    font-size: 0.72rem;
+  }
+`;
+
 // ── 文章列表与正文渲染 ──────────────────────────────────────────
 const LoadingWrapper = styled.div`
   display: flex;
@@ -2765,6 +2803,24 @@ const MarkdownBody = styled.div`
     margin: 0.6rem 0;
     color: rgba(74, 45, 27, 0.7);
     font-style: italic;
+  }
+
+  a {
+    color: #8e652a;
+    text-decoration: none;
+    border-bottom: 1.5px solid rgba(142, 101, 42, 0.3);
+    transition: all 0.2s ease;
+    cursor: pointer;
+    &:hover { 
+      color: #c49a45;
+      border-bottom-color: #c49a45;
+    }
+  }
+
+  .unresolved-wikilink {
+    color: rgba(95, 59, 18, 0.52);
+    border-bottom: 1.5px dashed rgba(196, 154, 69, 0.34);
+    cursor: help;
   }
 
   .callout {
@@ -3264,10 +3320,93 @@ const Mermaid = ({ value }) => {
   );
 };
 
+// ── Obsidian Wikilinks 解析与辅助函数 ────────────────────────────────────
+function toNoteHref(slug) {
+  return `/note/${String(slug).split('/').map(encodeURIComponent).join('/')}`;
+}
+
+function normalizeLinkKey(value) {
+  return String(value || '').trim().replace(/\.md$/i, '').toLowerCase();
+}
+
+function getIndexCandidates(index, group, key) {
+  const value = index?.[group]?.[normalizeLinkKey(key)];
+  if (!value) return [];
+  return Array.isArray(value) ? value : [value];
+}
+
+function chooseWikilinkCandidate(candidates, sourceSlug, sourceCollectionRoot) {
+  const unique = [...new Set(candidates.filter(Boolean))];
+  if (unique.length <= 1) return { slug: unique[0] || null, status: unique[0] ? 'resolved' : 'unresolved' };
+
+  const sourceDir = sourceSlug.split('/').slice(0, -1).join('/');
+  const sameDir = unique.filter((slug) => slug.split('/').slice(0, -1).join('/') === sourceDir);
+  if (sameDir.length === 1) return { slug: sameDir[0], status: 'resolved' };
+
+  const sameCollection = unique.filter((slug) => slug.startsWith(`${sourceCollectionRoot}/`));
+  if (sameCollection.length === 1) return { slug: sameCollection[0], status: 'resolved' };
+
+  return { slug: null, status: 'ambiguous' };
+}
+
+function remarkWikilinks(options = {}) {
+  const resolveWikilink = options.resolve;
+  return (tree) => {
+    const visit = (node, parent) => {
+      if (node.children) {
+        for (let i = node.children.length - 1; i >= 0; i--) {
+          visit(node.children[i], node);
+        }
+      }
+      if (node.type === 'text' && parent) {
+        const regex = /\[\[([^\]|#]+)(?:\|([^\]]*))?(?:#[^\]]*)?\]\]/g;
+        let match;
+        const parts = [];
+        let lastIndex = 0;
+
+        while ((match = regex.exec(node.value)) !== null) {
+          if (match.index > lastIndex) {
+            parts.push({ type: 'text', value: node.value.slice(lastIndex, match.index) });
+          }
+          const target = match[1].trim();
+          const display = match[2] ? match[2].trim() : target;
+          const result = resolveWikilink?.(target);
+          const resolvedSlug = typeof result === 'string' ? result : result?.slug;
+          if (resolvedSlug && result?.status !== 'ambiguous') {
+            parts.push({
+              type: 'link',
+              url: toNoteHref(resolvedSlug),
+              children: [{ type: 'text', value: display }],
+            });
+          } else {
+            parts.push({
+              type: 'link',
+              url: `#${result?.status === 'ambiguous' ? 'wikilink-ambiguous' : 'wikilink-unresolved'}:${encodeURIComponent(target)}`,
+              children: [{ type: 'text', value: display }],
+            });
+          }
+          lastIndex = match.index + match[0].length;
+        }
+
+        if (parts.length > 0) {
+          if (lastIndex < node.value.length) {
+            parts.push({ type: 'text', value: node.value.slice(lastIndex) });
+          }
+          const idx = parent.children.indexOf(node);
+          parent.children.splice(idx, 1, ...parts);
+        }
+      }
+    };
+    visit(tree, null);
+  };
+}
+
 // -------------------------------------------------------------------------
 // 主组件 (Blog)
 // -------------------------------------------------------------------------
 export default function Blog() {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [sceneMode, setSceneMode] = useState('overview'); // overview, indoor, outdoor, travel, archive, workshop
   const [isPageLoading, setIsPageLoading] = useState(true);
   const [isMinimapOpen, setIsMinimapOpen] = useState(true);
@@ -3279,6 +3418,25 @@ export default function Blog() {
   const [isTeleporting, setIsTeleporting] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [notesData, setNotesData] = useState([]);
+
+  // 恢复由图谱等页面返回时的博客长廊阅读器状态，保持现场
+  useEffect(() => {
+    if (location.state?.restoreBlogState) {
+      const s = location.state.restoreBlogState;
+      if (s.sceneMode) setSceneMode(s.sceneMode);
+      if (s.selectedArticleSlug) setSelectedArticleSlug(s.selectedArticleSlug);
+      if (s.isReaderOpen) setIsReaderOpen(s.isReaderOpen);
+      if (s.isModalOpen) setIsModalOpen(s.isModalOpen);
+      if (s.notesData) setNotesData(s.notesData);
+      if (s.modalNotes) setModalNotes(s.modalNotes);
+      if (s.activeScrollTitle) setActiveScrollTitle(s.activeScrollTitle);
+      if (s.activeScrollMeta) setActiveScrollMeta(s.activeScrollMeta);
+      if (s.archiveMode) setArchiveMode(s.archiveMode);
+      
+      // 清理路由 state 以防重载重复触发
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location.state, navigate, location.pathname]);
 
   // Preload background images to prevent flash-on-load
   useEffect(() => {
@@ -3409,12 +3567,66 @@ export default function Blog() {
   const [activeScrollMeta, setActiveScrollMeta] = useState('');
   const [modalNotes, setModalNotes] = useState([]);
   const [selectedArticleSlug, setSelectedArticleSlug] = useState(null);
+  const [graphData, setGraphData] = useState(null);
+
+  // 获取图谱索引数据，用于解析 Obsidian 双链
+  useEffect(() => {
+    fetchGraphData()
+      .then(data => setGraphData(data))
+      .catch(err => console.warn('[Blog] Failed to load graph data:', err));
+  }, []);
   
   // Article detail state
   const [articleTitle, setArticleTitle] = useState('');
   const [articleBody, setArticleBody] = useState('');
   const [articleLoading, setArticleLoading] = useState(false);
   const [articleError, setArticleError] = useState(null);
+
+  // Obsidian 双链解析器
+  const wikilinkResolver = useMemo(() => {
+    if (!selectedArticleSlug) return () => null;
+    const sourceCollectionRoot = selectedArticleSlug.split('/')[0] || '';
+    const sourceDir = selectedArticleSlug.split('/').slice(0, -1).join('/');
+    const index = graphData?.wikilinkIndex;
+
+    if (index) {
+      return (target) => {
+        const cleanTarget = String(target).split('#')[0].split('^')[0];
+        const key = normalizeLinkKey(cleanTarget);
+
+        if (key.includes('/')) {
+          return chooseWikilinkCandidate([
+            ...getIndexCandidates(index, 'pathIndex', key),
+            ...getIndexCandidates(index, 'pathIndex', `${sourceDir}/${key}`),
+            ...getIndexCandidates(index, 'pathIndex', `${sourceCollectionRoot}/${key}`),
+          ], selectedArticleSlug, sourceCollectionRoot);
+        }
+
+        return chooseWikilinkCandidate([
+          ...getIndexCandidates(index, 'pathIndex', `${sourceDir}/${key}`),
+          ...getIndexCandidates(index, 'aliasIndex', key),
+          ...getIndexCandidates(index, 'titleIndex', key),
+          ...getIndexCandidates(index, 'basenameIndex', key),
+          ...getIndexCandidates(index, 'pathIndex', key),
+        ], selectedArticleSlug, sourceCollectionRoot);
+      };
+    }
+
+    return (target) => {
+      const linkMap = new Map();
+      for (const node of graphData?.nodes ?? []) {
+        const slugValue = node.slug || node.id;
+        const fileName = slugValue?.split('/').pop();
+        const candidates = [node.title, node.id, node.slug, node.path, fileName, ...(node.aliases || [])];
+        for (const candidate of candidates) {
+          const mapKey = normalizeLinkKey(candidate);
+          if (!mapKey) continue;
+          linkMap.set(mapKey, [...(linkMap.get(mapKey) || []), slugValue]);
+        }
+      }
+      return chooseWikilinkCandidate(linkMap.get(normalizeLinkKey(target)) || [], selectedArticleSlug, sourceCollectionRoot);
+    };
+  }, [selectedArticleSlug, graphData]);
 
   // Search & Filter state for Archive scene
   const [searchQuery, setSearchQuery] = useState('');
@@ -4511,6 +4723,18 @@ export default function Blog() {
                       {activeScrollMeta}
                     </ReaderMetaLabel>
                   )}
+                  {selectedArticleSlug && !articleLoading && (
+                    <ReaderTeleportLink
+                      to={toNoteHref(selectedArticleSlug)}
+                      state={{
+                        fromBlog: true,
+                        blogState: { sceneMode, selectedArticleSlug, isReaderOpen, isModalOpen, modalNotes, activeScrollTitle, activeScrollMeta, archiveMode }
+                      }}
+                      title="在星砂浑天图谱中定位此笔记并展开关系网络"
+                    >
+                      🪐 显影于星沙图谱
+                    </ReaderTeleportLink>
+                  )}
                 </ReaderMetaRow>
               </ReaderHeader>
 
@@ -4535,8 +4759,39 @@ export default function Blog() {
                 ) : (
                   <MarkdownBody>
                     <ReactMarkdown
-                      remarkPlugins={[remarkGfm]}
+                      remarkPlugins={[remarkGfm, [remarkWikilinks, { resolve: wikilinkResolver }]]}
                       components={{
+                        a: ({href, children, ...props}) => {
+                          if (href?.startsWith('#wikilink-unresolved:')) {
+                            return (
+                              <span className="unresolved-wikilink" title="未发布或未收录">
+                                {children}
+                              </span>
+                            );
+                          }
+                          if (href?.startsWith('#wikilink-ambiguous:')) {
+                            return (
+                              <span className="unresolved-wikilink" title="存在多个同名笔记，请在 Obsidian 中补全路径">
+                                {children}
+                              </span>
+                            );
+                          }
+                          if (href && href.startsWith('/note/')) {
+                            return (
+                              <Link
+                                to={href}
+                                state={{
+                                  fromBlog: true,
+                                  blogState: { sceneMode, selectedArticleSlug, isReaderOpen, isModalOpen, modalNotes, activeScrollTitle, activeScrollMeta, archiveMode }
+                                }}
+                                {...props}
+                              >
+                                {children}
+                              </Link>
+                            );
+                          }
+                          return <a href={href} target="_blank" rel="noopener noreferrer" {...props}>{children}</a>;
+                        },
                         code: (props) => {
                           const { className, children, ...rest } = props;
                           const match = /language-(\w+)/.exec(className || '');

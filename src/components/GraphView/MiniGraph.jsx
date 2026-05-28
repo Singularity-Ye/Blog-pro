@@ -16,9 +16,9 @@ const COLLECTION_COLORS = {
 };
 
 const THEME = {
-  node: '#e4b684', nodeHover: '#7a2e2e', nodeHighlight: '#c88c51', nodeMuted: '#f0e4d6',
-  edge: '#b2a18d', edgeAlpha: 0.8, edgeHighlight: '#c88c51', edgeHighlightAlpha: 0.9,
-  text: '#2c2820', textHighlight: '#1a1610',
+  node: '#e4b684', nodeHover: '#ffffff', nodeHighlight: '#ffe197', nodeMuted: 'rgba(255, 240, 212, 0.25)',
+  edge: 'rgba(216, 162, 71, 0.25)', edgeAlpha: 0.8, edgeHighlight: '#ffe197', edgeHighlightAlpha: 0.9,
+  text: 'rgba(255, 240, 212, 0.85)', textHighlight: '#ffffff',
 };
 
 export default function MiniGraph({ graphData: propGraphData, currentSlug: propCurrentSlug, expandHref }) {

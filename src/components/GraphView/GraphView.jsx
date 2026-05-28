@@ -10,7 +10,7 @@ import { fetchGraphData } from '../../utils/publishData';
 import './GraphView.css';
 
 const COLLECTION_LABELS = {
-  travel: '杭州五一旅游攻略',
+  travel: '杭州旅游攻略',
   project: '建站流程指南',
   'blog-design': '博客网站设计思路',
 };

@@ -8,7 +8,7 @@ import MiniGraph from '../components/GraphView/MiniGraph';
 import { filterGraphByLocal } from '../utils/graphFilters';
 import { parseFrontmatter } from '../utils/frontmatter';
 import { fetchGraphData } from '../utils/publishData';
-import atlasArchiveBg from '../assets/images/atlas/pinecone-observatory-bg.png';
+import noteReadingBg from '../assets/images/atlas/note-reading.png';
 
 // ── 样式 ──────────────────────────────────────────────────────
 
@@ -33,20 +33,20 @@ const NoteLayout = styled.div`
   &::before {
     z-index: -2;
     background:
-      linear-gradient(90deg, rgba(5, 12, 10, 0.2), rgba(8, 15, 14, 0.12) 46%, rgba(10, 7, 5, 0.34)),
-      linear-gradient(180deg, rgba(5, 10, 8, 0.12), rgba(5, 10, 8, 0.48)),
-      url(${atlasArchiveBg}) center top / cover fixed,
-      #122018;
+      linear-gradient(90deg, rgba(255, 250, 238, 0.14), rgba(255, 246, 224, 0.02) 48%, rgba(229, 190, 119, 0.12)),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(237, 214, 170, 0.2)),
+      url(${noteReadingBg}) center center / cover fixed,
+      #efe0bd;
   }
 
   &::after {
     z-index: -1;
-    opacity: 0.16;
+    opacity: 0.2;
     background:
-      linear-gradient(rgba(215, 187, 135, 0.028) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(215, 187, 135, 0.022) 1px, transparent 1px),
-      radial-gradient(circle at 24% 24%, rgba(246, 213, 139, 0.1) 0 1px, transparent 2px),
-      radial-gradient(circle at 72% 66%, rgba(90, 163, 143, 0.08) 0 1px, transparent 2px);
+      linear-gradient(rgba(158, 104, 34, 0.018) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(158, 104, 34, 0.014) 1px, transparent 1px),
+      radial-gradient(circle at 24% 24%, rgba(216, 162, 71, 0.12) 0 1px, transparent 2px),
+      radial-gradient(circle at 72% 66%, rgba(255, 247, 223, 0.16) 0 1px, transparent 2px);
     background-size: 48px 48px, 48px 48px, 190px 190px, 230px 230px;
     mask-image: radial-gradient(circle at 50% 40%, black, transparent 80%);
     animation: note-dust-drift 30s linear infinite;
@@ -61,6 +61,20 @@ const NoteLayout = styled.div`
 const NoteContent = styled.div`
   flex: 1;
   min-width: 0;
+  background:
+    linear-gradient(135deg, rgba(255, 250, 238, 0.58), rgba(237, 214, 170, 0.28)),
+    rgba(255, 246, 224, 0.42);
+  backdrop-filter: blur(6px) saturate(1.08);
+  -webkit-backdrop-filter: blur(6px) saturate(1.08);
+  border: 1.5px solid rgba(196, 154, 69, 0.34);
+  border-radius: 12px;
+  padding: clamp(1.2rem, 3.5vw, 2.5rem);
+  box-shadow: 
+    0 20px 50px rgba(43, 31, 15, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.36),
+    inset 0 0 30px rgba(255, 247, 223, 0.18);
+  outline: 1px solid rgba(255, 255, 255, 0.42);
+  outline-offset: -5px;
 `;
 
 const NoteSidebar = styled.aside`
@@ -77,10 +91,17 @@ const NoteSidebar = styled.aside`
 `;
 
 const TocContainer = styled.div`
-  background: rgba(9, 19, 17, 0.72);
-  border: 1px solid rgba(231, 199, 126, 0.16);
+  background:
+    linear-gradient(135deg, rgba(255, 250, 238, 0.56), rgba(237, 214, 170, 0.22)),
+    rgba(255, 246, 224, 0.38);
+  backdrop-filter: blur(5px) saturate(1.06);
+  -webkit-backdrop-filter: blur(5px) saturate(1.06);
+  border: 1px solid rgba(196, 154, 69, 0.32);
   border-radius: 8px;
   padding: 1rem;
+  box-shadow:
+    0 10px 24px rgba(91, 70, 48, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.26);
 `;
 
 const StickySidebarContent = styled.div`
@@ -98,33 +119,33 @@ const BackButton = styled.button`
   gap: 0.6rem;
   width: fit-content;
   padding: 0.5rem 1.2rem;
-  border: 1px solid rgba(231, 199, 126, 0.3);
+  border: 1px solid rgba(196, 154, 69, 0.32);
   border-radius: 20px;
-  background: rgba(9, 19, 17, 0.6);
-  backdrop-filter: blur(4px);
+  background: rgba(255, 246, 224, 0.54);
+  backdrop-filter: blur(5px) saturate(1.05);
   font-size: 0.8rem;
-  color: #fff7df;
-  font-weight: 500;
+  color: #6f4616;
+  font-weight: 800;
   letter-spacing: 0.05em;
   margin-bottom: 1.8rem;
   cursor: pointer;
   box-shadow: 
-    0 4px 12px rgba(0, 0, 0, 0.2),
-    inset 0 0 8px rgba(231, 199, 126, 0.05);
+    0 4px 12px rgba(91, 70, 48, 0.05),
+    inset 0 0 8px rgba(255, 255, 255, 0.34);
   transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
 
   svg {
     transition: transform 0.3s ease;
-    stroke: #e7c77e;
+    stroke: #8e652a;
   }
 
   &:hover {
-    color: #fff;
-    background: rgba(231, 199, 126, 0.12);
-    border-color: #e7c77e;
+    color: #8e652a;
+    background: rgba(196, 154, 69, 0.12);
+    border-color: #c49a45;
     box-shadow: 
-      0 6px 16px rgba(231, 199, 126, 0.15),
-      inset 0 0 12px rgba(231, 199, 126, 0.1);
+      0 6px 16px rgba(196, 154, 69, 0.12),
+      inset 0 0 12px rgba(255, 255, 255, 0.6);
     transform: translateY(-1px);
 
     svg {
@@ -168,8 +189,9 @@ const ScrollableToc = styled(TocContainer)`
 
 const TocTitle = styled.div`
   font-size: 0.75rem;
-  color: rgba(231, 199, 126, 0.72);
-  font-weight: 500;
+  color: #8e652a;
+  font-weight: 900;
+  letter-spacing: 0.08em;
   margin-bottom: 0.75rem;
 `;
 
@@ -184,22 +206,22 @@ const TocItem = styled.li`
   padding-left: ${props => (props.$level - 1) * 12}px;
   font-size: 0.8rem;
   a {
-    color: rgba(245, 239, 227, 0.62);
+    color: rgba(95, 59, 18, 0.72);
     transition: color 0.2s;
-    &:hover { color: #e7c77e; }
+    &:hover { color: #c49a45; }
   }
 `;
 
 const NoteTitle = styled.h1`
   font-size: 2rem;
   font-weight: 700;
-  color: #fff7df;
+  color: #533919;
   margin-bottom: 0.5rem;
 `;
 
 const NoteMeta = styled.div`
   font-size: 0.8rem;
-  color: rgba(245, 239, 227, 0.42);
+  color: rgba(95, 59, 18, 0.52);
   margin-bottom: 2rem;
 `;
 
@@ -208,16 +230,20 @@ const PropertyPanel = styled.section`
   gap: 0.75rem;
   margin: 1.4rem 0 1.8rem;
   padding: 1rem;
-  border: 1px solid rgba(231, 199, 126, 0.22);
+  border: 1px solid rgba(216, 162, 71, 0.24);
   border-radius: 8px;
   background:
-    linear-gradient(135deg, rgba(255, 247, 223, 0.12), rgba(9, 19, 17, 0.66)),
-    rgba(9, 19, 17, 0.72);
-  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.16);
+    linear-gradient(135deg, rgba(255, 250, 238, 0.46), rgba(237, 214, 170, 0.2)),
+    rgba(255, 246, 224, 0.24);
+  box-shadow:
+    0 18px 42px rgba(95, 59, 18, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(5px) saturate(1.05);
+  -webkit-backdrop-filter: blur(5px) saturate(1.05);
 `;
 
 const PropertyTitle = styled.div`
-  color: #e7c77e;
+  color: #8e652a;
   font-size: 0.78rem;
   font-weight: 900;
   letter-spacing: 0.12em;
@@ -232,21 +258,21 @@ const PropertyGrid = styled.div`
 const PropertyItem = styled.div`
   min-width: 0;
   padding: 0.55rem 0.65rem;
-  border: 1px solid rgba(231, 199, 126, 0.14);
+  border: 1px solid rgba(216, 162, 71, 0.18);
   border-radius: 6px;
-  background: rgba(4, 12, 10, 0.34);
+  background: rgba(255, 250, 238, 0.36);
 
   span {
     display: block;
     margin-bottom: 0.18rem;
-    color: rgba(245, 239, 227, 0.48);
+    color: rgba(95, 59, 18, 0.52);
     font-size: 0.68rem;
   }
 
   strong {
     display: block;
     overflow: hidden;
-    color: #fff7df;
+    color: #5f3b12;
     font-size: 0.86rem;
     line-height: 1.45;
     text-overflow: ellipsis;
@@ -268,10 +294,10 @@ const TagChip = styled.span`
   max-width: 100%;
   margin: 0;
   padding: 0.1rem 0.46rem;
-  border: 1px solid rgba(90, 163, 143, 0.26);
+  border: 1px solid rgba(216, 162, 71, 0.28);
   border-radius: 999px;
-  background: rgba(90, 163, 143, 0.12);
-  color: rgba(245, 239, 227, 0.82);
+  background: rgba(216, 162, 71, 0.12);
+  color: rgba(95, 59, 18, 0.82);
   font-size: 0.72rem;
   line-height: 1.2;
 `;
@@ -280,38 +306,42 @@ const TagChip = styled.span`
 
 // Markdown 内容样式
 const MarkdownBody = styled.div`
-  color: #f5efe3;
-  line-height: 1.8;
-  font-size: 0.95rem;
+  color: #3f3527;
+  line-height: 1.85;
+  font-size: 0.96rem;
 
   h1, h2, h3, h4, h5, h6 {
-    color: #fff7df;
-    font-weight: 600;
-    margin: 2rem 0 0.75rem;
+    color: #6f4616;
+    font-weight: 700;
+    margin: 2.2rem 0 0.9rem;
     scroll-margin-top: 80px;
   }
-  h1 { font-size: 1.6rem; }
-  h2 { font-size: 1.35rem; border-bottom: 1px solid rgba(231, 199, 126, 0.16); padding-bottom: 0.3rem; }
-  h3 { font-size: 1.15rem; }
+  h1 { font-size: 1.65rem; }
+  h2 { font-size: 1.4rem; border-bottom: 1.5px solid rgba(196, 154, 69, 0.22); padding-bottom: 0.35rem; }
+  h3 { font-size: 1.2rem; }
 
-  p { margin: 0.75rem 0; }
+  p { margin: 0.9rem 0; }
 
   a {
-    color: #e7c77e;
+    color: #8e652a;
     text-decoration: none;
-    border-bottom: 1px solid rgba(231, 199, 126, 0.3);
-    transition: border-color 0.2s;
-    &:hover { border-color: #fff7df; }
+    border-bottom: 1.5px solid rgba(142, 101, 42, 0.3);
+    transition: all 0.2s ease;
+    &:hover { 
+      color: #c49a45;
+      border-bottom-color: #c49a45;
+    }
   }
 
   .unresolved-wikilink {
-    color: rgba(245, 239, 227, 0.56);
-    border-bottom: 1px dashed rgba(231, 199, 126, 0.34);
+    color: rgba(95, 59, 18, 0.52);
+    border-bottom: 1.5px dashed rgba(196, 154, 69, 0.34);
     cursor: help;
   }
 
   code {
-    background: rgba(231, 199, 126, 0.1);
+    background: rgba(196, 154, 69, 0.08);
+    color: #8e652a;
     border-radius: 4px;
     padding: 2px 6px;
     font-size: 0.85em;
@@ -319,20 +349,24 @@ const MarkdownBody = styled.div`
   }
 
   pre {
-    background: rgba(9, 19, 17, 0.76);
-    border: 1px solid rgba(231, 199, 126, 0.16);
+    background: rgba(246, 240, 226, 0.65);
+    border: 1.2px solid rgba(196, 154, 69, 0.28);
     border-radius: 8px;
     padding: 1rem;
     overflow-x: auto;
-    code { background: none; padding: 0; }
+    code { 
+      background: none; 
+      padding: 0; 
+      color: #5c4731;
+    }
   }
 
   blockquote {
-    border-left: 3px solid rgba(231, 199, 126, 0.42);
-    padding: 0.5rem 1rem;
-    margin: 1rem 0;
-    color: rgba(245, 239, 227, 0.72);
-    background: rgba(231, 199, 126, 0.07);
+    border-left: 3.5px solid #c49a45;
+    padding: 0.6rem 1.2rem;
+    margin: 1.2rem 0;
+    color: #63503a;
+    background: rgba(196, 154, 69, 0.05);
     border-radius: 0 8px 8px 0;
   }
 
@@ -340,9 +374,9 @@ const MarkdownBody = styled.div`
     margin: 1.2rem 0;
     padding: 0.9rem 1.2rem;
     border-left: 4px solid var(--callout-color, #94a3b8);
-    background: color-mix(in srgb, var(--callout-color) 8%, rgba(9, 19, 17, 0.55));
+    background: color-mix(in srgb, var(--callout-color) 8%, rgba(251, 246, 233, 0.88));
     border-radius: 4px 8px 8px 4px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18), inset 0 0 10px rgba(255, 255, 255, 0.02);
+    box-shadow: 0 8px 24px rgba(91, 70, 48, 0.04), inset 0 0 10px rgba(255, 255, 255, 0.4);
     overflow: hidden;
   }
 
@@ -376,7 +410,7 @@ const MarkdownBody = styled.div`
   }
 
   .callout-content {
-    color: rgba(245, 239, 227, 0.88);
+    color: #4a3c2c;
     font-size: 0.9rem;
     line-height: 1.65;
 
@@ -425,10 +459,10 @@ const MarkdownBody = styled.div`
     justify-content: center;
     margin: 1.8rem auto;
     padding: 1.2rem;
-    background: rgba(9, 19, 17, 0.5) !important;
-    border: 1px dashed rgba(231, 199, 126, 0.35) !important;
+    background: rgba(246, 240, 226, 0.65) !important;
+    border: 1.5px dashed rgba(196, 154, 69, 0.35) !important;
     border-radius: 12px;
-    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.6), 0 8px 32px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 8px 24px rgba(91, 70, 48, 0.05);
     overflow-x: auto;
 
     svg {
@@ -437,8 +471,8 @@ const MarkdownBody = styled.div`
 
       /* Node boxes */
       .node rect, .node circle, .node polygon, .node path {
-        fill: rgba(231, 199, 126, 0.08) !important;
-        stroke: rgba(231, 199, 126, 0.45) !important;
+        fill: rgba(196, 154, 69, 0.06) !important;
+        stroke: rgba(196, 154, 69, 0.4) !important;
         stroke-width: 1.5px !important;
         rx: 8px !important;
         ry: 8px !important;
@@ -447,15 +481,15 @@ const MarkdownBody = styled.div`
 
       /* Hover effect */
       .node:hover rect, .node:hover circle, .node:hover polygon, .node:hover path {
-        fill: rgba(231, 199, 126, 0.15) !important;
-        stroke: #e7c77e !important;
-        filter: drop-shadow(0 0 8px rgba(231, 199, 126, 0.35));
+        fill: rgba(196, 154, 69, 0.12) !important;
+        stroke: #c49a45 !important;
+        filter: drop-shadow(0 0 8px rgba(196, 154, 69, 0.2));
       }
 
       /* Text inside nodes */
       .node .label, .node label, .node text, .node span, .node div {
-        fill: #ffedd5 !important;
-        color: #ffedd5 !important;
+        fill: #533919 !important;
+        color: #533919 !important;
         font-family: inherit !important;
         font-size: 13px !important;
         font-weight: 500 !important;
@@ -463,37 +497,38 @@ const MarkdownBody = styled.div`
 
       /* Connection lines */
       .edgePath .path {
-        stroke: rgba(231, 199, 126, 0.45) !important;
+        stroke: rgba(196, 154, 69, 0.5) !important;
         stroke-width: 1.8px !important;
         transition: all 0.3s ease;
       }
 
       .edgePath:hover .path {
-        stroke: #e7c77e !important;
+        stroke: #c49a45 !important;
         stroke-width: 2.2px !important;
       }
 
       /* Edge labels background */
       .edgeLabel rect {
-        fill: #0c0a18 !important;
+        fill: #fdfaf3 !important;
         rx: 4px !important;
         ry: 4px !important;
-        opacity: 0.9 !important;
+        opacity: 0.95 !important;
+        stroke: rgba(196, 154, 69, 0.2) !important;
       }
 
       /* Edge labels text */
       .edgeLabel text, .edgeLabel span, .edgeLabel div {
-        fill: #e7c77e !important;
-        color: #e7c77e !important;
+        fill: #8e652a !important;
+        color: #8e652a !important;
         font-size: 11px !important;
         font-weight: 600 !important;
       }
 
       /* Arrowheads */
       marker {
-        fill: rgba(231, 199, 126, 0.5) !important;
+        fill: rgba(196, 154, 69, 0.55) !important;
         path {
-          fill: rgba(231, 199, 126, 0.5) !important;
+          fill: rgba(196, 154, 69, 0.55) !important;
           stroke: none !important;
           stroke-width: 0 !important;
         }
@@ -501,8 +536,8 @@ const MarkdownBody = styled.div`
       
       /* Clusters */
       .cluster rect {
-        fill: rgba(255, 255, 255, 0.02) !important;
-        stroke: rgba(231, 199, 126, 0.15) !important;
+        fill: rgba(196, 154, 69, 0.02) !important;
+        stroke: rgba(196, 154, 69, 0.2) !important;
         stroke-width: 1.5px !important;
         stroke-dasharray: 4 4 !important;
         rx: 12px !important;
@@ -510,8 +545,8 @@ const MarkdownBody = styled.div`
       }
       
       .cluster label, .cluster span, .cluster text {
-        fill: rgba(255, 237, 213, 0.6) !important;
-        color: rgba(255, 237, 213, 0.6) !important;
+        fill: rgba(95, 59, 18, 0.6) !important;
+        color: rgba(95, 59, 18, 0.6) !important;
         font-size: 12px !important;
         font-weight: 700 !important;
       }
@@ -923,11 +958,11 @@ const Mermaid = ({ value }) => {
         display: 'flex', 
         justifyContent: 'center', 
         margin: '1.8rem auto',
-        padding: '1rem',
-        background: 'rgba(9, 19, 17, 0.4)',
-        border: '1px dashed rgba(231, 199, 126, 0.25)',
+        padding: '1.2rem',
+        background: 'rgba(246, 240, 226, 0.65)',
+        border: '1.5px dashed rgba(196, 154, 69, 0.35)',
         borderRadius: '12px',
-        boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+        boxShadow: '0 8px 24px rgba(91, 70, 48, 0.05)',
         overflowX: 'auto'
       }} 
     />
@@ -945,10 +980,24 @@ export default function Note() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [graphData, setGraphData] = useState(null);
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' ? window.innerWidth <= 900 : false);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 900);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const decodedSlug = useMemo(() => decodeURIComponent(slug || ''), [slug]);
 
   const handleBackClick = () => {
+    const fromBlog = location.state?.fromBlog;
+    const blogState = location.state?.blogState;
+    if (fromBlog && blogState) {
+      navigate('/blog', { state: { restoreBlogState: blogState } });
+      return;
+    }
+
     const fromBook = location.state?.fromBook;
     const activeTab = location.state?.activeTab;
     if (fromBook) {
@@ -1238,7 +1287,7 @@ export default function Note() {
       </NoteContent>
 
       <NoteSidebar>
-        {localGraphData && (
+        {!isMobile && localGraphData && (
           <MiniGraph
             currentSlug={decodedSlug}
             graphData={localGraphData}

@@ -23,8 +23,8 @@ const MANIFEST_PATH = path.resolve('scripts', 'publish-manifest.json');
 
 const SELECTED_ROOTS = [
   {
-    label: '杭州五一旅游攻略',
-    root: '杭州五一旅游攻略',
+    label: '杭州旅游攻略',
+    root: '杭州旅游攻略',
     kind: 'travel',
   },
   {
