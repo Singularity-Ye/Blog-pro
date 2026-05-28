@@ -229,7 +229,7 @@ const BLOG_SCENES = {
         label: '屋主札记', 
         collection: 'blog-design', 
         transform: 'rotate(8deg)',
-        filter: (notes) => notes.find(n => n.slug === '嵌入式/树莓派SSH与VNC实验日志')
+        filter: (notes) => notes.find(n => n.slug === '内功心法/屋主札记：在林间对抗知识腐化')
       },
       { 
         id: 'green-1', 
