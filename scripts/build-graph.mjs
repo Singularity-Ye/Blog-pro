@@ -462,12 +462,21 @@ const notes = [];
 const fileRecords = [];
 
 for (const file of files) {
+  const stats = fs.statSync(file.full);
   const content = fs.readFileSync(file.full, 'utf-8');
   const frontmatter = parseFrontmatter(content);
   const fileName = path.basename(file.rel);
   const title = extractTitle(content, fileName, frontmatter);
   const tags = extractTags(content, frontmatter);
   const aliases = extractAliases(frontmatter);
+  const publicFields = {};
+
+  for (const field of manifest.publicFrontmatterFields || []) {
+    if (frontmatter[field] !== undefined) {
+      publicFields[field] = frontmatter[field];
+    }
+  }
+
   const node = {
     id: file.slug,
     slug: file.slug,
@@ -477,6 +486,9 @@ for (const file of files) {
     collection: file.collection.kind,
     collectionLabel: file.collection.label,
     path: file.rel,
+    ...publicFields,
+    createdAt: stats.birthtime.toISOString(),
+    updatedAt: stats.mtime.toISOString(),
   };
 
   nodes.push(node);

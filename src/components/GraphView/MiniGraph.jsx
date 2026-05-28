@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import ForceGraph2D from 'react-force-graph-2d';
 import { normalizeGraph, filterGraphByLocal } from '../../utils/graphFilters';
+import { fetchGraphData } from '../../utils/publishData';
 import './GraphView.css';
 
 function toNoteHref(slug) {
@@ -48,8 +49,7 @@ export default function MiniGraph({ graphData: propGraphData, currentSlug: propC
 
   useEffect(() => {
     if (propGraphData) return;
-    fetch('/graph.json')
-      .then((response) => response.json())
+    fetchGraphData()
       .then(setInternalGraphData)
       .catch((err) => { console.warn('[MiniGraph] Failed to load graph data:', err.message); });
   }, [propGraphData]);

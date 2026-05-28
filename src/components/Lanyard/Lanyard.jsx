@@ -67,10 +67,14 @@ function loadCardFrontTexture(bgImgSrc, avatarImgSrc, callback) {
       const r = data[i];
       const g = data[i + 1];
       const b = data[i + 2];
-      const dist = Math.sqrt((255 - r) ** 2 + (255 - g) ** 2 + (255 - b) ** 2);
-      if (dist < 8) {
+      const dr = 255 - r;
+      const dg = 255 - g;
+      const db = 255 - b;
+      const distSq = dr * dr + dg * dg + db * db;
+      if (distSq < 64) { // 8 * 8
         data[i + 3] = 0; // 完全透明
-      } else if (dist < 24) {
+      } else if (distSq < 576) { // 24 * 24
+        const dist = Math.sqrt(distSq);
         const factor = (dist - 8) / 16;
         data[i + 3] = Math.round(data[i + 3] * factor);
       }
@@ -167,10 +171,14 @@ function loadCardBackTexture(bgImgSrc, callback) {
       const r = data[i];
       const g = data[i + 1];
       const b = data[i + 2];
-      const dist = Math.sqrt((255 - r) ** 2 + (255 - g) ** 2 + (255 - b) ** 2);
-      if (dist < 8) {
+      const dr = 255 - r;
+      const dg = 255 - g;
+      const db = 255 - b;
+      const distSq = dr * dr + dg * dg + db * db;
+      if (distSq < 64) { // 8 * 8
         data[i + 3] = 0; // 完全透明
-      } else if (dist < 24) {
+      } else if (distSq < 576) { // 24 * 24
+        const dist = Math.sqrt(distSq);
         const factor = (dist - 8) / 16;
         data[i + 3] = Math.round(data[i + 3] * factor);
       }
@@ -317,10 +325,17 @@ function loadCardSilhouetteTexture(bgImgSrc, callback) {
       const r = data[i];
       const g = data[i + 1];
       const b = data[i + 2];
-      const dist = Math.sqrt((255 - r) ** 2 + (255 - g) ** 2 + (255 - b) ** 2);
+      const dr = 255 - r;
+      const dg = 255 - g;
+      const db = 255 - b;
+      const distSq = dr * dr + dg * dg + db * db;
       let alpha = 255;
-      if (dist < 8) alpha = 0;
-      else if (dist < 24) alpha = Math.round(((dist - 8) / 16) * 255);
+      if (distSq < 64) { // 8 * 8
+        alpha = 0;
+      } else if (distSq < 576) { // 24 * 24
+        const dist = Math.sqrt(distSq);
+        alpha = Math.round(((dist - 8) / 16) * 255);
+      }
 
       data[i] = 4;
       data[i + 1] = 12;
@@ -663,23 +678,6 @@ function FrogTongueBand({ maxSpeed = 50, minSpeed = 0, interactive = true }) {
       // 保证差值在 [-PI, PI] 之间，以使卡片按最短距离旋转
       diff = Math.atan2(Math.sin(diff), Math.cos(diff));
       card.current.setAngvel({ x: ang.x, y: ang.y - diff * 0.9, z: ang.z });
-
-
-
-      // 将名片坐标转为屏幕投影坐标，以触发背景烟花与水波
-      const translation = card.current.translation();
-      const cardVec = vec.set(translation.x, translation.y, translation.z);
-      cardVec.project(state.camera);
-      const px_x = (cardVec.x * 0.5 + 0.5) * window.innerWidth;
-      const px_y = (-cardVec.y * 0.5 + 0.5) * window.innerHeight;
-
-      if (dragged) {
-        window.dispatchEvent(new CustomEvent('card-drag', { detail: { x: px_x, y: px_y } }));
-      } else {
-        if (Math.random() < 0.2) {
-          window.dispatchEvent(new CustomEvent('card-swing', { detail: { x: px_x, y: px_y } }));
-        }
-      }
 
       // 动画鱼线起点的魔法微粒
       if (ropeSpark1.current) {

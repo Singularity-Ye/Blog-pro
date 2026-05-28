@@ -6,6 +6,7 @@ import {
   filterGraphByLocal,
   normalizeGraph,
 } from '../../utils/graphFilters';
+import { fetchGraphData } from '../../utils/publishData';
 import './GraphView.css';
 
 const COLLECTION_LABELS = {
@@ -51,6 +52,19 @@ export default function GraphView({ modal = false, onClose }) {
   const [hoverNode, setHoverNode] = useState(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   
+  const [isMobile, setIsMobile] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState('all');
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+  
   const highlightNodes = useRef(new Set());
   const highlightLinks = useRef(new Set());
 
@@ -61,8 +75,7 @@ export default function GraphView({ modal = false, onClose }) {
   const animFrameIdRef = useRef(null);
 
   useEffect(() => {
-    fetch('/graph.json')
-      .then((response) => response.json())
+    fetchGraphData()
       .then(setGraphData)
       .catch((err) => { console.warn('[GraphView] Failed to load graph data:', err.message); });
   }, []);
@@ -98,6 +111,17 @@ export default function GraphView({ modal = false, onClose }) {
     if (collectionFilter) return `${COLLECTION_LABELS[collectionFilter] ?? collectionFilter} · 分类全局图`;
     return '全站关系图';
   }, [collectionFilter, localFilter]);
+
+  const filteredNodes = useMemo(() => {
+    if (!visibleGraphData) return [];
+    return visibleGraphData.nodes.filter((node) => {
+      const matchesSearch = node.title.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesTab = collectionFilter 
+        ? true 
+        : (activeTab === 'all' || node.collection === activeTab);
+      return matchesSearch && matchesTab;
+    });
+  }, [visibleGraphData, searchQuery, activeTab, collectionFilter]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -395,6 +419,105 @@ export default function GraphView({ modal = false, onClose }) {
     ctx.fillStyle = color;
     ctx.fill();
   }, [localFilter]);
+
+  if (isMobile) {
+    const mobileContent = (
+      <div className="graph-mobile-wrapper">
+        <div className="graph-mobile-header">
+          <div className="graph-mobile-title">{graphModeTitle}</div>
+          <div className="graph-mobile-stats">
+            {filteredNodes.length} / {visibleGraphData?.nodes.length ?? 0} 篇
+          </div>
+          <button onClick={handleClose} className="graph-mobile-close-btn">
+            {modal ? '关闭' : '返回'}
+          </button>
+        </div>
+        
+        <div className="graph-mobile-search-bar">
+          <input 
+            type="text" 
+            placeholder="搜索天文台档案..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="graph-mobile-input"
+          />
+        </div>
+
+        {!collectionFilter && (
+          <div className="graph-mobile-tabs">
+            <button 
+              className={`graph-mobile-tab ${activeTab === 'all' ? 'active' : ''}`}
+              onClick={() => setActiveTab('all')}
+            >
+              全部
+            </button>
+            {Object.entries(COLLECTION_LABELS).map(([key, label]) => (
+              <button 
+                key={key}
+                className={`graph-mobile-tab ${activeTab === key ? 'active' : ''}`}
+                style={{ '--tab-accent': COLLECTION_COLORS[key] }}
+                onClick={() => setActiveTab(key)}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        )}
+
+        <div className="graph-mobile-list">
+          {filteredNodes.length > 0 ? (
+            filteredNodes.map((node) => {
+              const nodeColor = COLLECTION_COLORS[node.collection] || THEME.node;
+              return (
+                <div 
+                  key={node.id} 
+                  className="graph-mobile-card"
+                  onClick={() => navigate(toNoteHref(node.slug ?? node.id))}
+                  style={{ borderLeft: `4px solid ${nodeColor}` }}
+                >
+                  <div className="graph-mobile-card-main">
+                    <div className="graph-mobile-card-title">{node.title}</div>
+                    <div className="graph-mobile-card-meta">
+                      <span className="graph-mobile-card-badge" style={{ backgroundColor: `${nodeColor}18`, color: nodeColor }}>
+                        {COLLECTION_LABELS[node.collection] || '一般笔记'}
+                      </span>
+                      <span className="graph-mobile-card-conn">
+                        🔗 {node.degree} 关联
+                      </span>
+                    </div>
+                  </div>
+                  <div className="graph-mobile-card-arrow">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <div className="graph-mobile-empty">未寻得相关星沙档案</div>
+          )}
+        </div>
+      </div>
+    );
+
+    if (modal) {
+      return (
+        <div
+          className="graph-modal-backdrop"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) handleClose();
+          }}
+        >
+          <div className="graph-modal-window" role="dialog" aria-modal="true" style={{ width: '92vw', height: '80vh', borderRadius: '8px', overflow: 'hidden' }}>
+            {mobileContent}
+          </div>
+        </div>
+      );
+    }
+    return mobileContent;
+  }
 
   const graphContent = (
     <div 

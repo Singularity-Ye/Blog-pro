@@ -7,6 +7,7 @@ import styled from 'styled-components';
 import MiniGraph from '../components/GraphView/MiniGraph';
 import { filterGraphByLocal } from '../utils/graphFilters';
 import { parseFrontmatter } from '../utils/frontmatter';
+import { fetchGraphData } from '../utils/publishData';
 import atlasArchiveBg from '../assets/images/atlas/pinecone-observatory-bg.png';
 
 // ── 样式 ──────────────────────────────────────────────────────
@@ -335,6 +336,64 @@ const MarkdownBody = styled.div`
     border-radius: 0 8px 8px 0;
   }
 
+  .callout {
+    margin: 1.2rem 0;
+    padding: 0.9rem 1.2rem;
+    border-left: 4px solid var(--callout-color, #94a3b8);
+    background: color-mix(in srgb, var(--callout-color) 8%, rgba(9, 19, 17, 0.55));
+    border-radius: 4px 8px 8px 4px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18), inset 0 0 10px rgba(255, 255, 255, 0.02);
+    overflow: hidden;
+  }
+
+  .callout-title {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--callout-color, #94a3b8);
+    font-size: 0.92rem;
+    letter-spacing: 0.03em;
+  }
+
+  .callout-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--callout-color, #94a3b8);
+    flex-shrink: 0;
+    
+    svg {
+      width: 17px;
+      height: 17px;
+      stroke-width: 2.2px;
+    }
+  }
+
+  .callout-title-text {
+    line-height: 1.2;
+  }
+
+  .callout-content {
+    color: rgba(245, 239, 227, 0.88);
+    font-size: 0.9rem;
+    line-height: 1.65;
+
+    p {
+      margin: 0.4rem 0;
+    }
+    p:first-child {
+      margin-top: 0;
+    }
+    p:last-child {
+      margin-bottom: 0;
+    }
+    ul, ol {
+      margin: 0.4rem 0;
+    }
+  }
+
   ul, ol { padding-left: 1.5rem; margin: 0.75rem 0; }
   li { margin: 0.25rem 0; }
 
@@ -560,6 +619,147 @@ function remarkWikilinks(options = {}) {
   };
 }
 
+// ── Obsidian Callouts 解析与组件 ────────────────────────────────
+
+const CALLOUT_MAP = {
+  note: { title: 'Note', color: '#60a5fa', icon: 'pencil', theme: 'note' },
+  info: { title: 'Info', color: '#5aa38f', icon: 'info', theme: 'info' },
+  todo: { title: 'Todo', color: '#3b82f6', icon: 'todo', theme: 'todo' },
+  tip: { title: 'Tip', color: '#fbbf24', icon: 'tip', theme: 'tip' },
+  hint: { title: 'Tip', color: '#fbbf24', icon: 'tip', theme: 'tip' },
+  important: { title: 'Important', color: '#a78bfa', icon: 'important', theme: 'important' },
+  success: { title: 'Success', color: '#34d399', icon: 'success', theme: 'success' },
+  check: { title: 'Success', color: '#34d399', icon: 'success', theme: 'success' },
+  done: { title: 'Success', color: '#34d399', icon: 'success', theme: 'success' },
+  question: { title: 'Question', color: '#a78bfa', icon: 'question', theme: 'question' },
+  help: { title: 'Question', color: '#a78bfa', icon: 'question', theme: 'question' },
+  faq: { title: 'Question', color: '#a78bfa', icon: 'question', theme: 'question' },
+  warning: { title: 'Warning', color: '#f97316', icon: 'warning', theme: 'warning' },
+  caution: { title: 'Warning', color: '#f97316', icon: 'warning', theme: 'warning' },
+  attention: { title: 'Warning', color: '#f97316', icon: 'warning', theme: 'warning' },
+  failure: { title: 'Failure', color: '#ef4444', icon: 'failure', theme: 'failure' },
+  fail: { title: 'Failure', color: '#ef4444', icon: 'failure', theme: 'failure' },
+  missing: { title: 'Failure', color: '#ef4444', icon: 'failure', theme: 'failure' },
+  danger: { title: 'Danger', color: '#f43f5e', icon: 'danger', theme: 'danger' },
+  error: { title: 'Danger', color: '#f43f5e', icon: 'danger', theme: 'danger' },
+  bug: { title: 'Bug', color: '#ec4899', icon: 'bug', theme: 'bug' },
+  example: { title: 'Example', color: '#c084fc', icon: 'example', theme: 'example' },
+  quote: { title: 'Quote', color: '#e7c77e', icon: 'quote', theme: 'quote' },
+  cite: { title: 'Quote', color: '#e7c77e', icon: 'quote', theme: 'quote' },
+};
+
+const CalloutIcon = ({ iconType }) => {
+  switch (iconType) {
+    case 'pencil':
+      return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="callout-icon-svg"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>;
+    case 'info':
+      return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="callout-icon-svg"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>;
+    case 'todo':
+      return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="callout-icon-svg"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><path d="m9 12 2 2 4-4"/></svg>;
+    case 'tip':
+      return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="callout-icon-svg"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A5.5 5.5 0 0 0 7 8c0 1.3.5 2.6 1.5 3.5.7.8 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>;
+    case 'success':
+      return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="callout-icon-svg"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>;
+    case 'question':
+      return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="callout-icon-svg"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>;
+    case 'warning':
+      return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="callout-icon-svg"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>;
+    case 'failure':
+      return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="callout-icon-svg"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>;
+    case 'danger':
+      return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="callout-icon-svg"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>;
+    case 'bug':
+      return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="callout-icon-svg"><rect width="8" height="14" x="8" y="6" rx="4"/><path d="m19 7-3 2"/><path d="m5 7 3 2"/><path d="m19 19-3-2"/><path d="m5 19 3-2"/><path d="M20 13h-4"/><path d="M4 13h4"/><path d="m10 4 1 2"/><path d="m14 4-1 2"/></svg>;
+    case 'example':
+      return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="callout-icon-svg"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>;
+    case 'quote':
+      return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="callout-icon-svg"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 2.5-1 4-3 5v1Zm11 0c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 2.5-1 4-3 5v1Z"/></svg>;
+    case 'important':
+      return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="callout-icon-svg"><path d="M12 8v4"/><path d="M12 16h.01"/><path d="M4.93 4.93a10 10 0 1 1 14.14 14.14A10 10 0 0 1 4.93 4.93z"/></svg>;
+    default:
+      return null;
+  }
+};
+
+function findAndModifyCallout(children) {
+  if (!children) return { isCallout: false, children };
+
+  let found = null;
+
+  function processNode(node) {
+    if (typeof node === 'string') {
+      const match = node.match(/^\s*\[!([a-zA-Z_-]+)\](?:[ \t]+([^\r\n]*))?(?:\r?\n([\s\S]*))?/);
+      if (match) {
+        found = {
+          type: match[1].toLowerCase(),
+          title: match[2] !== undefined ? match[2].trim() : '',
+          restText: match[3] || ''
+        };
+        return found.restText;
+      }
+      return node;
+    }
+
+    if (React.isValidElement(node)) {
+      if (found) return node;
+      const nodeChildren = node.props.children;
+      if (Array.isArray(nodeChildren)) {
+        const newChildren = [...nodeChildren];
+        for (let i = 0; i < newChildren.length; i++) {
+          const item = newChildren[i];
+          if (typeof item === 'string' && !item.trim()) {
+            continue;
+          }
+          newChildren[i] = processNode(item);
+          if (found) {
+            return React.cloneElement(node, {}, newChildren);
+          }
+          break;
+        }
+      } else if (nodeChildren) {
+        const processed = processNode(nodeChildren);
+        if (found) {
+          return React.cloneElement(node, {}, processed);
+        }
+      }
+    }
+
+    return node;
+  }
+
+  let modifiedChildren;
+  if (Array.isArray(children)) {
+    modifiedChildren = [...children];
+    for (let i = 0; i < modifiedChildren.length; i++) {
+      const item = modifiedChildren[i];
+      if (typeof item === 'string' && !item.trim()) {
+        continue;
+      }
+      modifiedChildren[i] = processNode(item);
+      if (found) {
+        break;
+      }
+      break;
+    }
+  } else {
+    const processed = processNode(children);
+    if (found) {
+      modifiedChildren = processed;
+    }
+  }
+
+  if (found) {
+    return {
+      isCallout: true,
+      type: found.type,
+      title: found.title,
+      children: modifiedChildren
+    };
+  }
+
+  return { isCallout: false, children };
+}
+
 // ── 提取标题目录 ──────────────────────────────────────────────
 
 function extractHeadings(markdown) {
@@ -655,7 +855,7 @@ if (typeof window !== 'undefined') {
     startOnLoad: false,
     suppressErrors: true,
     theme: 'base',
-    securityLevel: 'loose',
+    securityLevel: 'strict',
     themeVariables: {
       background: 'transparent',
       primaryColor: 'rgba(231, 199, 126, 0.08)',
@@ -764,8 +964,7 @@ export default function Note() {
 
   // 加载图谱数据
   useEffect(() => {
-    fetch('/graph.json')
-      .then(r => r.json())
+    fetchGraphData()
       .then(setGraphData)
       .catch((err) => { console.warn('[Note] Failed to load graph data:', err.message); });
   }, []);
@@ -1008,6 +1207,28 @@ export default function Note() {
                   return <Mermaid value={codeText} />;
                 }
                 return <code className={className} {...rest}>{children}</code>;
+              },
+              blockquote: (props) => {
+                const { children, ...rest } = props;
+                const calloutData = findAndModifyCallout(children);
+                if (calloutData.isCallout) {
+                  const config = CALLOUT_MAP[calloutData.type] || { title: calloutData.type, color: '#94a3b8', icon: 'info', theme: 'info' };
+                  const displayTitle = calloutData.title || config.title;
+                  return (
+                    <div className={`callout callout-${config.theme}`} style={{ '--callout-color': config.color }}>
+                      <div className="callout-title">
+                        <span className="callout-icon">
+                          <CalloutIcon iconType={config.icon} />
+                        </span>
+                        <span className="callout-title-text">{displayTitle}</span>
+                      </div>
+                      <div className="callout-content">
+                        {calloutData.children}
+                      </div>
+                    </div>
+                  );
+                }
+                return <blockquote {...rest}>{children}</blockquote>;
               }
             }}
           >

@@ -33,6 +33,7 @@ const CurvedLoop = ({
   fontSize = '2.2rem',
   fill = '#ffffff',
   minHeight = 'auto',
+  isPlaying = true,
   style
 }) => {
   const text = useMemo(() => {
@@ -76,7 +77,7 @@ const CurvedLoop = ({
   }, [spacing]);
 
   useEffect(() => {
-    if (!spacing || !ready) return;
+    if (!spacing || !ready || !isPlaying) return;
     let frame = 0;
     const step = () => {
       if (!dragRef.current && textPathRef.current) {
@@ -95,7 +96,7 @@ const CurvedLoop = ({
     };
     frame = requestAnimationFrame(step);
     return () => cancelAnimationFrame(frame);
-  }, [spacing, speed, ready]);
+  }, [spacing, speed, ready, isPlaying]);
 
   const onPointerDown = e => {
     if (!interactive) return;

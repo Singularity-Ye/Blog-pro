@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { motion, AnimatePresence, useTransform, useMotionValue, animate } from 'framer-motion';
-import Lanyard from '../components/Lanyard/Lanyard';
+
 import ErrorBoundary from '../components/ErrorBoundary';
 import FlowingMenu from '../components/Animations/FlowingMenu';
 import Marquee from '../components/Animations/Marquee';
@@ -28,6 +28,8 @@ import lilyPadImg from '../assets/images/contact/lily_pad.png';
 import section01Img from '../assets/images/contact/section-01.png';
 import section02Img from '../assets/images/contact/section-02.png';
 import section03Img from '../assets/images/contact/section-03.png';
+
+const Lanyard = React.lazy(() => import('../components/Lanyard/Lanyard'));
 
 /* ─────────────────────────────────────────
    CSS 动画定义 & 青蛙邮差样式
@@ -802,10 +804,14 @@ function TransparentImage({ src, avatarSrc = avatarImage, alt, className, style 
         const r = data[i];
         const g = data[i + 1];
         const b = data[i + 2];
-        const dist = Math.sqrt((255 - r) ** 2 + (255 - g) ** 2 + (255 - b) ** 2);
-        if (dist < 45) {
+        const dr = 255 - r;
+        const dg = 255 - g;
+        const db = 255 - b;
+        const distSq = dr * dr + dg * dg + db * db;
+        if (distSq < 2025) { // 45 * 45
           data[i + 3] = 0;
-        } else if (dist < 85) {
+        } else if (distSq < 7225) { // 85 * 85
+          const dist = Math.sqrt(distSq);
           const factor = (dist - 45) / 40;
           data[i + 3] = Math.round(data[i + 3] * factor);
         }
@@ -874,7 +880,9 @@ export default function Contact() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMsg, setToastMsg] = useState('');
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => (
+    typeof window !== 'undefined' ? window.innerWidth < 992 : false
+  ));
   const [mobileFlipped, setMobileFlipped] = useState(false);
   const [frogState, setFrogState] = useState('idle');
   const [isLetterFlying, setIsLetterFlying] = useState(false);
@@ -1064,7 +1072,13 @@ export default function Contact() {
     document.body.style.overflow = 'hidden';
 
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas) {
+      return () => {
+        window.removeEventListener('resize', checkMobile);
+        document.documentElement.style.overflow = '';
+        document.body.style.overflow = '';
+      };
+    }
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
@@ -1148,7 +1162,7 @@ export default function Contact() {
         this.life = 1.0;
         this.decay = Math.random() * 0.025 + 0.015;
         this.speedX = Math.random() * 1.0 - 0.5;
-        this.speedY = Math.random() * 1.0 - 0.5 - (colorType === 'card' ? 0.25 : 0);
+        this.speedY = Math.random() * 1.0 - 0.5;
         this.colorType = colorType;
       }
       update() {
@@ -1162,9 +1176,6 @@ export default function Contact() {
         if (this.colorType === 'pine') {
           col = `rgba(90, 163, 143, ${this.life})`;
           shadowCol = 'rgba(90, 163, 143, 0.8)';
-        } else if (this.colorType === 'card') {
-          col = `rgba(251, 113, 133, ${this.life})`;
-          shadowCol = 'rgba(251, 113, 133, 0.8)';
         }
         ctx.fillStyle = col;
         ctx.shadowBlur = this.size * 2;
@@ -1343,19 +1354,6 @@ export default function Contact() {
     };
     canvas.parentElement.addEventListener('click', handleMouseClick);
 
-    const handleCardDrag = (e) => {
-      const { x, y } = e.detail;
-      sparkles.push(new Sparkle(x, y, 'card', Math.random() * 3.5 + 2));
-      sparkles.push(new Sparkle(x, y, 'card', Math.random() * 2 + 1));
-    };
-    window.addEventListener('card-drag', handleCardDrag);
-
-    const handleCardSwing = (e) => {
-      const { x, y } = e.detail;
-      if (Math.random() < 0.45) sparkles.push(new Sparkle(x, y, 'card', Math.random() * 2 + 1));
-    };
-    window.addEventListener('card-swing', handleCardSwing);
-
     // canopy hanging lantern (follows Section 1 canopy scroll)
     const drawHangingLantern = () => {
       const w = width;
@@ -1476,8 +1474,6 @@ export default function Contact() {
       cancelAnimationFrame(animationId);
       window.removeEventListener('resize', resize);
       window.removeEventListener('resize', checkMobile);
-      window.removeEventListener('card-drag', handleCardDrag);
-      window.removeEventListener('card-swing', handleCardSwing);
       if (canvas.parentElement) {
         canvas.parentElement.removeEventListener('mousemove', handleMouseMove);
         canvas.parentElement.removeEventListener('click', handleMouseClick);
@@ -1493,7 +1489,7 @@ export default function Contact() {
     setFormData(prev => ({ ...prev, [id]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.name || !formData.email || !formData.message) return;
 
@@ -1501,6 +1497,38 @@ export default function Contact() {
     setIsLetterFlying(true);
     setFrogState('submitting');
     
+    const webhookUrl = process.env.REACT_APP_DISCORD_WEBHOOK_URL;
+    
+    if (webhookUrl) {
+      try {
+        await fetch(webhookUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            content: "🔔 **收到池畔新信件！**",
+            embeds: [
+              {
+                title: "📬 松果池畔 · 手札留言",
+                color: 15190910, // #e7c77e
+                fields: [
+                  { name: "来信署名 (Name)", value: formData.name, inline: true },
+                  { name: "回信地址 (Email)", value: formData.email, inline: true },
+                  { name: "纸短情长 (Message)", value: formData.message }
+                ],
+                timestamp: new Date().toISOString()
+              }
+            ]
+          })
+        });
+      } catch (err) {
+        console.error('发送信件至 Discord 失败:', err);
+      }
+    } else {
+      console.log('提示：未检测到 REACT_APP_DISCORD_WEBHOOK_URL 环境变量，当前运行在演示模拟模式。若需真实发送，请在 .env 中配置该变量！');
+    }
+
     // 1.2s后手札落水，被青蛙钓起
     setTimeout(() => {
       setIsLetterFlying(false);
@@ -1510,7 +1538,7 @@ export default function Contact() {
     // 3.2s后重置表单和青蛙状态
     setTimeout(() => {
       setIsSubmitting(false);
-      setToastMsg('手札已收纳！青蛙邮差已将信件钓入背篓，正捎回松果屋...');
+      setToastMsg(webhookUrl ? '手札已顺着池水传书送达！' : '手札已收纳！青蛙邮差已将信件钓入背篓，正捎回松果屋...');
       setShowToast(true);
       setFormData({ name: '', email: '', message: '' });
       setFrogState('idle');
@@ -1555,7 +1583,7 @@ export default function Contact() {
       </AnimatePresence>
 
       {/* 魔法 Canvas 互动粒子背景 (fixed globally) */}
-      <CanvasBackground ref={canvasRef} />
+      {!isMobile && <CanvasBackground ref={canvasRef} />}
 
       {/* 3D 挂绳 Canvas (PC 载入, overlayed interactive zIndex) */}
       {!isMobile && (
@@ -1569,7 +1597,9 @@ export default function Contact() {
           }}
         >
           <ErrorBoundary>
-          <Lanyard position={[0, 0, 30]} gravity={[0, -40, 0]} interactive={activeSection === 1} />
+            <Suspense fallback={null}>
+              <Lanyard position={[0, 0, 30]} gravity={[0, -40, 0]} interactive={activeSection === 1} />
+            </Suspense>
           </ErrorBoundary>
         </motion.div>
       )}
@@ -1668,6 +1698,7 @@ export default function Contact() {
               fill="rgba(231, 199, 126, 0.45)"
               minHeight="80px"
               interactive={true}
+              isPlaying={activeSection === 0}
             />
           </div>
         </StickyStage>
