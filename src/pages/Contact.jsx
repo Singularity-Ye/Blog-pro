@@ -872,6 +872,61 @@ function TransparentImage({ src, avatarSrc = avatarImage, alt, className, style 
   return <canvas ref={canvasRef} className={className} style={{ ...style, objectFit: 'contain' }} />;
 }
 
+function CleanWhiteBgImage({ src, className, style }) {
+  const [dataUrl, setDataUrl] = useState('');
+
+  useEffect(() => {
+    let active = true;
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.src = src;
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const W = img.width;
+      const H = img.height;
+      canvas.width = W;
+      canvas.height = H;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+
+      const imgData = ctx.getImageData(0, 0, W, H);
+      const data = imgData.data;
+      for (let i = 0; i < data.length; i += 4) {
+        const r = data[i];
+        const g = data[i + 1];
+        const b = data[i + 2];
+        const dr = 255 - r;
+        const dg = 255 - g;
+        const db = 255 - b;
+        const distSq = dr * dr + dg * dg + db * db;
+        if (distSq < 2025) { // 45 * 45
+          data[i + 3] = 0;
+        } else if (distSq < 7225) { // 85 * 85
+          const dist = Math.sqrt(distSq);
+          const factor = (dist - 45) / 40;
+          data[i + 3] = Math.round(data[i + 3] * factor);
+        }
+      }
+      ctx.putImageData(imgData, 0, 0);
+      if (active) {
+        setDataUrl(canvas.toDataURL());
+      }
+    };
+    return () => {
+      active = false;
+    };
+  }, [src]);
+
+  if (!dataUrl) {
+    return (
+      <div style={{ ...style, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#e7c77e', fontSize: '0.8rem', background: 'rgba(4, 12, 10, 0.45)', borderRadius: '20px' }}>
+        正在雕琢玉牌...
+      </div>
+    );
+  }
+  return <img src={dataUrl} className={className} style={{ ...style, display: 'block', objectFit: 'contain' }} alt="" />;
+}
+
 /* ─────────────────────────────────────────
    主页面组件
    ───────────────────────────────────────── */
@@ -1721,30 +1776,59 @@ export default function Contact() {
                       <TransparentImage src={cardWateryImage} alt="Contact Card Front" style={{ width: '100%', height: '100%' }} />
                     </CardFront>
                     <CardBack style={{
-                      backgroundImage: `url(${cardBackImage})`,
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',
+                      position: 'relative',
                       display: 'flex',
                       flexDirection: 'column',
                       justifyContent: 'center',
                       alignItems: 'center',
-                      padding: '2rem 1.2rem',
-                      textAlign: 'center',
+                      padding: 0,
+                      background: 'transparent',
                       border: 'none',
                       boxShadow: 'none',
                     }}>
-                      <div className="header" style={{ fontSize: '1.25rem', color: '#e7c77e', fontWeight: 'bold', marginBottom: '0.2rem', letterSpacing: '0.15em' }}>池畔手札</div>
-                      <div className="divider" style={{ width: '60%', height: '1.2px', background: 'rgba(231, 199, 126, 0.22)', margin: '0.2rem 0 1.2rem' }}></div>
-                      <div className="letter-content" style={{ fontSize: '0.78rem', color: 'rgba(245, 239, 227, 0.95)', lineHeight: '1.75', margin: '0' }}>
-                        <p style={{ margin: '0.4rem 0' }}>谢谢你沿着粼粼水光，叩开这扇隐秘的林间之门。</p>
-                        <p style={{ margin: '0.4rem 0' }}>愿你在喧嚣的世界里，能拥有一方安静的池塘；</p>
-                        <p style={{ margin: '0.4rem 0' }}>愿你拥有睡到自然醒的清晨，和没有烦扰的温热午后，</p>
-                        <p style={{ margin: '0.4rem 0' }}>走过的旅途都有清风与暖阳。</p>
-                        <p style={{ margin: '0.4rem 0' }}>如果累了，不妨在池塘边听听蛙鸣，</p>
-                        <p style={{ margin: '0.4rem 0' }}>松果屋会在这里，慢慢守候每一个漂流的故事。</p>
+                      <CleanWhiteBgImage 
+                        src={cardBackImage} 
+                        style={{
+                          position: 'absolute',
+                          inset: 0,
+                          width: '100%',
+                          height: '100%',
+                          zIndex: 1
+                        }} 
+                      />
+                      <div style={{
+                        position: 'relative',
+                        zIndex: 2,
+                        width: '100%',
+                        height: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        padding: '2.5rem 1.6rem 2rem',
+                        textAlign: 'center',
+                        boxSizing: 'border-box'
+                      }}>
+                        <div className="header" style={{ fontSize: '1.15rem', color: '#e7c77e', fontWeight: 'bold', marginBottom: '0.2rem', letterSpacing: '0.15em', textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>池畔手札</div>
+                        <div className="divider" style={{ width: '60%', height: '1.2px', background: 'rgba(231, 199, 126, 0.3)', margin: '0.2rem 0 1rem' }}></div>
+                        <div className="letter-content" style={{ 
+                          fontSize: '0.74rem', 
+                          color: '#ffffff', 
+                          lineHeight: '1.65', 
+                          margin: '0',
+                          fontWeight: '600',
+                          textShadow: '0 1px 3px rgba(0,0,0,0.8), 0 2px 8px rgba(0,0,0,0.9)'
+                        }}>
+                          <p style={{ margin: '0.35rem 0' }}>谢谢你沿着粼粼水光，叩开这扇隐秘的林间之门。</p>
+                          <p style={{ margin: '0.35rem 0' }}>愿你在喧嚣的世界里，能拥有一方安静的池塘；</p>
+                          <p style={{ margin: '0.35rem 0' }}>愿你拥有睡到自然醒的清晨，和没有烦扰的温热午后，</p>
+                          <p style={{ margin: '0.35rem 0' }}>走过的旅途都有清风与暖阳。</p>
+                          <p style={{ margin: '0.35rem 0' }}>如果累了，不妨在池塘边听听蛙鸣，</p>
+                          <p style={{ margin: '0.35rem 0' }}>松果屋会在这里，慢慢守候每一个漂流的故事。</p>
+                        </div>
+                        <div className="divider" style={{ width: '60%', height: '1px', background: 'rgba(231, 199, 126, 0.15)', margin: '1rem 0 0.4rem' }}></div>
+                        <div className="signature" style={{ fontSize: '0.78rem', color: '#e7c77e', fontWeight: 'bold', textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>—— 见习魔法师 · Singularity_Ye</div>
                       </div>
-                      <div className="divider" style={{ width: '60%', height: '1px', background: 'rgba(231, 199, 126, 0.1)', margin: '1.2rem 0 0.4rem' }}></div>
-                      <div className="signature" style={{ fontSize: '0.82rem', color: '#e7c77e', fontStyle: 'italic' }}>—— 见习魔法师 · Singularity_Ye</div>
                     </CardBack>
                   </FlipCard>
                 </CardContainer3D>
@@ -1797,8 +1881,8 @@ export default function Contact() {
           />
           <StageContent style={{ opacity: sec3ContentOpacity, y: sec3ContentY, scale: sec3ContentScale, filter: sec3ContentFilter }}>
             <Section3Grid>
-              <LeftColumnWrapper>
-                <GlassCardForm onSubmit={handleSubmit}>
+              <LeftColumnWrapper style={{ gap: isMobile ? '0' : '1.5rem' }}>
+                <GlassCardForm onSubmit={handleSubmit} style={{ padding: isMobile ? '1.5rem' : '2.2rem' }}>
                   <FormHeader>
                     <h3>投递手札</h3>
                     <span>pinecone-post v1.3</span>
@@ -1847,47 +1931,51 @@ export default function Contact() {
                 </GlassCardForm>
 
                 {/* 提交表单下方的青蛙邮差占位与气泡 */}
-                <FrogSection
-                  onMouseEnter={() => { if (frogState === 'idle') setFrogState('hovered'); }}
-                  onMouseLeave={() => { if (frogState === 'hovered') setFrogState('idle'); }}
-                >
-                  <FrogImageContainer>
-                    {!frogImageError ? (
-                      <FrogImage
-                        src="/assets/images/contact/frog_postman.png"
-                        alt="青蛙邮差"
-                        onError={() => setFrogImageError(true)}
-                        animate={frogState === 'submitting' ? { y: [0, -10, 0] } : frogState === 'success' ? { scale: [1, 1.1, 1], rotate: [0, 5, -5, 0] } : { y: [0, -4, 0] }}
-                        transition={frogState === 'submitting' ? { duration: 0.5, repeat: Infinity } : frogState === 'success' ? { duration: 0.6 } : { duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-                      />
-                    ) : (
-                      <FrogPlaceholderBox>
-                        <div style={{ fontSize: '1.6rem' }}>🐸</div>
-                        <span>青蛙邮差</span>
-                      </FrogPlaceholderBox>
-                    )}
-                  </FrogImageContainer>
-                  <FrogSpeechBubble
-                    animate={frogState !== 'idle' ? { scale: [1, 1.02, 1] } : {}}
-                    transition={{ duration: 0.2 }}
+                {!isMobile && (
+                  <FrogSection
+                    onMouseEnter={() => { if (frogState === 'idle') setFrogState('hovered'); }}
+                    onMouseLeave={() => { if (frogState === 'hovered') setFrogState('idle'); }}
                   >
-                    {FROG_DIALOGS[frogState]}
-                  </FrogSpeechBubble>
-                </FrogSection>
+                    <FrogImageContainer>
+                      {!frogImageError ? (
+                        <FrogImage
+                          src="/assets/images/contact/frog_postman.png"
+                          alt="青蛙邮差"
+                          onError={() => setFrogImageError(true)}
+                          animate={frogState === 'submitting' ? { y: [0, -10, 0] } : frogState === 'success' ? { scale: [1, 1.1, 1], rotate: [0, 5, -5, 0] } : { y: [0, -4, 0] }}
+                          transition={frogState === 'submitting' ? { duration: 0.5, repeat: Infinity } : frogState === 'success' ? { duration: 0.6 } : { duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                        />
+                      ) : (
+                        <FrogPlaceholderBox>
+                          <div style={{ fontSize: '1.6rem' }}>🐸</div>
+                          <span>青蛙邮差</span>
+                        </FrogPlaceholderBox>
+                      )}
+                    </FrogImageContainer>
+                    <FrogSpeechBubble
+                      animate={frogState !== 'idle' ? { scale: [1, 1.02, 1] } : {}}
+                      transition={{ duration: 0.2 }}
+                    >
+                      {FROG_DIALOGS[frogState]}
+                    </FrogSpeechBubble>
+                  </FrogSection>
+                )}
               </LeftColumnWrapper>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem', height: '100%', justifyContent: 'center' }}>
-                <FlowingMenuContainer style={{ marginTop: 0 }}>
-                  <FlowingMenuHeader>
-                    <h4>狂想碎片 / Fragments of Visions</h4>
-                    <span>Hover to read thoughts</span>
-                  </FlowingMenuHeader>
-                  <FlowingMenuWrapper>
-                    <FlowingMenu items={mindQuotes} speed={18} textColor="#f5efe3" bgColor="transparent" marqueeBgColor="#e7c77e" marqueeTextColor="#03120d" borderColor="rgba(231, 199, 126, 0.12)" />
-                  </FlowingMenuWrapper>
-                </FlowingMenuContainer>
-                <div style={{ pointerEvents: 'auto', zIndex: 13 }}><Marquee /></div>
-              </div>
+              {!isMobile && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem', height: '100%', justifyContent: 'center' }}>
+                  <FlowingMenuContainer style={{ marginTop: 0 }}>
+                    <FlowingMenuHeader>
+                      <h4>狂想碎片 / Fragments of Visions</h4>
+                      <span>Hover to read thoughts</span>
+                    </FlowingMenuHeader>
+                    <FlowingMenuWrapper>
+                      <FlowingMenu items={mindQuotes} speed={18} textColor="#f5efe3" bgColor="transparent" marqueeBgColor="#e7c77e" marqueeTextColor="#03120d" borderColor="rgba(231, 199, 126, 0.12)" />
+                    </FlowingMenuWrapper>
+                  </FlowingMenuContainer>
+                  <div style={{ pointerEvents: 'auto', zIndex: 13 }}><Marquee /></div>
+                </div>
+              )}
             </Section3Grid>
           </StageContent>
         </StickyStage>
