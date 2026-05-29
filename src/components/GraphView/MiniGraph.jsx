@@ -37,6 +37,17 @@ export default function MiniGraph({ graphData: propGraphData, currentSlug: propC
   const [hoverNode, setHoverNode] = useState(null);
   const [dimensions, setDimensions] = useState({ width: 300, height: 300 });
   const activeTheme = theme === 'light' ? THEMES.light : THEMES.dark;
+
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' ? window.innerWidth <= 768 : false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   
   const highlightNodes = useRef(new Set());
   const highlightLinks = useRef(new Set());
@@ -346,6 +357,25 @@ export default function MiniGraph({ graphData: propGraphData, currentSlug: propC
     ctx.fillStyle = color;
     ctx.fill();
   }, []);
+
+  if (isMobile) {
+    return (
+      <div className={`mini-graph-container ${currentSlug ? 'publishLocal' : ''} mobile-placeholder`} ref={containerRef} style={{ minHeight: '180px', display: 'flex', flexDirection: 'column' }}>
+        <span className="mini-graph-label">关系图谱</span>
+        <div className="mini-graph-mobile-tip">
+          <div className="tip-icon">🔮</div>
+          <div className="tip-text">星轨连结众多，移动端建议使用全屏图谱查看。</div>
+          <Link 
+            to={expandHref || (currentSlug ? `/graph?local=${encodeURIComponent(currentSlug)}` : '/graph')} 
+            state={{ backgroundLocation: location }}
+            className="mini-graph-mobile-btn"
+          >
+            ✦ 开启全屏图谱
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`mini-graph-container ${currentSlug ? 'publishLocal' : ''}`} ref={containerRef}>

@@ -194,6 +194,48 @@ const NoteSidebar = styled.aside`
   }
 `;
 
+const MobileGraphActions = styled.div`
+  margin: 2.5rem 0 1rem;
+  padding: 1.2rem;
+  border: 1px dashed rgba(231, 199, 126, 0.28);
+  border-radius: 8px;
+  background: rgba(231, 199, 126, 0.03);
+`;
+
+const MobileGraphTitle = styled.h3`
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--text-accent, #e7c77e);
+  margin-bottom: 0.8rem;
+  letter-spacing: 0.05em;
+`;
+
+const MobileGraphButtons = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  
+  .mobile-graph-link-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 38px;
+    font-size: 0.76rem;
+    font-weight: 700;
+    border-radius: 6px;
+    border: 1px solid rgba(216, 162, 71, 0.4);
+    background: rgba(216, 162, 71, 0.1);
+    color: #fde68a;
+    transition: all 0.2s ease;
+    text-decoration: none;
+  }
+  
+  .mobile-graph-link-btn:active {
+    background: rgba(216, 162, 71, 0.22);
+    transform: scale(0.98);
+  }
+`;
+
 const TocContainer = styled.div`
   background:
     linear-gradient(135deg, var(--glass-bg-alt), rgba(20, 16, 23, 0.02)),
@@ -1260,6 +1302,7 @@ export default function Note() {
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 900);
     window.addEventListener('resize', handleResize);
+    handleResize();
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
@@ -1590,6 +1633,29 @@ export default function Note() {
             {parsedNote.body}
           </ReactMarkdown>
         </MarkdownBody>
+
+        {/* 移动端专用的图谱入口 */}
+        {isMobile && graphData && (
+          <MobileGraphActions>
+            <MobileGraphTitle>✦ 关联图谱</MobileGraphTitle>
+            <MobileGraphButtons>
+              <Link 
+                to={`/graph?local=${encodeURIComponent(decodedSlug)}`} 
+                state={{ backgroundLocation: location }}
+                className="mobile-graph-link-btn"
+              >
+                🔮 展开当前局部星轨
+              </Link>
+              <Link 
+                to={collectionGraphHref} 
+                state={{ backgroundLocation: location }}
+                className="mobile-graph-link-btn"
+              >
+                🌌 展开分类全局星轨
+              </Link>
+            </MobileGraphButtons>
+          </MobileGraphActions>
+        )}
       </NoteContent>
 
       <NoteSidebar>
