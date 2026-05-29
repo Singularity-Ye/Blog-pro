@@ -1409,6 +1409,8 @@ export default function Note() {
 
   // 加载图谱数据
   useEffect(() => {
+    if (graphData) return undefined;
+
     let cancelled = false;
     let idleId = null;
     let timeoutId = null;
@@ -1422,10 +1424,11 @@ export default function Note() {
     };
 
     if (isMobile) {
+      if (loading) return undefined;
       if ('requestIdleCallback' in window) {
-        idleId = window.requestIdleCallback(loadGraph, { timeout: 1800 });
+        idleId = window.requestIdleCallback(loadGraph, { timeout: 2500 });
       } else {
-        timeoutId = window.setTimeout(loadGraph, 900);
+        timeoutId = window.setTimeout(loadGraph, 1500);
       }
     } else {
       loadGraph();
@@ -1436,7 +1439,7 @@ export default function Note() {
       if (idleId !== null && 'cancelIdleCallback' in window) window.cancelIdleCallback(idleId);
       if (timeoutId !== null) window.clearTimeout(timeoutId);
     };
-  }, [isMobile]);
+  }, [isMobile, loading, graphData]);
 
   const currentNode = useMemo(
     () => graphData?.nodes?.find((node) => node.id === decodedSlug || node.slug === decodedSlug) ?? null,
@@ -1679,6 +1682,11 @@ export default function Note() {
           <ReactMarkdown
             remarkPlugins={[remarkGfm, [remarkWikilinks, { resolve: wikilinkResolver }]]}
             components={{
+              table: ({children, ...props}) => (
+                <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', margin: '1rem 0' }}>
+                  <table {...props}>{children}</table>
+                </div>
+              ),
               h1: ({children, ...props}) => <Heading as="h1" {...props}>{children}</Heading>,
               h2: ({children, ...props}) => <Heading as="h2" {...props}>{children}</Heading>,
               h3: ({children, ...props}) => <Heading as="h3" {...props}>{children}</Heading>,
