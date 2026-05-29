@@ -321,6 +321,10 @@ const StageContent = styled(motion.div)`
   position: relative;
   z-index: 3;
   pointer-events: auto;
+
+  @media (max-width: 992px) {
+    padding: 3rem 1rem 1.5rem;
+  }
 `;
 
 const Section2Grid = styled.div`
@@ -1620,6 +1624,7 @@ export default function Contact() {
       onWheel={handleWheel}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
+      style={{ height: `${vh}px` }}
     >
       <AnimatePresence>
         {isPageLoading && (
@@ -1715,8 +1720,8 @@ export default function Contact() {
         }}
       >
         {/* Section 1: 月夜林间入口 */}
-      <SectionContainer ref={sec1Ref} style={{ zIndex: 10 }}>
-        <StickyStage>
+      <SectionContainer ref={sec1Ref} style={{ zIndex: 10, height: `${vh}px` }}>
+        <StickyStage style={{ height: `${vh}px` }}>
           <SectionBackground
             style={{ y: bg1Y, opacity: bg1Opacity }}
             src={section01Img}
@@ -1744,24 +1749,26 @@ export default function Contact() {
           </StageContent>
 
           {/* Golden flowing Bezier text stream */}
-          <div style={{ position: 'absolute', bottom: '2rem', left: 0, width: '100%', zIndex: 12, pointerEvents: 'auto' }}>
-            <CurvedLoop
-              marqueeText="✦ SLIDE INTO THE DEEP POND ✦ WHISPER TO THE FROG ✦ DROP A NOTE ✦ EXPLORE MY WORK ✦"
-              speed={1.5}
-              curveAmount={60}
-              fontSize="1.05rem"
-              fill="rgba(231, 199, 126, 0.45)"
-              minHeight="80px"
-              interactive={true}
-              isPlaying={activeSection === 0}
-            />
-          </div>
+          {!isMobile && (
+            <div style={{ position: 'absolute', bottom: '2rem', left: 0, width: '100%', zIndex: 12, pointerEvents: 'auto' }}>
+              <CurvedLoop
+                marqueeText="✦ SLIDE INTO THE DEEP POND ✦ WHISPER TO THE FROG ✦ DROP A NOTE ✦ EXPLORE MY WORK ✦"
+                speed={1.5}
+                curveAmount={60}
+                fontSize="1.05rem"
+                fill="rgba(231, 199, 126, 0.45)"
+                minHeight="80px"
+                interactive={true}
+                isPlaying={activeSection === 0}
+              />
+            </div>
+          )}
         </StickyStage>
       </SectionContainer>
 
       {/* Section 2: 池塘主舞台 */}
-      <SectionContainer ref={sec2Ref} style={{ zIndex: 20 }}>
-        <StickyStage>
+      <SectionContainer ref={sec2Ref} style={{ zIndex: 20, height: `${vh}px` }}>
+        <StickyStage style={{ height: `${vh}px` }}>
           <SectionBackground
             style={{ y: bg2Y, opacity: bg2Opacity }}
             src={section02Img}
@@ -1872,8 +1879,8 @@ export default function Contact() {
       </SectionContainer>
 
       {/* Section 3: 水岸手札区 */}
-      <SectionContainer ref={sec3Ref} $last style={{ zIndex: 30 }}>
-        <StickyStage>
+      <SectionContainer ref={sec3Ref} $last style={{ zIndex: 30, height: `${vh}px` }}>
+        <StickyStage style={{ height: `${vh}px` }}>
           <SectionBackground
             style={{ y: bg3Y, opacity: bg3Opacity }}
             src={section03Img}
