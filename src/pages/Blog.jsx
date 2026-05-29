@@ -220,7 +220,7 @@ const BLOG_SCENES = {
         label: '建站秘辛', 
         collection: 'blog-design', 
         transform: 'rotate(-12deg)',
-        filter: (notes) => notes.find(n => n.slug === '博客网站/博客页-废弃方案/近日手札/松果灵感书屋的诞生记')
+        filter: (notes) => notes.find(n => n.slug === '博客网站/05_闲情 (幕后与手札)/松果灵感书屋的诞生记')
       },
       { 
         id: 'gold-2', 
@@ -231,7 +231,7 @@ const BLOG_SCENES = {
         label: '屋主札记', 
         collection: 'blog-design', 
         transform: 'rotate(8deg)',
-        filter: (notes) => notes.find(n => n.slug === '内功心法/屋主札记：在林间对抗知识腐化')
+        filter: (notes) => notes.find(n => n.slug === '内功心法/随感录/屋主札记：在林间对抗知识腐化')
       },
       { 
         id: 'green-1', 
@@ -571,7 +571,7 @@ const BLOG_SCENES = {
         hitHeight: '20.62%',
         labelLeft: '38.3%',
         labelTop: '29%',
-        articleSlug: '内功心法/Obsidian本质理解：Markdown、HTML 与 AI 时代的知识工作流',
+        articleSlug: '内功心法/随感录/Obsidian本质理解：Markdown、HTML 与 AI 时代的知识工作流',
         articleMeta: 'WORKSHOP · OBSIDIAN'
       },
       { 
@@ -590,7 +590,7 @@ const BLOG_SCENES = {
         hitHeight: '16.9%',
         labelLeft: '52.5%',
         labelTop: '71%',
-        articleSlug: '博客网站/博客页-废弃方案/博客页空间长廊重构方案v0.2',
+        articleSlug: '博客网站/99_遗迹 (历史陈迹)/博客页-废弃方案/博客页空间长廊重构方案v0.2',
         articleMeta: 'WORKSHOP · BLUEPRINT'
       },
       {

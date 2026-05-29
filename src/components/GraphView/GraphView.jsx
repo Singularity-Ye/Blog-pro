@@ -53,6 +53,7 @@ export default function GraphView({ modal = false, onClose }) {
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   
   const [isMobile, setIsMobile] = useState(false);
+  const [mobileViewMode, setMobileViewMode] = useState('list');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('all');
 
@@ -135,12 +136,12 @@ export default function GraphView({ modal = false, onClose }) {
     window.addEventListener('resize', handleResize);
     handleResize();
     // setTimeout to ensure it resizes after layout is settled
-    const timer = setTimeout(handleResize, 50);
+    const timer = setTimeout(handleResize, 100);
     return () => {
       window.removeEventListener('resize', handleResize);
       clearTimeout(timer);
     };
-  }, []);
+  }, [mobileViewMode, isMobile]);
 
   const handleNodeHover = useCallback((node) => {
     highlightNodes.current.clear();
@@ -420,17 +421,24 @@ export default function GraphView({ modal = false, onClose }) {
     ctx.fill();
   }, [localFilter]);
 
-  if (isMobile) {
+  if (isMobile && mobileViewMode === 'list') {
     const mobileContent = (
       <div className="graph-mobile-wrapper">
         <div className="graph-mobile-header">
-          <div className="graph-mobile-title">{graphModeTitle}</div>
-          <div className="graph-mobile-stats">
-            ✨ {filteredNodes.length} / {visibleGraphData?.nodes.length ?? 0} 篇星沙档案
+          <div className="graph-mobile-title-group">
+            <div className="graph-mobile-title">{graphModeTitle}</div>
+            <div className="graph-mobile-stats">
+              ✨ {filteredNodes.length} / {visibleGraphData?.nodes.length ?? 0} 篇星沙档案
+            </div>
           </div>
-          <button onClick={handleClose} className="graph-mobile-close-btn">
-            {modal ? '✦ 关闭' : '✦ 隐入夜幕'}
-          </button>
+          <div className="graph-mobile-actions">
+            <button onClick={() => setMobileViewMode('canvas')} className="graph-mobile-toggle-btn">
+              ✦ 显现星轨
+            </button>
+            <button onClick={handleClose} className="graph-mobile-close-btn">
+              {modal ? '✦ 关闭' : '✦ 隐入夜幕'}
+            </button>
+          </div>
         </div>
         
         <div className="graph-mobile-search-bar">
@@ -510,7 +518,7 @@ export default function GraphView({ modal = false, onClose }) {
             if (event.target === event.currentTarget) handleClose();
           }}
         >
-          <div className="graph-modal-window" role="dialog" aria-modal="true" style={{ width: '92vw', height: '80vh', borderRadius: '8px', overflow: 'hidden' }}>
+          <div className="graph-modal-window" role="dialog" aria-modal="true">
             {mobileContent}
           </div>
         </div>
@@ -525,6 +533,11 @@ export default function GraphView({ modal = false, onClose }) {
       className={`graph-view-container ${localFilter ? 'is-local' : 'is-global'}`}
       onPointerMove={handlePointerMove}
     >
+      {isMobile && (
+        <div className="graph-mobile-canvas-tip">
+          💡 提示：双指可缩放/拖拽。若卡顿，可点击下方「列表检索」切换。
+        </div>
+      )}
       {visibleGraphData && (
         <ForceGraph2D
           ref={fgRef}
@@ -561,6 +574,11 @@ export default function GraphView({ modal = false, onClose }) {
         </span>
       </div>
       <div className="graph-controls">
+        {isMobile && (
+          <button onClick={() => setMobileViewMode('list')} className="mobile-toggle-list-btn">
+            ✦ 列表检索
+          </button>
+        )}
         <button onClick={handleReset}>✦ 重置星轨</button>
         <button onClick={handleClose}>{modal ? '✦ 关闭' : '✦ 隐入夜幕'}</button>
         {localFilter && currentNode?.collection && (

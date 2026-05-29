@@ -12,12 +12,13 @@
 .graph-modal-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 80;
-  display: grid;
-  place-items: center;
-  padding: clamp(1rem, 3vw, 2.2rem);
-  background: rgba(14, 12, 10, 0.42);
-  backdrop-filter: blur(2px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(14, 12, 10, 0.65);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }
 
 .graph-modal-window {
@@ -179,21 +180,22 @@
   height: 300px;
   position: relative;
   overflow: hidden;
-  border: 1px solid rgba(216, 162, 71, 0.28);
+  border: 1px solid var(--glass-border, rgba(216, 162, 71, 0.28));
   border-radius: 6px;
   background:
     radial-gradient(circle at 20% 18%, rgba(216, 162, 71, 0.12), transparent 30%),
     radial-gradient(circle at 80% 74%, rgba(185, 130, 52, 0.08), transparent 30%),
-    rgba(28, 18, 12, 0.45) !important;
+    var(--glass-bg, rgba(28, 18, 12, 0.45)) !important;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+  transition: background 0.5s ease, border-color 0.5s ease;
 }
 
 .mini-graph-container.publishLocal {
   background:
     radial-gradient(circle at 28% 24%, rgba(216, 162, 71, 0.12), transparent 30%),
     radial-gradient(circle at 76% 72%, rgba(185, 130, 52, 0.08), transparent 30%),
-    rgba(28, 18, 12, 0.45) !important;
+    var(--glass-bg, rgba(28, 18, 12, 0.45)) !important;
 }
 
 .mini-graph-container::before {
@@ -220,11 +222,12 @@
   top: 8px;
   left: 10px;
   z-index: 2;
-  color: rgba(255, 225, 151, 0.6);
+  color: var(--text-accent, rgba(255, 225, 151, 0.6));
   font-size: 0.72rem;
   font-weight: 900;
   letter-spacing: 0.04em;
   pointer-events: none;
+  transition: color 0.5s ease;
 }
 
 .mini-graph-expand {
@@ -236,9 +239,9 @@
   place-items: center;
   width: 30px;
   height: 30px;
-  border: 1px solid rgba(216, 162, 71, 0.35);
-  background: rgba(28, 18, 12, 0.65);
-  color: #ffe197;
+  border: 1px solid var(--glass-border, rgba(216, 162, 71, 0.35));
+  background: var(--glass-bg-alt, rgba(28, 18, 12, 0.65));
+  color: var(--text-accent, #ffe197);
   font-size: 1.15rem;
   font-weight: 900;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
@@ -246,9 +249,9 @@
 }
 
 .mini-graph-expand:hover {
-  border-color: #c49a45;
-  background: rgba(216, 162, 71, 0.2);
-  color: #fff7df;
+  border-color: var(--glass-border-highlight, #c49a45);
+  background: var(--item-hover-bg, rgba(216, 162, 71, 0.2));
+  color: var(--text-primary, #fff7df);
   box-shadow: 0 0 16px rgba(216, 162, 71, 0.3);
   transform: translate(2px, -2px);
 }
@@ -452,4 +455,86 @@
   padding: 3rem 0;
   color: rgba(54, 45, 34, 0.45);
   font-size: 0.8rem;
+}
+
+/* ── 移动端额外媒体查询与交互控制 ── */
+@media (max-width: 768px) {
+  .graph-modal-window {
+    width: 92vw !important;
+    height: 84vh !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    margin: 0 auto;
+    border-radius: 12px;
+    border: 1px solid rgba(196, 154, 69, 0.35);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+  }
+
+  .graph-mobile-wrapper {
+    min-width: 0;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.graph-mobile-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.graph-mobile-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-shrink: 0;
+}
+
+.graph-mobile-toggle-btn {
+  min-height: 30px;
+  padding: 0 0.75rem;
+  border: 1.5px solid rgba(216, 162, 71, 0.4);
+  border-radius: 8px;
+  background: linear-gradient(135deg, #fcd34d 0%, #d97706 100%);
+  color: #ffffff;
+  font-size: 0.7rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(217, 119, 6, 0.18);
+  transition: all 0.2s ease;
+}
+
+.graph-mobile-toggle-btn:active {
+  transform: scale(0.96);
+  background: linear-gradient(135deg, #fbbf24 0%, #b45309 100%);
+}
+
+.graph-mobile-canvas-tip {
+  position: absolute;
+  top: 0.6rem;
+  left: 0.6rem;
+  right: 0.6rem;
+  z-index: 10;
+  background: rgba(14, 12, 10, 0.88);
+  border: 1px dashed rgba(216, 162, 71, 0.45);
+  color: #fde68a;
+  padding: 0.45rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.68rem;
+  line-height: 1.4;
+  text-align: center;
+  backdrop-filter: blur(4px);
+  pointer-events: none;
+}
+
+.mobile-toggle-list-btn {
+  border-color: rgba(216, 162, 71, 0.6) !important;
+  background: rgba(216, 162, 71, 0.15) !important;
+  color: #fcd34d !important;
+}
+
+.mobile-toggle-list-btn:active {
+  background: rgba(216, 162, 71, 0.3) !important;
 }

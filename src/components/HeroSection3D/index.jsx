@@ -805,7 +805,7 @@ function HeroSection3D() {
           })}
           <LegendCta href="/about" whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
             <CtaBg />
-            <span style={{ position: 'relative', zIndex: 2 }}>关于本站</span>
+            <span style={{ position: 'relative', zIndex: 2 }}>关于贫道</span>
             <span className="arrow">→</span>
             <Firefly>
               <span className="sparkle s1" />

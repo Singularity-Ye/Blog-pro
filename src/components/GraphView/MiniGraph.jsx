@@ -15,13 +15,20 @@ const COLLECTION_COLORS = {
   'blog-design': '#b68a5c',
 };
 
-const THEME = {
-  node: '#e4b684', nodeHover: '#ffffff', nodeHighlight: '#ffe197', nodeMuted: 'rgba(255, 240, 212, 0.25)',
-  edge: 'rgba(216, 162, 71, 0.25)', edgeAlpha: 0.8, edgeHighlight: '#ffe197', edgeHighlightAlpha: 0.9,
-  text: 'rgba(255, 240, 212, 0.85)', textHighlight: '#ffffff',
+const THEMES = {
+  dark: {
+    node: '#e4b684', nodeHover: '#ffffff', nodeHighlight: '#ffe197', nodeMuted: 'rgba(255, 240, 212, 0.25)',
+    edge: 'rgba(216, 162, 71, 0.25)', edgeAlpha: 0.8, edgeHighlight: '#ffe197', edgeHighlightAlpha: 0.9,
+    text: 'rgba(255, 240, 212, 0.85)', textHighlight: '#ffffff',
+  },
+  light: {
+    node: '#b0804b', nodeHover: '#1c160e', nodeHighlight: '#996316', nodeMuted: 'rgba(44, 35, 20, 0.15)',
+    edge: 'rgba(180, 127, 45, 0.3)', edgeAlpha: 0.8, edgeHighlight: '#996316', edgeHighlightAlpha: 0.9,
+    text: 'rgba(44, 35, 20, 0.8)', textHighlight: '#1c160e',
+  }
 };
 
-export default function MiniGraph({ graphData: propGraphData, currentSlug: propCurrentSlug, expandHref }) {
+export default function MiniGraph({ graphData: propGraphData, currentSlug: propCurrentSlug, expandHref, theme = 'dark' }) {
   const containerRef = useRef(null);
   const fgRef = useRef(null);
   const location = useLocation();
@@ -29,6 +36,7 @@ export default function MiniGraph({ graphData: propGraphData, currentSlug: propC
   const [internalGraphData, setInternalGraphData] = useState(null);
   const [hoverNode, setHoverNode] = useState(null);
   const [dimensions, setDimensions] = useState({ width: 300, height: 300 });
+  const activeTheme = theme === 'light' ? THEMES.light : THEMES.dark;
   
   const highlightNodes = useRef(new Set());
   const highlightLinks = useRef(new Set());
@@ -125,13 +133,13 @@ export default function MiniGraph({ graphData: propGraphData, currentSlug: propC
     
     const radius = Math.max(1.0, Math.min(4.0, 1.0 + Math.sqrt(node.degree) * 0.3));
     
-    let color = COLLECTION_COLORS[node.collection] || THEME.node;
+    let color = COLLECTION_COLORS[node.collection] || activeTheme.node;
     if (hoverNode) {
-      if (isHovered) color = THEME.nodeHover;
-      else if (isSelf) color = THEME.nodeHighlight;
-      else if (!isHighlight) color = THEME.nodeMuted;
+      if (isHovered) color = activeTheme.nodeHover;
+      else if (isSelf) color = activeTheme.nodeHighlight;
+      else if (!isHighlight) color = activeTheme.nodeMuted;
     } else if (isSelf) {
-      color = THEME.nodeHighlight;
+      color = activeTheme.nodeHighlight;
     }
     
     ctx.beginPath();
@@ -150,12 +158,12 @@ export default function MiniGraph({ graphData: propGraphData, currentSlug: propC
       ctx.font = `${isSelf ? '700' : '500'} ${fontSize}px Inter, "Segoe UI", sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'top';
-      ctx.fillStyle = isSelf ? THEME.textHighlight : THEME.text;
+      ctx.fillStyle = isSelf ? activeTheme.textHighlight : activeTheme.text;
       ctx.globalAlpha = hoverNode && !isHighlight ? 0.2 : 1;
       ctx.fillText(node.title, node.x, node.y + radius + 4 / globalScale);
       ctx.globalAlpha = 1;
     }
-  }, [hoverNode, currentSlug, visibleGraphData]);
+  }, [hoverNode, currentSlug, visibleGraphData, activeTheme]);
 
   const paintLink = useCallback((link, ctx, globalScale) => {
     const isHighlight = highlightLinks.current.has(link);
@@ -165,17 +173,17 @@ export default function MiniGraph({ graphData: propGraphData, currentSlug: propC
     ctx.lineTo(link.target.x, link.target.y);
     
     if (hoverNode && isHighlight) {
-      ctx.strokeStyle = THEME.edgeHighlight;
-      ctx.globalAlpha = THEME.edgeHighlightAlpha;
+      ctx.strokeStyle = activeTheme.edgeHighlight;
+      ctx.globalAlpha = activeTheme.edgeHighlightAlpha;
       ctx.lineWidth = 1.5 / globalScale;
     } else {
-      ctx.strokeStyle = THEME.edge;
-      ctx.globalAlpha = hoverNode ? 0.08 : THEME.edgeAlpha;
+      ctx.strokeStyle = activeTheme.edge;
+      ctx.globalAlpha = hoverNode ? 0.08 : activeTheme.edgeAlpha;
       ctx.lineWidth = 0.5 / globalScale;
     }
     ctx.stroke();
     ctx.globalAlpha = 1;
-  }, [hoverNode]);
+  }, [hoverNode, activeTheme]);
 
   useEffect(() => {
     if (fgRef.current && visibleGraphData) {

@@ -8,14 +8,15 @@ import {
   getGraphStats,
   normalizeGraph,
 } from '../utils/graphFilters';
-import atlasArchiveBg from '../assets/images/atlas/Celestial-Sands-Field.png';
+import atlasArchiveBgLight from '../assets/images/atlas/Celestial-Sands-Field-Light.png';
+import atlasArchiveBgDark from '../assets/images/atlas/Celestial-Sands-Field-Dark.png';
 
 const METADATA_COLLECTIONS = [
   // 1. 落沙寻迹图录 (原 travel)
   {
     slug: 'travel',
     kind: 'travel',
-    title: '落沙寻迹图录',
+    title: '落沙寻迹 | 图录',
     eyebrow: 'GEOMANTIC RECORDING MATRIX',
     description: '烙印在神州地脉之上的行走轨迹，凡人眼中的凡尘路线、烟火美味与逐日景致，在此阵中化作被封存的星沙坐标。',
     accent: '#d8a247',
@@ -24,16 +25,16 @@ const METADATA_COLLECTIONS = [
   {
     slug: 'project',
     kind: 'project',
-    title: '万象建站炼成阵',
+    title: '万象建站 | 炼成阵',
     eyebrow: 'AETHERIC RECONSTRUCTION GRAPH',
-    description: '探寻数字迷雾的营造法则。域名敕令、节点部署、DNS 织网、Cloudflare 避雷、Vercel 唤醒与 Quartz 雕琢，皆是可被逆向推演的构筑星轨。',
+    description: '探寻数字迷雾 of 营造法则。域名敕令、节点部署、DNS 织网、Cloudflare 避雷、Vercel 唤醒与 Quartz 雕琢，皆是可被逆向推演的构筑星轨。',
     accent: '#c8933f',
   },
   // 3. 叶间林径编织手稿 (原 blog-design / 对应 01_天工)
   {
     slug: 'blog-design',
     kind: 'blog-design',
-    title: '叶间林径编织手稿',
+    title: '叶间林径 | 编织手稿',
     eyebrow: 'LEAF-BORDERED SANCTUARY ENTRANCE',
     description: '描绘彼端‘叶间树林’容貌的设计残卷。涵盖门户、文库、图谱大厅之营造图法，此间手稿借由星沙传送阵，与叶间树林的阅读法阵紧密呼应。',
     accent: '#c7a46a',
@@ -42,7 +43,7 @@ const METADATA_COLLECTIONS = [
   {
     slug: 'dream-site',
     kind: 'dream-site',
-    title: '造化筑梦之阶',
+    title: '造化筑梦 | 之阶',
     eyebrow: 'GENESIS FABRICATION SITE',
     description: '此间为万物破土之界。以意驭神，构筑大千世界之根基，记录一切重制与超凡创思的炼成仪轨。',
     accent: '#cfa258',
@@ -51,7 +52,7 @@ const METADATA_COLLECTIONS = [
   {
     slug: 'tianheng',
     kind: '天衡',
-    title: '天衡星轨纪律',
+    title: '天衡星轨 | 纪律',
     eyebrow: 'HEAVENLY BALANCE REGULATION',
     description: '洞悉天道运转之法则。仙门大典之流程、修行契约之规范，于此间被归纳平整，使诸般万象不离常轨。',
     accent: '#cca552',
@@ -60,7 +61,7 @@ const METADATA_COLLECTIONS = [
   {
     slug: 'tiangong',
     kind: '天工',
-    title: '巧夺天工秘卷',
+    title: '巧夺天工 | 秘卷',
     eyebrow: 'DIVINE CRAFT DESIGN AESTHETICS',
     description: '仙界奇观之图解，美轮美奂的排版法则与配色心诀，汇聚此中，夺天地之造化以饰仙居门庭。',
     accent: '#c49a45',
@@ -69,7 +70,7 @@ const METADATA_COLLECTIONS = [
   {
     slug: 'louge',
     kind: '楼阁',
-    title: '万象楼阁构筑',
+    title: '万象楼阁 | 构筑',
     eyebrow: 'STELLAR PAVILION ARCHITECTURE',
     description: '起手而平地生楼阁，虚实相生。探寻仙网界面的构筑秘符，一砖一瓦皆是仙元演化的代码玉简。',
     accent: '#bfa261',
@@ -78,7 +79,7 @@ const METADATA_COLLECTIONS = [
   {
     slug: 'zaowu',
     kind: '造物',
-    title: '太初造物秘传',
+    title: '太初造物 | 秘传',
     eyebrow: 'ARCHETYPAL MANUFACTURE WORKSHOP',
     description: '收录工坊之中所铸奇珍傀儡、法宝玩物。奇巧机关，造化玄机，皆可在此间一窥其以气运驭之妙术。',
     accent: '#cca15a',
@@ -87,9 +88,9 @@ const METADATA_COLLECTIONS = [
   {
     slug: 'mixu',
     kind: '秘术',
-    title: '天玄奥道秘术',
+    title: '天玄奥道 | 秘术',
     eyebrow: 'OCCULT AETHERIC METHODOLOGIES',
-    description: '修真界诸般攻防真诀，包括系统性技术心得、算法符箓与道法传承，是克敌机先、稳固根基的无上古卷。',
+    description: '修真界诸般攻防真诀，包括系统性技术心得、算法符箓与道法传承，是克敌机先、稳固根基 the 无上古卷。',
     accent: '#cca362',
   },
   // 兼容老的分类
@@ -98,7 +99,7 @@ const METADATA_COLLECTIONS = [
     kind: 'compiler-theory',
     title: '天玄奥道秘术 · 编译卷',
     eyebrow: 'OCCULT AETHERIC METHODOLOGIES',
-    description: '修真界诸般攻防真诀，包括系统性技术心得、算法符箓与道法传承，是克敌机先、稳固根基的无上古卷。',
+    description: '修真界诸般攻防真诀，包括系统性技术心得、算法符箓与道法传承，是克敌机先、稳固根基 the 无上古卷。',
     accent: '#cca362',
   },
   {
@@ -106,7 +107,7 @@ const METADATA_COLLECTIONS = [
     kind: 'linux-notes',
     title: '天玄奥道秘术 · 筑基卷',
     eyebrow: 'OCCULT AETHERIC METHODOLOGIES',
-    description: '修真界诸般攻防真诀，包括系统性技术心得、算法符箓与道法传承，是克敌机先、稳固根基的无上古卷。',
+    description: '修真界诸般攻防真诀，包括系统性技术心得、算法符箓与道法传承，是克敌机先、稳固根基 the 无上古卷。',
     accent: '#cca362',
   },
   {
@@ -114,14 +115,14 @@ const METADATA_COLLECTIONS = [
     kind: 'embedded',
     title: '天玄奥道秘术 · 金石卷',
     eyebrow: 'OCCULT AETHERIC METHODOLOGIES',
-    description: '修真界诸般攻防真诀，包括系统性技术心得、算法符箓与道法传承，是克敌机先、稳固根基的无上古卷。',
+    description: '修真界诸般攻防真诀，包括系统性技术心得、算法符箓与道法传承，是克敌机先、稳固根基 the 无上古卷。',
     accent: '#cca362',
   },
   // 10. 闲情 (幕后与手札)
   {
     slug: 'xianqing',
     kind: '闲情',
-    title: '青灯余暇闲情',
+    title: '青灯余暇 | 闲情',
     eyebrow: 'TRANQUIL MEDITATION JOURNAL',
     description: '修行有得，提笔著书。红尘游历、心魔感悟与道友杂谈，皆温存入纸，可堪在风定雨歇时佐茶细读。',
     accent: '#caa866',
@@ -146,7 +147,7 @@ const METADATA_COLLECTIONS = [
   {
     slug: 'internal-skills',
     kind: 'internal-skills',
-    title: '太玄内功心法',
+    title: '太玄 | 内功心法',
     eyebrow: 'INNER CULTIVATION DIRECTIVES',
     description: '修仙者筑基长生、洗髓伐脉之底层核心心诀。吐纳归真，洗涤俗虑，重塑神识周天之根本。',
     accent: '#cca362',
@@ -155,7 +156,7 @@ const METADATA_COLLECTIONS = [
   {
     slug: 'jiyao',
     kind: '纪要',
-    title: '业障天道补缀',
+    title: '业障 | 天道补缀',
     eyebrow: 'AETHERIC REPAIR RESOLUTIONS',
     description: '记载修行中遇阻的天道疏漏与缺陷因果，是消除破障、斩断业报、调顺仙力周天的补天纪要。',
     accent: '#caa75b',
@@ -164,33 +165,101 @@ const METADATA_COLLECTIONS = [
   {
     slug: 'yiji',
     kind: '遗迹',
-    title: '太古历史遗迹',
+    title: '太古 | 历史遗迹',
     eyebrow: 'ANCIENT ARCHIVE RELICS',
     description: '过往修持之残篇、未尽之演算法阵，虽然尘封已久，却在岁月中凝结为值得回溯警醒的太古遗迹。',
     accent: '#b8a682',
   }
 ];
 
+export function parseElegantTitle(title) {
+  if (!title) return { mainText: '', subText: null };
+  
+  // 1. 优先匹配括号包裹的内容，并剥离括号
+  const parenMatch = title.match(/^([^(（]+)[(（](.+?)[)）]\s*$/);
+  if (parenMatch) {
+    return {
+      mainText: parenMatch[1].trim(),
+      subText: parenMatch[2].trim()
+    };
+  }
+  
+  // 2. 管道符分割
+  if (title.includes('|')) {
+    const parts = title.split('|');
+    return {
+      mainText: parts[0].trim(),
+      subText: parts[1].trim()
+    };
+  }
+  
+  // 3. 中点分割，保留中点作为卷轴修饰符
+  if (title.includes('·')) {
+    const parts = title.split('·');
+    return {
+      mainText: parts[0].trim(),
+      subText: `· ${parts[1].trim()}`
+    };
+  }
+  
+  // 4. 横线分割
+  if (title.includes(' - ')) {
+    const parts = title.split(' - ');
+    return {
+      mainText: parts[0].trim(),
+      subText: parts[1].trim()
+    };
+  }
+  
+  return {
+    mainText: title.trim(),
+    subText: null
+  };
+}
+
 const Page = styled.div`
   min-height: 100vh;
   position: relative;
   isolation: isolate;
   overflow-x: hidden;
-  background: #07100e;
-  color: #f5efe3;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background 0.5s ease, color 0.5s ease;
+
+  --bg-primary: ${({ $theme }) => $theme === 'light' ? '#f5efe3' : '#07100e'};
+  --bg-stars: ${({ $theme }) => $theme === 'light' ? 'rgba(99, 72, 28, 0.05)' : 'rgba(245, 239, 227, 0.12)'};
+  --text-primary: ${({ $theme }) => $theme === 'light' ? '#2c251d' : '#f5efe3'};
+  --text-muted: ${({ $theme }) => $theme === 'light' ? 'rgba(44, 37, 29, 0.7)' : 'rgba(255, 240, 212, 0.84)'};
+  --text-accent: ${({ $theme }) => $theme === 'light' ? '#996316' : '#ffe197'};
+  
+  /* Container Amber Glass styles */
+  --glass-bg: ${({ $theme }) => $theme === 'light' ? 'rgba(242, 233, 218, 0.76)' : 'rgba(28, 18, 12, 0.52)'};
+  --glass-bg-alt: ${({ $theme }) => $theme === 'light' ? 'rgba(232, 220, 202, 0.45)' : 'rgba(20, 13, 8, 0.45)'};
+  --glass-border: ${({ $theme }) => $theme === 'light' ? 'rgba(180, 127, 45, 0.35)' : 'rgba(216, 162, 71, 0.36)'};
+  --glass-border-highlight: ${({ $theme }) => $theme === 'light' ? 'rgba(180, 127, 45, 0.6)' : 'rgba(231, 199, 126, 0.7)'};
+  --glass-shadow: ${({ $theme }) => $theme === 'light' ? '0 12px 32px rgba(120, 90, 60, 0.12)' : '0 20px 48px rgba(0, 0, 0, 0.24)'};
+  --glass-inset: ${({ $theme }) => $theme === 'light' ? 'inset 0 1px 0 rgba(255, 255, 255, 0.5)' : 'inset 0 1px 0 rgba(255, 247, 223, 0.22)'};
+  
+  /* Item backgrounds */
+  --item-bg: ${({ $theme }) => $theme === 'light' ? 'rgba(253, 251, 247, 0.75)' : 'rgba(10, 20, 34, 0.48)'};
+  --item-border: ${({ $theme }) => $theme === 'light' ? 'rgba(180, 127, 45, 0.18)' : 'rgba(231, 199, 126, 0.22)'};
+  --item-hover-bg: ${({ $theme }) => $theme === 'light' ? 'rgba(180, 127, 45, 0.08)' : 'rgba(231, 199, 126, 0.1)'};
+  --item-text-active: ${({ $theme }) => $theme === 'light' ? '#784d0f' : '#fff7df'};
 
   &::before {
     content: '';
     position: fixed;
     inset: 0;
     pointer-events: none;
-  }
-
-  &::before {
     z-index: 0;
-    background:
-      url(${atlasArchiveBg}) center center / cover no-repeat,
-      #07100e;
+    background: ${({ $theme }) => $theme === 'light'
+      ? `url(${atlasArchiveBgLight}) center center / cover no-repeat, var(--bg-primary)`
+      : `url(${atlasArchiveBgDark}) center center / cover no-repeat, var(--bg-primary)`
+    };
+    background-blend-mode: normal;
+    filter: none;
+    opacity: ${({ $theme }) => $theme === 'light' ? 0.95 : 1};
+    transition: background 0.5s ease, filter 0.5s ease;
   }
 
   @keyframes atlas-dust-drift {
@@ -204,24 +273,137 @@ const AtlasStars = styled.div`
   inset: 0;
   z-index: 2;
   pointer-events: none;
-  opacity: 0.52;
+  opacity: ${({ $theme }) => $theme === 'light' ? 0.35 : 0.52};
   background:
-    radial-gradient(circle at 22% 30%, rgba(245, 239, 227, 0.12) 0 1px, transparent 2px),
-    radial-gradient(circle at 48% 62%, rgba(90, 163, 143, 0.1) 0 1px, transparent 2px),
-    radial-gradient(circle at 82% 38%, rgba(231, 199, 126, 0.11) 0 1px, transparent 2px),
+    radial-gradient(circle at 22% 30%, var(--bg-stars) 0 1px, transparent 2px),
+    radial-gradient(circle at 48% 62%, var(--bg-stars) 0 1px, transparent 2px),
+    radial-gradient(circle at 82% 38%, var(--bg-stars) 0 1px, transparent 2px),
     linear-gradient(rgba(215, 187, 135, 0.026) 1px, transparent 1px),
     linear-gradient(90deg, rgba(215, 187, 135, 0.018) 1px, transparent 1px);
   background-size: 180px 180px, 240px 240px, 210px 210px, 52px 52px, 52px 52px;
   mask-image: radial-gradient(circle at 52% 38%, black 0%, black 38%, transparent 82%);
   animation: atlas-dust-drift 34s linear infinite;
+  transition: opacity 0.5s ease;
 `;
 
-const AtlasFrame = ({ children }) => (
-  <Page>
-    <AtlasStars />
-    {children}
-  </Page>
-);
+const ThemeToggleWrapper = styled.div`
+  position: absolute;
+  top: 0.2rem;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+  z-index: 9999;
+  
+  @media (max-width: 900px) {
+    top: 0.2rem;
+    right: 0;
+  }
+`;
+
+const ToggleLabel = styled.span`
+  font-size: 0.6rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  color: var(--text-accent);
+  text-shadow: ${({ $theme }) => $theme === 'light' ? 'none' : '0 0 8px rgba(231,199,126,0.4)'};
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  padding: 0.18rem 0.45rem;
+  border-radius: 4px;
+  backdrop-filter: blur(8px);
+  pointer-events: none;
+  user-select: none;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+`;
+
+const ThemeToggle = styled.button`
+  width: 38px;
+  height: 76px;
+  border-radius: 19px;
+  border: 1.5px solid var(--glass-border);
+  background: ${({ $theme }) => $theme === 'light' 
+    ? 'linear-gradient(to bottom, #7ec0ee, #bce3ff)' 
+    : 'linear-gradient(to bottom, #090f1d, #141c30)'};
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 3px 0;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(12px);
+  transition: background 0.5s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+
+  &:hover {
+    border-color: var(--glass-border-highlight);
+    box-shadow: 0 0 15px rgba(216, 162, 71, 0.4);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+`;
+
+const ToggleKnob = styled(motion.div)`
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  position: relative;
+  z-index: 2;
+  background: ${({ $theme }) => $theme === 'light' 
+    ? 'radial-gradient(circle at 30% 30%, #ffdf79, #fdb813)' 
+    : 'radial-gradient(circle at 30% 30%, #f1f5f9, #94a3b8)'};
+  box-shadow: ${({ $theme }) => $theme === 'light' 
+    ? '0 0 8px rgba(253, 184, 19, 0.6), inset -2px -2px 4px rgba(0,0,0,0.1)' 
+    : '0 0 8px rgba(226, 232, 240, 0.4), inset -3px -3px 0px 0px #64748b'};
+`;
+
+const DecorationLayer = styled.div`
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  
+  .cloud {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.85);
+    border-radius: 50%;
+    opacity: ${({ $theme }) => $theme === 'light' ? 1 : 0};
+    transform: translateX(${({ $theme }) => $theme === 'light' ? '0' : '-15px'});
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .cloud-1 { width: 14px; height: 14px; bottom: 22px; left: 6px; }
+  .cloud-2 { width: 22px; height: 12px; bottom: 12px; left: 10px; border-radius: 6px; }
+
+  .star {
+    position: absolute;
+    background: white;
+    width: 2px;
+    height: 2px;
+    border-radius: 50%;
+    opacity: ${({ $theme }) => $theme === 'light' ? 0 : 0.8};
+    transform: translateX(${({ $theme }) => $theme === 'light' ? '15px' : '0'});
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .star-1 { top: 12px; left: 10px; animation: toggle-twinkle 2s infinite alternate; }
+  .star-2 { top: 22px; left: 24px; animation: toggle-twinkle 1.5s infinite alternate 0.5s; }
+  .star-3 { top: 32px; left: 8px; animation: toggle-twinkle 3s infinite alternate 1s; }
+
+  @keyframes toggle-twinkle {
+    0% { opacity: 0.3; }
+    100% { opacity: 1; }
+  }
+`;
 
 const LoadingScreen = styled(motion.div)`
   position: fixed;
@@ -339,26 +521,27 @@ const Rail = styled.aside`
   max-height: calc(100vh - 2.5rem);
   padding: 1rem 0.75rem;
   overflow: auto;
-  border: 1px solid rgba(216, 162, 71, 0.34);
-  border-left: 2px solid rgba(231, 199, 126, 0.58);
+  border: 1px solid var(--glass-border);
+  border-left: 2px solid var(--glass-border-highlight);
   border-radius: 10px;
   background:
-    linear-gradient(180deg, rgba(255, 244, 218, 0.26), rgba(99, 61, 26, 0.2)),
-    radial-gradient(circle at 85% 8%, rgba(255, 225, 151, 0.24), transparent 32%),
-    rgba(38, 25, 18, 0.46);
+    linear-gradient(180deg, rgba(255, 244, 218, 0.08), rgba(99, 61, 26, 0.04)),
+    radial-gradient(circle at 85% 8%, rgba(255, 225, 151, 0.12), transparent 32%),
+    var(--glass-bg);
   box-shadow:
-    0 18px 42px rgba(0, 0, 0, 0.2),
-    inset 0 1px 0 rgba(255, 247, 223, 0.24),
-    inset 0 0 28px rgba(231, 199, 126, 0.05);
-  backdrop-filter: blur(4px) saturate(1.12);
-  -webkit-backdrop-filter: blur(4px) saturate(1.12);
+    var(--glass-shadow),
+    var(--glass-inset),
+    inset 0 0 28px rgba(231, 199, 126, 0.02);
+  backdrop-filter: blur(12px) saturate(1.2);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  transition: background 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease;
 
   &::-webkit-scrollbar {
     width: 4px;
   }
 
   &::-webkit-scrollbar-thumb {
-    background: rgba(231, 199, 126, 0.34);
+    background: var(--glass-border-highlight);
     border-radius: 999px;
   }
 
@@ -366,10 +549,10 @@ const Rail = styled.aside`
     position: static;
     max-height: none;
     border-left-width: 1px;
-    background: rgba(82, 52, 26, 0.48);
+    background: var(--glass-bg);
     border-radius: 12px;
-    backdrop-filter: blur(3px);
-    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
   }
 `;
 
@@ -377,13 +560,14 @@ const RailTitle = styled(Link)`
   display: block;
   margin: 0 0.35rem 0.8rem;
   padding-bottom: 0.75rem;
-  border-bottom: 1px solid rgba(255, 225, 151, 0.24);
-  color: #ffe197;
+  border-bottom: 1px solid var(--glass-border);
+  color: var(--text-accent);
   font-size: 0.82rem;
   font-weight: 900;
   letter-spacing: 0.08em;
   text-decoration: none;
-  text-shadow: 0 0 16px rgba(231, 199, 126, 0.28);
+  text-shadow: 0 0 16px rgba(231, 199, 126, 0.18);
+  transition: color 0.5s ease, border-color 0.5s ease;
 `;
 
 const NavList = styled.nav`
@@ -399,16 +583,16 @@ const NavLink = styled(Link)`
   min-height: 38px;
   padding: 0.46rem 0.58rem;
   border-radius: 6px;
-  color: ${({ $active }) => ($active ? '#fff7df' : 'rgba(255, 240, 212, 0.94)')};
+  color: ${({ $active }) => ($active ? 'var(--item-text-active)' : 'var(--text-muted)')};
   text-shadow: 
-    0 1px 2px rgba(12, 9, 6, 0.76),
-    ${({ $active }) => ($active ? '0 0 10px rgba(231, 199, 126, 0.42)' : 'none')};
-  background: ${({ $active, $accent }) => ($active ? `linear-gradient(90deg, ${$accent}30, rgba(255, 247, 223, 0.08))` : 'transparent')};
-  border: 1px solid ${({ $active, $accent }) => ($active ? `${$accent}66` : 'transparent')};
+    0 1px 2px rgba(12, 9, 6, 0.15),
+    ${({ $active }) => ($active ? '0 0 10px rgba(231, 199, 126, 0.22)' : 'none')};
+  background: ${({ $active, $accent }) => ($active ? `linear-gradient(90deg, ${$accent}30, rgba(255, 247, 223, 0.04))` : 'transparent')};
+  border: 1px solid ${({ $active }) => ($active ? 'var(--glass-border)' : 'transparent')};
   font-size: 0.8rem;
   text-decoration: none;
   line-height: 1.25;
-  transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+  transition: all 0.2s ease;
 
   &::before {
     content: '';
@@ -420,27 +604,32 @@ const NavLink = styled(Link)`
   }
 
   &:hover {
-    color: #fff7df;
-    background: rgba(255, 225, 151, 0.12);
-    border-color: rgba(255, 225, 151, 0.28);
+    color: var(--text-accent);
+    background: var(--item-hover-bg);
+    border-color: var(--glass-border-highlight);
     transform: translateX(2px);
   }
 `;
 
 const Count = styled.span`
-  color: rgba(255, 225, 151, 0.78);
+  color: var(--text-muted);
   font-size: 0.68rem;
   font-variant-numeric: tabular-nums;
+  opacity: 0.85;
 `;
 
 const Main = styled.main`
   min-width: 0;
   padding: clamp(1.3rem, 4vw, 3rem) 0 clamp(2rem, 5vw, 4rem);
+  position: relative;
 `;
 
 const Hero = styled.section`
   padding-bottom: 1.2rem;
-  border-bottom: 1px solid rgba(223, 198, 146, 0.24);
+  border-bottom: 1px solid var(--glass-border);
+  transition: border-color 0.5s ease;
+  position: relative;
+  padding-right: 80px;
 `;
 
 const Eyebrow = styled.div`
@@ -454,28 +643,44 @@ const Eyebrow = styled.div`
 
 const Title = styled(motion.h1)`
   margin: 0;
-  color: #fff7df;
-  font-size: clamp(2.3rem, 7vw, 5.2rem);
+  color: var(--text-primary);
+  font-size: clamp(1.8rem, 3.8vw, 2.8rem);
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  text-shadow: ${({ $theme }) => $theme === 'light' ? 'none' : '0 0 12px rgba(231, 199, 126, 0.35)'};
+  transition: color 0.5s ease;
+`;
+
+const TitleSubtitle = styled(motion.div)`
+  margin-top: 0.45rem;
+  font-size: clamp(1.05rem, 1.8vw, 1.3rem);
   font-weight: 300;
-  line-height: 1.02;
-  text-shadow: 
-    0 0 12px rgba(231, 199, 126, 0.35),
-    0 2px 4px rgba(0, 0, 0, 0.8);
+  color: var(--text-accent);
+  letter-spacing: 0.08em;
+  opacity: 0.85;
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  text-shadow: ${({ $theme }) => $theme === 'light' ? 'none' : '0 0 8px rgba(231, 199, 126, 0.25)'};
+  transition: color 0.5s ease;
 `;
 
 const Lead = styled.p`
   width: min(780px, 100%);
   margin: 1rem 0 0;
-  color: rgba(245, 239, 227, 0.72);
+  color: var(--text-muted);
   font-size: clamp(1rem, 1.5vw, 1.16rem);
   line-height: 1.8;
+  transition: color 0.5s ease;
 `;
 
 const SectionTitle = styled.h2`
   margin: 2rem 0 0.8rem;
-  color: #e7c77e;
+  color: var(--text-accent);
   font-size: 1.15rem;
   font-weight: 900;
+  transition: color 0.5s ease;
 `;
 
 const CardGrid = styled.section`
@@ -493,19 +698,19 @@ const CollectionCard = styled(Link)`
   min-height: 148px;
   padding: 1rem;
   border-radius: 10px;
-  border: 1px solid rgba(231, 199, 126, 0.28);
+  border: 1px solid var(--glass-border);
   border-left: 2px solid ${({ $accent }) => `${$accent}aa`};
   background:
-    linear-gradient(135deg, rgba(10, 20, 34, 0.72), rgba(20, 16, 23, 0.46)),
-    radial-gradient(circle at 82% 14%, ${({ $accent }) => `${$accent}22`}, transparent 36%),
-    rgba(8, 13, 22, 0.36);
-  color: #f5efe3;
-  backdrop-filter: blur(3px) saturate(1.08);
-  -webkit-backdrop-filter: blur(3px) saturate(1.08);
+    linear-gradient(135deg, var(--glass-bg-alt), rgba(20, 16, 23, 0.05)),
+    radial-gradient(circle at 82% 14%, ${({ $accent }) => `${$accent}18`}, transparent 36%),
+    var(--glass-bg);
+  color: var(--text-primary);
+  backdrop-filter: blur(12px) saturate(1.2);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
   box-shadow:
-    0 18px 38px rgba(0, 0, 0, 0.18),
-    inset 0 1px 0 rgba(255, 247, 223, 0.06);
-  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+    var(--glass-shadow),
+    var(--glass-inset);
+  transition: all 0.3s ease;
   text-decoration: none;
 
   &:hover {
@@ -519,15 +724,17 @@ const CollectionCard = styled(Link)`
   strong {
     font-size: 1.12rem;
     line-height: 1.25;
-    color: #f5d98f;
-    text-shadow: 0 1px 2px rgba(12, 9, 6, 0.78);
+    color: var(--text-accent);
+    text-shadow: ${({ $theme }) => $theme === 'light' ? 'none' : '0 1px 2px rgba(12, 9, 6, 0.78)'};
+    transition: color 0.5s ease;
   }
 
   span {
     align-self: end;
-    color: rgba(245, 239, 227, 0.72);
+    color: var(--text-muted);
     font-size: 0.9rem;
     line-height: 1.55;
+    transition: color 0.5s ease;
   }
 `;
 
@@ -544,18 +751,19 @@ const NoteItem = styled(Link)`
   min-height: 52px;
   padding: 0.78rem 0.9rem;
   border-radius: 8px;
-  border: 1px solid rgba(231, 199, 126, 0.22);
-  background: rgba(10, 20, 34, 0.48);
-  color: #f5efe3;
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  border: 1px solid var(--item-border);
+  background: var(--item-bg);
+  color: var(--text-primary);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
   text-decoration: none;
+  transition: all 0.28s ease;
 
   &:hover {
-    border-color: ${({ $accent }) => $accent};
-    background: rgba(231, 199, 126, 0.1);
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
+    border-color: var(--glass-border-highlight);
+    background: var(--item-hover-bg);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.14);
   }
 
   strong {
@@ -563,12 +771,14 @@ const NoteItem = styled(Link)`
     text-overflow: ellipsis;
     white-space: nowrap;
     font-size: 0.94rem;
-    color: #fff7df;
+    color: var(--text-primary);
+    transition: color 0.5s ease;
   }
 
   span {
-    color: rgba(245, 217, 143, 0.62);
+    color: var(--text-muted);
     font-size: 0.72rem;
+    transition: color 0.5s ease;
   }
 `;
 
@@ -577,22 +787,23 @@ const TreeContainer = styled.div`
   flex-direction: column;
   gap: 0.25rem;
   background:
-    linear-gradient(135deg, rgba(255, 244, 218, 0.32), rgba(111, 72, 28, 0.22)),
-    radial-gradient(circle at 82% 10%, rgba(255, 225, 151, 0.24), transparent 34%),
-    rgba(38, 25, 18, 0.44);
-  border: 1px solid rgba(216, 162, 71, 0.34);
-  border-left: 2px solid rgba(231, 199, 126, 0.54);
+    linear-gradient(135deg, rgba(255, 244, 218, 0.08), rgba(99, 61, 26, 0.04)),
+    radial-gradient(circle at 82% 10%, rgba(255, 225, 151, 0.12), transparent 34%),
+    var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-left: 2px solid var(--glass-border-highlight);
   border-radius: 10px;
   padding: 1.1rem;
   margin-top: 1rem;
-  outline: 1px solid rgba(255, 247, 223, 0.18);
+  outline: 1px solid rgba(255, 255, 255, 0.05);
   outline-offset: -4px;
   box-shadow:
-    0 22px 50px rgba(0, 0, 0, 0.22),
-    inset 0 1px 0 rgba(255, 247, 223, 0.22),
-    inset 0 0 24px rgba(231, 199, 126, 0.06);
-  backdrop-filter: blur(4px) saturate(1.12);
-  -webkit-backdrop-filter: blur(4px) saturate(1.12);
+    var(--glass-shadow),
+    var(--glass-inset),
+    inset 0 0 24px rgba(231, 199, 126, 0.02);
+  backdrop-filter: blur(12px) saturate(1.2);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  transition: background 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease;
 `;
 
 const TreeNodeWrapper = styled.div`
@@ -612,14 +823,15 @@ const TreeRow = styled.div`
   min-width: 0;
 
   &:hover {
-    background: rgba(255, 225, 151, 0.12);
+    background: var(--item-hover-bg);
   }
 `;
 
 const FolderRow = styled(TreeRow)`
-  color: #ffe197;
+  color: var(--text-accent);
   font-weight: 600;
-  text-shadow: 0 1px 2px rgba(12, 9, 6, 0.74);
+  text-shadow: ${({ $theme }) => $theme === 'light' ? 'none' : '0 1px 2px rgba(12, 9, 6, 0.74)'};
+  transition: color 0.5s ease;
 `;
 
 const FileRow = styled(Link)`
@@ -628,14 +840,14 @@ const FileRow = styled(Link)`
   gap: 0.5rem;
   padding: 0.45rem 0.6rem;
   border-radius: 6px;
-  color: rgba(255, 240, 212, 0.84);
+  color: var(--text-muted);
   text-decoration: none;
   min-width: 0;
   transition: background 0.2s ease, color 0.2s ease;
 
   &:hover {
     background: ${({ $accent }) => `${$accent}18`};
-    color: #fff7df;
+    color: var(--text-accent);
   }
 `;
 
@@ -649,26 +861,31 @@ const NodeName = styled.span`
 
 const FolderCount = styled.span`
   font-size: 0.72rem;
-  color: rgba(255, 225, 151, 0.64);
+  color: var(--text-muted);
   margin-left: 0.35rem;
   font-weight: normal;
+  opacity: 0.8;
+  transition: color 0.5s ease;
 `;
 
 const FileMeta = styled.span`
   font-size: 0.72rem;
-  color: rgba(255, 225, 151, 0.56);
+  color: var(--text-muted);
   margin-left: auto;
   padding-left: 0.5rem;
   flex-shrink: 0;
+  opacity: 0.76;
+  transition: color 0.5s ease;
 `;
 
 const SubTree = styled.div`
   margin-left: 12px;
   padding-left: 12px;
-  border-left: 1px dashed rgba(255, 225, 151, 0.28);
+  border-left: 1px dashed var(--glass-border);
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  transition: border-color 0.5s ease;
 `;
 
 const ChevronSvg = ({ isOpen }) => (
@@ -727,7 +944,7 @@ const FileSvg = () => (
   </svg>
 );
 
-function DirectoryNode({ node, accent, expandedPaths, onToggle }) {
+function DirectoryNode({ node, accent, expandedPaths, onToggle, theme }) {
   if (node.type === 'folder') {
     const isOpen = expandedPaths.has(node.path);
     const countFiles = (n) => {
@@ -742,7 +959,7 @@ function DirectoryNode({ node, accent, expandedPaths, onToggle }) {
 
     return (
       <TreeNodeWrapper>
-        <FolderRow onClick={() => onToggle(node.path)}>
+        <FolderRow onClick={() => onToggle(node.path)} $theme={theme}>
           <ChevronSvg isOpen={isOpen} />
           <FolderSvg accent={accent} />
           <NodeName>
@@ -759,6 +976,7 @@ function DirectoryNode({ node, accent, expandedPaths, onToggle }) {
                 accent={accent}
                 expandedPaths={expandedPaths}
                 onToggle={onToggle}
+                theme={theme}
               />
             ))}
           </SubTree>
@@ -797,20 +1015,21 @@ const RightPanel = styled.aside`
 `;
 
 const PreviewPanel = styled.div`
-  border: 1px solid rgba(216, 162, 71, 0.36);
-  border-left: 2.5px solid rgba(231, 199, 126, 0.7);
+  border: 1px solid var(--glass-border);
+  border-left: 2.5px solid var(--glass-border-highlight);
   border-radius: 10px;
   background:
     linear-gradient(135deg, rgba(255, 244, 218, 0.08), rgba(99, 61, 26, 0.04)),
-    radial-gradient(circle at 82% 10%, rgba(255, 225, 151, 0.24), transparent 34%),
-    rgba(28, 18, 12, 0.52);
-  color: #fff7df;
+    radial-gradient(circle at 82% 10%, rgba(255, 225, 151, 0.15), transparent 34%),
+    var(--glass-bg);
+  color: var(--text-primary);
   overflow: hidden;
   box-shadow:
-    0 20px 48px rgba(0, 0, 0, 0.24),
-    inset 0 1px 0 rgba(255, 247, 223, 0.22);
+    var(--glass-shadow),
+    var(--glass-inset);
   backdrop-filter: blur(12px) saturate(1.2);
   -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  transition: background 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease;
 `;
 
 const PanelHeader = styled.div`
@@ -820,15 +1039,17 @@ const PanelHeader = styled.div`
   gap: 0.75rem;
   min-height: 50px;
   padding: 0 0.9rem;
-  border-bottom: 1px solid rgba(216, 162, 71, 0.24);
-  background: rgba(20, 13, 8, 0.45);
+  border-bottom: 1px solid var(--glass-border);
+  background: var(--glass-bg-alt);
+  transition: background 0.5s ease, border-color 0.5s ease;
 `;
 
 const PanelTitle = styled.span`
-  color: #ffe197;
+  color: var(--text-accent);
   font-size: 0.86rem;
   font-weight: 900;
   letter-spacing: 0.04em;
+  transition: color 0.5s ease;
 `;
 
 const GraphActions = styled.div`
@@ -843,13 +1064,13 @@ const GraphPill = styled(Link)`
   align-items: center;
   min-height: 30px;
   padding: 0 0.68rem;
-  border: 1px solid rgba(216, 162, 71, 0.4);
-  background: rgba(28, 18, 12, 0.6);
-  color: #ffe197;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg-alt);
+  color: var(--text-accent);
   font-size: 0.72rem;
   font-weight: 900;
   letter-spacing: 0.03em;
-  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+  transition: all 0.2s ease;
 
   &::after {
     content: '';
@@ -858,24 +1079,24 @@ const GraphPill = styled(Link)`
     bottom: -6px;
     width: 10px;
     height: 10px;
-    border-right: 1px solid rgba(216, 162, 71, 0.4);
-    border-bottom: 1px solid rgba(216, 162, 71, 0.4);
-    background: rgba(28, 18, 12, 0.6);
+    border-right: 1px solid var(--glass-border);
+    border-bottom: 1px solid var(--glass-border);
+    background: var(--glass-bg-alt);
     transform: translateX(-50%) rotate(45deg);
-    transition: border-color 0.18s ease, background 0.18s ease;
+    transition: all 0.2s ease;
   }
 
   &:hover {
     transform: translateY(-1px);
-    border-color: #c49a45;
-    background: rgba(216, 162, 71, 0.2);
-    color: #fff7df;
-    box-shadow: 0 0 18px rgba(216, 162, 71, 0.3);
+    border-color: var(--glass-border-highlight);
+    background: var(--item-hover-bg);
+    color: var(--text-accent);
+    box-shadow: 0 0 18px rgba(216, 162, 71, 0.2);
   }
 
   &:hover::after {
-    border-color: #c49a45;
-    background: rgba(216, 162, 71, 0.2);
+    border-color: var(--glass-border-highlight);
+    background: var(--item-hover-bg);
   }
 `;
 
@@ -884,14 +1105,13 @@ const GraphIcon = styled(Link)`
   place-items: center;
   width: 32px;
   height: 32px;
-  color: #ffe197;
+  color: var(--text-accent);
   font-size: 1.35rem;
   font-weight: 900;
   transition: transform 0.18s ease, color 0.18s ease, text-shadow 0.18s ease;
 
   &:hover {
-    color: #fff7df;
-    text-shadow: 0 0 16px rgba(216, 162, 71, 0.48);
+    color: var(--text-primary);
     transform: translate(2px, -2px);
   }
 `;
@@ -899,7 +1119,8 @@ const GraphIcon = styled(Link)`
 const PreviewBody = styled.div`
   aspect-ratio: 1 / 1;
   min-height: 280px;
-  background: rgba(0, 0, 0, 0.15);
+  background: var(--glass-bg-alt);
+  transition: background 0.5s ease;
 
   .mini-graph-container {
     height: 100%;
@@ -912,16 +1133,18 @@ const SideList = styled.div`
   display: grid;
   gap: 0.55rem;
   padding: 0.9rem;
-  background: rgba(0, 0, 0, 0.15);
+  background: var(--glass-bg-alt);
+  transition: background 0.5s ease;
 
   a,
   span {
-    color: rgba(255, 240, 212, 0.84);
+    color: var(--text-muted);
     font-size: 0.88rem;
+    transition: color 0.5s ease;
   }
 
   a:hover {
-    color: #ffe197;
+    color: var(--text-accent);
   }
 `;
 
@@ -973,17 +1196,21 @@ function useAtlasData() {
 
     const preloadBg = isBgPreloaded
       ? Promise.resolve()
-      : new Promise((resolve) => {
-          const img = new Image();
-          img.src = atlasArchiveBg;
-          img.onload = () => {
-            isBgPreloaded = true;
-            resolve();
-          };
-          img.onerror = () => {
-            isBgPreloaded = true;
-            resolve();
-          };
+      : Promise.all([
+          new Promise((resolve) => {
+            const img = new Image();
+            img.src = atlasArchiveBgLight;
+            img.onload = resolve;
+            img.onerror = resolve;
+          }),
+          new Promise((resolve) => {
+            const img = new Image();
+            img.src = atlasArchiveBgDark;
+            img.onload = resolve;
+            img.onerror = resolve;
+          })
+        ]).then(() => {
+          isBgPreloaded = true;
         });
 
     Promise.all([fetchGraph, fetchIndex, preloadBg]).then(() => {
@@ -1008,7 +1235,7 @@ function AtlasRail({ activeSlug, counts, collections }) {
             $active={activeSlug === item.slug}
             $accent={item.accent}
           >
-            {item.title}
+            {item.title.replace(/\s*\|\s*/g, '')}
             <Count>{counts.get(item.kind) ?? 0}</Count>
           </NavLink>
         ))}
@@ -1017,7 +1244,7 @@ function AtlasRail({ activeSlug, counts, collections }) {
   );
 }
 
-function RightSidebar({ graphData, indexData, activeCollection }) {
+function RightSidebar({ graphData, indexData, activeCollection, theme }) {
   const location = useLocation();
   const activeKind = activeCollection?.kind ?? null;
   const previewGraph = useMemo(
@@ -1043,7 +1270,7 @@ function RightSidebar({ graphData, indexData, activeCollection }) {
           <MiniGraph
             graphData={previewGraph}
             label={activeKind ? '分类图谱预览' : '已发布图谱'}
-            theme="publishGlobal"
+            theme={theme}
             expandHref={graphHref}
           />
         </PreviewBody>
@@ -1068,15 +1295,36 @@ function RightSidebar({ graphData, indexData, activeCollection }) {
   );
 }
 
-function AtlasHall({ graphData, indexData, counts, collections }) {
+function AtlasHall({ graphData, indexData, counts, collections, theme, toggleTheme }) {
   return (
-    <AtlasFrame>
+    <Page $theme={theme}>
+      <AtlasStars $theme={theme} />
       <Shell>
         <AtlasRail activeSlug="hall" counts={counts} collections={collections} />
         <Main>
           <Hero id="overview">
+            <ThemeToggleWrapper>
+              <ToggleLabel $theme={theme}>
+                {theme === 'light' ? '推演 · 晨曦' : '推演 · 幽夜'}
+              </ToggleLabel>
+              <ThemeToggle $theme={theme} onClick={toggleTheme} aria-label="切换主题">
+                <DecorationLayer $theme={theme}>
+                  <div className="cloud cloud-1" />
+                  <div className="cloud cloud-2" />
+                  <div className="star star-1" />
+                  <div className="star star-2" />
+                  <div className="star star-3" />
+                </DecorationLayer>
+                <ToggleKnob 
+                  $theme={theme}
+                  animate={{ y: theme === 'light' ? 0 : 42 }}
+                  transition={{ type: 'spring', stiffness: 250, damping: 25 }}
+                />
+              </ThemeToggle>
+            </ThemeToggleWrapper>
             <Eyebrow $accent="#e7c77e">STELLAR SANDS ASTROLABE</Eyebrow>
             <Title
+              $theme={theme}
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.45 }}
@@ -1092,8 +1340,8 @@ function AtlasHall({ graphData, indexData, counts, collections }) {
           <SectionTitle id="entries">虚空定位仪轨</SectionTitle>
           <CardGrid>
             {collections.map((item) => (
-              <CollectionCard key={item.slug} to={`/atlas/${item.slug}`} $accent={item.accent}>
-                <strong>{item.title}</strong>
+              <CollectionCard key={item.slug} to={`/atlas/${item.slug}`} $accent={item.accent} $theme={theme}>
+                <strong>{item.title.replace(/\s*\|\s*/g, '')}</strong>
                 <span>
                   {item.description}
                   <br />
@@ -1113,13 +1361,13 @@ function AtlasHall({ graphData, indexData, counts, collections }) {
             ))}
           </NoteList>
         </Main>
-        <RightSidebar graphData={graphData} indexData={indexData} />
+        <RightSidebar graphData={graphData} indexData={indexData} theme={theme} />
       </Shell>
-    </AtlasFrame>
+    </Page>
   );
 }
 
-function AtlasDetail({ collection, graphData, indexData, counts, collections }) {
+function AtlasDetail({ collection, graphData, indexData, counts, collections, theme, toggleTheme }) {
   const notes = useMemo(
     () => indexData.notes.filter((note) => note.collection === collection.kind),
     [collection.kind, indexData.notes]
@@ -1203,19 +1451,56 @@ function AtlasDetail({ collection, graphData, indexData, counts, collections }) 
   };
 
   return (
-    <AtlasFrame>
+    <Page $theme={theme}>
+      <AtlasStars $theme={theme} />
       <Shell>
         <AtlasRail activeSlug={collection.slug} counts={counts} collections={collections} />
         <Main>
           <Hero id="overview">
+            <ThemeToggleWrapper>
+              <ToggleLabel $theme={theme}>
+                {theme === 'light' ? '推演 · 晨曦' : '推演 · 幽夜'}
+              </ToggleLabel>
+              <ThemeToggle $theme={theme} onClick={toggleTheme} aria-label="切换主题">
+                <DecorationLayer $theme={theme}>
+                  <div className="cloud cloud-1" />
+                  <div className="cloud cloud-2" />
+                  <div className="star star-1" />
+                  <div className="star star-2" />
+                  <div className="star star-3" />
+                </DecorationLayer>
+                <ToggleKnob 
+                  $theme={theme}
+                  animate={{ y: theme === 'light' ? 0 : 42 }}
+                  transition={{ type: 'spring', stiffness: 250, damping: 25 }}
+                />
+              </ThemeToggle>
+            </ThemeToggleWrapper>
             <Eyebrow $accent={collection.accent}>{collection.eyebrow}</Eyebrow>
-            <Title
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.45 }}
-            >
-              {collection.title}
-            </Title>
+            {(() => {
+              const { mainText, subText } = parseElegantTitle(collection.title);
+              return (
+                <>
+                  <Title
+                    $theme={theme}
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.45 }}
+                  >
+                    {mainText}
+                  </Title>
+                  {subText && (
+                    <TitleSubtitle
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 0.85, y: 0 }}
+                      transition={{ delay: 0.1, duration: 0.4 }}
+                    >
+                      {subText}
+                    </TitleSubtitle>
+                  )}
+                </>
+              );
+            })()}
             <Lead>{collection.description}</Lead>
           </Hero>
 
@@ -1229,6 +1514,7 @@ function AtlasDetail({ collection, graphData, indexData, counts, collections }) 
                   accent={collection.accent}
                   expandedPaths={expandedPaths}
                   onToggle={toggleFolder}
+                  theme={theme}
                 />
               ))
             ) : (
@@ -1238,9 +1524,9 @@ function AtlasDetail({ collection, graphData, indexData, counts, collections }) 
             )}
           </TreeContainer>
         </Main>
-        <RightSidebar graphData={graphData} indexData={indexData} activeCollection={collection} />
+        <RightSidebar graphData={graphData} indexData={indexData} activeCollection={collection} theme={theme} />
       </Shell>
-    </AtlasFrame>
+    </Page>
   );
 }
 
@@ -1248,6 +1534,33 @@ export default function Atlas() {
   const { type } = useParams();
   const { graphData, indexData, loading } = useAtlasData();
   const counts = useMemo(() => getCollectionCounts(indexData), [indexData]);
+
+  const [theme, setTheme] = useState(() => {
+    const saved = localStorage.getItem('atlas-theme');
+    if (saved) return saved;
+    const hour = new Date().getHours();
+    return (hour >= 7 && hour < 19) ? 'light' : 'dark';
+  });
+  const toggleTheme = () => {
+    const next = theme === 'light' ? 'dark' : 'light';
+    setTheme(next);
+    localStorage.setItem('atlas-theme', next);
+    window.dispatchEvent(new Event('storage'));
+  };
+
+  useEffect(() => {
+    const syncTheme = () => {
+      const saved = localStorage.getItem('atlas-theme');
+      if (saved) {
+        setTheme(saved);
+      } else {
+        const hour = new Date().getHours();
+        setTheme((hour >= 7 && hour < 19) ? 'light' : 'dark');
+      }
+    };
+    window.addEventListener('storage', syncTheme);
+    return () => window.removeEventListener('storage', syncTheme);
+  }, []);
 
   const collections = useMemo(() => {
     const list = [];
@@ -1319,6 +1632,8 @@ export default function Atlas() {
           indexData={indexData}
           counts={counts}
           collections={collections}
+          theme={theme}
+          toggleTheme={toggleTheme}
         />
       ) : (
         <AtlasDetail
@@ -1327,6 +1642,8 @@ export default function Atlas() {
           indexData={indexData}
           counts={counts}
           collections={collections}
+          theme={theme}
+          toggleTheme={toggleTheme}
         />
       )}
     </>

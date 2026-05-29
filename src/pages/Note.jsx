@@ -4,11 +4,77 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import mermaid from 'mermaid';
 import styled from 'styled-components';
+import { motion } from 'framer-motion';
 import MiniGraph from '../components/GraphView/MiniGraph';
 import { filterGraphByLocal } from '../utils/graphFilters';
 import { parseFrontmatter } from '../utils/frontmatter';
 import { fetchGraphData } from '../utils/publishData';
-import noteReadingBg from '../assets/images/atlas/note-reading.png';
+import noteReadingBgLight from '../assets/images/atlas/note-reading-light.png';
+import noteReadingBgDark from '../assets/images/atlas/note-reading-dark.png';
+
+const METADATA_COLLECTIONS = [
+  { slug: 'travel', kind: 'travel' },
+  { slug: 'project', kind: 'project' },
+  { slug: 'blog-design', kind: 'blog-design' },
+  { slug: 'dream-site', kind: 'dream-site' },
+  { slug: 'tianheng', kind: '天衡' },
+  { slug: 'tiangong', kind: '天工' },
+  { slug: 'louge', kind: '楼阁' },
+  { slug: 'zaowu', kind: '造物' },
+  { slug: 'mixu', kind: '秘术' },
+  { slug: 'compiler-theory', kind: 'compiler-theory' },
+  { slug: 'linux-notes', kind: 'linux-notes' },
+  { slug: 'embedded', kind: 'embedded' },
+  { slug: 'xianqing', kind: '闲情' },
+  { slug: 'desk-thoughts', kind: 'desk-thoughts' },
+  { slug: 'knowledge-grocery', kind: 'knowledge-grocery' },
+  { slug: 'internal-skills', kind: 'internal-skills' },
+];
+
+export function parseElegantTitle(title) {
+  if (!title) return { mainText: '', subText: null };
+  
+  // 1. 优先匹配括号包裹的内容，并剥离括号
+  const parenMatch = title.match(/^([^(（]+)[(（](.+?)[)）]\s*$/);
+  if (parenMatch) {
+    return {
+      mainText: parenMatch[1].trim(),
+      subText: parenMatch[2].trim()
+    };
+  }
+  
+  // 2. 管道符分割
+  if (title.includes('|')) {
+    const parts = title.split('|');
+    return {
+      mainText: parts[0].trim(),
+      subText: parts[1].trim()
+    };
+  }
+  
+  // 3. 中点分割，保留中点作为卷轴修饰符
+  if (title.includes('·')) {
+    const parts = title.split('·');
+    return {
+      mainText: parts[0].trim(),
+      subText: `· ${parts[1].trim()}`
+    };
+  }
+  
+  // 4. 横线分割
+  if (title.includes(' - ')) {
+    const parts = title.split(' - ');
+    return {
+      mainText: parts[0].trim(),
+      subText: parts[1].trim()
+    };
+  }
+  
+  return {
+    mainText: title.trim(),
+    subText: null
+  };
+}
 
 // ── 样式 ──────────────────────────────────────────────────────
 
@@ -22,6 +88,30 @@ const NoteLayout = styled.div`
   position: relative;
   isolation: isolate;
 
+  /* Global variables depending on theme */
+  --bg-primary: ${({ $theme }) => $theme === 'light' ? '#f5efe3' : '#07100e'};
+  --text-primary: ${({ $theme }) => $theme === 'light' ? '#2c251d' : '#f5efe3'};
+  --text-muted: ${({ $theme }) => $theme === 'light' ? 'rgba(44, 37, 29, 0.7)' : 'rgba(255, 240, 212, 0.84)'};
+  --text-accent: ${({ $theme }) => $theme === 'light' ? '#996316' : '#ffe197'};
+
+  --glass-bg: ${({ $theme }) => $theme === 'light' ? 'rgba(242, 233, 218, 0.76)' : 'rgba(28, 18, 12, 0.52)'};
+  --glass-bg-alt: ${({ $theme }) => $theme === 'light' ? 'rgba(232, 220, 202, 0.45)' : 'rgba(20, 13, 8, 0.45)'};
+  --glass-border: ${({ $theme }) => $theme === 'light' ? 'rgba(180, 127, 45, 0.35)' : 'rgba(216, 162, 71, 0.36)'};
+  --glass-border-highlight: ${({ $theme }) => $theme === 'light' ? 'rgba(180, 127, 45, 0.6)' : 'rgba(231, 199, 126, 0.7)'};
+  --glass-shadow: ${({ $theme }) => $theme === 'light' ? '0 12px 32px rgba(120, 90, 60, 0.12)' : '0 20px 48px rgba(0, 0, 0, 0.24)'};
+  --glass-inset: ${({ $theme }) => $theme === 'light' ? 'inset 0 1px 0 rgba(255, 255, 255, 0.5)' : 'inset 0 1px 0 rgba(255, 247, 223, 0.22)'};
+
+  /* Markdown custom styles */
+  --md-code-bg: ${({ $theme }) => $theme === 'light' ? 'rgba(196, 154, 69, 0.08)' : 'rgba(231, 199, 126, 0.12)'};
+  --md-code-color: ${({ $theme }) => $theme === 'light' ? '#8e652a' : '#ffe197'};
+  --md-pre-bg: ${({ $theme }) => $theme === 'light' ? 'rgba(246, 240, 226, 0.65)' : 'rgba(15, 12, 10, 0.68)'};
+  --md-blockquote-bg: ${({ $theme }) => $theme === 'light' ? 'rgba(196, 154, 69, 0.05)' : 'rgba(231, 199, 126, 0.06)'};
+  --md-blockquote-text: ${({ $theme }) => $theme === 'light' ? '#63503a' : '#e2d4bd'};
+  --md-table-border: ${({ $theme }) => $theme === 'light' ? 'rgba(196, 154, 69, 0.16)' : 'rgba(231, 199, 126, 0.2)'};
+
+  --button-bg: ${({ $theme }) => $theme === 'light' ? 'rgba(255, 246, 224, 0.54)' : 'rgba(28, 18, 12, 0.6)'};
+  --button-hover-bg: ${({ $theme }) => $theme === 'light' ? 'rgba(196, 154, 69, 0.12)' : 'rgba(231, 199, 126, 0.15)'};
+
   &::before,
   &::after {
     content: '';
@@ -32,24 +122,36 @@ const NoteLayout = styled.div`
 
   &::before {
     z-index: -2;
-    background:
-      linear-gradient(90deg, rgba(255, 250, 238, 0.14), rgba(255, 246, 224, 0.02) 48%, rgba(229, 190, 119, 0.12)),
-      linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(237, 214, 170, 0.2)),
-      url(${noteReadingBg}) center center / cover fixed,
-      #efe0bd;
+    background: ${({ $theme }) => $theme === 'light'
+      ? `linear-gradient(90deg, rgba(255, 250, 238, 0.14), rgba(255, 246, 224, 0.02) 48%, rgba(229, 190, 119, 0.12)),
+         linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(237, 214, 170, 0.2)),
+         url(${noteReadingBgLight}) center center / cover fixed,
+         #efe0bd`
+      : `linear-gradient(180deg, rgba(7, 16, 14, 0.4), rgba(7, 16, 14, 0.6)),
+         url(${noteReadingBgDark}) center center / cover fixed,
+         #07100e`
+    };
+    filter: ${({ $theme }) => $theme === 'light' ? 'none' : 'brightness(0.9) contrast(1.1)'};
+    transition: background 0.5s ease, filter 0.5s ease;
   }
 
   &::after {
     z-index: -1;
-    opacity: 0.2;
-    background:
-      linear-gradient(rgba(158, 104, 34, 0.018) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(158, 104, 34, 0.014) 1px, transparent 1px),
-      radial-gradient(circle at 24% 24%, rgba(216, 162, 71, 0.12) 0 1px, transparent 2px),
-      radial-gradient(circle at 72% 66%, rgba(255, 247, 223, 0.16) 0 1px, transparent 2px);
+    opacity: ${({ $theme }) => $theme === 'light' ? 0.2 : 0.42};
+    background: ${({ $theme }) => $theme === 'light'
+      ? `linear-gradient(rgba(158, 104, 34, 0.018) 1px, transparent 1px),
+         linear-gradient(90deg, rgba(158, 104, 34, 0.014) 1px, transparent 1px),
+         radial-gradient(circle at 24% 24%, rgba(216, 162, 71, 0.12) 0 1px, transparent 2px),
+         radial-gradient(circle at 72% 66%, rgba(255, 247, 223, 0.16) 0 1px, transparent 2px)`
+      : `linear-gradient(rgba(216, 162, 71, 0.02) 1px, transparent 1px),
+         linear-gradient(90deg, rgba(216, 162, 71, 0.015) 1px, transparent 1px),
+         radial-gradient(circle at 24% 24%, rgba(231, 199, 126, 0.15) 0 1px, transparent 2px),
+         radial-gradient(circle at 72% 66%, rgba(231, 199, 126, 0.2) 0 1px, transparent 2px)`
+    };
     background-size: 48px 48px, 48px 48px, 190px 190px, 230px 230px;
     mask-image: radial-gradient(circle at 50% 40%, black, transparent 80%);
     animation: note-dust-drift 30s linear infinite;
+    transition: opacity 0.5s ease;
   }
 
   @keyframes note-dust-drift {
@@ -61,26 +163,28 @@ const NoteLayout = styled.div`
 const NoteContent = styled.div`
   flex: 1;
   min-width: 0;
+  position: relative;
   background:
-    linear-gradient(135deg, rgba(255, 250, 238, 0.58), rgba(237, 214, 170, 0.28)),
-    rgba(255, 246, 224, 0.42);
+    linear-gradient(135deg, var(--glass-bg-alt), rgba(20, 16, 23, 0.02)),
+    var(--glass-bg);
   backdrop-filter: blur(6px) saturate(1.08);
   -webkit-backdrop-filter: blur(6px) saturate(1.08);
-  border: 1.5px solid rgba(196, 154, 69, 0.34);
+  border: 1.5px solid var(--glass-border);
   border-radius: 12px;
   padding: clamp(1.2rem, 3.5vw, 2.5rem);
   box-shadow: 
-    0 20px 50px rgba(43, 31, 15, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.36),
-    inset 0 0 30px rgba(255, 247, 223, 0.18);
-  outline: 1px solid rgba(255, 255, 255, 0.42);
+    var(--glass-shadow),
+    var(--glass-inset),
+    inset 0 0 30px rgba(231, 199, 126, 0.05);
+  outline: 1px solid rgba(255, 255, 255, 0.05);
   outline-offset: -5px;
+  transition: all 0.5s ease;
 `;
 
 const NoteSidebar = styled.aside`
   width: 300px;
   flex-shrink: 0;
-  align-self: stretch; /* Stretch to parent height to allow inner children to stick */
+  align-self: stretch;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -92,16 +196,17 @@ const NoteSidebar = styled.aside`
 
 const TocContainer = styled.div`
   background:
-    linear-gradient(135deg, rgba(255, 250, 238, 0.56), rgba(237, 214, 170, 0.22)),
-    rgba(255, 246, 224, 0.38);
+    linear-gradient(135deg, var(--glass-bg-alt), rgba(20, 16, 23, 0.02)),
+    var(--glass-bg);
   backdrop-filter: blur(5px) saturate(1.06);
   -webkit-backdrop-filter: blur(5px) saturate(1.06);
-  border: 1px solid rgba(196, 154, 69, 0.32);
+  border: 1px solid var(--glass-border);
   border-radius: 8px;
   padding: 1rem;
   box-shadow:
-    0 10px 24px rgba(91, 70, 48, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.26);
+    var(--glass-shadow),
+    var(--glass-inset);
+  transition: all 0.5s ease;
 `;
 
 const StickySidebarContent = styled.div`
@@ -119,37 +224,35 @@ const BackButton = styled.button`
   gap: 0.6rem;
   width: fit-content;
   padding: 0.5rem 1.2rem;
-  border: 1px solid rgba(196, 154, 69, 0.32);
+  border: 1px solid var(--glass-border);
   border-radius: 20px;
-  background: rgba(255, 246, 224, 0.54);
+  background: var(--button-bg);
   backdrop-filter: blur(5px) saturate(1.05);
   font-size: 0.8rem;
-  color: #6f4616;
+  color: var(--text-accent);
   font-weight: 800;
   letter-spacing: 0.05em;
   margin-bottom: 1.8rem;
   cursor: pointer;
   box-shadow: 
-    0 4px 12px rgba(91, 70, 48, 0.05),
-    inset 0 0 8px rgba(255, 255, 255, 0.34);
+    var(--glass-shadow),
+    var(--glass-inset);
   transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
 
   svg {
     transition: transform 0.3s ease;
-    stroke: #8e652a;
+    stroke: var(--text-accent);
   }
 
   &:hover {
-    color: #8e652a;
-    background: rgba(196, 154, 69, 0.12);
-    border-color: #c49a45;
-    box-shadow: 
-      0 6px 16px rgba(196, 154, 69, 0.12),
-      inset 0 0 12px rgba(255, 255, 255, 0.6);
+    color: var(--text-primary);
+    background: var(--button-hover-bg);
+    border-color: var(--glass-border-highlight);
     transform: translateY(-1px);
 
     svg {
       transform: translateX(-4px);
+      stroke: var(--text-primary);
     }
   }
 
@@ -171,7 +274,6 @@ const ScrollableToc = styled(TocContainer)`
   overflow-y: auto;
   overscroll-behavior: contain;
 
-  /* Custom scrollbar to keep it premium */
   &::-webkit-scrollbar {
     width: 6px;
   }
@@ -179,20 +281,21 @@ const ScrollableToc = styled(TocContainer)`
     background: transparent;
   }
   &::-webkit-scrollbar-thumb {
-    background: rgba(223, 198, 146, 0.3);
+    background: var(--glass-border);
     border-radius: 3px;
   }
   &::-webkit-scrollbar-thumb:hover {
-    background: rgba(223, 198, 146, 0.5);
+    background: var(--glass-border-highlight);
   }
 `;
 
 const TocTitle = styled.div`
   font-size: 0.75rem;
-  color: #8e652a;
+  color: var(--text-accent);
   font-weight: 900;
   letter-spacing: 0.08em;
   margin-bottom: 0.75rem;
+  transition: color 0.5s ease;
 `;
 
 const TocList = styled.ul`
@@ -206,23 +309,38 @@ const TocItem = styled.li`
   padding-left: ${props => (props.$level - 1) * 12}px;
   font-size: 0.8rem;
   a {
-    color: rgba(95, 59, 18, 0.72);
+    color: var(--text-muted);
     transition: color 0.2s;
-    &:hover { color: #c49a45; }
+    &:hover { color: var(--text-accent); }
   }
 `;
 
 const NoteTitle = styled.h1`
   font-size: 2rem;
   font-weight: 700;
-  color: #533919;
-  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+  transition: color 0.5s ease;
+`;
+
+const NoteSubtitle = styled.div`
+  margin-top: 0.25rem;
+  margin-bottom: 0.75rem;
+  font-size: clamp(1.05rem, 1.8vw, 1.3rem);
+  font-weight: 300;
+  color: var(--text-accent);
+  letter-spacing: 0.08em;
+  opacity: 0.85;
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  text-shadow: ${({ $theme }) => $theme === 'light' ? 'none' : '0 0 8px rgba(231,199,126,0.25)'};
+  transition: color 0.5s ease;
 `;
 
 const NoteMeta = styled.div`
   font-size: 0.8rem;
-  color: rgba(95, 59, 18, 0.52);
+  color: var(--text-muted);
   margin-bottom: 2rem;
+  transition: color 0.5s ease;
 `;
 
 const PropertyPanel = styled.section`
@@ -230,23 +348,25 @@ const PropertyPanel = styled.section`
   gap: 0.75rem;
   margin: 1.4rem 0 1.8rem;
   padding: 1rem;
-  border: 1px solid rgba(216, 162, 71, 0.24);
+  border: 1px solid var(--glass-border);
   border-radius: 8px;
   background:
-    linear-gradient(135deg, rgba(255, 250, 238, 0.46), rgba(237, 214, 170, 0.2)),
-    rgba(255, 246, 224, 0.24);
+    linear-gradient(135deg, var(--glass-bg-alt), rgba(20, 16, 23, 0.02)),
+    var(--glass-bg);
   box-shadow:
-    0 18px 42px rgba(95, 59, 18, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    var(--glass-shadow),
+    var(--glass-inset);
   backdrop-filter: blur(5px) saturate(1.05);
   -webkit-backdrop-filter: blur(5px) saturate(1.05);
+  transition: all 0.5s ease;
 `;
 
 const PropertyTitle = styled.div`
-  color: #8e652a;
+  color: var(--text-accent);
   font-size: 0.78rem;
   font-weight: 900;
   letter-spacing: 0.12em;
+  transition: color 0.5s ease;
 `;
 
 const PropertyGrid = styled.div`
@@ -258,21 +378,22 @@ const PropertyGrid = styled.div`
 const PropertyItem = styled.div`
   min-width: 0;
   padding: 0.55rem 0.65rem;
-  border: 1px solid rgba(216, 162, 71, 0.18);
+  border: 1px solid var(--glass-border);
   border-radius: 6px;
-  background: rgba(255, 250, 238, 0.36);
+  background: var(--glass-bg-alt);
+  transition: all 0.5s ease;
 
   span {
     display: block;
     margin-bottom: 0.18rem;
-    color: rgba(95, 59, 18, 0.52);
+    color: var(--text-muted);
     font-size: 0.68rem;
   }
 
   strong {
     display: block;
     overflow: hidden;
-    color: #5f3b12;
+    color: var(--text-primary);
     font-size: 0.86rem;
     line-height: 1.45;
     text-overflow: ellipsis;
@@ -294,89 +415,95 @@ const TagChip = styled.span`
   max-width: 100%;
   margin: 0;
   padding: 0.1rem 0.46rem;
-  border: 1px solid rgba(216, 162, 71, 0.28);
+  border: 1px solid var(--glass-border);
   border-radius: 999px;
-  background: rgba(216, 162, 71, 0.12);
-  color: rgba(95, 59, 18, 0.82);
+  background: var(--glass-bg-alt);
+  color: var(--text-accent);
   font-size: 0.72rem;
   line-height: 1.2;
+  transition: all 0.5s ease;
 `;
 
-
-
-// Markdown 内容样式
 const MarkdownBody = styled.div`
-  color: #3f3527;
+  color: var(--text-primary);
   line-height: 1.85;
   font-size: 0.96rem;
+  transition: color 0.5s ease;
 
   h1, h2, h3, h4, h5, h6 {
-    color: #6f4616;
+    color: var(--text-accent);
     font-weight: 700;
     margin: 2.2rem 0 0.9rem;
     scroll-margin-top: 80px;
+    transition: color 0.5s ease;
   }
   h1 { font-size: 1.65rem; }
-  h2 { font-size: 1.4rem; border-bottom: 1.5px solid rgba(196, 154, 69, 0.22); padding-bottom: 0.35rem; }
+  h2 { font-size: 1.4rem; border-bottom: 1.5px solid var(--glass-border); padding-bottom: 0.35rem; }
   h3 { font-size: 1.2rem; }
 
   p { margin: 0.9rem 0; }
 
   a {
-    color: #8e652a;
+    color: var(--text-accent);
     text-decoration: none;
-    border-bottom: 1.5px solid rgba(142, 101, 42, 0.3);
+    border-bottom: 1.5px solid var(--glass-border);
     transition: all 0.2s ease;
     &:hover { 
-      color: #c49a45;
-      border-bottom-color: #c49a45;
+      color: var(--text-primary);
+      border-bottom-color: var(--glass-border-highlight);
     }
   }
 
   .unresolved-wikilink {
-    color: rgba(95, 59, 18, 0.52);
-    border-bottom: 1.5px dashed rgba(196, 154, 69, 0.34);
+    color: var(--text-muted);
+    border-bottom: 1.5px dashed var(--glass-border);
     cursor: help;
   }
 
   code {
-    background: rgba(196, 154, 69, 0.08);
-    color: #8e652a;
+    background: var(--md-code-bg);
+    color: var(--md-code-color);
     border-radius: 4px;
     padding: 2px 6px;
     font-size: 0.85em;
     font-family: 'IBM Plex Mono', 'Fira Code', monospace;
+    transition: all 0.5s ease;
   }
 
   pre {
-    background: rgba(246, 240, 226, 0.65);
-    border: 1.2px solid rgba(196, 154, 69, 0.28);
+    background: var(--md-pre-bg);
+    border: 1.2px solid var(--glass-border);
     border-radius: 8px;
     padding: 1rem;
     overflow-x: auto;
+    transition: all 0.5s ease;
     code { 
       background: none; 
       padding: 0; 
-      color: #5c4731;
+      color: var(--text-primary);
     }
   }
 
   blockquote {
-    border-left: 3.5px solid #c49a45;
+    border-left: 3.5px solid var(--text-accent);
     padding: 0.6rem 1.2rem;
     margin: 1.2rem 0;
-    color: #63503a;
-    background: rgba(196, 154, 69, 0.05);
+    color: var(--md-blockquote-text);
+    background: var(--md-blockquote-bg);
     border-radius: 0 8px 8px 0;
+    transition: all 0.5s ease;
   }
 
   .callout {
     margin: 1.2rem 0;
     padding: 0.9rem 1.2rem;
     border-left: 4px solid var(--callout-color, #94a3b8);
-    background: color-mix(in srgb, var(--callout-color) 8%, rgba(251, 246, 233, 0.88));
+    background: ${({ $theme }) => $theme === 'light'
+      ? 'color-mix(in srgb, var(--callout-color) 8%, rgba(251, 246, 233, 0.88))'
+      : 'color-mix(in srgb, var(--callout-color) 12%, rgba(20, 16, 14, 0.88))'
+    };
     border-radius: 4px 8px 8px 4px;
-    box-shadow: 0 8px 24px rgba(91, 70, 48, 0.04), inset 0 0 10px rgba(255, 255, 255, 0.4);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04), inset 0 0 10px rgba(255, 255, 255, 0.05);
     overflow: hidden;
   }
 
@@ -410,7 +537,7 @@ const MarkdownBody = styled.div`
   }
 
   .callout-content {
-    color: #4a3c2c;
+    color: var(--text-primary);
     font-size: 0.9rem;
     line-height: 1.65;
 
@@ -436,11 +563,11 @@ const MarkdownBody = styled.div`
     border-collapse: collapse;
     margin: 1rem 0;
     th, td {
-      border: 1px solid rgba(231, 199, 126, 0.16);
+      border: 1px solid var(--md-table-border);
       padding: 8px 12px;
       text-align: left;
     }
-    th { background: rgba(231, 199, 126, 0.1); font-weight: 600; }
+    th { background: var(--glass-bg-alt); font-weight: 600; }
   }
 
   img {
@@ -450,7 +577,7 @@ const MarkdownBody = styled.div`
 
   hr {
     border: none;
-    border-top: 1px solid rgba(231, 199, 126, 0.16);
+    border-top: 1px solid var(--glass-border);
     margin: 2rem 0;
   }
 
@@ -459,11 +586,12 @@ const MarkdownBody = styled.div`
     justify-content: center;
     margin: 1.8rem auto;
     padding: 1.2rem;
-    background: rgba(246, 240, 226, 0.65) !important;
-    border: 1.5px dashed rgba(196, 154, 69, 0.35) !important;
+    background: var(--md-pre-bg) !important;
+    border: 1.5px dashed var(--glass-border) !important;
     border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(91, 70, 48, 0.05);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
     overflow-x: auto;
+    transition: all 0.5s ease;
 
     svg {
       max-width: 100% !important;
@@ -471,8 +599,8 @@ const MarkdownBody = styled.div`
 
       /* Node boxes */
       .node rect, .node circle, .node polygon, .node path {
-        fill: rgba(196, 154, 69, 0.06) !important;
-        stroke: rgba(196, 154, 69, 0.4) !important;
+        fill: var(--glass-bg-alt) !important;
+        stroke: var(--glass-border) !important;
         stroke-width: 1.5px !important;
         rx: 8px !important;
         ry: 8px !important;
@@ -481,15 +609,15 @@ const MarkdownBody = styled.div`
 
       /* Hover effect */
       .node:hover rect, .node:hover circle, .node:hover polygon, .node:hover path {
-        fill: rgba(196, 154, 69, 0.12) !important;
-        stroke: #c49a45 !important;
-        filter: drop-shadow(0 0 8px rgba(196, 154, 69, 0.2));
+        fill: var(--glass-bg) !important;
+        stroke: var(--glass-border-highlight) !important;
+        filter: drop-shadow(0 0 8px var(--glass-border));
       }
 
       /* Text inside nodes */
       .node .label, .node label, .node text, .node span, .node div {
-        fill: #533919 !important;
-        color: #533919 !important;
+        fill: var(--text-primary) !important;
+        color: var(--text-primary) !important;
         font-family: inherit !important;
         font-size: 13px !important;
         font-weight: 500 !important;
@@ -497,38 +625,38 @@ const MarkdownBody = styled.div`
 
       /* Connection lines */
       .edgePath .path {
-        stroke: rgba(196, 154, 69, 0.5) !important;
+        stroke: var(--glass-border) !important;
         stroke-width: 1.8px !important;
         transition: all 0.3s ease;
       }
 
       .edgePath:hover .path {
-        stroke: #c49a45 !important;
+        stroke: var(--glass-border-highlight) !important;
         stroke-width: 2.2px !important;
       }
 
       /* Edge labels background */
       .edgeLabel rect {
-        fill: #fdfaf3 !important;
+        fill: var(--glass-bg-alt) !important;
         rx: 4px !important;
         ry: 4px !important;
         opacity: 0.95 !important;
-        stroke: rgba(196, 154, 69, 0.2) !important;
+        stroke: var(--glass-border) !important;
       }
 
       /* Edge labels text */
       .edgeLabel text, .edgeLabel span, .edgeLabel div {
-        fill: #8e652a !important;
-        color: #8e652a !important;
+        fill: var(--text-accent) !important;
+        color: var(--text-accent) !important;
         font-size: 11px !important;
         font-weight: 600 !important;
       }
 
       /* Arrowheads */
       marker {
-        fill: rgba(196, 154, 69, 0.55) !important;
+        fill: var(--glass-border) !important;
         path {
-          fill: rgba(196, 154, 69, 0.55) !important;
+          fill: var(--glass-border) !important;
           stroke: none !important;
           stroke-width: 0 !important;
         }
@@ -536,8 +664,8 @@ const MarkdownBody = styled.div`
       
       /* Clusters */
       .cluster rect {
-        fill: rgba(196, 154, 69, 0.02) !important;
-        stroke: rgba(196, 154, 69, 0.2) !important;
+        fill: var(--glass-bg-alt) !important;
+        stroke: var(--glass-border) !important;
         stroke-width: 1.5px !important;
         stroke-dasharray: 4 4 !important;
         rx: 12px !important;
@@ -545,14 +673,134 @@ const MarkdownBody = styled.div`
       }
       
       .cluster label, .cluster span, .cluster text {
-        fill: rgba(95, 59, 18, 0.6) !important;
-        color: rgba(95, 59, 18, 0.6) !important;
+        fill: var(--text-muted) !important;
+        color: var(--text-muted) !important;
         font-size: 12px !important;
         font-weight: 700 !important;
       }
     }
   }
 `;
+
+const ThemeToggleWrapper = styled.div`
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+  z-index: 9999;
+  
+  @media (max-width: 900px) {
+    top: 1.25rem;
+    right: 1.25rem;
+  }
+`;
+
+const ToggleLabel = styled.span`
+  font-size: 0.6rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  color: var(--text-accent);
+  text-shadow: ${({ $theme }) => $theme === 'light' ? 'none' : '0 0 8px rgba(231,199,126,0.4)'};
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  padding: 0.18rem 0.45rem;
+  border-radius: 4px;
+  backdrop-filter: blur(8px);
+  pointer-events: none;
+  user-select: none;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+`;
+
+const ThemeToggle = styled.button`
+  width: 38px;
+  height: 76px;
+  border-radius: 19px;
+  border: 1.5px solid var(--glass-border);
+  background: ${({ $theme }) => $theme === 'light' 
+    ? 'linear-gradient(to bottom, #7ec0ee, #bce3ff)' 
+    : 'linear-gradient(to bottom, #090f1d, #141c30)'};
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 3px 0;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(12px);
+  transition: background 0.5s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+
+  &:hover {
+    border-color: var(--glass-border-highlight);
+    box-shadow: 0 0 15px rgba(216, 162, 71, 0.4);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+`;
+
+const ToggleKnob = styled(motion.div)`
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  position: relative;
+  z-index: 2;
+  background: ${({ $theme }) => $theme === 'light' 
+    ? 'radial-gradient(circle at 30% 30%, #ffdf79, #fdb813)' 
+    : 'radial-gradient(circle at 30% 30%, #f1f5f9, #94a3b8)'};
+  box-shadow: ${({ $theme }) => $theme === 'light' 
+    ? '0 0 8px rgba(253, 184, 19, 0.6), inset -2px -2px 4px rgba(0,0,0,0.1)' 
+    : '0 0 8px rgba(226, 232, 240, 0.4), inset -3px -3px 0px 0px #64748b'};
+`;
+
+const DecorationLayer = styled.div`
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  
+  .cloud {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.85);
+    border-radius: 50%;
+    opacity: ${({ $theme }) => $theme === 'light' ? 1 : 0};
+    transform: translateX(${({ $theme }) => $theme === 'light' ? '0' : '-15px'});
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .cloud-1 { width: 14px; height: 14px; bottom: 22px; left: 6px; }
+  .cloud-2 { width: 22px; height: 12px; bottom: 12px; left: 10px; border-radius: 6px; }
+
+  .star {
+    position: absolute;
+    background: white;
+    width: 2px;
+    height: 2px;
+    border-radius: 50%;
+    opacity: ${({ $theme }) => $theme === 'light' ? 0 : 0.8};
+    transform: translateX(${({ $theme }) => $theme === 'light' ? '15px' : '0'});
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .star-1 { top: 12px; left: 10px; animation: toggle-twinkle 2s infinite alternate; }
+  .star-2 { top: 22px; left: 24px; animation: toggle-twinkle 1.5s infinite alternate 0.5s; }
+  .star-3 { top: 32px; left: 8px; animation: toggle-twinkle 3s infinite alternate 1s; }
+
+  @keyframes toggle-twinkle {
+    0% { opacity: 0.3; }
+    100% { opacity: 1; }
+  }
+`;
+
 
 // ── Wikilink 处理 ─────────────────────────────────────────────
 
@@ -982,6 +1230,33 @@ export default function Note() {
   const [graphData, setGraphData] = useState(null);
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' ? window.innerWidth <= 900 : false);
 
+  const [theme, setTheme] = useState(() => {
+    const saved = localStorage.getItem('atlas-theme');
+    if (saved) return saved;
+    const hour = new Date().getHours();
+    return (hour >= 7 && hour < 19) ? 'light' : 'dark';
+  });
+  const toggleTheme = () => {
+    const next = theme === 'light' ? 'dark' : 'light';
+    setTheme(next);
+    localStorage.setItem('atlas-theme', next);
+    window.dispatchEvent(new Event('storage'));
+  };
+
+  useEffect(() => {
+    const syncTheme = () => {
+      const saved = localStorage.getItem('atlas-theme');
+      if (saved) {
+        setTheme(saved);
+      } else {
+        const hour = new Date().getHours();
+        setTheme((hour >= 7 && hour < 19) ? 'light' : 'dark');
+      }
+    };
+    window.addEventListener('storage', syncTheme);
+    return () => window.removeEventListener('storage', syncTheme);
+  }, []);
+
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 900);
     window.addEventListener('resize', handleResize);
@@ -989,6 +1264,18 @@ export default function Note() {
   }, []);
 
   const decodedSlug = useMemo(() => decodeURIComponent(slug || ''), [slug]);
+
+  // 加载图谱数据
+  useEffect(() => {
+    fetchGraphData()
+      .then(setGraphData)
+      .catch((err) => { console.warn('[Note] Failed to load graph data:', err.message); });
+  }, []);
+
+  const currentNode = useMemo(
+    () => graphData?.nodes?.find((node) => node.id === decodedSlug || node.slug === decodedSlug) ?? null,
+    [decodedSlug, graphData]
+  );
 
   const handleBackClick = () => {
     const fromBlog = location.state?.fromBlog;
@@ -1002,21 +1289,17 @@ export default function Note() {
     const activeTab = location.state?.activeTab;
     if (fromBook) {
       navigate('/blog', { state: { openBook: fromBook, activeTab } });
+      return;
+    }
+
+    if (location.key === 'default' || window.history.length <= 1) {
+      const matched = METADATA_COLLECTIONS.find(item => item.kind === currentNode?.collection);
+      const atlasHref = matched ? `/atlas/${matched.slug}` : '/atlas';
+      navigate(atlasHref);
     } else {
-      if (window.history.length > 1) {
-        navigate(-1);
-      } else {
-        navigate('/blog');
-      }
+      navigate(-1);
     }
   };
-
-  // 加载图谱数据
-  useEffect(() => {
-    fetchGraphData()
-      .then(setGraphData)
-      .catch((err) => { console.warn('[Note] Failed to load graph data:', err.message); });
-  }, []);
 
   // 加载笔记内容
   useEffect(() => {
@@ -1052,10 +1335,6 @@ export default function Note() {
   const headings = useMemo(() => extractHeadings(parsedNote.body), [parsedNote.body]);
   const localGraphData = useMemo(
     () => (graphData ? filterGraphByLocal(graphData, decodedSlug) : null),
-    [decodedSlug, graphData]
-  );
-  const currentNode = useMemo(
-    () => graphData?.nodes?.find((node) => node.id === decodedSlug || node.slug === decodedSlug) ?? null,
     [decodedSlug, graphData]
   );
   const wikilinkResolver = useMemo(() => {
@@ -1124,7 +1403,7 @@ export default function Note() {
 
   if (loading) {
     return (
-      <NoteLayout>
+      <NoteLayout $theme={theme}>
         <NoteContent>
           <div style={{ color: 'rgba(224,231,255,0.5)', padding: '4rem 0', textAlign: 'center' }}>
             加载中...
@@ -1136,7 +1415,7 @@ export default function Note() {
 
   if (error) {
     return (
-      <NoteLayout>
+      <NoteLayout $theme={theme}>
         <NoteContent>
           <BackButton type="button" onClick={handleBackClick}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
@@ -1154,8 +1433,27 @@ export default function Note() {
   }
 
   return (
-    <NoteLayout>
+    <NoteLayout $theme={theme}>
       <NoteContent>
+        <ThemeToggleWrapper>
+          <ToggleLabel $theme={theme}>
+            {theme === 'light' ? '推演 · 晨曦' : '推演 · 幽夜'}
+          </ToggleLabel>
+          <ThemeToggle $theme={theme} onClick={toggleTheme} aria-label="切换主题">
+            <DecorationLayer $theme={theme}>
+              <div className="cloud cloud-1" />
+              <div className="cloud cloud-2" />
+              <div className="star star-1" />
+              <div className="star star-2" />
+              <div className="star star-3" />
+            </DecorationLayer>
+            <ToggleKnob 
+              $theme={theme}
+              animate={{ y: theme === 'light' ? 0 : 42 }}
+              transition={{ type: 'spring', stiffness: 250, damping: 25 }}
+            />
+          </ThemeToggle>
+        </ThemeToggleWrapper>
         <BackButton type="button" onClick={handleBackClick}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
             <line x1="19" y1="12" x2="5" y2="12"></line>
@@ -1163,7 +1461,15 @@ export default function Note() {
           </svg>
           返回上一页
         </BackButton>
-        <NoteTitle>{title}</NoteTitle>
+        {(() => {
+          const { mainText, subText } = parseElegantTitle(title);
+          return (
+            <>
+              <NoteTitle>{mainText}</NoteTitle>
+              {subText && <NoteSubtitle>{subText}</NoteSubtitle>}
+            </>
+          );
+        })()}
         <NoteMeta>笔记路径: {decodedSlug}</NoteMeta>
         {parsedNote.properties.length > 0 && (
           <PropertyPanel>
@@ -1186,7 +1492,7 @@ export default function Note() {
             </PropertyGrid>
           </PropertyPanel>
         )}
-        <MarkdownBody>
+        <MarkdownBody $theme={theme}>
           <ReactMarkdown
             remarkPlugins={[remarkGfm, [remarkWikilinks, { resolve: wikilinkResolver }]]}
             components={{
@@ -1292,7 +1598,7 @@ export default function Note() {
             currentSlug={decodedSlug}
             graphData={localGraphData}
             label="局部关系图"
-            theme="publishLocal"
+            theme={theme}
             expandHref={`/graph?local=${encodeURIComponent(decodedSlug)}`}
           />
         )}
