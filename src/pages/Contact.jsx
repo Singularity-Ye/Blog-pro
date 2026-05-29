@@ -1556,7 +1556,8 @@ export default function Contact() {
     setIsLetterFlying(true);
     setFrogState('submitting');
     
-    const webhookUrl = process.env.REACT_APP_DISCORD_WEBHOOK_URL;
+    const webhookUrl = process.env.REACT_APP_DISCORD_WEBHOOK_URL || 
+      (process.env.NODE_ENV === 'production' ? 'https://mail.oblogsidian.fun/' : undefined);
     
     if (webhookUrl) {
       try {
