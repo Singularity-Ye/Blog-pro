@@ -177,6 +177,21 @@ const NoteLayout = styled.div`
     from { transform: translate3d(0, 0, 0); }
     to { transform: translate3d(-80px, 64px, 0); }
   }
+
+  @media (max-width: 900px) {
+    padding: 1rem 0.75rem;
+
+    &::before {
+      position: absolute;
+      background-attachment: scroll;
+      filter: none;
+    }
+
+    &::after {
+      display: none;
+      animation: none;
+    }
+  }
 `;
 
 const NoteContent = styled.div`
@@ -198,6 +213,14 @@ const NoteContent = styled.div`
   outline: 1px solid rgba(255, 255, 255, 0.05);
   outline-offset: -5px;
   transition: all 0.5s ease;
+
+  @media (max-width: 900px) {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background:
+      linear-gradient(135deg, color-mix(in srgb, var(--glass-bg-alt) 70%, transparent), rgba(20, 16, 23, 0.02)),
+      color-mix(in srgb, var(--glass-bg) 78%, transparent);
+  }
 `;
 
 const NoteSidebar = styled.aside`
@@ -224,6 +247,11 @@ const MobileRelatedNotes = styled.div`
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
   box-shadow: var(--glass-shadow);
+
+  @media (max-width: 900px) {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
 `;
 
 const RelatedNotesTitle = styled.h3`
@@ -305,6 +333,11 @@ const TocContainer = styled.div`
     var(--glass-shadow),
     var(--glass-inset);
   transition: all 0.5s ease;
+
+  @media (max-width: 900px) {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
 `;
 
 const StickySidebarContent = styled.div`
@@ -336,6 +369,11 @@ const BackButton = styled.button`
     var(--glass-shadow),
     var(--glass-inset);
   transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  @media (max-width: 900px) {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
 
   svg {
     transition: transform 0.3s ease;
@@ -457,6 +495,11 @@ const PropertyPanel = styled.section`
   backdrop-filter: blur(5px) saturate(1.05);
   -webkit-backdrop-filter: blur(5px) saturate(1.05);
   transition: all 0.5s ease;
+
+  @media (max-width: 900px) {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
 `;
 
 const PropertyTitle = styled.div`
@@ -1366,10 +1409,34 @@ export default function Note() {
 
   // 加载图谱数据
   useEffect(() => {
-    fetchGraphData()
-      .then(setGraphData)
-      .catch((err) => { console.warn('[Note] Failed to load graph data:', err.message); });
-  }, []);
+    let cancelled = false;
+    let idleId = null;
+    let timeoutId = null;
+
+    const loadGraph = () => {
+      fetchGraphData()
+        .then((data) => {
+          if (!cancelled) setGraphData(data);
+        })
+        .catch((err) => { console.warn('[Note] Failed to load graph data:', err.message); });
+    };
+
+    if (isMobile) {
+      if ('requestIdleCallback' in window) {
+        idleId = window.requestIdleCallback(loadGraph, { timeout: 1800 });
+      } else {
+        timeoutId = window.setTimeout(loadGraph, 900);
+      }
+    } else {
+      loadGraph();
+    }
+
+    return () => {
+      cancelled = true;
+      if (idleId !== null && 'cancelIdleCallback' in window) window.cancelIdleCallback(idleId);
+      if (timeoutId !== null) window.clearTimeout(timeoutId);
+    };
+  }, [isMobile]);
 
   const currentNode = useMemo(
     () => graphData?.nodes?.find((node) => node.id === decodedSlug || node.slug === decodedSlug) ?? null,
@@ -1433,11 +1500,11 @@ export default function Note() {
   }, [markdown]);
   const headings = useMemo(() => extractHeadings(parsedNote.body), [parsedNote.body]);
   const localGraphData = useMemo(
-    () => (graphData ? filterGraphByLocal(graphData, decodedSlug) : null),
-    [decodedSlug, graphData]
+    () => (!isMobile && graphData ? filterGraphByLocal(graphData, decodedSlug) : null),
+    [decodedSlug, graphData, isMobile]
   );
   const relatedNotes = useMemo(() => {
-    if (!graphData || !decodedSlug) return [];
+    if (!isMobile || !graphData || !decodedSlug) return [];
     
     const connectedIds = new Set();
     graphData.links?.forEach(link => {
@@ -1452,7 +1519,7 @@ export default function Note() {
     });
     
     return graphData.nodes?.filter(node => connectedIds.has(node.id) || connectedIds.has(node.slug)) ?? [];
-  }, [graphData, decodedSlug]);
+  }, [graphData, decodedSlug, isMobile]);
   const wikilinkResolver = useMemo(() => {
     const sourceCollectionRoot = decodedSlug.split('/')[0] || currentNode?.collection || '';
     const sourceDir = decodedSlug.split('/').slice(0, -1).join('/');
