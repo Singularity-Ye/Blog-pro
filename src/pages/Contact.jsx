@@ -1566,9 +1566,19 @@ export default function Contact() {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            name: formData.name,
-            email: formData.email,
-            message: formData.message
+            content: "🔔 **收到池畔新信件！**",
+            embeds: [
+              {
+                title: "📬 松果池畔 · 手札留言",
+                color: 15190910, // #e7c77e
+                fields: [
+                  { name: "来信署名 (Name)", value: formData.name, inline: true },
+                  { name: "回信地址 (Email)", value: formData.email, inline: true },
+                  { name: "纸短情长 (Message)", value: formData.message }
+                ],
+                timestamp: new Date().toISOString()
+              }
+            ]
           })
         });
       } catch (err) {
