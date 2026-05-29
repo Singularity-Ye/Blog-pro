@@ -31,6 +31,25 @@ const METADATA_COLLECTIONS = [
   { slug: 'internal-skills', kind: 'internal-skills' },
 ];
 
+const COLLECTION_LABELS = {
+  travel: '杭州旅游攻略',
+  project: '建站流程指南',
+  'blog-design': '博客网站建设',
+  'dream-site': '筑梦圣地',
+  '天衡': '天衡古卷',
+  '天工': '天工开物',
+  '楼阁': '楼阁玉简',
+  '造物': '造物遗篇',
+  '秘术': '秘术残卷',
+  'compiler-theory': '编译原理',
+  'linux-notes': 'Linux 笔记',
+  'embedded': '嵌入式开发',
+  '闲情': '闲情逸趣',
+  'desk-thoughts': '案头沉思',
+  'knowledge-grocery': '杂货铺',
+  'internal-skills': '内功心法',
+};
+
 export function parseElegantTitle(title) {
   if (!title) return { mainText: '', subText: null };
   
@@ -194,45 +213,82 @@ const NoteSidebar = styled.aside`
   }
 `;
 
-const MobileGraphActions = styled.div`
-  margin: 2.5rem 0 1rem;
-  padding: 1.2rem;
-  border: 1px dashed rgba(231, 199, 126, 0.28);
-  border-radius: 8px;
-  background: rgba(231, 199, 126, 0.03);
+const MobileRelatedNotes = styled.div`
+  margin: 3rem 0 1.5rem;
+  padding: 1.5rem;
+  border-radius: 12px;
+  background:
+    linear-gradient(135deg, var(--glass-bg-alt), rgba(20, 16, 23, 0.02)),
+    var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: var(--glass-shadow);
 `;
 
-const MobileGraphTitle = styled.h3`
-  font-size: 0.85rem;
+const RelatedNotesTitle = styled.h3`
+  font-size: 0.9rem;
   font-weight: 800;
   color: var(--text-accent, #e7c77e);
-  margin-bottom: 0.8rem;
-  letter-spacing: 0.05em;
+  margin-bottom: 1.2rem;
+  letter-spacing: 0.06em;
+  border-bottom: 1px dashed rgba(231, 199, 126, 0.2);
+  padding-bottom: 0.6rem;
 `;
 
-const MobileGraphButtons = styled.div`
+const RelatedNotesList = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
-  
-  .mobile-graph-link-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 38px;
-    font-size: 0.76rem;
-    font-weight: 700;
-    border-radius: 6px;
-    border: 1px solid rgba(216, 162, 71, 0.4);
-    background: rgba(216, 162, 71, 0.1);
-    color: #fde68a;
-    transition: all 0.2s ease;
-    text-decoration: none;
+  gap: 0.75rem;
+`;
+
+const RelatedNoteLink = styled(Link)`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.65rem 0.8rem;
+  border-radius: 6px;
+  border: 1px solid rgba(231, 199, 126, 0.12);
+  background: rgba(255, 255, 255, 0.01);
+  color: var(--text-primary);
+  font-size: 0.82rem;
+  transition: all 0.25s ease;
+  text-decoration: none;
+  min-width: 0;
+
+  .bullet {
+    color: var(--text-accent, #e7c77e);
+    margin-right: 0.6rem;
+    font-size: 0.7rem;
+    opacity: 0.7;
+    flex-shrink: 0;
   }
-  
-  .mobile-graph-link-btn:active {
-    background: rgba(216, 162, 71, 0.22);
-    transform: scale(0.98);
+
+  .title {
+    flex: 1;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-right: 1rem;
+  }
+
+  .category {
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+    background: rgba(231, 199, 126, 0.1);
+    color: var(--text-accent, #e7c77e);
+    border: 1px solid rgba(231, 199, 126, 0.18);
+    flex-shrink: 0;
+  }
+
+  &:hover,
+  &:active {
+    border-color: var(--glass-border-highlight, #ffe197);
+    background: rgba(231, 199, 126, 0.06);
+    transform: translateX(4px);
   }
 `;
 
@@ -1380,6 +1436,23 @@ export default function Note() {
     () => (graphData ? filterGraphByLocal(graphData, decodedSlug) : null),
     [decodedSlug, graphData]
   );
+  const relatedNotes = useMemo(() => {
+    if (!graphData || !decodedSlug) return [];
+    
+    const connectedIds = new Set();
+    graphData.links?.forEach(link => {
+      const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
+      const targetId = typeof link.target === 'object' ? link.target.id : link.target;
+      
+      if (sourceId === decodedSlug) {
+        connectedIds.add(targetId);
+      } else if (targetId === decodedSlug) {
+        connectedIds.add(sourceId);
+      }
+    });
+    
+    return graphData.nodes?.filter(node => connectedIds.has(node.id) || connectedIds.has(node.slug)) ?? [];
+  }, [graphData, decodedSlug]);
   const wikilinkResolver = useMemo(() => {
     const sourceCollectionRoot = decodedSlug.split('/')[0] || currentNode?.collection || '';
     const sourceDir = decodedSlug.split('/').slice(0, -1).join('/');
@@ -1634,27 +1707,24 @@ export default function Note() {
           </ReactMarkdown>
         </MarkdownBody>
 
-        {/* 移动端专用的图谱入口 */}
-        {isMobile && graphData && (
-          <MobileGraphActions>
-            <MobileGraphTitle>✦ 关联图谱</MobileGraphTitle>
-            <MobileGraphButtons>
-              <Link 
-                to={`/graph?local=${encodeURIComponent(decodedSlug)}`} 
-                state={{ backgroundLocation: location }}
-                className="mobile-graph-link-btn"
-              >
-                🔮 展开当前局部星轨
-              </Link>
-              <Link 
-                to={collectionGraphHref} 
-                state={{ backgroundLocation: location }}
-                className="mobile-graph-link-btn"
-              >
-                🌌 展开分类全局星轨
-              </Link>
-            </MobileGraphButtons>
-          </MobileGraphActions>
+        {/* 移动端专用的相关笔记列表 */}
+        {isMobile && relatedNotes.length > 0 && (
+          <MobileRelatedNotes>
+            <RelatedNotesTitle>✦ 相关星轨关联</RelatedNotesTitle>
+            <RelatedNotesList>
+              {relatedNotes.map((node) => (
+                <RelatedNoteLink key={node.id} to={toNoteHref(node.slug ?? node.id)}>
+                  <span style={{ display: 'flex', alignItems: 'center', flex: 1, minWidth: 0 }}>
+                    <span className="bullet">✦</span>
+                    <span className="title">{node.title}</span>
+                  </span>
+                  <span className="category">
+                    {COLLECTION_LABELS[node.collection] || node.collection || '一般笔记'}
+                  </span>
+                </RelatedNoteLink>
+              ))}
+            </RelatedNotesList>
+          </MobileRelatedNotes>
         )}
       </NoteContent>
 
@@ -1668,7 +1738,7 @@ export default function Note() {
             expandHref={`/graph?local=${encodeURIComponent(decodedSlug)}`}
           />
         )}
-        {graphData && (
+        {!isMobile && graphData && (
           <TocContainer>
             <TocTitle>图谱视图</TocTitle>
             <TocList>

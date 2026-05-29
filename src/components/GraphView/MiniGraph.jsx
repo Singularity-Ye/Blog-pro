@@ -359,22 +359,7 @@ export default function MiniGraph({ graphData: propGraphData, currentSlug: propC
   }, []);
 
   if (isMobile) {
-    return (
-      <div className={`mini-graph-container ${currentSlug ? 'publishLocal' : ''} mobile-placeholder`} ref={containerRef} style={{ minHeight: '180px', display: 'flex', flexDirection: 'column' }}>
-        <span className="mini-graph-label">关系图谱</span>
-        <div className="mini-graph-mobile-tip">
-          <div className="tip-icon">🔮</div>
-          <div className="tip-text">星轨连结众多，移动端建议使用全屏图谱查看。</div>
-          <Link 
-            to={expandHref || (currentSlug ? `/graph?local=${encodeURIComponent(currentSlug)}` : '/graph')} 
-            state={{ backgroundLocation: location }}
-            className="mini-graph-mobile-btn"
-          >
-            ✦ 开启全屏图谱
-          </Link>
-        </div>
-      </div>
-    );
+    return null;
   }
 
   return (

@@ -1254,37 +1254,54 @@ function RightSidebar({ graphData, indexData, activeCollection, theme }) {
   const stats = useMemo(() => getGraphStats(previewGraph), [previewGraph]);
   const graphHref = activeKind ? `/graph?collection=${encodeURIComponent(activeKind)}` : '/graph';
 
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' ? window.innerWidth <= 900 : false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 900);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   return (
     <RightPanel>
-      <PreviewPanel>
-        <PanelHeader>
-          <PanelTitle>关系图谱</PanelTitle>
-          <GraphActions>
-            <GraphPill to={graphHref} state={{ backgroundLocation: location }}>
-              {activeKind ? '分类全局图' : '全站图谱'}
-            </GraphPill>
-            <GraphIcon to={graphHref} state={{ backgroundLocation: location }} aria-label="展开图谱">↗</GraphIcon>
-          </GraphActions>
-        </PanelHeader>
-        <PreviewBody>
-          <MiniGraph
-            graphData={previewGraph}
-            label={activeKind ? '分类图谱预览' : '已发布图谱'}
-            theme={theme}
-            expandHref={graphHref}
-          />
-        </PreviewBody>
-      </PreviewPanel>
+      {!isMobile && (
+        <PreviewPanel>
+          <PanelHeader>
+            <PanelTitle>关系图谱</PanelTitle>
+            <GraphActions>
+              <GraphPill to={graphHref} state={{ backgroundLocation: location }}>
+                {activeKind ? '分类全局图' : '全站图谱'}
+              </GraphPill>
+              <GraphIcon to={graphHref} state={{ backgroundLocation: location }} aria-label="展开图谱">↗</GraphIcon>
+            </GraphActions>
+          </PanelHeader>
+          <PreviewBody>
+            <MiniGraph
+              graphData={previewGraph}
+              label={activeKind ? '分类图谱预览' : '已发布图谱'}
+              theme={theme}
+              expandHref={graphHref}
+            />
+          </PreviewBody>
+        </PreviewPanel>
+      )}
       <PreviewPanel>
         <PanelHeader>
           <PanelTitle>发布档案</PanelTitle>
         </PanelHeader>
         <SideList>
-          <Link to={graphHref} state={{ backgroundLocation: location }}>打开当前图谱</Link>
-          {activeKind ? (
-            <Link to="/graph" state={{ backgroundLocation: location }}>切到全站图谱</Link>
-          ) : (
-            <Link to="/atlas/travel">查看旅游图谱</Link>
+          {!isMobile && (
+            <>
+              <Link to={graphHref} state={{ backgroundLocation: location }}>打开当前图谱</Link>
+              {activeKind ? (
+                <Link to="/graph" state={{ backgroundLocation: location }}>切到全站图谱</Link>
+              ) : (
+                <Link to="/atlas/travel">查看旅游图谱</Link>
+              )}
+            </>
           )}
           <span>笔记：{stats.nodeCount || indexData.notes.length}</span>
           <span>关系：{stats.linkCount}</span>

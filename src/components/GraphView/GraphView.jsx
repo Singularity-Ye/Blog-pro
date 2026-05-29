@@ -52,19 +52,22 @@ export default function GraphView({ modal = false, onClose }) {
   const [hoverNode, setHoverNode] = useState(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   
-  const [isMobile, setIsMobile] = useState(false);
-  const [mobileViewMode, setMobileViewMode] = useState('list');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState('all');
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' ? window.innerWidth <= 900 : false);
 
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
+      setIsMobile(window.innerWidth <= 900);
     };
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  useEffect(() => {
+    if (isMobile) {
+      navigate('/atlas', { replace: true });
+    }
+  }, [isMobile, navigate]);
   
   const highlightNodes = useRef(new Set());
   const highlightLinks = useRef(new Set());
@@ -113,16 +116,7 @@ export default function GraphView({ modal = false, onClose }) {
     return '全站关系图';
   }, [collectionFilter, localFilter]);
 
-  const filteredNodes = useMemo(() => {
-    if (!visibleGraphData) return [];
-    return visibleGraphData.nodes.filter((node) => {
-      const matchesSearch = node.title.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesTab = collectionFilter 
-        ? true 
-        : (activeTab === 'all' || node.collection === activeTab);
-      return matchesSearch && matchesTab;
-    });
-  }, [visibleGraphData, searchQuery, activeTab, collectionFilter]);
+
 
   useEffect(() => {
     const handleResize = () => {
@@ -141,7 +135,7 @@ export default function GraphView({ modal = false, onClose }) {
       window.removeEventListener('resize', handleResize);
       clearTimeout(timer);
     };
-  }, [mobileViewMode, isMobile]);
+  }, [isMobile]);
 
   const handleNodeHover = useCallback((node) => {
     highlightNodes.current.clear();
@@ -421,110 +415,8 @@ export default function GraphView({ modal = false, onClose }) {
     ctx.fill();
   }, [localFilter]);
 
-  if (isMobile && mobileViewMode === 'list') {
-    const mobileContent = (
-      <div className="graph-mobile-wrapper">
-        <div className="graph-mobile-header">
-          <div className="graph-mobile-title-group">
-            <div className="graph-mobile-title">{graphModeTitle}</div>
-            <div className="graph-mobile-stats">
-              ✨ {filteredNodes.length} / {visibleGraphData?.nodes.length ?? 0} 篇星沙档案
-            </div>
-          </div>
-          <div className="graph-mobile-actions">
-            <button onClick={() => setMobileViewMode('canvas')} className="graph-mobile-toggle-btn">
-              ✦ 显现星轨
-            </button>
-            <button onClick={handleClose} className="graph-mobile-close-btn">
-              {modal ? '✦ 关闭' : '✦ 隐入夜幕'}
-            </button>
-          </div>
-        </div>
-        
-        <div className="graph-mobile-search-bar">
-          <input 
-            type="text" 
-            placeholder="🔍 搜索星沙档案..." 
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="graph-mobile-input"
-          />
-        </div>
-
-        {!collectionFilter && (
-          <div className="graph-mobile-tabs">
-            <button 
-              className={`graph-mobile-tab ${activeTab === 'all' ? 'active' : ''}`}
-              onClick={() => setActiveTab('all')}
-            >
-              ✦ 全部
-            </button>
-            {Object.entries(COLLECTION_LABELS).map(([key, label]) => (
-              <button 
-                key={key}
-                className={`graph-mobile-tab ${activeTab === key ? 'active' : ''}`}
-                style={{ '--tab-accent': COLLECTION_COLORS[key] }}
-                onClick={() => setActiveTab(key)}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-        )}
-
-        <div className="graph-mobile-list">
-          {filteredNodes.length > 0 ? (
-            filteredNodes.map((node) => {
-              const nodeColor = COLLECTION_COLORS[node.collection] || THEME.node;
-              return (
-                <div 
-                  key={node.id} 
-                  className="graph-mobile-card"
-                  onClick={() => navigate(toNoteHref(node.slug ?? node.id))}
-                  style={{ borderLeft: `4px solid ${nodeColor}` }}
-                >
-                  <div className="graph-mobile-card-main">
-                    <div className="graph-mobile-card-title">{node.title}</div>
-                    <div className="graph-mobile-card-meta">
-                      <span className="graph-mobile-card-badge" style={{ backgroundColor: `${nodeColor}18`, color: nodeColor }}>
-                        {COLLECTION_LABELS[node.collection] || '一般笔记'}
-                      </span>
-                      <span className="graph-mobile-card-conn">
-                        ✦ {node.degree} 星轨关联
-                      </span>
-                    </div>
-                  </div>
-                  <div className="graph-mobile-card-arrow">
-                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="9 18 15 12 9 6"></polyline>
-                    </svg>
-                  </div>
-                </div>
-              );
-            })
-          ) : (
-            <div className="graph-mobile-empty">未寻得相关星沙档案</div>
-          )}
-        </div>
-      </div>
-    );
-
-    if (modal) {
-      return (
-        <div
-          className="graph-modal-backdrop"
-          role="presentation"
-          onMouseDown={(event) => {
-            if (event.target === event.currentTarget) handleClose();
-          }}
-        >
-          <div className="graph-modal-window" role="dialog" aria-modal="true">
-            {mobileContent}
-          </div>
-        </div>
-      );
-    }
-    return mobileContent;
+  if (isMobile) {
+    return null;
   }
 
   const graphContent = (
@@ -533,11 +425,6 @@ export default function GraphView({ modal = false, onClose }) {
       className={`graph-view-container ${localFilter ? 'is-local' : 'is-global'}`}
       onPointerMove={handlePointerMove}
     >
-      {isMobile && (
-        <div className="graph-mobile-canvas-tip">
-          💡 提示：双指可缩放/拖拽。若卡顿，可点击下方「列表检索」切换。
-        </div>
-      )}
       {visibleGraphData && (
         <ForceGraph2D
           ref={fgRef}
@@ -574,11 +461,6 @@ export default function GraphView({ modal = false, onClose }) {
         </span>
       </div>
       <div className="graph-controls">
-        {isMobile && (
-          <button onClick={() => setMobileViewMode('list')} className="mobile-toggle-list-btn">
-            ✦ 列表检索
-          </button>
-        )}
         <button onClick={handleReset}>✦ 重置星轨</button>
         <button onClick={handleClose}>{modal ? '✦ 关闭' : '✦ 隐入夜幕'}</button>
         {localFilter && currentNode?.collection && (
