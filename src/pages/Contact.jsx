@@ -3,18 +3,10 @@ import styled, { keyframes } from 'styled-components';
 import { motion, AnimatePresence, useTransform, useMotionValue, animate } from 'framer-motion';
 
 import ErrorBoundary from '../components/ErrorBoundary';
-import FlowingMenu from '../components/Animations/FlowingMenu';
 import Marquee from '../components/Animations/Marquee';
 import VariableProximity from '../components/Animations/VariableProximity';
 import CircularText from '../components/Animations/CircularText';
 import CurvedLoop from '../components/Animations/CurvedLoop';
-
-// 导入主页背景图作为 FlowingMenu 的精美胶囊封面
-import forestImg from '../assets/images/home/card-forest.png';
-import oceanImg from '../assets/images/home/card-ocean.png';
-import snowImg from '../assets/images/home/card-snow.png';
-import cityImg from '../assets/images/home/card-city.png';
-
 
 // 导入名片正面与水色玻璃名片背景
 import cardWateryImage from '../assets/images/contact/card_watery.jpg';
@@ -59,106 +51,149 @@ const LeftColumnWrapper = styled.div`
   }
 `;
 
-const FrogSection = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  background: rgba(4, 12, 10, 0.35);
+const CabinDashboardContainer = styled.div`
+  background: rgba(4, 12, 10, 0.32);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   border: 1px solid rgba(231, 199, 126, 0.12);
-  border-radius: 20px;
-  padding: 1.2rem;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  border-radius: 24px;
+  padding: 1.6rem;
   box-shadow: 
-    0 15px 30px rgba(0, 0, 0, 0.35),
+    0 30px 60px rgba(0, 0, 0, 0.45),
     inset 0 1px 1px rgba(255, 255, 255, 0.03);
-  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  z-index: 12;
   pointer-events: auto;
-  
-  @media (max-width: 576px) {
-    flex-direction: column;
-    align-items: center;
-    gap: 1.2rem;
+  margin-top: 0.5rem;
+`;
+
+const CabinDashboardHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1.5px solid rgba(231, 199, 126, 0.1);
+  padding-bottom: 0.8rem;
+
+  h4 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #e7c77e;
+    letter-spacing: 0.05em;
+    margin: 0;
+  }
+
+  span {
+    font-size: 0.7rem;
+    color: rgba(245, 239, 227, 0.35);
+    font-family: monospace;
+    text-transform: uppercase;
   }
 `;
 
-const FrogImageContainer = styled.div`
-  width: 70px;
-  height: 70px;
-  flex-shrink: 0;
+const CabinStatusWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  padding: 0.2rem 0 0.5rem;
+`;
+
+const StatusLine = styled.div`
   display: flex;
   align-items: center;
-  justify-content: center;
-  position: relative;
+  gap: 0.8rem;
+  font-size: 0.95rem;
+  color: #f5efe3;
 `;
 
-const FrogImage = styled(motion.img)`
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+const StatusPulseDot = styled.span`
+  width: 8px;
+  height: 8px;
+  background-color: #10b981;
+  border-radius: 50%;
+  display: inline-block;
+  animation: ${pulseDot} 2s infinite ease-in-out;
 `;
 
-const FrogPlaceholderBox = styled.div`
-  width: 100%;
-  height: 100%;
-  border: 1.5px dashed rgba(231, 199, 126, 0.3);
-  border-radius: 14px;
+const StatsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-top: 0.4rem;
+`;
+
+const StatItem = styled.div`
+  background: rgba(231, 199, 126, 0.04);
+  border: 1px solid rgba(231, 199, 126, 0.06);
+  border-radius: 16px;
+  padding: 0.8rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  color: rgba(231, 199, 126, 0.65);
-  font-size: 0.65rem;
-  gap: 4px;
-  background: rgba(231, 199, 126, 0.05);
-  text-align: center;
-  font-weight: 700;
+  gap: 0.3rem;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(231, 199, 126, 0.08);
+    border-color: rgba(231, 199, 126, 0.2);
+    transform: translateY(-2px);
+  }
 `;
 
-const FrogSpeechBubble = styled(motion.div)`
+const StatValue = styled.span`
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #e7c77e;
+  font-family: 'Outfit', sans-serif;
+`;
+
+const StatLabel = styled.span`
+  font-size: 0.72rem;
+  color: rgba(245, 239, 227, 0.5);
+  font-weight: 500;
+`;
+
+const OwnerQuoteBox = styled.div`
   position: relative;
-  background: #f5efe3;
-  color: #0c1a15;
-  border-radius: 12px;
-  padding: 10px 14px;
-  font-size: 0.78rem;
-  font-weight: 700;
-  line-height: 1.55;
-  flex: 1;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
-  border: 1px solid rgba(12, 26, 21, 0.08);
-
-  &::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    right: 100%;
-    transform: translateY(-50%);
-    border-width: 6px;
-    border-style: solid;
-    border-color: transparent #f5efe3 transparent transparent;
-  }
-
-  @media (max-width: 576px) {
-    &::after {
-      content: '';
-      position: absolute;
-      top: -12px;
-      left: 50%;
-      right: auto;
-      transform: translateX(-50%);
-      border-width: 6px;
-      border-color: transparent transparent #f5efe3 transparent;
-    }
-  }
+  background: rgba(231, 199, 126, 0.03);
+  border-left: 3px solid #e7c77e;
+  padding: 0.9rem 1.1rem;
+  border-radius: 4px 16px 16px 4px;
+  margin-top: 0.3rem;
 `;
 
-const FROG_DIALOGS = {
-  idle: '（端起竿子）呱……闲来无事，在池边垂钓。道友若有传音手札，投入池中便可！',
-  hovered: '呱！别闹，惊走在下的鱼儿了！鱼儿游走就只能吃蚊子了……',
-  typing: '嗯？看道友神色凝重、运笔如飞，是要给在下捎信去松果屋么？',
-  submitting: '哟，飞剑传信落水了！看在下使一招【风生水起】，这就收线钓上来！',
-  success: '（收进背篓）呱！手札已稳稳钓起！在下这就带回松果屋，请道友静候回音！'
+const OwnerQuoteText = styled.p`
+  font-size: 0.88rem;
+  color: rgba(245, 239, 227, 0.8);
+  line-height: 1.6;
+  margin: 0;
+  font-style: italic;
+`;
+
+const CABIN_STATS = {
+  startDate: '2026-05-04', // 正式运行起算点
+  noteCount: 772,
+  projectCount: 5,
+  defaultStatusKey: 'coding', // 默认状态键
+  ownerMessage: '“旅人，很高兴你来到了这片松林深处。如果你有什么想说的，不妨给池塘投递一封手札。夜里林间风大，记得喝杯热茶。”'
+};
+
+const CULTIVATION_STATES = {
+  coding: '⚡ 天雷淬体，玩命修筑阵法中...',
+  slacking: '🐟 潜水摸鱼，躲避天劫中...',
+  studying: '📜 翻阅天书，参悟大道玄机中...',
+  gaming: '⚔️ 秘境试炼，斩妖除魔中...',
+  eating: '🍵 畅饮灵茶，吞食仙果补充灵力中...',
+  wandering: '🚶 游历红尘，寻觅道缘中...',
+  resting: '💤 闭关打盹，元神出窍中...'
+};
+
+const getRunningDays = () => {
+  const startDate = new Date(CABIN_STATS.startDate);
+  const today = new Date();
+  const diffTime = Math.abs(today - startDate);
+  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 };
 
 /* ─────────────────────────────────────────
@@ -381,54 +416,6 @@ const PageTitleArea = styled.div`
   }
 `;
 
-const FlowingMenuContainer = styled.div`
-  background: rgba(4, 12, 10, 0.32);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(231, 199, 126, 0.12);
-  border-radius: 24px;
-  padding: 1.6rem;
-  box-shadow: 
-    0 30px 60px rgba(0, 0, 0, 0.45),
-    inset 0 1px 1px rgba(255, 255, 255, 0.03);
-  display: flex;
-  flex-direction: column;
-  gap: 1.2rem;
-  z-index: 12;
-  pointer-events: auto;
-  margin-top: 0.5rem;
-`;
-
-const FlowingMenuHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1.5px solid rgba(231, 199, 126, 0.1);
-  padding-bottom: 0.8rem;
-
-  h4 {
-    font-size: 1.05rem;
-    font-weight: 700;
-    color: #e7c77e;
-    letter-spacing: 0.05em;
-    margin: 0;
-  }
-
-  span {
-    font-size: 0.7rem;
-    color: rgba(245, 239, 227, 0.35);
-    font-family: monospace;
-    text-transform: uppercase;
-  }
-`;
-
-const FlowingMenuWrapper = styled.div`
-  height: 240px;
-  position: relative;
-  border-radius: 14px;
-  overflow: hidden;
-  border: 1px solid rgba(231, 199, 126, 0.08);
-`;
 
 const GlassCardForm = styled.form`
   background: rgba(4, 12, 10, 0.45);
@@ -943,10 +930,28 @@ export default function Contact() {
     typeof window !== 'undefined' ? window.innerWidth < 992 : false
   ));
   const [mobileFlipped, setMobileFlipped] = useState(false);
-  const [frogState, setFrogState] = useState('idle');
   const [isLetterFlying, setIsLetterFlying] = useState(false);
-  const [frogImageError, setFrogImageError] = useState(false);
   const [isPageLoading, setIsPageLoading] = useState(true);
+  const [activeStatus, setActiveStatus] = useState(CULTIVATION_STATES[CABIN_STATS.defaultStatusKey]);
+
+  useEffect(() => {
+    const fetchStatus = async () => {
+      try {
+        const res = await fetch('https://mail.oblogsidian.fun/status');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.status) {
+            // Check if status is a key in cultivation dictionary; if not, show as-is
+            const mappedStatus = CULTIVATION_STATES[data.status] || data.status;
+            setActiveStatus(mappedStatus);
+          }
+        }
+      } catch (err) {
+        console.warn('无法获取实时修仙状态，已降级使用本地默认状态:', err);
+      }
+    };
+    fetchStatus();
+  }, []);
 
   // Preload contact backgrounds and assets to smooth out rendering transitions
   useEffect(() => {
@@ -1094,32 +1099,6 @@ export default function Contact() {
 
   const pageTranslationY = useTransform(simulatedScrollY, (val) => -val);
 
-  const mindQuotes = [
-    {
-      link: '/blog',
-      text: '叶间书林 · 博客',
-      marqueeText: '叶间书林 / Whispering Leaves · 记录探索者的日常、心路与狂想碎片 · Whispering Leaves',
-      image: forestImg
-    },
-    {
-      link: '/graph',
-      text: '星沙图原 · 图谱',
-      marqueeText: '星沙图原 / Astral sands · Obsidian 知识图谱 of the Blog · Astral Sands Map',
-      image: oceanImg
-    },
-    {
-      link: '/projects',
-      text: '万象熔炉 · 项目',
-      marqueeText: '万象熔炉 / Forge of Visions · 炼金术士的大胆狂想与魔法造物展示 · Forge of Visions',
-      image: snowImg
-    },
-    {
-      link: '/about',
-      text: '松果密室 · 关于',
-      marqueeText: '松果密室 / Secret Chamber · 探索松果屋背后的世界观与屋主侧写 · Secret Chamber',
-      image: cityImg
-    }
-  ];
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 992);
@@ -1554,7 +1533,6 @@ export default function Contact() {
 
     setIsSubmitting(true);
     setIsLetterFlying(true);
-    setFrogState('submitting');
     
     const webhookUrl = process.env.REACT_APP_DISCORD_WEBHOOK_URL || 
       (process.env.NODE_ENV === 'production' ? 'https://mail.oblogsidian.fun/' : undefined);
@@ -1589,19 +1567,17 @@ export default function Contact() {
       console.log('提示：未检测到 REACT_APP_DISCORD_WEBHOOK_URL 环境变量，当前运行在演示模拟模式。若需真实发送，请在 .env 中配置该变量！');
     }
 
-    // 1.2s后手札落水，被青蛙钓起
+    // 1.2s后手札落水
     setTimeout(() => {
       setIsLetterFlying(false);
-      setFrogState('success');
     }, 1200);
 
-    // 3.2s后重置表单和青蛙状态
+    // 3.2s后重置表单
     setTimeout(() => {
       setIsSubmitting(false);
-      setToastMsg(webhookUrl ? '手札已顺着池水传书送达！' : '手札已收纳！青蛙邮差已将信件钓入背篓，正捎回松果屋...');
+      setToastMsg(webhookUrl ? '手札已顺着池水传书送达！' : '手札已放入池中顺流寄出！请道友静候回音...');
       setShowToast(true);
       setFormData({ name: '', email: '', message: '' });
-      setFrogState('idle');
     }, 3200);
   };
 
@@ -1889,7 +1865,7 @@ export default function Contact() {
           />
           <StageContent style={{ opacity: sec3ContentOpacity, y: sec3ContentY, scale: sec3ContentScale, filter: sec3ContentFilter }}>
             <Section3Grid>
-              <LeftColumnWrapper style={{ gap: isMobile ? '0' : '1.5rem' }}>
+              <LeftColumnWrapper>
                 <GlassCardForm onSubmit={handleSubmit} style={{ padding: isMobile ? '1.5rem' : '2.2rem' }}>
                   <FormHeader>
                     <h3>投递手札</h3>
@@ -1903,8 +1879,6 @@ export default function Contact() {
                       placeholder="你想让我怎么称呼你..." 
                       value={formData.name} 
                       onChange={handleChange} 
-                      onFocus={() => setFrogState('typing')}
-                      onBlur={() => setFrogState('idle')}
                       required 
                     />
                   </FormGroup>
@@ -1916,8 +1890,6 @@ export default function Contact() {
                       placeholder="方便我回信的联系方式..." 
                       value={formData.email} 
                       onChange={handleChange} 
-                      onFocus={() => setFrogState('typing')}
-                      onBlur={() => setFrogState('idle')}
                       required 
                     />
                   </FormGroup>
@@ -1928,8 +1900,6 @@ export default function Contact() {
                       placeholder="写下你的留言、合作意图或小秘密..." 
                       value={formData.message} 
                       onChange={handleChange} 
-                      onFocus={() => setFrogState('typing')}
-                      onBlur={() => setFrogState('idle')}
                       required 
                     />
                   </FormGroup>
@@ -1937,50 +1907,39 @@ export default function Contact() {
                     {isSubmitting ? <span>✉ 放入池塘中...</span> : <span>🛶 放入池塘 (投递手札)</span>}
                   </SubmitButton>
                 </GlassCardForm>
-
-                {/* 提交表单下方的青蛙邮差占位与气泡 */}
-                {!isMobile && (
-                  <FrogSection
-                    onMouseEnter={() => { if (frogState === 'idle') setFrogState('hovered'); }}
-                    onMouseLeave={() => { if (frogState === 'hovered') setFrogState('idle'); }}
-                  >
-                    <FrogImageContainer>
-                      {!frogImageError ? (
-                        <FrogImage
-                          src="/assets/images/contact/frog_postman.png"
-                          alt="青蛙邮差"
-                          onError={() => setFrogImageError(true)}
-                          animate={frogState === 'submitting' ? { y: [0, -10, 0] } : frogState === 'success' ? { scale: [1, 1.1, 1], rotate: [0, 5, -5, 0] } : { y: [0, -4, 0] }}
-                          transition={frogState === 'submitting' ? { duration: 0.5, repeat: Infinity } : frogState === 'success' ? { duration: 0.6 } : { duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-                        />
-                      ) : (
-                        <FrogPlaceholderBox>
-                          <div style={{ fontSize: '1.6rem' }}>🐸</div>
-                          <span>青蛙邮差</span>
-                        </FrogPlaceholderBox>
-                      )}
-                    </FrogImageContainer>
-                    <FrogSpeechBubble
-                      animate={frogState !== 'idle' ? { scale: [1, 1.02, 1] } : {}}
-                      transition={{ duration: 0.2 }}
-                    >
-                      {FROG_DIALOGS[frogState]}
-                    </FrogSpeechBubble>
-                  </FrogSection>
-                )}
               </LeftColumnWrapper>
 
               {!isMobile && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem', height: '100%', justifyContent: 'center' }}>
-                  <FlowingMenuContainer style={{ marginTop: 0 }}>
-                    <FlowingMenuHeader>
-                      <h4>狂想碎片 / Fragments of Visions</h4>
-                      <span>Hover to read thoughts</span>
-                    </FlowingMenuHeader>
-                    <FlowingMenuWrapper>
-                      <FlowingMenu items={mindQuotes} speed={18} textColor="#f5efe3" bgColor="transparent" marqueeBgColor="#e7c77e" marqueeTextColor="#03120d" borderColor="rgba(231, 199, 126, 0.12)" />
-                    </FlowingMenuWrapper>
-                  </FlowingMenuContainer>
+                  <CabinDashboardContainer style={{ marginTop: 0 }}>
+                    <CabinDashboardHeader>
+                      <h4>松果小屋看板 / Cabin Dashboard</h4>
+                      <span>起源自 2025.03 · 正式运行自 2026.05.04</span>
+                    </CabinDashboardHeader>
+                    <CabinStatusWrapper>
+                      <StatusLine>
+                        <StatusPulseDot />
+                        <span>状态：{activeStatus}</span>
+                      </StatusLine>
+                      <StatsGrid>
+                        <StatItem>
+                          <StatValue>{getRunningDays()}</StatValue>
+                          <StatLabel>🌲 运行天数</StatLabel>
+                        </StatItem>
+                        <StatItem>
+                          <StatValue>{CABIN_STATS.noteCount}</StatValue>
+                          <StatLabel>📚 笔记总数</StatLabel>
+                        </StatItem>
+                        <StatItem>
+                          <StatValue>{CABIN_STATS.projectCount}</StatValue>
+                          <StatLabel>🚀 魔法造物</StatLabel>
+                        </StatItem>
+                      </StatsGrid>
+                      <OwnerQuoteBox>
+                        <OwnerQuoteText>{CABIN_STATS.ownerMessage}</OwnerQuoteText>
+                      </OwnerQuoteBox>
+                    </CabinStatusWrapper>
+                  </CabinDashboardContainer>
                   <div style={{ pointerEvents: 'auto', zIndex: 13 }}><Marquee /></div>
                 </div>
               )}

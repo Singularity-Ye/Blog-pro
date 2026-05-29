@@ -7,7 +7,7 @@ import cloudmusicAvatar from '../../assets/images/cloudmusic.png';
 
 const scrollX = keyframes`
   from { transform: translateX(0); }
-  to { transform: translateX(calc(-100% - 1.6rem)); }
+  to { transform: translateX(-100%); }
 `;
 
 const MarqueeContainer = styled.div`
@@ -27,7 +27,6 @@ const MarqueeContainer = styled.div`
 
 const MarqueeTrack = styled.div`
   display: flex;
-  gap: 1.6rem;
   width: max-content;
   pointer-events: all;
   padding: 1.8rem 0;
@@ -40,8 +39,8 @@ const MarqueeTrack = styled.div`
 const MarqueeGroup = styled.div`
   display: flex;
   gap: 1.6rem;
+  padding-right: 1.6rem; /* Incorporate the gap as right padding so translation of -100% aligns perfectly */
   flex-shrink: 0;
-  min-width: 100%;
   animation: ${scrollX} 38s linear infinite;
 `;
 
