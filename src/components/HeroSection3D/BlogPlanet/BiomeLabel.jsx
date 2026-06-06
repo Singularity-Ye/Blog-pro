@@ -2,8 +2,8 @@ import { Html } from '@react-three/drei';
 import styled, { keyframes } from 'styled-components';
 
 const gentleFloat = keyframes`
-  0%, 100% { transform: translate(24px, -50%) translateY(0); }
-  50% { transform: translate(24px, -50%) translateY(-6px); }
+  0%, 100% { transform: translate(100px, -50%) translateY(0); }
+  50% { transform: translate(100px, -50%) translateY(-6px); }
 `;
 
 const shimmer = keyframes`
@@ -23,9 +23,9 @@ const LabelWrap = styled.div`
   &::before {
     content: '';
     position: absolute;
-    left: -24px;
+    left: -100px;
     top: 50%;
-    width: 24px;
+    width: 100px;
     height: 1px;
     background: var(--label-glow);
     opacity: 0.6;

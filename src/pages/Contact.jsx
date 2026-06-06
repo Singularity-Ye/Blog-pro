@@ -1836,7 +1836,7 @@ export default function Contact() {
                     />
                   </div>
                   <h2 style={{ fontSize: '2.1rem', color: '#e7c77e', marginBottom: '1.5rem', marginTop: '1rem', fontFamily: 'Outfit, sans-serif', fontWeight: 800, letterSpacing: '0.05em' }}>
-                    池畔信亭 · 探索者侧写
+                    听雨寄笺坞 · 探索者侧写
                   </h2>
                   <p style={{ fontSize: '1.02rem', color: 'rgba(245, 239, 227, 0.8)', lineHeight: '1.8', marginBottom: '1.2rem' }}>
                     在青蛙旅人悠闲低垂的钓线末端，正悬挂着一枚水纹潋滟的魔法琉璃名片。

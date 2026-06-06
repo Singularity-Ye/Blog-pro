@@ -3,13 +3,13 @@ import bgForest from '../../../assets/images/home/card-forest.png';
 import bgDesert from '../../../assets/images/home/card-desert.png';
 import bgSnow from '../../../assets/images/home/card-snow.png';
 import bgCity from '../../../assets/images/home/card-city.png';
+import bgAbout from '../../../assets/images/home/card-about.png';
 
 export const BIOMES = {
   ocean: {
     key: 'ocean',
     label: '潮汐湾',
-    description: '重置星仪视角，回归主控大阵。',
-    longDescription: '万物归流的原初港湾。此地是主导这方小千世界运转的星仪枢纽，海面上倒映着诸天法阵的流光。道友可在此重整神识，调控星环视角的每一次挪移，回归最初的主控法阵中心。',
+    description: '重置星寰仪视角，回归大阵中心。',
     color: '#1598d3',
     glow: '#67e8f9',
     href: '/',
@@ -17,44 +17,54 @@ export const BIOMES = {
   },
   forest: {
     key: 'forest',
-    label: '叶间书林',
-    description: '翻阅在下撰写的修行札记与技术秘籍。',
-    longDescription: '在下偶然游历至此，寻得这片上古灵木汇聚的繁茂书林，遂在此依树辟建了“松果屋”。书屋的粉壁与门窗上，贴满了在下随手抄录灵感碎片的“碎叶符纸”，而树梢枝桠间则悬挂着记录修行心得的书籍与古卷。技术真解、凡尘杂感，均在此静待道友翻阅。',
-    color: '#57b83f',
-    glow: '#bbf7d0',
+    label: '松窗灵笈台',
+    description: '松窗竹案，清心翻阅崖畔的修行手札与技术札记。',
+    longDescription: '坐落在孤峰拔地、云雾绕流的凌空悬崖书台。此地是屋主松影斑驳的清修案台，崖顶建有“松果阁”。窗扉半掩，清风拂面，竹案旁存放着记录感悟与秘籍的“灵笈书匣”。技术真解与凡尘随笔皆收纳于此，静候有缘之人驻足翻阅。',
+    color: '#10b981',
+    glow: '#a7f3d0',
     href: '/blog',
     bgImage: bgForest,
   },
   desert: {
     key: 'desert',
-    label: '星沙图原',
-    description: '鸟瞰星沙棋盘，探索各篇札记的关联轨迹。',
-    longDescription: '以太重力与逻辑交织的无垠沙原。叶间书林中的每一片碎叶符纸与悬空卷轴，在此都会被以太引力具象化为闪烁的知识星宿。它们在沙地上投影成错综复杂的星图棋盘，揭示着不同奥秘法门之间隐秘而神奇的关联轨迹。',
-    color: '#e0a145',
-    glow: '#fde68a',
+    label: '星络天机原',
+    description: '鸟瞰纵横星宿，在无垠星沙间探寻因果关联的轨迹。',
+    longDescription: '心识波澜与万法关联在此具象，化为横跨群星彼岸的无垠星沙荒原。在此处，松窗灵笈台中的每一篇手札与心得，都化为了一颗颗闪烁的因果星宿。星轨交错，连结成一张浩大的“天机图谱”。道友可拨动星仪，探索不同法门体系之间的隐秘脉络。',
+    color: '#d97706',
+    glow: '#fef08a',
     href: '/atlas',
     bgImage: bgDesert,
   },
   snow: {
     key: 'snow',
-    label: '幽霜析粹所',
-    description: '检视在下炼制的法宝与三维互动阵法。',
-    longDescription: '坐落在皑皑雪峰与极寒之下的魔药法宝工坊。在下在此支起炼金炉，以冷冽的冰霜为媒介，将繁复的代码逻辑冷凝并析出成各种可触碰、可互动的奇妙法宝。这里陈列着各种具有三维互动阵法的实验性奥术成果，供道友自由把玩。',
-    color: '#f0fbff',
-    glow: '#dbeafe',
+    label: '玄枢造物坊',
+    description: '在极寒雪峰间拨动齿轮，观摩冷凝于风雪中的玄机法器。',
+    longDescription: '矗立于茫茫雪峰与极寒之地的天工造物工坊。屋主在此架设旋转的“玄枢大阵”，将无形的逻辑机制冷凝汇聚，锻造出可自由触摸、运转互动的奇异机关与法宝。齿轮咬合，玄机暗藏，静待道友探入神识，亲手拨动这些在风雪中吟唱的造物。',
+    color: '#0284c7',
+    glow: '#e0f2fe',
     href: '/projects',
     bgImage: bgSnow,
   },
   city: {
     key: 'city',
-    label: '池畔信亭',
-    description: '投递传音飞剑，与在下建立精神连结。',
-    longDescription: '水汽氤氲、仙鸟往来的池畔小亭。这是通往松果屋最直接的精神通道，道友可以在此将写有心里话的传音手札投入水中，静待常在池边闲来垂钓的“青蛙邮差”将信件钓起。此外，信亭柱子上悬挂着的飞剑法阵（社交媒体链接）也能帮道友快速联系到在此驻守的见习魔法师。',
-    color: '#fb923c',
-    glow: '#fde047',
+    label: '听雨寄笺坞',
+    description: '在细雨翠竹间折纸投潭，给屋主递送传音飞笺。',
+    longDescription: '竹林掩映，细雨连绵，是一处水汽氤氲的清幽驿站。此地乃是通往松果屋的精神连结通道。你可以将心里话或传音手札化作纸船投入潭水之中，由在水畔静静垂钓的“碧潭邮差”蛤蟆祥将其钓起呈送。若事态紧急，柱上的飞剑阵法亦能替你御剑传音。',
+    color: '#0d9488',
+    glow: '#99f6e4',
     href: '/contact',
     bgImage: bgCity,
   },
+  about: {
+    key: 'about',
+    label: '浮生道迹屿',
+    description: '漫步在本命浮空仙岛，探寻屋主的修行履历与藏宝仙阁。',
+    longDescription: '悬浮于虚空彼岸的本命真灵之岛。云雾聚散间，明镜般的“三生石”倒映着屋主的凡尘履历与求索轨迹；“道行碑”上铭刻着他苦修得来的诸般神通本领；而在错落的“藏宝阁”内，则存放着他平日喜爱的奇珍趣玩与闲暇志趣。到此驻足，可一览屋主问天求道的完整浮生轨迹。',
+    color: '#7c3aed',
+    glow: '#ddd6fe',
+    href: '/about',
+    bgImage: bgAbout,
+  },
 };
 
-export const BIOME_ORDER = ['ocean', 'forest', 'desert', 'snow', 'city'];
+export const BIOME_ORDER = ['ocean', 'forest', 'desert', 'snow', 'city', 'about'];

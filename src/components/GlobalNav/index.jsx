@@ -30,7 +30,7 @@ const NAV_ITEMS = [
   },
   {
     key: 'forest',
-    label: '叶间书林',
+    label: '松窗灵笈台',
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 3.5 1 8.5C18.5 18 13.5 20 11 20z" />
@@ -41,7 +41,7 @@ const NAV_ITEMS = [
   },
   {
     key: 'desert',
-    label: '星沙图原',
+    label: '星络天机原',
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="18" cy="5" r="3" />
@@ -55,7 +55,7 @@ const NAV_ITEMS = [
   },
   {
     key: 'snow',
-    label: '幽霜析粹所',
+    label: '玄枢造物坊',
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
         <line x1="2" y1="12" x2="22" y2="12" />
@@ -70,7 +70,7 @@ const NAV_ITEMS = [
   },
   {
     key: 'city',
-    label: '池畔信亭',
+    label: '听雨寄笺坞',
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
         <line x1="22" y1="2" x2="11" y2="13" />
@@ -81,12 +81,11 @@ const NAV_ITEMS = [
   },
   {
     key: 'about',
-    label: '关于贫道',
+    label: '浮生道迹屿',
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="10" />
-        <path d="M12 16v-4" />
-        <path d="M12 8h.01" />
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+        <circle cx="12" cy="7" r="4" />
       </svg>
     ),
     href: '/about',

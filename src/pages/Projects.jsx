@@ -926,9 +926,9 @@ const Projects = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <Title>幽霜析粹所 · 项目孵化炉</Title>
+          <Title>玄枢造物坊 · 项目孵化炉</Title>
           <Subtitle>
-            在皑皑雪峰与极寒之下的魔法实验室，陈列着已成形、正炼制与待验证的项目造物。点击可 <span>展开法术卷轴</span>
+            在皑皑雪峰与极寒之地的炼金工坊，陈列着已成形、正炼制与待验证的项目造物。点击可 <span>展开法术卷轴</span>
           </Subtitle>
           <IncubationSeal>
             孵化封条：本页仍在打磨中，当前开放为项目预览与 UI 试炼场。内容可点开查看，但部分造物尚未接入正式演示与复盘手札。

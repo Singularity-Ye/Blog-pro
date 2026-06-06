@@ -14,12 +14,12 @@ function BlogPlanet({ activeBiome, onBiomeHover, onBiomeSelect, onNavigate }) {
   const draggedRef = useRef(false);
   const lastPointerRef = useRef({ x: 0, y: 0 });
   const velocityRef = useRef({ x: 0, y: 0 });
-  const currentScaleRef = useRef(0.9);
-  const targetScaleRef = useRef(0.9);
+  const currentScaleRef = useRef(1.04);
+  const targetScaleRef = useRef(1.04);
 
   const zoomPlanet = useCallback((deltaY) => {
     const direction = deltaY > 0 ? -1 : 1;
-    targetScaleRef.current = clamp(targetScaleRef.current + direction * 0.055, 0.72, 1.22);
+    targetScaleRef.current = clamp(targetScaleRef.current + direction * 0.055, 0.86, 1.36);
   }, []);
 
   useEffect(() => {
@@ -56,7 +56,7 @@ function BlogPlanet({ activeBiome, onBiomeHover, onBiomeSelect, onNavigate }) {
 
     const handleKeyDown = (event) => {
       if (event.key === 'Escape') {
-        targetScaleRef.current = 0.9;
+        targetScaleRef.current = 1.04;
       }
     };
 
@@ -150,7 +150,7 @@ function BlogPlanet({ activeBiome, onBiomeHover, onBiomeSelect, onNavigate }) {
       ref={groupRef}
       position={[1.12, -0.03, 0]}
       rotation={[0.03, -0.18, 0]}
-      scale={0.9}
+      scale={1.04}
       onPointerDown={handlePointerDown}
       onWheel={handleWheel}
       onPointerOver={() => {

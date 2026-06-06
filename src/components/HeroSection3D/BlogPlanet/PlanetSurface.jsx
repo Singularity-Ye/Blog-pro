@@ -1,16 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
-import * as THREE from 'three';
+
 import { BIOMES } from './biomeConfig';
 import BiomeLabel from './BiomeLabel';
 import ContinentPatch from './ContinentPatch';
 import PlanetBase from './PlanetBase';
 import { createPlanetData } from './planetData';
-import { getPointOnSphere, normalToQuaternion } from './sphereUtils';
+import { getPointOnSphere } from './sphereUtils';
 
 function PlanetSurface({ activeBiome, onBiomeHover, onBiomeSelect }) {
   const groupRef = useRef();
-  const ringRef = useRef();
   const burstRef = useRef(0);
   const hoverTileRef = useRef(null);
   const hoverTimerRef = useRef(null);
@@ -26,21 +25,15 @@ function PlanetSurface({ activeBiome, onBiomeHover, onBiomeSelect }) {
     ? getPointOnSphere(hoverTile.normal, hoverTile.radius + 0.42)
     : null;
 
-  useFrame(({ clock }) => {
+  useFrame(() => {
     if (!groupRef.current) return;
 
-    const t = clock.elapsedTime;
     const burst = burstRef.current;
 
     burstRef.current *= 0.9;
     if (burstRef.current < 0.001) burstRef.current = 0;
 
     groupRef.current.scale.setScalar(1 + burst * 0.035);
-
-    if (ringRef.current) {
-      ringRef.current.rotation.z += 0.025 + burst * 0.09;
-      ringRef.current.scale.setScalar(1 + Math.sin(t * 5) * 0.08 + burst * 0.42);
-    }
   });
 
   useEffect(() => () => {
@@ -121,23 +114,7 @@ function PlanetSurface({ activeBiome, onBiomeHover, onBiomeSelect }) {
         />
       ))}
 
-      {hoverTile && activeConfig && (
-        <group
-          position={getPointOnSphere(hoverTile.normal, hoverTile.radius + 0.18)}
-          quaternion={normalToQuaternion(hoverTile.normal)}
-        >
-          <mesh ref={ringRef} rotation={[Math.PI / 2, 0, 0]}>
-            <torusGeometry args={[0.22, 0.014, 8, 36]} />
-            <meshBasicMaterial
-              color={activeConfig.glow}
-              transparent
-              opacity={0.84}
-              depthWrite={false}
-              side={THREE.DoubleSide}
-            />
-          </mesh>
-        </group>
-      )}
+
 
       <BiomeLabel config={activeConfig} position={labelPosition} />
     </group>

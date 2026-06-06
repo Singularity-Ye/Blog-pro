@@ -151,7 +151,7 @@ const BLOG_SCENES = {
   overview: {
     id: 'overview',
     title: '松果屋总览',
-    subtitle: '夜色落在树冠之间，灯火从木门与林桥深处慢慢亮起。\n这里是叶间书林的入口，也是所有手札、卷轴与旧档案的起点。',
+    subtitle: '夜色落在树冠之间，灯火从木门与林桥深处慢慢亮起。\n这里是松窗灵笈台的入口，也是所有手札、卷轴与旧档案的起点。',
     background: BLOG_NEW_ASSETS.bgMain,
     themeColor: '#fbbf24',
     portals: [
@@ -170,7 +170,7 @@ const BLOG_SCENES = {
         id: 'overview-to-outdoor',
         target: 'outdoor',
         label: '步入林间',
-        desc: '沿着木桥进入叶间书林，翻阅长文、技术笔记与专题卷轴。',
+        desc: '沿着木桥进入松窗灵笈台，翻阅长文、技术笔记与专题卷轴。',
         left: '72%',
         top: '52%',
         color: '#10b981',
@@ -281,8 +281,8 @@ const BLOG_SCENES = {
   },
   outdoor: {
     id: 'outdoor',
-    title: '叶间书林',
-    subtitle: '木桥通往更深的森林，卷轴悬在枝叶与灯火之间。\n这里收藏着篇幅更长的记录：技术、建站、图谱与慢慢整理成形的思考。',
+    title: '松窗灵笈台',
+    subtitle: '木桥通往更深的林廊，卷轴悬在枝叶与灯火之间。\n这里收藏着篇幅更长的记录：技术、建站、图谱与慢慢整理成形的思考。',
     background: BLOG_NEW_ASSETS.bgFores,
     themeColor: '#10b981',
     portals: [
@@ -363,7 +363,7 @@ const BLOG_SCENES = {
         id: 'travel-to-outdoor',
         target: 'outdoor',
         label: '返回林间',
-        desc: '离开旅行书案，回到叶间书林之中。',
+        desc: '离开旅行书案，回到松窗灵笈台之中。',
         left: '72%',
         top: '68%',
         color: '#10b981',

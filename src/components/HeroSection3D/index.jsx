@@ -15,22 +15,6 @@ const pulseAnim = keyframes`
   50% { opacity: 0.9; }
 `;
 
-const cardShine = keyframes`
-  0% {
-    transform: translateX(-110%) skewX(-20deg);
-    opacity: 0;
-  }
-  15% {
-    opacity: 1;
-  }
-  75% {
-    opacity: 0.8;
-  }
-  100% {
-    transform: translateX(130%) skewX(-20deg);
-    opacity: 0;
-  }
-`;
 
 const HeroWrapper = styled.section`
   position: relative;
@@ -363,6 +347,31 @@ const LegendSwatch = styled.span`
             transform: rotate(-15deg);
           }
         `;
+      case 'about': // 浮生道迹屿：神秘高雅的紫微帝星/灵台仙岛
+        return `
+          border-radius: 40% 40% 60% 40% / 40% 60% 40% 60%;
+          background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.85) 0%, rgba(243, 232, 255, 0.3) 30%, rgba(168, 85, 247, 0.15) 75%, rgba(107, 33, 168, 0.55) 100%);
+          backdrop-filter: blur(3px);
+          box-shadow: 
+            inset 0 3px 5px rgba(255, 255, 255, 0.7),
+            inset 0 -3px 8px rgba(107, 33, 168, 0.25),
+            0 4px 14px rgba(168, 85, 247, 0.12),
+            0 0 0 1px rgba(255, 255, 255, 0.4);
+          color: rgba(107, 33, 168, 0.85);
+          stroke: rgba(107, 33, 168, 0.85);
+
+          &::before {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 5px;
+            width: 9px;
+            height: 4px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.7);
+            transform: rotate(-15deg);
+          }
+        `;
       default:
         return '';
     }
@@ -401,6 +410,11 @@ const LegendSwatch = styled.span`
         activeBg = 'linear-gradient(135deg, #fb923c 0%, #c2410c 100%)';
         activeShadow = '0 6px 20px rgba(249, 115, 22, 0.32)';
         svgTransform = 'scale(1.18) translate(-1px, -1px)';
+        break;
+      case 'about':
+        activeBg = 'linear-gradient(135deg, #a855f7 0%, #6b21a8 100%)';
+        activeShadow = '0 6px 20px rgba(168, 85, 247, 0.32)';
+        svgTransform = 'scale(1.18) rotate(-10deg)';
         break;
       default:
         break;
@@ -477,6 +491,13 @@ const getBiomeIcon = (key) => {
           <polygon points="22 2 15 22 11 13 2 9 22 2" />
         </svg>
       );
+    case 'about':
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
+        </svg>
+      );
     default:
       return null;
   }
@@ -506,174 +527,8 @@ const LegendDescription = styled.span`
   line-height: 1.28;
 `;
 
-const fireflyFlight = keyframes`
-  0% { transform: translate(0, 0) scale(1); }
-  24% { transform: translate(-14px, -10px) scale(1.15); }
-  48% { transform: translate(6px, -18px) scale(0.9); }
-  72% { transform: translate(-8px, 12px) scale(1.1); }
-  88% { transform: translate(12px, -2px) scale(0.95); }
-  100% { transform: translate(0, 0) scale(1); }
-`;
 
-const sparkleAnim1 = keyframes`
-  0%, 100% { transform: translate(0, 0) scale(0); opacity: 0; }
-  20% { opacity: 0.8; transform: translate(-8px, -4px) scale(0.7); }
-  40% { opacity: 0; transform: translate(-16px, -2px) scale(0); }
-`;
 
-const sparkleAnim2 = keyframes`
-  0%, 100% { transform: translate(0, 0) scale(0); opacity: 0; }
-  35% { opacity: 0.7; transform: translate(4px, -12px) scale(0.6); }
-  70% { opacity: 0; transform: translate(6px, -22px) scale(0); }
-`;
-
-const sparkleAnim3 = keyframes`
-  0%, 100% { transform: translate(0, 0) scale(0); opacity: 0; }
-  50% { opacity: 0.75; transform: translate(-6px, 8px) scale(0.8); }
-  90% { opacity: 0; transform: translate(-12px, 16px) scale(0); }
-`;
-
-const Firefly = styled.span`
-  position: absolute;
-  right: 1.6rem;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 6px;
-  height: 6px;
-  background: #fde047;
-  border-radius: 50%;
-  box-shadow: 
-    0 0 10px 4px rgba(253, 224, 71, 0.85),
-    0 0 20px 8px rgba(234, 179, 8, 0.5),
-    0 0 30px 12px rgba(250, 204, 21, 0.2);
-  z-index: 2;
-  transition: all 0.3s ease;
-  pointer-events: none;
-
-  .sparkle {
-    position: absolute;
-    inset: 1px;
-    background: #fef08a;
-    border-radius: 50%;
-    opacity: 0;
-    pointer-events: none;
-    box-shadow: 0 0 6px 2px rgba(253, 224, 71, 0.6);
-  }
-`;
-
-const CtaBg = styled.div`
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  overflow: hidden; /* Clips the shine! */
-  z-index: 0;
-  pointer-events: none;
-
-  /* 冰蓝洋流/星图手绘纹理背景 */
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='60' viewBox='0 0 160 60' opacity='0.12'%3E%3Cpath d='M10 20 Q 40 40, 80 20 T 150 20' fill='none' stroke='%2338bdf8' stroke-width='1.2' stroke-dasharray='3 3'/%3E%3Cpath d='M10 40 Q 50 15, 90 40 T 150 40' fill='none' stroke='%232dd4bf' stroke-width='1.2'/%3E%3Cpath d='M30 15 A 4 4 0 1 1 30 7 A 4 4 0 1 1 30 15 M120 50 A 3 3 0 1 1 120 44 A 3 3 0 1 1 120 50' fill='none' stroke='%2338bdf8' stroke-width='1.0'/%3E%3C/svg%3E");
-  background-size: 160px 60px;
-  background-position: center;
-  background-repeat: no-repeat;
-
-  /* 限制区域内的扫光元素 */
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(110deg, transparent, rgba(167, 243, 208, 0.4) 40%, rgba(253, 230, 138, 0.3) 60%, transparent);
-    transform: translateX(-110%) skewX(-20deg);
-    opacity: 0;
-    z-index: 1;
-    pointer-events: none;
-    border-radius: inherit;
-  }
-`;
-
-const LegendCta = styled(motion.a)`
-  position: relative;
-  overflow: visible; /* 允许萤火虫飞出按钮边缘 */
-  min-height: 58px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px 32px 8px 24px; /* 不对称叶片/路牌形状 */
-  background:
-    radial-gradient(circle at 15% 20%, rgba(45, 212, 191, 0.22) 0%, transparent 55%),
-    radial-gradient(circle at 85% 80%, rgba(3, 105, 161, 0.15) 0%, transparent 60%),
-    linear-gradient(135deg, rgba(15, 118, 110, 0.85) 0%, rgba(12, 74, 110, 0.94) 100%);
-  color: #fffdfa;
-  font-weight: 800;
-  font-size: 0.85rem;
-  letter-spacing: 0.08em;
-  cursor: pointer;
-  text-decoration: none;
-  border: 1px solid rgba(56, 189, 248, 0.45);
-  box-shadow:
-    0 12px 28px rgba(4, 20, 25, 0.2),
-    inset 0 1px 1px rgba(255, 255, 255, 0.25),
-    inset 0 -2px 12px rgba(12, 74, 110, 0.2);
-  backdrop-filter: blur(14px) saturate(1.2);
-  pointer-events: all;
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-
-  /* 双层内描边，增强质感 */
-  &::after {
-    content: '';
-    position: absolute;
-    inset: 2px;
-    border: 1px solid rgba(224, 242, 254, 0.12);
-    border-radius: 6px 30px 6px 22px;
-    pointer-events: none;
-    z-index: 1;
-  }
-
-  &:hover {
-    box-shadow:
-      0 16px 36px rgba(4, 20, 25, 0.3),
-      inset 0 1px 3px rgba(255, 255, 255, 0.3),
-      0 0 20px rgba(56, 189, 248, 0.4);
-    border-color: rgba(186, 230, 253, 0.8);
-    transform: translateY(-3px) scale(1.02);
-    background:
-      radial-gradient(circle at 15% 20%, rgba(45, 212, 191, 0.3) 0%, transparent 55%),
-      radial-gradient(circle at 85% 80%, rgba(3, 105, 161, 0.22) 0%, transparent 60%),
-      linear-gradient(135deg, rgba(13, 148, 136, 0.9) 0%, rgba(3, 105, 161, 0.98) 100%);
-  }
-
-  /* 箭头平滑过渡 */
-  .arrow {
-    display: inline-block;
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), color 0.3s ease;
-    margin-left: 0.3rem;
-    position: relative;
-    z-index: 2;
-  }
-
-  &:hover .arrow {
-    transform: translateX(5px) scale(1.15);
-    color: #fde047;
-  }
-
-  /* Hover 时触发 CtaBg 内的扫光 */
-  &:hover ${CtaBg}::before {
-    opacity: 1;
-    animation: ${cardShine} 1.1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
-  }
-
-  /* 当 Hover 卡片按钮时触发萤火虫飞行 and 光尘 */
-  &:hover ${Firefly} {
-    animation: ${fireflyFlight} 3.2s cubic-bezier(0.445, 0.05, 0.55, 0.95) infinite;
-    background: #ffffff;
-    box-shadow: 
-      0 0 14px 6px rgba(255, 255, 255, 1),
-      0 0 24px 10px rgba(253, 224, 71, 0.8),
-      0 0 36px 14px rgba(234, 179, 8, 0.4);
-
-    .s1 { animation: ${sparkleAnim1} 1.6s infinite 0.2s; }
-    .s2 { animation: ${sparkleAnim2} 1.6s infinite 0.7s; }
-    .s3 { animation: ${sparkleAnim3} 1.6s infinite 1.2s; }
-  }
-`;
 
 const HintText = styled.span`
   position: absolute;
@@ -803,16 +658,6 @@ function HeroSection3D() {
               </LegendItem>
             );
           })}
-          <LegendCta href="/about" whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
-            <CtaBg />
-            <span style={{ position: 'relative', zIndex: 2 }}>关于贫道</span>
-            <span className="arrow">→</span>
-            <Firefly>
-              <span className="sparkle s1" />
-              <span className="sparkle s2" />
-              <span className="sparkle s3" />
-            </Firefly>
-          </LegendCta>
         </PlanetLegend>
       </Overlay>
 

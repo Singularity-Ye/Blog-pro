@@ -9,3 +9,12 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .DS_Store
+
+# Cookie 文件含登录凭证，严禁提交
+*cookies*.txt
+*.cookies.txt
+www.douyin.com*.json
+
+# PPT 幻灯片等本地生成报告目录
+outputs/
+
