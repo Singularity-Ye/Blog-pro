@@ -10,7 +10,7 @@ import {
 } from '../utils/graphFilters';
 import atlasArchiveBgLight from '../assets/images/atlas/Celestial-Sands-Field-Light.png';
 import atlasArchiveBgDark from '../assets/images/atlas/Celestial-Sands-Field-Dark.png';
-import { MouseConstellationTrail } from '../components/MouseEffects';
+import { AmbientDust } from '../components/MouseEffects';
 
 const METADATA_COLLECTIONS = [
   // 1. 落沙寻迹图录 (原 travel)
@@ -1664,10 +1664,11 @@ export default function Atlas() {
           toggleTheme={toggleTheme}
         />
       )}
-      <MouseConstellationTrail
+      <AmbientDust
         color={theme === 'light' ? { r: 153, g: 99, b: 22 } : { r: 231, g: 199, b: 126 }}
-        particleCount={50}
-        connectDistance={115}
+        particleCount={45}
+        baseSpeed={0.2}
+        maxRadius={2.2}
         zIndex={1}
       />
     </>
