@@ -10,7 +10,7 @@ import {
 } from '../utils/graphFilters';
 import atlasArchiveBgLight from '../assets/images/atlas/Celestial-Sands-Field-Light.png';
 import atlasArchiveBgDark from '../assets/images/atlas/Celestial-Sands-Field-Dark.png';
-import { AmbientDust } from '../components/MouseEffects';
+import { MouseBubbleBurst } from '../components/MouseEffects';
 
 const METADATA_COLLECTIONS = [
   // 1. 落沙寻迹图录 (原 travel)
@@ -1664,11 +1664,24 @@ export default function Atlas() {
           toggleTheme={toggleTheme}
         />
       )}
-      <AmbientDust
-        color={theme === 'light' ? { r: 153, g: 99, b: 22 } : { r: 231, g: 199, b: 126 }}
-        particleCount={45}
-        baseSpeed={0.2}
-        maxRadius={2.2}
+      <MouseBubbleBurst
+        colors={theme === 'light'
+          ? [
+              { r: 153, g: 99, b: 22 },  // #996316
+              { r: 120, g: 90, b: 60 },  // warm wood
+              { r: 180, g: 127, b: 45 }  // gold accent
+            ]
+          : [
+              { r: 231, g: 199, b: 126 }, // #e7c77e
+              { r: 167, g: 139, b: 250 }, // #a78bfa
+              { r: 90, g: 163, b: 143 },  // #5aa38f
+              { r: 99, g: 102, b: 241 }   // #6366f1
+            ]
+        }
+        spawnDistance={10}
+        sizeRange={[3.5, 12]}
+        speedRange={[1.2, 3.5]}
+        friction={0.93}
         zIndex={1}
       />
     </>
