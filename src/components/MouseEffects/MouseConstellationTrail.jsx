@@ -118,10 +118,10 @@ export default function MouseConstellationTrail({
           const dist = Math.sqrt(dx * dx + dy * dy);
 
           if (dist < connectDistance) {
-            const opacity = (1.0 - dist / connectDistance) * 0.12; // Muted lines
+            const opacity = (1.0 - dist / connectDistance) * 0.24; // More visible lines
             ctx.beginPath();
             ctx.strokeStyle = `rgba(${color.r}, ${color.g}, ${color.b}, ${opacity})`;
-            ctx.lineWidth = 0.7;
+            ctx.lineWidth = 0.8;
             ctx.moveTo(p1.x, p1.y);
             ctx.lineTo(p2.x, p2.y);
             ctx.stroke();
@@ -138,10 +138,10 @@ export default function MouseConstellationTrail({
 
           if (dist < connectDistance * 1.2) {
             // Draw connection line to mouse
-            const opacity = (1.0 - dist / (connectDistance * 1.2)) * 0.22; // Slightly brighter line to mouse
+            const opacity = (1.0 - dist / (connectDistance * 1.2)) * 0.45; // Clearly visible interactive lines
             ctx.beginPath();
             ctx.strokeStyle = `rgba(${color.r}, ${color.g}, ${color.b}, ${opacity})`;
-            ctx.lineWidth = 0.9;
+            ctx.lineWidth = 1.1;
             ctx.moveTo(p1.x, p1.y);
             ctx.lineTo(mx, my);
             ctx.stroke();
