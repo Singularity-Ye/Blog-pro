@@ -83,8 +83,9 @@ export default function MouseSparkleTrail({
     };
 
     const handleMouseMove = (e) => {
-      const x = e.clientX;
-      const y = e.clientY;
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
       const dx = x - lastMousePosRef.current.x;
       const dy = y - lastMousePosRef.current.y;
       const dist = Math.sqrt(dx * dx + dy * dy);
@@ -208,6 +209,8 @@ export default function MouseSparkleTrail({
       style={{
         position: 'fixed',
         inset: 0,
+        width: '100%',
+        height: '100%',
         pointerEvents: 'none',
         zIndex: 9999,
         display: 'block'

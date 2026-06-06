@@ -7,7 +7,7 @@ import atlasArchiveBg from '../assets/images/atlas/pinecone-observatory-bg.png';
 import avatarImage from '../assets/images/github.png';
 
 // 导入通用的鼠标粒子跟随特效
-import { MouseVortexTrail } from '../components/MouseEffects';
+import { MouseConstellationTrail } from '../components/MouseEffects';
 
 /* ─────────────────────────────────────────
    CSS 动画定义 (Magical Keyframes)
@@ -767,7 +767,7 @@ export default function About() {
 
   return (
     <AboutWrapper>
-      <MouseVortexTrail />
+      <MouseConstellationTrail />
       <ParticlesContainer>
         {particles.map(p => (
           <Particle
