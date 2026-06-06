@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
 import HeroSection3D from '../components/HeroSection3D';
 import heroMapBackground from '../assets/images/home/hero-map-background.png';
+import { MouseBubbleBurst } from '../components/MouseEffects';
 
 const HomeWrapper = styled.main`
   position: relative;
@@ -139,6 +140,18 @@ function Home() {
         )}
       </AnimatePresence>
       <HeroSection3D />
+      <MouseBubbleBurst 
+        zIndex={1}
+        spawnDistance={8}
+        sizeRange={[5.0, 22.0]}
+        colors={[
+          { r: 45, g: 212, b: 191 },  // #2dd4bf (Spirit Teal / 幽翠绿)
+          { r: 126, g: 192, b: 238 }, // #7ec0ee (Ocean Blue / 沧海蓝)
+          { r: 90, g: 163, b: 143 },  // #5aa38f (Pine Jade / 寒松翠)
+          { r: 231, g: 199, b: 126 }, // #e7c77e (Stardust Gold / 星尘金)
+          { r: 167, g: 139, b: 250 }  // #a78bfa (Celestial Purple / 灵脉紫)
+        ]}
+      />
     </HomeWrapper>
   );
 }

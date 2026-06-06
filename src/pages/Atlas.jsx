@@ -1664,26 +1664,7 @@ export default function Atlas() {
           toggleTheme={toggleTheme}
         />
       )}
-      <MouseBubbleBurst
-        colors={theme === 'light'
-          ? [
-              { r: 153, g: 99, b: 22 },  // #996316
-              { r: 120, g: 90, b: 60 },  // warm wood
-              { r: 180, g: 127, b: 45 }  // gold accent
-            ]
-          : [
-              { r: 231, g: 199, b: 126 }, // #e7c77e
-              { r: 167, g: 139, b: 250 }, // #a78bfa
-              { r: 90, g: 163, b: 143 },  // #5aa38f
-              { r: 99, g: 102, b: 241 }   // #6366f1
-            ]
-        }
-        spawnDistance={10}
-        sizeRange={[3.5, 12]}
-        speedRange={[1.2, 3.5]}
-        friction={0.93}
-        zIndex={1}
-      />
+      <MouseBubbleBurst zIndex={1} />
     </>
   );
 }
