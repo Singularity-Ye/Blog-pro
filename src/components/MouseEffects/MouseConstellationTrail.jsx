@@ -14,7 +14,8 @@ export default function MouseConstellationTrail({
   particleCount = 65,
   color = { r: 231, g: 199, b: 126 }, // #e7c77e
   connectDistance = 120,
-  baseSpeed = 0.35
+  baseSpeed = 0.35,
+  zIndex = 9999
 }) {
   const canvasRef = useRef(null);
   const particlesRef = useRef([]);
@@ -171,7 +172,7 @@ export default function MouseConstellationTrail({
         width: '100%',
         height: '100%',
         pointerEvents: 'none',
-        zIndex: 9999,
+        zIndex: zIndex,
         display: 'block'
       }}
     />
