@@ -10,7 +10,7 @@ import {
 } from '../utils/graphFilters';
 import atlasArchiveBgLight from '../assets/images/atlas/Celestial-Sands-Field-Light.png';
 import atlasArchiveBgDark from '../assets/images/atlas/Celestial-Sands-Field-Dark.png';
-import { MouseSparkleTrail } from '../components/MouseEffects';
+import { MouseSandstormTrail } from '../components/MouseEffects';
 
 const METADATA_COLLECTIONS = [
   // 1. 落沙寻迹图录 (原 travel)
@@ -1664,7 +1664,7 @@ export default function Atlas() {
           toggleTheme={toggleTheme}
         />
       )}
-      <MouseSparkleTrail 
+      <MouseSandstormTrail 
         zIndex={1}
         spawnDistance={10}
         baseSize={10}
