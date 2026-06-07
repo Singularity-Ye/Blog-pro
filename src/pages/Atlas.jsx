@@ -10,7 +10,7 @@ import {
 } from '../utils/graphFilters';
 import atlasArchiveBgLight from '../assets/images/atlas/Celestial-Sands-Field-Light.png';
 import atlasArchiveBgDark from '../assets/images/atlas/Celestial-Sands-Field-Dark.png';
-import { MouseRippleGrid } from '../components/MouseEffects';
+import { MouseWakeRipple } from '../components/MouseEffects';
 
 const METADATA_COLLECTIONS = [
   // 1. 落沙寻迹图录 (原 travel)
@@ -1664,9 +1664,8 @@ export default function Atlas() {
           toggleTheme={toggleTheme}
         />
       )}
-      <MouseRippleGrid 
+      <MouseWakeRipple 
         theme={theme}
-        spacing={55}
         zIndex={1}
       />
     </>
