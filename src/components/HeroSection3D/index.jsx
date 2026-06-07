@@ -552,9 +552,14 @@ const HintText = styled.span`
   }
 `;
 
-function HeroSection3D() {
+function HeroSection3D({ onActiveBiomeChange }) {
   const navigate = useNavigate();
   const [activeBiome, setActiveBiome] = useState(null);
+
+  const handleActiveBiomeChange = useCallback((biomeKey) => {
+    setActiveBiome(biomeKey);
+    onActiveBiomeChange?.(biomeKey);
+  }, [onActiveBiomeChange]);
 
   const handleNavigate = useCallback((href) => {
     navigate(href);
@@ -564,9 +569,9 @@ function HeroSection3D() {
     const biome = BIOMES[biomeKey];
     if (!biome) return;
 
-    setActiveBiome(biomeKey);
+    handleActiveBiomeChange(biomeKey);
     window.setTimeout(() => navigate(biome.href), 220);
-  }, [navigate]);
+  }, [navigate, handleActiveBiomeChange]);
 
   return (
     <HeroWrapper>
@@ -587,8 +592,8 @@ function HeroSection3D() {
           <Suspense fallback={null}>
             <Scene
               activeBiome={activeBiome}
-              onBiomeHover={setActiveBiome}
-              onBiomeSelect={setActiveBiome}
+              onBiomeHover={handleActiveBiomeChange}
+              onBiomeSelect={handleActiveBiomeChange}
               onNavigate={handleNavigate}
             />
             <Preload all />
@@ -639,8 +644,8 @@ function HeroSection3D() {
                 $active={isActive}
                 $glow={biome.glow}
                 $bgImage={biome.bgImage}
-                onMouseEnter={() => setActiveBiome(biome.key)}
-                onMouseLeave={() => setActiveBiome(null)}
+                onMouseEnter={() => handleActiveBiomeChange(biome.key)}
+                onMouseLeave={() => handleActiveBiomeChange(null)}
                 onClick={() => handleLegendClick(biome.key)}
               >
                 <LegendSwatch

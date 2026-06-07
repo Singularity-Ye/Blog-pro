@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import HeroSection3D from '../components/HeroSection3D';
 import heroMapBackground from '../assets/images/home/hero-map-background.png';
 import { MouseBubbleBurst } from '../components/MouseEffects';
+import { BIOMES } from '../components/HeroSection3D/BlogPlanet/biomeConfig';
 
 const HomeWrapper = styled.main`
   position: relative;
@@ -103,6 +104,7 @@ const LoadingScreen = styled(motion.div)`
 
 function Home() {
   const [isPageLoading, setIsPageLoading] = useState(true);
+  const [hoveredBiome, setHoveredBiome] = useState(null);
 
   useEffect(() => {
     // Preload hero background image to prevent popping
@@ -122,6 +124,27 @@ function Home() {
     };
   }, []);
 
+  // Map the active/hovered biome to its exact color
+  const getBubbleColors = () => {
+    if (hoveredBiome && BIOMES[hoveredBiome]) {
+      const hex = BIOMES[hoveredBiome].color;
+      // Convert hex (e.g. #10b981) to RGB
+      const r = parseInt(hex.slice(1, 3), 16);
+      const g = parseInt(hex.slice(3, 5), 16);
+      const b = parseInt(hex.slice(5, 7), 16);
+      return [{ r, g, b }];
+    }
+    // Default: all 6 biome colors
+    return [
+      { r: 16, g: 185, b: 129 },  // #10b981 (Forest Green / 松翠)
+      { r: 217, g: 119, b: 6 },   // #d97706 (Desert Gold / 星砂黄)
+      { r: 2, g: 132, b: 199 },   // #0284c7 (Snow Blue / 霁雪蓝)
+      { r: 13, g: 148, b: 136 },  // #0d9488 (City Teal / 竹雨青)
+      { r: 124, g: 58, b: 237 },  // #7c3aed (About Purple / 仙山紫)
+      { r: 21, g: 152, b: 211 }   // #1598d3 (Ocean Cyan / 沧海蓝)
+    ];
+  };
+
   return (
     <HomeWrapper>
       <AnimatePresence>
@@ -139,19 +162,12 @@ function Home() {
           </LoadingScreen>
         )}
       </AnimatePresence>
-      <HeroSection3D />
+      <HeroSection3D onActiveBiomeChange={setHoveredBiome} />
       <MouseBubbleBurst 
         zIndex={1}
         spawnDistance={8}
         sizeRange={[5.0, 22.0]}
-        colors={[
-          { r: 16, g: 185, b: 129 },  // #10b981 (Forest Green / 松翠)
-          { r: 217, g: 119, b: 6 },   // #d97706 (Desert Gold / 星砂黄)
-          { r: 2, g: 132, b: 199 },   // #0284c7 (Snow Blue / 霁雪蓝)
-          { r: 13, g: 148, b: 136 },  // #0d9488 (City Teal / 竹雨青)
-          { r: 124, g: 58, b: 237 },  // #7c3aed (About Purple / 仙山紫)
-          { r: 21, g: 152, b: 211 }   // #1598d3 (Ocean Cyan / 沧海蓝)
-        ]}
+        colors={getBubbleColors()}
       />
     </HomeWrapper>
   );
