@@ -69,8 +69,12 @@ export default function MouseBubbleBurst({
         for (let i = 0; i < count; i++) {
           const colorIndex = Math.floor(Math.random() * colors.length);
           const selectedColor = colors[colorIndex];
-          // Get a contrasting offset color for the iridescent fringe
-          const selectedColorAlt = colors[(colorIndex + 2) % colors.length];
+          // Create a lighter, shimmery version of the same color for the rim to preserve color identity
+          const selectedColorAlt = {
+            r: Math.min(255, Math.floor(selectedColor.r * 1.25)),
+            g: Math.min(255, Math.floor(selectedColor.g * 1.25)),
+            b: Math.min(255, Math.floor(selectedColor.b * 1.25))
+          };
           const th = Math.random() * Math.PI * 2;
           const speed = Math.random() * (speedRange[1] - speedRange[0]) + speedRange[0];
           const size = Math.random() * (sizeRange[1] - sizeRange[0]) + sizeRange[0];

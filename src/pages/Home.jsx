@@ -145,11 +145,12 @@ function Home() {
         spawnDistance={8}
         sizeRange={[5.0, 22.0]}
         colors={[
-          { r: 45, g: 212, b: 191 },  // #2dd4bf (Spirit Teal / 幽翠绿)
-          { r: 126, g: 192, b: 238 }, // #7ec0ee (Ocean Blue / 沧海蓝)
-          { r: 90, g: 163, b: 143 },  // #5aa38f (Pine Jade / 寒松翠)
-          { r: 231, g: 199, b: 126 }, // #e7c77e (Stardust Gold / 星尘金)
-          { r: 167, g: 139, b: 250 }  // #a78bfa (Celestial Purple / 灵脉紫)
+          { r: 16, g: 185, b: 129 },  // #10b981 (Forest Green / 松翠)
+          { r: 217, g: 119, b: 6 },   // #d97706 (Desert Gold / 星砂黄)
+          { r: 2, g: 132, b: 199 },   // #0284c7 (Snow Blue / 霁雪蓝)
+          { r: 13, g: 148, b: 136 },  // #0d9488 (City Teal / 竹雨青)
+          { r: 124, g: 58, b: 237 },  // #7c3aed (About Purple / 仙山紫)
+          { r: 21, g: 152, b: 211 }   // #1598d3 (Ocean Cyan / 沧海蓝)
         ]}
       />
     </HomeWrapper>
