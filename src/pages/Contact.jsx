@@ -7,7 +7,7 @@ import Marquee from '../components/Animations/Marquee';
 import VariableProximity from '../components/Animations/VariableProximity';
 import CircularText from '../components/Animations/CircularText';
 import CurvedLoop from '../components/Animations/CurvedLoop';
-import { MouseSparkleTrail } from '../components/MouseEffects';
+
 
 // 导入名片正面与水色玻璃名片背景
 import cardWateryImage from '../assets/images/contact/card_watery.jpg';
@@ -2001,7 +2001,7 @@ export default function Contact() {
           </motion.div>
         )}
       </AnimatePresence>
-      <MouseSparkleTrail colors={[{ r: 231, g: 199, b: 126 }, { r: 90, g: 163, b: 143 }, { r: 254, g: 240, b: 138 }]} />
+
     </ContactWrapper>
   );
 }

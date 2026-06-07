@@ -10,7 +10,7 @@ import {
 } from '../utils/graphFilters';
 import atlasArchiveBgLight from '../assets/images/atlas/Celestial-Sands-Field-Light.png';
 import atlasArchiveBgDark from '../assets/images/atlas/Celestial-Sands-Field-Dark.png';
-import { MouseSandstormTrail } from '../components/MouseEffects';
+import { MouseRippleGrid } from '../components/MouseEffects';
 
 const METADATA_COLLECTIONS = [
   // 1. 落沙寻迹图录 (原 travel)
@@ -1664,16 +1664,10 @@ export default function Atlas() {
           toggleTheme={toggleTheme}
         />
       )}
-      <MouseSandstormTrail 
+      <MouseRippleGrid 
+        theme={theme}
+        spacing={55}
         zIndex={1}
-        spawnDistance={10}
-        baseSize={10}
-        colors={[
-          { r: 216, g: 162, b: 71 },  // #d8a247 (Stellar Sand Gold / 浑天星砂金)
-          { r: 231, g: 199, b: 126 }, // #e7c77e (Celestial Gold / 帝星浅金)
-          { r: 255, g: 247, b: 223 }, // #fff7df (Celestial White / 太白星银)
-          { r: 167, g: 139, b: 250 }  // #a78bfa (Void Purple / 虚空天机紫)
-        ]}
       />
     </>
   );
