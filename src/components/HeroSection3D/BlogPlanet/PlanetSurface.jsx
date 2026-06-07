@@ -92,6 +92,31 @@ function PlanetSurface({ activeBiome, onBiomeHover, onBiomeSelect }) {
     }, 420);
   };
 
+  const handleOceanHover = () => {
+    document.body.style.cursor = 'pointer';
+
+    if (leaveTimerRef.current) {
+      window.clearTimeout(leaveTimerRef.current);
+      leaveTimerRef.current = null;
+    }
+
+    if (activeBiome === 'ocean') return;
+
+    if (hoverTimerRef.current) {
+      window.clearTimeout(hoverTimerRef.current);
+      hoverTimerRef.current = null;
+    }
+    pendingHoverRef.current = null;
+    hoverTileRef.current = null;
+    setHoverTile(null);
+
+    onBiomeHover?.('ocean');
+  };
+
+  const handleOceanLeave = () => {
+    handleLeave();
+  };
+
   const handleSelect = (tile) => {
     burstRef.current = 1;
     hoverTileRef.current = tile;
@@ -103,8 +128,8 @@ function PlanetSurface({ activeBiome, onBiomeHover, onBiomeSelect }) {
     <group ref={groupRef}>
       <PlanetBase 
         radius={data.radius} 
-        onHover={() => onBiomeHover?.('ocean')}
-        onLeave={handleLeave}
+        onHover={handleOceanHover}
+        onLeave={handleOceanLeave}
       />
 
       {data.continents.map((continent) => (

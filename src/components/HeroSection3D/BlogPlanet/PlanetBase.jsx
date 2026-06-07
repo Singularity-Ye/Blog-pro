@@ -189,6 +189,10 @@ function PlanetBase({ radius = 1.72, onHover, onLeave }) {
         e.stopPropagation();
         onHover?.();
       }}
+      onPointerMove={(e) => {
+        e.stopPropagation();
+        onHover?.();
+      }}
       onPointerOut={(e) => {
         e.stopPropagation();
         onLeave?.();
