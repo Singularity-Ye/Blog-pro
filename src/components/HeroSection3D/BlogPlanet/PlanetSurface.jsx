@@ -101,7 +101,11 @@ function PlanetSurface({ activeBiome, onBiomeHover, onBiomeSelect }) {
 
   return (
     <group ref={groupRef}>
-      <PlanetBase radius={data.radius} />
+      <PlanetBase 
+        radius={data.radius} 
+        onHover={() => onBiomeHover?.('ocean')}
+        onLeave={handleLeave}
+      />
 
       {data.continents.map((continent) => (
         <ContinentPatch

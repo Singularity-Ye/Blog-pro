@@ -134,14 +134,12 @@ function Home() {
       const b = parseInt(hex.slice(5, 7), 16);
       return [{ r, g, b }];
     }
-    // Default: all 6 biome colors
+    // Default background stellar nebula scheme (softer, dreamy stardust)
     return [
-      { r: 16, g: 185, b: 129 },  // #10b981 (Forest Green / 松翠)
-      { r: 217, g: 119, b: 6 },   // #d97706 (Desert Gold / 星砂黄)
-      { r: 2, g: 132, b: 199 },   // #0284c7 (Snow Blue / 霁雪蓝)
-      { r: 13, g: 148, b: 136 },  // #0d9488 (City Teal / 竹雨青)
-      { r: 124, g: 58, b: 237 },  // #7c3aed (About Purple / 仙山紫)
-      { r: 21, g: 152, b: 211 }   // #1598d3 (Ocean Cyan / 沧海蓝)
+      { r: 245, g: 247, b: 250 }, // 太白星银 (#f5f7fa)
+      { r: 74, g: 180, b: 220 },  // 以太幽蓝 (#4ab4dc)
+      { r: 240, g: 200, b: 120 }, // 晨曦浅金 (#f0c878)
+      { r: 160, g: 130, b: 240 }  // 紫薇幽紫 (#a082f0)
     ];
   };
 

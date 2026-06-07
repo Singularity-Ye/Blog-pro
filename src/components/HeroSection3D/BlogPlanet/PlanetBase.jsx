@@ -150,7 +150,7 @@ function createLandUniforms() {
   return { centers, widths };
 }
 
-function PlanetBase({ radius = 1.72 }) {
+function PlanetBase({ radius = 1.72, onHover, onLeave }) {
   const materialRef = useRef();
   const [albedoMap, noiseMap, foamMap] = useLoader(THREE.TextureLoader, [
     oceanAlbedoUrl,
@@ -184,7 +184,16 @@ function PlanetBase({ radius = 1.72 }) {
   });
 
   return (
-    <mesh>
+    <mesh
+      onPointerOver={(e) => {
+        e.stopPropagation();
+        onHover?.();
+      }}
+      onPointerOut={(e) => {
+        e.stopPropagation();
+        onLeave?.();
+      }}
+    >
       <sphereGeometry args={[radius, 72, 72]} />
       <shaderMaterial
         ref={materialRef}
