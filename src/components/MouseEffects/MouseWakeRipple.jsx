@@ -75,23 +75,23 @@ export default function MouseWakeRipple({
         wavesRef.current.push({
           x: mx,
           y: my,
-          vx: dx * 0.16, // Move center along mouse direction but slower
-          vy: dy * 0.16,
+          vx: dx * 0.18, // Move center along mouse direction but slower
+          vy: dy * 0.18,
           r: 4,          // Initial radius
-          vr: 1.8 + speed * 1.5, // Expansion speed
+          vr: 2.2 + speed * 0.6, // Higher base expansion, lower speed sensitivity
           theta,
           speed,
           colorRgb: selectedColor,
           life: 1.0,
-          decay: 0.032 + Math.random() * 0.008 // Fades in ~25-30 frames
+          decay: 0.016 + Math.random() * 0.004 // Fades in ~55-60 frames (lasts ~1s)
         });
 
         // 2. Spawn star-sand particles riding the wave front
         // Pushes particles along the movement angle with angular dispersion
-        const count = Math.floor(Math.random() * 3) + 2; // 2 to 4 particles per swipe
+        const count = Math.floor(Math.random() * 3) + 4; // 4 to 6 particles per swipe
         for (let i = 0; i < count; i++) {
           const pAngle = theta + (Math.random() - 0.5) * 1.1; // +/- ~30 degrees arc
-          const pSpeed = (2.2 + speed * 1.2) * (0.8 + Math.random() * 0.4);
+          const pSpeed = (2.2 + speed * 0.8) * (0.8 + Math.random() * 0.4);
           const pColor = activeColors[Math.floor(Math.random() * activeColors.length)];
 
           particlesRef.current.push({
@@ -102,7 +102,7 @@ export default function MouseWakeRipple({
             r: 0.8 + Math.random() * 1.5, // small star-sand grains (0.8px to 2.3px)
             colorRgb: pColor,
             life: 1.0,
-            decay: 0.94 - Math.random() * 0.03 // slower decay so they drift longer
+            decay: 0.975 - Math.random() * 0.015 // slower decay so they drift longer
           });
         }
       }
@@ -149,13 +149,13 @@ export default function MouseWakeRipple({
             if (radius <= 3) continue;
 
             const crestAmp = 1.0 - j * 0.32; // Outer crest is strongest
-            const opacity = w.life * 0.38 * crestAmp;
+            const opacity = w.life * 0.52 * crestAmp;
             
             // Angular dispersion: wave arc widens as it travels
             const arcWidth = Math.min(2.0, 0.9 + (w.r / 120) * 0.9);
 
             ctx.strokeStyle = `rgba(${w.colorRgb.r}, ${w.colorRgb.g}, ${w.colorRgb.b}, ${opacity})`;
-            ctx.lineWidth = (1.5 - j * 0.35) * w.life;
+            ctx.lineWidth = (2.2 - j * 0.5) * w.life; // Thicker lines for visibility
 
             ctx.beginPath();
             // Draw arc in the direction of velocity (theta)
@@ -165,11 +165,11 @@ export default function MouseWakeRipple({
             // Optional: draw a matching faint secondary trailing wake arc (sides)
             if (j === 0) {
               ctx.strokeStyle = `rgba(${w.colorRgb.r}, ${w.colorRgb.g}, ${w.colorRgb.b}, ${opacity * 0.45})`;
-              ctx.lineWidth = 0.6 * w.life;
+              ctx.lineWidth = 0.8 * w.life;
               ctx.beginPath();
               // Side waves (left and right wake)
               ctx.arc(w.x, w.y, radius * 0.85, w.theta + Math.PI * 0.5 - 0.4, w.theta + Math.PI * 0.5 + 0.4);
-              ctx.arc(w.x, w.y, radius * 0.85, w.theta - Math.PI * 0.5 - 0.4, w.theta - Math.PI * 0.5 + 0.4);
+              ctx.arc(w.x, w.y, radius * 0.85, w.theta - Math.PI * 0.5 - 0.4, w.theta - Math.PI * 0.5 - 0.4);
               ctx.stroke();
             }
           }
@@ -185,8 +185,8 @@ export default function MouseWakeRipple({
         // Motion integration
         p.x += p.vx;
         p.y += p.vy;
-        p.vx *= 0.95; // Inertial damping
-        p.vy *= 0.95;
+        p.vx *= 0.975; // Slower damping to slide longer
+        p.vy *= 0.975;
         p.vy -= 0.015; // Tiny rising draft (hot sand column)
         p.life *= p.decay;
 
