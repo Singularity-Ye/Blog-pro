@@ -37,7 +37,7 @@ const LEAF_COLORS = {
 
 export default function MouseLeafDrift({
   theme = 'dark',
-  leafCount = 12, // Ambient leaves count
+  leafCount = 6, // Ambient leaves count (reduced from 12)
   zIndex = 9999   // Render on top but pointer-events: none
 }) {
   const [isMobile, setIsMobile] = useState(false);
@@ -91,20 +91,20 @@ export default function MouseLeafDrift({
         this.x = Math.random() * window.innerWidth;
         this.y = isInitial ? Math.random() * window.innerHeight : -this.h - 20;
         
-        this.vy = 0.6 + Math.random() * 0.9;            // Gravity vertical speed
-        this.vx = (Math.random() - 0.5) * 0.4;          // Base drift
+        this.vy = 0.28 + Math.random() * 0.32;          // Slow gravity vertical speed (halved)
+        this.vx = (Math.random() - 0.5) * 0.12;         // Gentler base drift
         
         // Sway parameters
         this.swayTime = Math.random() * 100;
-        this.swaySpeed = 0.015 + Math.random() * 0.02;
-        this.swayAmp = 0.4 + Math.random() * 0.8;
+        this.swaySpeed = 0.008 + Math.random() * 0.012;
+        this.swayAmp = 0.18 + Math.random() * 0.24;      // Reduced sway amplitude for calmness
         
         // Rotation (2D and 3D simulation)
         this.angle = Math.random() * Math.PI * 2;       // Z-axis rotation angle
-        this.spinSpeed = (Math.random() - 0.5) * 0.02;
+        this.spinSpeed = (Math.random() - 0.5) * 0.004; // Slower spin
         
         this.flopTime = Math.random() * 100;            // X/Y-axis scale fluctuation
-        this.flopSpeed = 0.03 + Math.random() * 0.04;
+        this.flopSpeed = 0.008 + Math.random() * 0.012;  // Much slower, graceful turning
         
         this.opacity = 0.15 + Math.random() * 0.65;     // Transparency
         this.windX = 0;                                 // Mouse wind acceleration
@@ -122,9 +122,9 @@ export default function MouseLeafDrift({
             const force = (180 - dist) / 180;
             const angle = Math.atan2(dy, dx);
             
-            // Push leaf away from cursor
-            this.windX += Math.cos(angle) * force * 1.2;
-            this.windY += Math.sin(angle) * force * 0.6;
+            // Push leaf away from cursor with mild force
+            this.windX += Math.cos(angle) * force * 0.35;
+            this.windY += Math.sin(angle) * force * 0.22;
           }
         }
 
