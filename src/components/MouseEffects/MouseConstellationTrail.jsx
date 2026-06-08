@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 /**
  * MouseConstellationTrail - A port of the constellation particle connection network.
@@ -17,11 +17,26 @@ export default function MouseConstellationTrail({
   baseSpeed = 0.35,
   zIndex = 9999
 }) {
+  const [isMobile, setIsMobile] = useState(false);
   const canvasRef = useRef(null);
   const particlesRef = useRef([]);
   const mousePosRef = useRef({ x: null, y: null, active: false });
 
   useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(
+        window.innerWidth < 768 || 
+        ('ontouchstart' in window) || 
+        (navigator.maxTouchPoints > 0)
+      );
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  useEffect(() => {
+    if (isMobile) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -161,7 +176,9 @@ export default function MouseConstellationTrail({
       document.removeEventListener('mouseleave', handleMouseLeave);
       if (animationId) cancelAnimationFrame(animationId);
     };
-  }, [particleCount, color, connectDistance, baseSpeed]);
+  }, [particleCount, color, connectDistance, baseSpeed, isMobile]);
+
+  if (isMobile) return null;
 
   return (
     <canvas

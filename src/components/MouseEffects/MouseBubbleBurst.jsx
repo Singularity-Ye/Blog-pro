@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 /**
  * MouseBubbleBurst - A premium 3D holographic glass soap bubble burst follow effect.
@@ -30,12 +30,27 @@ export default function MouseBubbleBurst({
   friction = 0.93,
   zIndex = 1
 }) {
+  const [isMobile, setIsMobile] = useState(false);
   const canvasRef = useRef(null);
   const particlesRef = useRef([]);
   const sparksRef = useRef([]);
   const lastMousePosRef = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(
+        window.innerWidth < 768 || 
+        ('ontouchstart' in window) || 
+        (navigator.maxTouchPoints > 0)
+      );
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  useEffect(() => {
+    if (isMobile) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -246,7 +261,9 @@ export default function MouseBubbleBurst({
       window.removeEventListener('mousemove', handleMouseMove);
       if (animationId) cancelAnimationFrame(animationId);
     };
-  }, [colors, spawnDistance, sizeRange, speedRange, friction]);
+  }, [colors, spawnDistance, sizeRange, speedRange, friction, isMobile]);
+
+  if (isMobile) return null;
 
   return (
     <canvas

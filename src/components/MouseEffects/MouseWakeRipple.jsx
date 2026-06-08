@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 
 /**
@@ -30,13 +30,27 @@ export default function MouseWakeRipple({
   spawnDistance = 8, // Minimum mouse movement to trigger a wave
   zIndex = 1
 }) {
+  const [isMobile, setIsMobile] = useState(false);
   const canvasRef = useRef(null);
   const wavesRef = useRef([]); // Active wave packets
   const particlesRef = useRef([]); // Riding stardust grains
   const lastMouseRef = useRef({ x: 0, y: 0, time: 0 });
 
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(
+        window.innerWidth < 768 || 
+        ('ontouchstart' in window) || 
+        (navigator.maxTouchPoints > 0)
+      );
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
+    if (isMobile) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -235,7 +249,9 @@ export default function MouseWakeRipple({
       window.removeEventListener('mouseenter', handleMouseEnter);
       if (animationId) cancelAnimationFrame(animationId);
     };
-  }, [spawnDistance, theme]);
+  }, [spawnDistance, theme, isMobile]);
+
+  if (isMobile) return null;
 
   return createPortal(
     <canvas
