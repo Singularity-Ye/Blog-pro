@@ -6,3 +6,5 @@ export { default as MouseBubbleBurst } from './MouseBubbleBurst';
 export { default as MouseSandstormTrail } from './MouseSandstormTrail';
 export { default as MouseRippleGrid } from './MouseRippleGrid';
 export { default as MouseWakeRipple } from './MouseWakeRipple';
+export { default as MouseLeafDrift } from './MouseLeafDrift';
+

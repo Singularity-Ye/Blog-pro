@@ -9,8 +9,10 @@ import MiniGraph from '../components/GraphView/MiniGraph';
 import { filterGraphByLocal } from '../utils/graphFilters';
 import { parseFrontmatter } from '../utils/frontmatter';
 import { fetchGraphData } from '../utils/publishData';
+import { MouseLeafDrift } from '../components/MouseEffects';
 import noteReadingBgLight from '../assets/images/atlas/note-reading-light.png';
 import noteReadingBgDark from '../assets/images/atlas/note-reading-dark.png';
+
 
 const METADATA_COLLECTIONS = [
   { slug: 'travel', kind: 'travel' },
@@ -1620,6 +1622,7 @@ export default function Note() {
 
   return (
     <NoteLayout $theme={theme}>
+      <MouseLeafDrift theme={theme} />
       <NoteContent>
         <ThemeToggleWrapper>
           <ToggleLabel $theme={theme}>
