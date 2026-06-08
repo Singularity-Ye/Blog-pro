@@ -38,11 +38,9 @@ export default function MouseBubbleBurst({
 
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(
-        window.innerWidth < 768 || 
-        ('ontouchstart' in window) || 
-        (navigator.maxTouchPoints > 0)
-      );
+      const isMobileSize = window.innerWidth < 768;
+      const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      setIsMobile(isMobileSize || isMobileUA);
     };
     checkMobile();
     window.addEventListener('resize', checkMobile);
