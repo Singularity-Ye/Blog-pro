@@ -51,6 +51,7 @@ export default function GraphView({ modal = false, onClose }) {
 
   const [hoverNode, setHoverNode] = useState(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
+  const draggedNodeRef = useRef(null);
   
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' ? window.innerWidth <= 900 : false);
 
@@ -138,6 +139,9 @@ export default function GraphView({ modal = false, onClose }) {
   }, [isMobile]);
 
   const handleNodeHover = useCallback((node) => {
+    if (draggedNodeRef.current && node !== draggedNodeRef.current) {
+      return;
+    }
     highlightNodes.current.clear();
     highlightLinks.current.clear();
     
@@ -435,6 +439,14 @@ export default function GraphView({ modal = false, onClose }) {
           linkCanvasObject={paintLink}
           nodePointerAreaPaint={paintPointerArea}
           onNodeHover={handleNodeHover}
+          onNodeDrag={(node) => {
+            draggedNodeRef.current = node;
+            handleNodeHover(node);
+          }}
+          onNodeDragEnd={() => {
+            draggedNodeRef.current = null;
+            handleNodeHover(null);
+          }}
           onNodeClick={(node) => navigate(toNoteHref(node.slug ?? node.id))}
           onEngineStop={handleEngineStop}
           warmupTicks={200}

@@ -37,6 +37,7 @@ export default function MiniGraph({ graphData: propGraphData, currentSlug: propC
   const [hoverNode, setHoverNode] = useState(null);
   const [dimensions, setDimensions] = useState({ width: 300, height: 300 });
   const activeTheme = theme === 'light' ? THEMES.light : THEMES.dark;
+  const draggedNodeRef = useRef(null);
 
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' ? window.innerWidth <= 768 : false);
 
@@ -109,6 +110,9 @@ export default function MiniGraph({ graphData: propGraphData, currentSlug: propC
   }, [graphData, currentSlug]);
 
   const handleNodeHover = useCallback((node) => {
+    if (draggedNodeRef.current && node !== draggedNodeRef.current) {
+      return;
+    }
     highlightNodes.current.clear();
     highlightLinks.current.clear();
     
@@ -383,6 +387,14 @@ export default function MiniGraph({ graphData: propGraphData, currentSlug: propC
           linkCanvasObject={paintLink}
           nodePointerAreaPaint={paintPointerArea}
           onNodeHover={handleNodeHover}
+          onNodeDrag={(node) => {
+            draggedNodeRef.current = node;
+            handleNodeHover(node);
+          }}
+          onNodeDragEnd={() => {
+            draggedNodeRef.current = null;
+            handleNodeHover(null);
+          }}
           onNodeClick={(node) => navigate(toNoteHref(node.slug ?? node.id))}
           onEngineStop={handleEngineStop}
           warmupTicks={200}
