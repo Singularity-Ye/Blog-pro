@@ -953,9 +953,11 @@ function DirectoryNode({ node, accent, expandedPaths, onToggle, theme }) {
 }
 
 const RightPanel = styled.aside`
-  position: sticky;
+  position: fixed;
   top: 1.25rem;
-  align-self: start;
+  right: max(clamp(1rem, 2.5vw, 2rem), calc((100vw - 1500px) / 2 + clamp(1rem, 2.5vw, 2rem)));
+  width: clamp(300px, 24vw, 380px);
+  z-index: 8;
   display: grid;
   gap: 1rem;
   padding: 1rem 0.2rem 0.75rem 0;
@@ -973,16 +975,13 @@ const RightPanel = styled.aside`
     border-radius: 999px;
   }
 
-  @media (min-height: 700px) {
-    max-height: none;
-    overflow: visible;
-  }
-
   @media (max-width: 1120px) {
     grid-column: 2;
     position: static;
+    width: auto;
     max-height: none;
     overflow: visible;
+
   }
 
   @media (max-width: 780px) {
@@ -999,7 +998,7 @@ const PreviewPanel = styled.div`
     radial-gradient(circle at 82% 10%, rgba(255, 225, 151, 0.15), transparent 34%),
     var(--glass-bg);
   color: var(--text-primary);
-  /* overflow: hidden; - Removed to allow child sticky headers to display properly */
+  overflow: hidden;
   position: relative;
   box-shadow:
     var(--glass-shadow),
@@ -1010,9 +1009,8 @@ const PreviewPanel = styled.div`
 `;
 
 const PanelHeader = styled.div`
-  position: sticky;
-  top: 0;
-  z-index: 10;
+  position: relative;
+  z-index: 2;
   display: flex;
   align-items: center;
   justify-content: space-between;
