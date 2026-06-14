@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, Navigate, useLocation, useParams } from 'react-router-dom';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
 import MiniGraph from '../components/GraphView/MiniGraph';
 import {
@@ -960,15 +960,15 @@ const RightPanel = styled.aside`
   z-index: 8;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  padding: 1.2rem 0.8rem 1.2rem 1rem;
+  gap: 0;
+  padding: 0;
   max-height: calc(100vh - 2.5rem);
   overflow-y: auto;
   overflow-x: hidden;
 
   border: 1px solid var(--glass-border);
   border-left: 2.5px solid var(--glass-border-highlight);
-  border-radius: 10px;
+  border-radius: 12px;
   background:
     linear-gradient(180deg, rgba(255, 244, 218, 0.08), rgba(99, 61, 26, 0.04)),
     radial-gradient(circle at 85% 8%, rgba(255, 225, 151, 0.12), transparent 32%),
@@ -981,12 +981,20 @@ const RightPanel = styled.aside`
   transition: background 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease;
 
   &::-webkit-scrollbar {
-    width: 4px;
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
   }
 
   &::-webkit-scrollbar-thumb {
-    background: var(--glass-border-highlight);
+    background: rgba(216, 175, 55, 0.35);
     border-radius: 999px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: rgba(216, 175, 55, 0.6);
   }
 
   @media (max-width: 1120px) {
@@ -1011,15 +1019,23 @@ const RightPanel = styled.aside`
 `;
 
 const PreviewPanel = styled.div`
-  border: 1px solid var(--glass-border);
-  border-radius: 8px;
-  background: var(--glass-bg-alt);
+  /* Desktop default: transparent wrapper inside RightPanel */
+  border: none;
+  background: transparent;
   color: var(--text-primary);
   overflow: hidden;
   position: relative;
+  display: flex;
+  flex-direction: column;
   transition: background 0.5s ease, border-color 0.5s ease;
 
+  ${props => props.$hasBorderTop && css`
+    border-top: 1px solid var(--glass-border);
+  `}
+
   @media (max-width: 1120px) {
+    /* Mobile fallback: float as separate cards */
+    border: 1px solid var(--glass-border);
     border-left: 2.5px solid var(--glass-border-highlight);
     border-radius: 10px;
     background:
@@ -1031,6 +1047,7 @@ const PreviewPanel = styled.div`
       var(--glass-inset);
     backdrop-filter: blur(12px) saturate(1.2);
     -webkit-backdrop-filter: blur(12px) saturate(1.2);
+    border-top: none;
   }
 `;
 
@@ -1047,7 +1064,6 @@ const PanelHeader = styled.div`
   background: var(--glass-bg-alt);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border-radius: 9px 9px 0 0;
   transition: background 0.5s ease, border-color 0.5s ease;
 `;
 
@@ -1127,7 +1143,6 @@ const PreviewBody = styled.div`
   aspect-ratio: 1 / 1;
   min-height: 280px;
   background: var(--glass-bg-alt);
-  border-radius: 0 0 9px 9px;
   overflow: hidden;
   position: relative;
   transition: background 0.5s ease;
@@ -1144,7 +1159,6 @@ const SideList = styled.div`
   gap: 0.55rem;
   padding: 0.9rem;
   background: var(--glass-bg-alt);
-  border-radius: 0 0 9px 9px;
   overflow: hidden;
   position: relative;
   transition: background 0.5s ease;
@@ -1301,7 +1315,7 @@ function RightSidebar({ graphData, indexData, activeCollection, theme }) {
           </PreviewBody>
         </PreviewPanel>
       )}
-      <PreviewPanel>
+      <PreviewPanel $hasBorderTop={!isMobile}>
         <PanelHeader>
           <PanelTitle>发布档案</PanelTitle>
         </PanelHeader>

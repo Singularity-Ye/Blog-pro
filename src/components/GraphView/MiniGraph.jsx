@@ -9,20 +9,6 @@ function toNoteHref(slug) {
   return `/note/${String(slug).split('/').map(encodeURIComponent).join('/')}`;
 }
 
-const COLLECTION_COLORS = {
-  travel: '#d8a247',
-  project: '#c8933f',
-  'blog-design': '#c7a46a',
-  'compiler-theory': '#cca362',
-  'linux-notes': '#cca362',
-  embedded: '#cca362',
-  'knowledge-grocery': '#caa866',
-  'internal-skills': '#cca362',
-  weaveink: '#8b5cf6',
-  'laohan-criticism': '#ec4899',
-  'laotou-criticism': '#3b82f6',
-  'guanxin-pavilion': '#10b981',
-};
 
 const THEMES = {
   dark: {
@@ -157,7 +143,7 @@ export default function MiniGraph({ graphData: propGraphData, currentSlug: propC
     
     const radius = Math.max(1.0, Math.min(4.0, 1.0 + Math.sqrt(node.degree) * 0.3));
     
-    let color = COLLECTION_COLORS[node.collection] || activeTheme.node;
+    let color = activeTheme.node;
     if (hoverNode) {
       if (isHovered) color = activeTheme.nodeHover;
       else if (isSelf) color = activeTheme.nodeHighlight;
