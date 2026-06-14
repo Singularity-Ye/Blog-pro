@@ -129,14 +129,6 @@ const METADATA_COLLECTIONS = [
     accent: '#caa866',
   },
   {
-    slug: 'desk-thoughts',
-    kind: 'desk-thoughts',
-    title: '青灯余暇闲情 · 案头卷',
-    eyebrow: 'TRANQUIL MEDITATION JOURNAL',
-    description: '修行有得，提笔著书。红尘游历、心魔感悟与道友杂谈，皆温存入纸，可堪在风定雨歇时佐茶细读。',
-    accent: '#caa866',
-  },
-  {
     slug: 'knowledge-grocery',
     kind: 'knowledge-grocery',
     title: '青灯余暇闲情 · 杂货卷',
@@ -144,15 +136,16 @@ const METADATA_COLLECTIONS = [
     description: '修行有得，提笔著书。红尘游历、心魔感悟与道友杂谈，皆温存入纸，可堪在风定雨歇时佐茶细读。',
     accent: '#caa866',
   },
-  // 11. 内功心法
+  // 11. 认知札记
   {
     slug: 'internal-skills',
     kind: 'internal-skills',
-    title: '太玄 | 内功心法',
-    eyebrow: 'INNER CULTIVATION DIRECTIVES',
-    description: '修仙者筑基长生、洗髓伐脉之底层核心心诀。吐纳归真，洗涤俗虑，重塑神识周天之根本。',
+    title: '太玄 | 认知札记',
+    eyebrow: 'COGNITIVE REFLECTIONS',
+    description: '屋主关于心智模型、技术本质与知识工作流的底层思辨。在林间对抗知识腐化，探寻数字园艺的营造法式。',
     accent: '#cca362',
   },
+
   // 12. 纪要 (缺陷与工单)
   {
     slug: 'jiyao',

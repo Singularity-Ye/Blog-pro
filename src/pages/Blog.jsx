@@ -231,7 +231,7 @@ const BLOG_SCENES = {
         label: '屋主札记', 
         collection: 'blog-design', 
         transform: 'rotate(8deg)',
-        filter: (notes) => notes.find(n => n.slug === '内功心法/随感录/屋主札记：在林间对抗知识腐化')
+        filter: (notes) => notes.find(n => n.slug === '01_藏经阁（知识库）/思辨录（认知与方法论）/屋主札记：在林间对抗知识腐化')
       },
       { 
         id: 'green-1', 
@@ -571,7 +571,7 @@ const BLOG_SCENES = {
         hitHeight: '20.62%',
         labelLeft: '38.3%',
         labelTop: '29%',
-        articleSlug: '内功心法/随感录/Obsidian本质理解：Markdown、HTML 与 AI 时代的知识工作流',
+        articleSlug: '01_藏经阁（知识库）/思辨录（认知与方法论）/Obsidian本质理解：Markdown、HTML 与 AI 时代的知识工作流',
         articleMeta: 'WORKSHOP · OBSIDIAN'
       },
       { 

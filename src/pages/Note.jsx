@@ -28,7 +28,6 @@ const METADATA_COLLECTIONS = [
   { slug: 'linux-notes', kind: 'linux-notes' },
   { slug: 'embedded', kind: 'embedded' },
   { slug: 'xianqing', kind: '闲情' },
-  { slug: 'desk-thoughts', kind: 'desk-thoughts' },
   { slug: 'knowledge-grocery', kind: 'knowledge-grocery' },
   { slug: 'internal-skills', kind: 'internal-skills' },
 ];
@@ -47,9 +46,8 @@ const COLLECTION_LABELS = {
   'linux-notes': 'Linux 笔记',
   'embedded': '嵌入式开发',
   '闲情': '闲情逸趣',
-  'desk-thoughts': '案头沉思',
   'knowledge-grocery': '杂货铺',
-  'internal-skills': '内功心法',
+  'internal-skills': '认知札记',
 };
 
 export function parseElegantTitle(title) {
