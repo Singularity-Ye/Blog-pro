@@ -21,7 +21,7 @@
     {
       "enabled": true,
       "label": "杭州旅游攻略",
-      "root": "杭州旅游攻略",
+      "root": "03_生活簿（生活区）/行路志（旅行与城市）",
       "kind": "travel",
       "include": [
         "**/*.md"
@@ -34,7 +34,7 @@
     {
       "enabled": true,
       "label": "建站流程指南",
-      "root": "建站流程指南-静态网页",
+      "root": "01_藏经阁（知识库）/技艺录（技术与工具）/建站实录",
       "kind": "project",
       "include": [
         "**/*.md"
@@ -44,7 +44,7 @@
     {
       "enabled": true,
       "label": "博客网站设计思路",
-      "root": "博客网站",
+      "root": "02_丹炉间（项目区）/松果屋·博客",
       "kind": "blog-design",
       "include": [
         "**/*.md"
@@ -68,7 +68,7 @@
     {
       "enabled": true,
       "label": "Linux学习笔记",
-      "root": "系统性知识整理/Linux学习笔记",
+      "root": "01_藏经阁（知识库）/格物院（课程与学科）/Linux学习笔记",
       "kind": "linux-notes",
       "include": [
         "**/*.md"
@@ -78,7 +78,7 @@
     {
       "enabled": true,
       "label": "代号《织墨》(WeaveInk)",
-      "root": "路边小项目/代号《织墨》(WeaveInk)",
+      "root": "02_丹炉间（项目区）/织墨引擎",
       "kind": "weaveink",
       "include": [
         "**/*.md"
@@ -88,7 +88,7 @@
     {
       "enabled": true,
       "label": "嵌入式",
-      "root": "系统性知识整理/嵌入式",
+      "root": "01_藏经阁（知识库）/格物院（课程与学科）/嵌入式",
       "kind": "embedded",
       "include": [
         "**/*.md"
@@ -98,7 +98,7 @@
     {
       "enabled": true,
       "label": "编译原理",
-      "root": "系统性知识整理/编译原理",
+      "root": "01_藏经阁（知识库）/格物院（课程与学科）/编译原理",
       "kind": "compiler-theory",
       "include": [
         "**/*.md"
@@ -110,7 +110,7 @@
     {
       "enabled": true,
       "label": "内功心法",
-      "root": "内功心法",
+      "root": "01_藏经阁（知识库）/思辨录（认知与方法论）",
       "kind": "internal-skills",
       "include": [
         "**/*.md"
@@ -120,7 +120,7 @@
     {
       "enabled": true,
       "label": "案头随感",
-      "root": "案头随感",
+      "root": "03_生活簿（生活区）/案上书",
       "kind": "desk-thoughts",
       "include": [
         "**/*.md"
@@ -130,8 +130,28 @@
     {
       "enabled": true,
       "label": "知识杂货铺",
-      "root": "知识杂货铺",
+      "root": "01_藏经阁（知识库）/博物志（见闻与科普）",
       "kind": "knowledge-grocery",
+      "include": [
+        "**/*.md"
+      ],
+      "exclude": []
+    },
+    {
+      "enabled": true,
+      "label": "老韩宇宙",
+      "root": "01_藏经阁（知识库）/刀笔集（锐评与观察）/老韩宇宙",
+      "kind": "laohan-criticism",
+      "include": [
+        "**/*.md"
+      ],
+      "exclude": []
+    },
+    {
+      "enabled": true,
+      "label": "老头宇宙",
+      "root": "01_藏经阁（知识库）/刀笔集（锐评与观察）/老头宇宙",
+      "kind": "laotou-criticism",
       "include": [
         "**/*.md"
       ],
