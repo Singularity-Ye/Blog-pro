@@ -17,10 +17,10 @@ import remarkHtmlBreaks from '../utils/remarkHtmlBreaks';
 const preprocessMarkdown = (text) => {
   if (!text) return text;
   return text
-    // 1. letter/number/Chinese + ** + opening punctuation -> insert space before **
-    .replace(/([a-zA-Z0-9\u4e00-\u9fa5])\*\*([“"「『（(【[])/g, '$1 **$2')
-    // 2. closing punctuation + ** + letter/number/Chinese -> insert space after **
-    .replace(/([”"」』）)】\]])\*\*([a-zA-Z0-9\u4e00-\u9fa5])/g, '$1** $2');
+    // 1. letter/number/Chinese + ** + text + ** -> insert space before opening **
+    .replace(/([a-zA-Z0-9\u4e00-\u9fa5])\*\*(.*?)\*\*/g, '$1 **$2**')
+    // 2. ** + text + ** + letter/number/Chinese -> insert space after closing **
+    .replace(/\*\*(.*?)\*\*([a-zA-Z0-9\u4e00-\u9fa5])/g, '**$1** $2');
 };
 
 // -------------------------------------------------------------------------

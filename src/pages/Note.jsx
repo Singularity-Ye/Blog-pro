@@ -13,17 +13,19 @@ import { filterGraphByLocal } from '../utils/graphFilters';
 import { parseFrontmatter } from '../utils/frontmatter';
 import { fetchGraphData } from '../utils/publishData';
 import remarkHtmlBreaks from '../utils/remarkHtmlBreaks';
+import { encodeNotePath, safeDecodeNotePath, toNoteHref } from '../utils/notePaths';
+import { normalizeMarkdownMath } from '../utils/markdownMath';
 import { MouseLeafDrift } from '../components/MouseEffects';
 import noteReadingBgLight from '../assets/images/atlas/note-reading-light.png';
 import noteReadingBgDark from '../assets/images/atlas/note-reading-dark.png';
 // Helper to fix bold (** or __) formatting next to Chinese/English text and punctuation
 const preprocessMarkdown = (text) => {
   if (!text) return text;
-  return text
-    // 1. letter/number/Chinese + ** + opening punctuation -> insert space before **
-    .replace(/([a-zA-Z0-9\u4e00-\u9fa5])\*\*([“"「『（(【[])/g, '$1 **$2')
-    // 2. closing punctuation + ** + letter/number/Chinese -> insert space after **
-    .replace(/([”"」』）)】\]])\*\*([a-zA-Z0-9\u4e00-\u9fa5])/g, '$1** $2');
+  return normalizeMarkdownMath(text)
+    // 1. letter/number/Chinese + ** + text + ** -> insert space before opening **
+    .replace(/([a-zA-Z0-9\u4e00-\u9fa5])\*\*(.*?)\*\*/g, '$1 **$2**')
+    // 2. ** + text + ** + letter/number/Chinese -> insert space after closing **
+    .replace(/\*\*(.*?)\*\*([a-zA-Z0-9\u4e00-\u9fa5])/g, '**$1** $2');
 };
 
 // Helper to recursively replace <br> / <br/> / <br /> strings with React <br /> components
@@ -1005,10 +1007,6 @@ const DecorationLayer = styled.div`
 
 // ── Wikilink 处理 ─────────────────────────────────────────────
 
-function toNoteHref(slug) {
-  return `/note/${String(slug).split('/').map(encodeURIComponent).join('/')}`;
-}
-
 function getTextContent(value) {
   if (Array.isArray(value)) return value.map(getTextContent).join('');
   if (value === null || value === undefined || typeof value === 'boolean') return '';
@@ -1465,7 +1463,7 @@ export default function Note() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const decodedSlug = useMemo(() => decodeURIComponent(slug || ''), [slug]);
+  const decodedSlug = useMemo(() => safeDecodeNotePath(slug || ''), [slug]);
 
   // 加载图谱数据
   useEffect(() => {
@@ -1536,7 +1534,7 @@ export default function Note() {
     setLoading(true);
     setError(null);
 
-    fetch(`/notes/${decodedSlug}.md`)
+    fetch(`/notes/${encodeNotePath(decodedSlug)}.md`)
       .then(r => {
         if (!r.ok) throw new Error(`笔记未找到: ${decodedSlug}`);
         return r.text();
@@ -1636,7 +1634,7 @@ export default function Note() {
     let frameId = 0;
     const timeoutId = window.setTimeout(() => {
       frameId = window.requestAnimationFrame(() => {
-        const targetId = decodeURIComponent(location.hash.slice(1));
+        const targetId = safeDecodeNotePath(location.hash.slice(1));
         document.getElementById(targetId)?.scrollIntoView({ block: 'start' });
       });
     }, 0);
