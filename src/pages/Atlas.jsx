@@ -998,16 +998,34 @@ function DirectoryNode({ node, accent, expandedPaths, onToggle, theme }) {
 }
 
 const RightPanel = styled.aside`
-  position: sticky;
+  position: fixed;
   top: 1.25rem;
-  align-self: start;
+  right: max(clamp(1rem, 2.5vw, 2rem), calc((100vw - 1500px) / 2 + clamp(1rem, 2.5vw, 2rem)));
+  width: clamp(300px, 24vw, 380px);
+  z-index: 8;
   display: grid;
   gap: 1rem;
-  padding: 1rem 0 0.75rem;
+  padding: 1rem 0.2rem 0.75rem 0;
+  max-height: calc(100vh - 2.5rem);
+  overflow-y: auto;
+  overflow-x: hidden;
+  border-radius: 10px 10px 0 0;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--glass-border-highlight);
+    border-radius: 999px;
+  }
 
   @media (max-width: 1120px) {
     grid-column: 2;
     position: static;
+    width: auto;
+    max-height: none;
+    overflow: visible;
   }
 
   @media (max-width: 780px) {
@@ -1025,6 +1043,7 @@ const PreviewPanel = styled.div`
     var(--glass-bg);
   color: var(--text-primary);
   overflow: hidden;
+  position: relative;
   box-shadow:
     var(--glass-shadow),
     var(--glass-inset);
@@ -1034,6 +1053,8 @@ const PreviewPanel = styled.div`
 `;
 
 const PanelHeader = styled.div`
+  position: relative;
+  z-index: 2;
   display: flex;
   align-items: center;
   justify-content: space-between;
