@@ -67,17 +67,17 @@ used_in_chapter:
 ### 3.2 DFA 状态与转移
 
 1. **初态**  
-   \[
+   $$
    D_0 = \varepsilon\text{-closure}(\{S\})
-   \]
+   $$
 
 2. **转移**  
    对每个已出现的子集 \(D \subseteq Q\)、每个字符 \(a \in \Sigma\)：  
    令  
-   \[
+   $$
    U = \{ q' \mid \exists q \in D,\ q \xrightarrow{a} q' \},\quad
    D' = \varepsilon\text{-closure}(U)
-   \]
+   $$
    若 \(U\) 为空，通常不连边（或连到显式**死状态**，取决于是否对 Σ 完备）。
 
 3. **接受与标签**  

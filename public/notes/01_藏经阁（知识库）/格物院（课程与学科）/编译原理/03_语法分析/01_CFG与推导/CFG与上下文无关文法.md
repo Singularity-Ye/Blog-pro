@@ -35,14 +35,20 @@ used_in_chapter:
 ## 形式化数学定义
 
 一个上下文无关文法  $G$  是一个四元组：
-$$G = (V_N, V_T, P, S)$$
+$$
+G = (V_N, V_T, P, S)
+$$
 
 其中各部分的严格定义为：
 1.  $V_N$  是 **非终结符集合**（Nonterminals）。在推导中会被进一步展开替换，通常用大写字母（如  $E, T, F, S$ ）表示。
 2.  $V_T$  是 **终结符集合**（Terminals）。即词法分析输出的 Token，是推导的终点，通常用小写字母或关键字（如  $\text{id}, +, \text{if}$ ）表示。且满足：
-    $$V_N \cap V_T = \emptyset$$
+    $$
+    V_N \cap V_T = \emptyset
+    $$
 3.  $P$  是 **产生式集合**（Productions）。它是定义替换规则的有限集合，每个产生式的形式为：
-    $$A \to \alpha$$
+    $$
+    A \to \alpha
+    $$
     其中  $A \in V_N$ （左侧必须是**单个**非终结符），而  $\alpha \in (V_N \cup V_T)^*$ （右侧是由非终结符和终结符构成的任意符号串，可以为空  $\varepsilon$ ）。
 4.  $S \in V_N$  是唯一的 **开始符号**（Start Symbol）。推导过程的起点。
 

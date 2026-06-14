@@ -79,8 +79,12 @@ typedef struct Node {
 > ```
 > **物理过程剖析**：
 > LALR(1) 状态机只允许在**产生式圆点到达最右侧**时进行归约并执行动作。为了在中间执行动作，Bison 会在幕后重写文法，插入一个看不见的 **$\epsilon$-产生式**：
-> $$\text{expr} \to \text{expr} \; M \; \text{PLUS} \; \text{expr}$$
-> $$M \to \varepsilon \quad \{ \text{printf("Middle Action!\\n");} \}$$
+> $$
+> \text{expr} \to \text{expr} \; M \; \text{PLUS} \; \text{expr}
+> $$
+> $$
+> M \to \varepsilon \quad \{ \text{printf("Middle Action!\\n");} \}
+> $$
 > 
 > **严重后果**：这无中生有地引入了非终结符 $M$ 和 $\epsilon$ 归约，导致原本能合并的 LALR(1) 同心项状态发生**分裂**，极易引入原本并不存在的 **移进-归约冲突**！
 > **金牌排坑法则**：**除非绝对必要，绝对不要在文法中间写任何 `{ }` 动作**，一律只写在最右端。

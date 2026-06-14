@@ -42,7 +42,7 @@ used_in_chapter:
 
 ## 2. 输入与输出 (Inputs & Outputs)
 
-*   **输入**：Token 字符流（以  $\$$  结尾），以及基于 FOLLOW 过滤填制的静态 `ACTION/GOTO` 分析表。
+*   **输入**：Token 字符流（以  $\text{＄}$  结尾），以及基于 FOLLOW 过滤填制的静态 `ACTION/GOTO` 分析表。
 *   **输出**：若合法，输出最右归约产生式序列；若非法，抛出语法错误。
 *   **物理结构**：状态栈与符号栈双栈驱动，完全套用标准的 LR 驱动查表循环。
 
@@ -57,7 +57,9 @@ SLR(1) 分析算法运行标准的 LR 物理驱动程序。其独特性体现在
 
 1.  **移进优先**：若项目  $[A \to \alpha\cdot a\beta] \in I_i$  且  $GOTO(I_i, a) = I_j$ ，填入  $ACTION[i, a] = s_j$ 。
 2.  **有选择的归约（核心过滤点）**：若项目  $[A \to \alpha\cdot] \in I_i$ （ $A \neq S'$ ），我们**仅对满足 $a \in \text{FOLLOW}(A)$ 的终结符列 $a$** 填入归约动作：
-    $$ACTION[i, a] = r_k \quad (\text{其中 } k \text{ 为产生式 } A \to \alpha \text{ 的编号})$$
+    $$
+    ACTION[i, a] = r_k \quad (\text{其中 } k \text{ 为产生式 } A \to \alpha \text{ 的编号})
+    $$
 3.  **冲突消解**：若输入符号  $c \notin \text{FOLLOW}(A)$ ，则该格子**坚决不填**归约。原本在 LR(0) 中满行乱填的归约动作被限制在  $\text{FOLLOW}(A)$  的“安检门”范围内，消除了移进与归约动作在不合理字符下的重合。
 
 ---
@@ -79,11 +81,13 @@ SLR(1) 分析算法运行标准的 LR 物理驱动程序。其独特性体现在
 
 ### 经典反例：$S \to L = R \mid R$ 文法中的“虚警冲突”
 考虑以下处理赋值语句的经典文法片段：
-$$\begin{aligned}
+$$
+\begin{aligned}
 S &\to L = R \mid R \\
 L &\to * R \mid \text{id} \\
 R &\to L
-\end{aligned}$$
+\end{aligned}
+$$
 
 在构造 DFA 时，会产生一个状态 $I_2$，其核心项集同时包含：
 *   $[S \to L\cdot = R]$ （期望遇到 `=` 时 **移进** ）

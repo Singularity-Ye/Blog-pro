@@ -99,7 +99,9 @@ created: 2026-06-12
 ### 1. 子集构造法详细计算步骤
 
 #### (1) 计算初态的 $\varepsilon$-闭包
-$$q_0 = \text{val\_start} = \varepsilon\text{-closure}(\{1\}) = \{1, 2, 4\}$$
+$$
+q_0 = \text{val\_start} = \varepsilon\text{-closure}(\{1\}) = \{1, 2, 4\}
+$$
 由于包含 $4$，为 **接受状态**。
 
 #### (2) 从 $q_0 = \{1, 2, 4\}$ 出发进行转移

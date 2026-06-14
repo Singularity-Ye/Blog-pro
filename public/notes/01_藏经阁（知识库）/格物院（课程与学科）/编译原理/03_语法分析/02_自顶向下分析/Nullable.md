@@ -46,7 +46,9 @@ used_in_chapter:
 
 ### 形式化定义
 若非终结符 $A$ 满足以下条件，则称 $A$ 是可空的（Nullable）：
-$$A \Rightarrow^* \varepsilon$$
+$$
+A \Rightarrow^* \varepsilon
+$$
 
 ### 计算算法（Fixed-Point Algorithm）
 要找出文法中所有的 Nullable 符号，可以通过迭代计算直到状态不再改变：

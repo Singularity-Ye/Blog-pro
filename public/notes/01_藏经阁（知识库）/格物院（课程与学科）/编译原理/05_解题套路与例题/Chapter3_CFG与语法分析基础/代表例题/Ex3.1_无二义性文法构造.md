@@ -96,14 +96,20 @@ created: 2026-06-12
     *   在同一个题目中，**一旦在 part (a) 定义了文法，在 part (b) 的推导中就必须严格使用该文法中的产生式**。学生手稿在最左推导中使用了左递归文法，在最右推导中却突然切换成了右递归文法。在真实考场中，这属于严重的逻辑前后不一致，**最右推导部分会被直接判错扣分**。
     *   **推导的唯一性**：由于文法中每个产生式右部至多包含一个非终结符 $S$，因此不论是左递归文法还是右递归文法，其最左推导和最右推导在每一步替换时都**只有唯一的非终结符可供替换**。这意味着：
         *   若采用左递归文法 `S -> S s ; | s ;`，其最左和最右推导完全相同，均为：
-            $$S \Rightarrow S\ s\ ; \Rightarrow s\ ;\ s\ ;$$
+            $$
+            S \Rightarrow S\ s\ ; \Rightarrow s\ ;\ s\ ;
+            $$
         *   若采用右递归文法 `S -> s ; S | s ;`，其最左和最右推导也完全相同，均为：
-            $$S \Rightarrow s\ ;\ S \Rightarrow s\ ;\ s\ ;$$
+            $$
+            S \Rightarrow s\ ;\ S \Rightarrow s\ ;\ s\ ;
+            $$
         *   学生试图通过“强行让最左和最右推导写得不一样”来迎合题目问法，反而暴露了对推导概念理解的漏洞。
 
 ### 3. 官方答案细节微疵（Typo 警示 🌟）
 *   官方标准答案中，最左与最右推导的最后一步写为了：
-    $$\dots \Rightarrow s; s$$
+    $$
+    \dots \Rightarrow s; s
+    $$
     这显然遗漏了最后一个字符的右半部分分号 `;`（应为 $s;s;$）。这是教材课件制作中常见的印刷错误（Typo），学生手稿中的书写结果反而更符合严格的推导定义。
 
 ---
@@ -113,22 +119,34 @@ created: 2026-06-12
 ### 选项一：官方规范的右递归文法及推导
 
 *   **无二义性右递归文法**：
-    $$S \rightarrow s\ ;\ S \mid s\ ;$$
+    $$
+    S \rightarrow s\ ;\ S \mid s\ ;
+    $$
 *   **最左推导 (Leftmost Derivation)**：
-    $$S \Rightarrow s\ ;\ S \Rightarrow s\ ;\ s\ ;$$
+    $$
+    S \Rightarrow s\ ;\ S \Rightarrow s\ ;\ s\ ;
+    $$
 *   **最右推导 (Rightmost Derivation)**：
-    $$S \Rightarrow s\ ;\ S \Rightarrow s\ ;\ s\ ;$$
+    $$
+    S \Rightarrow s\ ;\ S \Rightarrow s\ ;\ s\ ;
+    $$
 
 ---
 
 ### 选项二：同样正确的左递归文法及推导（考场手算推荐）
 
 *   **无二义性左递归文法**：
-    $$S \rightarrow S\ s\ ;\ \mid\ s\ ;$$
+    $$
+    S \rightarrow S\ s\ ;\ \mid\ s\ ;
+    $$
 *   **最左推导 (Leftmost Derivation)**：
-    $$S \Rightarrow S\ s\ ;\ \Rightarrow s\ ;\ s\ ;$$
+    $$
+    S \Rightarrow S\ s\ ;\ \Rightarrow s\ ;\ s\ ;
+    $$
 *   **最右推导 (Rightmost Derivation)**：
-    $$S \Rightarrow S\ s\ ;\ \Rightarrow s\ ;\ s\ ;$$
+    $$
+    S \Rightarrow S\ s\ ;\ \Rightarrow s\ ;\ s\ ;
+    $$
 
 *(注：由于该语言的文法产生式中只包含一个非终结符 $S$，因此在这两种文法下，其最左与最右推导序列在物理上都是完全等价且恒等的)*
 

@@ -29,7 +29,9 @@ aliases:
    - 若 $a$ 声明为 `%right`（右结合） $\Rightarrow$ 填入 **Shift**。
    - 若 $a$ 声明为 `%nonassoc`（不可结合） $\Rightarrow$ 填入 **Error**（报错拒绝填表）。
 
-$$\text{Production Precedence} = \text{Precedence of the Rightmost Terminal Symbol in the Production}$$
+$$
+\text{Production Precedence} = \text{Precedence of the Rightmost Terminal Symbol in the Production}
+$$
 （注：如果产生式右部没有任何终结符，则其默认优先级为最低，除非使用 `%prec` 强行覆盖）
 
 ---

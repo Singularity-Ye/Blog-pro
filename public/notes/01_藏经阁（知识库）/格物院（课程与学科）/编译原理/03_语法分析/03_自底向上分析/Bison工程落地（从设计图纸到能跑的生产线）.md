@@ -204,8 +204,12 @@ expr : term { printf("Found Term\n"); } PLUS factor { $$ = $1 + $4; }
 > [!CAUTION] **Bison 内部大分裂机制**
 > 物理上的 LALR(1) 只能在**产生式完全匹配（即圆点在最右端）**时执行归约动作。
 > 为了在中间插入动作，Bison 会在幕后进行**文法改写**，强行插入一个 **空产生式（$\epsilon$-production）**：
-> $$\text{expr} \to \text{term} \; M \; \text{PLUS} \; \text{factor}$$
-> $$M \to \varepsilon \quad \{ \text{printf("Found Term\\n");} \}$$
+> $$
+> \text{expr} \to \text{term} \; M \; \text{PLUS} \; \text{factor}
+> $$
+> $$
+> M \to \varepsilon \quad \{ \text{printf("Found Term\\n");} \}
+> $$
 > 
 > **副作用**：这无中生有地引入了新的非终结符 $M$ 和 $\epsilon$ 归约，导致 DFA 的状态**分裂**，极易引入原本不存在的 **移进-归约冲突**。
 > **考场准则**：除非绝对必要，**严禁使用中途语义动作**。如需执行中间副作用，应尝试拆分文法。

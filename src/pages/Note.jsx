@@ -805,9 +805,17 @@ const MarkdownBody = styled.div`
 
       /* Text inside nodes and actor/note boxes */
       .node .label, .node label, .node text, .node span, .node div,
+      .node .label *, .node label *, .node text *, .node span *, .node div *,
       .actor text, text.actor, .actor span, .actor div,
+      .actor text *, text.actor *, .actor span *, .actor div *,
       .note text, text.note, .note span, .note div,
-      .messageText {
+      .note text *, text.note *, .note span *, .note div *,
+      svg text, svg tspan, svg span, svg div, svg p, svg label,
+      .actorText, .actorText *,
+      .noteText, .noteText *,
+      .loopText, .loopText *,
+      .loopLabel, .loopLabel *,
+      .messageText, .messageText * {
         fill: var(--text-primary) !important;
         color: var(--text-primary) !important;
         font-family: inherit !important;

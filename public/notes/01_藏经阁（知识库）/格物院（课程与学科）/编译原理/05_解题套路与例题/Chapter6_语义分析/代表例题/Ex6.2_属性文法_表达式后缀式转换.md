@@ -88,7 +88,9 @@ Rewrite the attribute grammar of Table 6.2 to compute a postfix string attribute
 ### 2. 官方标准答案与“空格处理”的学术规范
 *   **官方/幻灯片标准答案写法（学术纯净形式）**：
     课本官方标准答案（如 Dragon Book 及配套课件）的写法为：
-    $$exp1.pf = exp2.pf \mathbin{\Vert} term.pf \mathbin{\Vert} \text{"+"}$$
+    $$
+    exp1.pf = exp2.pf \mathbin{\Vert} term.pf \mathbin{\Vert} \text{"+"}
+    $$
     这是 **最标准、最合理** 的考场作答写法。学术定义上，我们并不需要在语义规则中手动拼接空格 `" "`。
 *   **为什么不需要在 SDD 中写空格**：
     在编译原理的理论模型中，我们通常假设：
@@ -97,7 +99,9 @@ Rewrite the attribute grammar of Table 6.2 to compute a postfix string attribute
     因此，如果在语义规则中强行写成 `E_1.postfix = E_2.postfix || " " || T.postfix || " +"`，不仅显得冗余、不规范，在学术阅卷中还极易被扣除“规范分”。
 *   **手稿真实对比**：
     在左侧的学生手写稿中，解答为：
-    $$expr.postfix = expr1.postfix \mathbin{\Vert} term.postfix \mathbin{\Vert} \text{"+"}$$
+    $$
+    expr.postfix = expr1.postfix \mathbin{\Vert} term.postfix \mathbin{\Vert} \text{"+"}
+    $$
     这与官方答案完全吻合。因此，考场作答应 **坚决避免** 画蛇添足地拼接空格。
 
 ---
@@ -108,9 +112,15 @@ Rewrite the attribute grammar of Table 6.2 to compute a postfix string attribute
 
 原 Table 6.2 表达式文法由如下规则组成（用于计算数值 `val`）：
 
-$$E \to E + T \mid E - T \mid T$$
-$$T \to T * F \mid T / F \mid F$$
-$$F \to ( E ) \mid \textbf{number}$$
+$$
+E \to E + T \mid E - T \mid T
+$$
+$$
+T \to T * F \mid T / F \mid F
+$$
+$$
+F \to ( E ) \mid \textbf{number}
+$$
 
 为了将其改写为生成**后缀式**：
 1. **改变属性类型**：将各非终结符的属性由表示数值的 `val` (如 `int`、`float`) 改为表示字符串的 `postfix` (如 `string` 或 `char*`)。

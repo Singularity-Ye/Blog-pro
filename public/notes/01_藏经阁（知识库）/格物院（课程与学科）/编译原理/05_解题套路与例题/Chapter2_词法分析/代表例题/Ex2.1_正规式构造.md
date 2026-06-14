@@ -194,10 +194,14 @@ stateDiagram-v2
         *   因此在 $S_{11}$ 的自循环正规式为：`(aa|bb)*`。
     *   从 $S_{11}$ 返回终态 $S_{00}$ 的路径同样为：`ab` 或 `ba`，即 `(ab|ba)`。
     *   因此，跨越 $S_{11}$ 并返回 $S_{00}$ 的完整路径为：
-        $$(ab \mid ba)(aa \mid bb)^*(ab \mid ba)$$
+        $$
+        (ab \mid ba)(aa \mid bb)^*(ab \mid ba)
+        $$
 3.  **最终闭包**：
     将上述直接环路与跨越环路求并集，并施加克莱尼星号 `*`，即得到最终正规式：
-    $$\left( (aa \mid bb) \mid (ab \mid ba)(aa \mid bb)^*(ab \mid ba) \right)^*$$
+    $$
+    \left( (aa \mid bb) \mid (ab \mid ba)(aa \mid bb)^*(ab \mid ba) \right)^*
+    $$
 
 ---
 

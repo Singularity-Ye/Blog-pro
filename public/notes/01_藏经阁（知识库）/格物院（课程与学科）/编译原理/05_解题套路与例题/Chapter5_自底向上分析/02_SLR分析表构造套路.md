@@ -43,22 +43,30 @@ created: 2026-06-11
 ### 1. 移进动作规则 (Shift Action)
 若项目 $A \to \alpha \cdot a \beta \in I_i$ 且 $a$ 为 **终结符** ($a \in V_T$)：
 - 若 $\text{GOTO}(I_i, a) = I_j$，则在 ACTION 表的第 $i$ 行、第 $a$ 列填入：
-  $$\text{ACTION}[i, a] = s_j \quad (\text{Shift } j)$$
+  $$
+  \text{ACTION}[i, a] = s_j \quad (\text{Shift } j)
+  $$
 
 ### 2. 归约动作规则 (Reduce Action)
 若项目 $A \to \alpha \cdot \in I_i$ 且 **$A \neq S'$** （即非增广起始符归约）：
 - 对 **所有** 属于非终结符 $A$ 的 FOLLOW 集合的终结符 $a$ ($a \in \text{FOLLOW}(A)$)，在 ACTION 表的第 $i$ 行、第 $a$ 列填入：
-  $$\text{ACTION}[i, a] = r_k \quad (\text{Reduce by } A \to \alpha, \text{其中 } k \text{ 为该产生式的编号})$$
+  $$
+  \text{ACTION}[i, a] = r_k \quad (\text{Reduce by } A \to \alpha, \text{其中 } k \text{ 为该产生式的编号})
+  $$
 
 ### 3. 接受动作规则 (Accept Action)
 若项目 $S' \to S \cdot \in I_i$ （增广文法接收态）：
 - 在 ACTION 表的第 $i$ 行、结束符 **`$` 列** 填入：
-  $$\text{ACTION}[i, \$] = \text{acc}$$
+  $$
+  \text{ACTION}[i, \text{＄}] = \text{acc}
+  $$
 
 ### 4. 跳转动作规则 (Goto Action)
 对于非终结符 $A \in V_N$ 的状态转移：
 - 若 $\text{GOTO}(I_i, A) = I_j$，则在 GOTO 表的第 $i$ 行、第 $A$ 列填入状态编号：
-  $$\text{GOTO}[i, A] = j$$
+  $$
+  \text{GOTO}[i, A] = j
+  $$
 
 ---
 
@@ -86,10 +94,10 @@ created: 2026-06-11
 | 状态 | 包含项目 | 适用填表规则与推导 | 填表项 |
 |:---:|---|---|---|
 | **$I_0$** | $S' \to \cdot S$<br>$S \to \cdot A \textbf{d}$<br>$A \to \cdot \textbf{x}$ | 点后为非终结符 $S$（查 GOTO）<br>点后为非终结符 $A$（查 GOTO）<br>点后为终结符 $\textbf{x}$（跳转至 $I_3$） | $\text{GOTO}[0, S] = 1$<br>$\text{GOTO}[0, A] = 2$<br>$\text{ACTION}[0, \textbf{x}] = s_3$ |
-| **$I_1$** | $S' \to S \cdot$ | 增广文法接收态（结束符 `$`） | $\text{ACTION}[1, \$] = \text{acc}$ |
+| **$I_1$** | $S' \to S \cdot$ | 增广文法接收态（结束符 `$`） | $\text{ACTION}[1, \text{＄}] = \text{acc}$ |
 | **$I_2$** | $S \to A \cdot \textbf{d}$ | 点后为终结符 $\textbf{d}$（跳转至 $I_4$） | $\text{ACTION}[2, \textbf{d}] = s_4$ |
 | **$I_3$** | $A \to \textbf{x} \cdot$ | 归约 (2) 号产生式，仅在 $\text{FOLLOW}(A) = \{\textbf{d}\}$ 列填入 | $\text{ACTION}[3, \textbf{d}] = r_2$ |
-| **$I_4$** | $S \to A \textbf{d} \cdot$ | 归约 (1) 号产生式，仅在 $\text{FOLLOW}(S) = \{\$\}$ 列填入 | $\text{ACTION}[4, \$] = r_1$ |
+| **$I_4$** | $S \to A \textbf{d} \cdot$ | 归约 (1) 号产生式，仅在 $\text{FOLLOW}(S) = \{\text{＄}\}$ 列填入 | $\text{ACTION}[4, \text{＄}] = r_1$ |
 
 ### 2. 最终生成的 SLR(1) 分析表：
 

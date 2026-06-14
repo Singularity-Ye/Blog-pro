@@ -31,12 +31,14 @@ created: 2026-06-12
 ## Original Question
 
 **3.6** Consider the following grammar representing simplified LISP-like expressions:
-$$\begin{aligned}
+$$
+\begin{aligned}
 lexp &\rightarrow atom \mid list \\
 atom &\rightarrow \textbf{number} \mid \textbf{identifier} \\
 list &\rightarrow (lexp\text{--}seq) \\
 lexp\text{--}seq &\rightarrow lexp\text{--}seq\ \ lexp \mid lexp
-\end{aligned}$$
+\end{aligned}
+$$
 *   **(a)** Write a leftmost and a rightmost derivation for the string $(a\ 23\ (\ m\ x\ y\ ))$.
 
 ---
@@ -44,12 +46,14 @@ lexp\text{--}seq &\rightarrow lexp\text{--}seq\ \ lexp \mid lexp
 ## 中文题意
 
 **3.6** 考虑以下表示简化 LISP 风格表达式的文法：
-$$\begin{aligned}
+$$
+\begin{aligned}
 lexp &\rightarrow atom \mid list \\
 atom &\rightarrow \textbf{number} \mid \textbf{identifier} \\
 list &\rightarrow (lexp\text{--}seq) \\
 lexp\text{--}seq &\rightarrow lexp\text{--}seq\ \ lexp \mid lexp
-\end{aligned}$$
+\end{aligned}
+$$
 *   **(a)** 写出字符串 $(a\ 23\ (\ m\ x\ y\ ))$ 的最左推导和最右推导。
 
 ---
@@ -111,9 +115,13 @@ lexp\text{--}seq &\rightarrow lexp\text{--}seq\ \ lexp \mid lexp
 ### 2. 官方答案细节硬伤：Token 拼写错误（Typo 🌟）
 *   仔细观察官方课件标准答案的最后三行：
     *   标准最左推导最后一步：
-        $$\dots \Rightarrow (\textbf{identifier}\ \ \textbf{number}\ \ (\textbf{identify}\ \ \textbf{identify}\ \ \textbf{identify}))$$
+        $$
+        \dots \Rightarrow (\textbf{identifier}\ \ \textbf{number}\ \ (\textbf{identify}\ \ \textbf{identify}\ \ \textbf{identify}))
+        $$
     *   标准最右推导最后一步：
-        $$\dots \Rightarrow (\textbf{identify}\ \ \textbf{number}\ \ (\textbf{identify}\ \ \textbf{identify}\ \ \textbf{identify}))$$
+        $$
+        \dots \Rightarrow (\textbf{identify}\ \ \textbf{number}\ \ (\textbf{identify}\ \ \textbf{identify}\ \ \textbf{identify}))
+        $$
     *   **病因剖析**：官方答案中，将文法中明确定义的终结符 **`identifier`**（标识符）在倒数几步中错误地拼写为了 **`identify`**（动词，识别）。这是课件制作过程中非常粗心的拼写错误。考场作答时，务必严格使用文法给出的终结符词条（即手稿中的 `identifier`），否则会被扣除符号不一致分。
 
 ---
@@ -124,7 +132,8 @@ lexp\text{--}seq &\rightarrow lexp\text{--}seq\ \ lexp \mid lexp
 
 最左推导每次替换句型中最左边的非终结符，详细步骤如下：
 
-$$\begin{aligned}
+$$
+\begin{aligned}
 lexp &\Rightarrow list \\
 &\Rightarrow (lexp\text{--}seq) \\
 &\Rightarrow (lexp\text{--}seq\ \ lexp) \\
@@ -150,7 +159,8 @@ lexp &\Rightarrow list \\
 &\Rightarrow (a\ \ 23\ \ (m\ \ x\ \ atom)) \\
 &\Rightarrow (a\ \ 23\ \ (m\ \ x\ \ \textbf{identifier})) \\
 &\Rightarrow (a\ \ 23\ \ (m\ \ x\ \ y))
-\end{aligned}$$
+\end{aligned}
+$$
 
 ---
 
@@ -158,7 +168,8 @@ lexp &\Rightarrow list \\
 
 最右推导每次替换句型中最右边的非终结符，详细步骤如下：
 
-$$\begin{aligned}
+$$
+\begin{aligned}
 lexp &\Rightarrow list \\
 &\Rightarrow (lexp\text{--}seq) \\
 &\Rightarrow (lexp\text{--}seq\ \ lexp) \\
@@ -184,7 +195,8 @@ lexp &\Rightarrow list \\
 &\Rightarrow (atom\ \ 23\ \ (m\ \ x\ \ y)) \\
 &\Rightarrow (\textbf{identifier}\ \ 23\ \ (m\ \ x\ \ y)) \\
 &\Rightarrow (a\ \ 23\ \ (m\ \ x\ \ y))
-\end{aligned}$$
+\end{aligned}
+$$
 
 ---
 

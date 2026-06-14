@@ -11,6 +11,7 @@ import {
 import atlasArchiveBgLight from '../assets/images/atlas/Celestial-Sands-Field-Light.png';
 import atlasArchiveBgDark from '../assets/images/atlas/Celestial-Sands-Field-Dark.png';
 import { MouseWakeRipple } from '../components/MouseEffects';
+import { toNoteHref } from '../utils/notePaths';
 
 const METADATA_COLLECTIONS = [
   // 1. 落沙寻迹图录 (travel)
@@ -943,7 +944,7 @@ function DirectoryNode({ node, accent, expandedPaths, onToggle, theme }) {
 
   const note = node.note;
   return (
-    <FileRow to={`/note/${note.slug}`} $accent={accent}>
+    <FileRow to={toNoteHref(note.slug)} $accent={accent}>
       <span style={{ width: 10, display: 'inline-block', flexShrink: 0 }} />
       <FileSvg />
       <NodeName title={note.title}>{note.title}</NodeName>
@@ -1398,7 +1399,7 @@ function AtlasHall({ graphData, indexData, counts, collections, theme, toggleThe
           <SectionTitle id="notes">近来浮光的星砂玉简</SectionTitle>
           <NoteList>
             {indexData.notes.slice(0, 12).map((note) => (
-              <NoteItem key={note.slug} to={`/note/${note.slug}`} $accent="#a78bfa">
+              <NoteItem key={note.slug} to={toNoteHref(note.slug)} $accent="#a78bfa">
                 <strong>{note.title}</strong>
                 <span>{note.collectionLabel}</span>
               </NoteItem>

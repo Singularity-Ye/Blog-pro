@@ -72,23 +72,33 @@ used_in_chapter:
 
 GOTO 表的构建完全基于活前缀识别 DFA 中的状态边跳转函数：
 
-$$\text{GOTO}[i, A] \text{ 的填表公式：}$$
+$$
+\text{GOTO}[i, A] \text{ 的填表公式：}
+$$
 
-$$\text{GOTO}[i, A] = 
+$$
+\text{GOTO}[i, A] =
 \begin{cases}
 j & \text{若 } \text{GOTO}(I_i, A) = I_j \text{（其中 } A \text{ 是非终结符）} \\
 \text{空白} & \text{若 } \text{GOTO}(I_i, A) = \emptyset
-\end{cases}$$
+\end{cases}
+$$
 
 ### 填表示例
 
 已知 DFA 的部分状态转移弧如下：
 1.  在状态 $I_0$ 下读入非终结符 $E$ 跳转到 $I_1$：
-    $$\text{GOTO}(I_0, E) = I_1 \implies \text{GOTO}[0, E] = 1$$
+    $$
+    \text{GOTO}(I_0, E) = I_1 \implies \text{GOTO}[0, E] = 1
+    $$
 2.  在状态 $I_0$ 下读入非终结符 $T$ 跳转到 $I_2$：
-    $$\text{GOTO}(I_0, T) = I_2 \implies \text{GOTO}[0, T] = 2$$
+    $$
+    \text{GOTO}(I_0, T) = I_2 \implies \text{GOTO}[0, T] = 2
+    $$
 3.  在状态 $I_1$ 下读入终结符 $+$ 跳转到 $I_3$：
-    $$\text{GOTO}(I_1, +) = I_3 \implies \text{去 ACTION 表填制移进，不属于 GOTO 表！}$$
+    $$
+    \text{GOTO}(I_1, +) = I_3 \implies \text{去 ACTION 表填制移进，不属于 GOTO 表！}
+    $$
 
 ---
 

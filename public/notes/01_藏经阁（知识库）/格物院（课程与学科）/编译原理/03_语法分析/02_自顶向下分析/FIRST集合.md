@@ -41,7 +41,9 @@ used_in_chapter:
 
 ### 形式化定义
 对于文法符号串 $\alpha \in (V_T \cup V_N)^*$，其 FIRST 集合定义为：
-$$FIRST(\alpha) = \{ a \in V_T \mid \alpha \Rightarrow^* a\beta \} \cup \{ \varepsilon \mid \alpha \Rightarrow^* \varepsilon \}$$
+$$
+FIRST(\alpha) = \{ a \in V_T \mid \alpha \Rightarrow^* a\beta \} \cup \{ \varepsilon \mid \alpha \Rightarrow^* \varepsilon \}
+$$
 
 ### 级联可空推导（Nullable Propagation）── 大白话直觉与手电筒透光模型
 

@@ -13,6 +13,7 @@
 
 import fs from 'fs';
 import path from 'path';
+import { normalizeMarkdownMath } from '../src/utils/markdownMath.js';
 
 const VAULT_PATH = process.env.VAULT_PATH || String.raw`C:\Users\Yhx06\Documents\Obsidian Vault`;
 const PUBLIC_DIR = path.resolve('public');
@@ -545,7 +546,7 @@ for (const file of fileRecords) {
 }
 
 for (const file of fileRecords) {
-  const processedContent = processMarkdownImages(file.content, file, allImages);
+  const processedContent = normalizeMarkdownMath(processMarkdownImages(file.content, file, allImages));
   const targetPath = path.join(NOTES_OUT, ...file.slug.split('/')) + '.md';
   ensureDir(path.dirname(targetPath));
   fs.writeFileSync(targetPath, processedContent, 'utf-8');

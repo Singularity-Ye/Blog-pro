@@ -44,12 +44,16 @@ used_in_chapter:
 
 1. **无 FIRST/FIRST 冲突**：
    两个分支的首字符集合不能有交集：
-   $$\text{FIRST}(\alpha) \cap \text{FIRST}(\beta) = \varnothing$$
+   $$
+   \text{FIRST}(\alpha) \cap \text{FIRST}(\beta) = \varnothing
+   $$
 2. **两分支不能同时可空**：
    $\alpha$ 和 $\beta$ 不能同时推导出空串（即不能有 $\varepsilon \in \text{FIRST}(\alpha)$ 且 $\varepsilon \in \text{FIRST}(\beta)$）。
 3. **无 FIRST/FOLLOW 冲突**（当包含空分支时必查）：
    如果 $\beta \Rightarrow^* \varepsilon$（即 $\varepsilon \in \text{FIRST}(\beta)$），则必须满足：
-   $$\text{FIRST}(\alpha) \cap \text{FOLLOW}(A) = \varnothing$$
+   $$
+   \text{FIRST}(\alpha) \cap \text{FOLLOW}(A) = \varnothing
+   $$
 
 ---
 

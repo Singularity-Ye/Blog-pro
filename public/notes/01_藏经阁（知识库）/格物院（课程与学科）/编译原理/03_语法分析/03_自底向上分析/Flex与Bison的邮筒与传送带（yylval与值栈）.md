@@ -43,7 +43,9 @@ used_in_chapter:
 
 ### 物理架构设计
 Bison (LALR(1) 分析器) 在运行时并行动态维护着两个物理栈：
-$$\text{State Stack} \quad \text{与} \quad \text{Value Stack}$$
+$$
+\text{State Stack} \quad \text{与} \quad \text{Value Stack}
+$$
 
 ```
    输入符号流 ---> [yylex] --- 传送 yylval ---> [yyparse]
@@ -58,7 +60,9 @@ $$\text{State Stack} \quad \text{与} \quad \text{Value Stack}$$
 
 ### 通信协议与数据流向
 1. **数据流动**：
-   $$\text{Source Code} \xrightarrow{\text{Regex Match}} \text{lexeme} \xrightarrow{\text{yylval}} \text{Value Stack} \xrightarrow{\text{Reduce} (\$\$=\text{fn}(\$1,\$3))} \text{Parent Attribute}$$
+   $$
+   \text{Source Code} \xrightarrow{\text{Regex Match}} \text{lexeme} \xrightarrow{\text{yylval}} \text{Value Stack} \xrightarrow{\text{Reduce} (\$\$=\text{fn}(\$1,\$3))} \text{Parent Attribute}
+   $$
 2. **%union 属性多元化**：
    默认情况下，值栈只能存放单一种类的数据（如整型）。在复杂语言中，我们需要传递多种数据类型（如数字 `double`、变量名 `char*`、AST指针 `Node*`）。Bison 在底层将其编译为 C 语言的 **`union`（联合体）**，确保值栈的每个格子能容纳这些不同类型的值。
 

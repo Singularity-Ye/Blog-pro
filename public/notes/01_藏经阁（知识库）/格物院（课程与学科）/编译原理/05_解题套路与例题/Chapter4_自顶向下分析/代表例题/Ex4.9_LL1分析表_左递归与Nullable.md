@@ -145,7 +145,7 @@ $$
 
 | 非终结符 | Nullable | FIRST | FOLLOW |
 | :---: | :---: | :--- | :--- |
-| **S** | False | $\{u\}$ | $\{\$\}$ |
+| **S** | False | $\{u\}$ | $\{\text{＄}\}$ |
 | **B** | False | $\{w\}$ | $\{r, x, y, z\}$ |
 | **D** | True | $\{x, y, \varepsilon\}$ | $\{z\}$ |
 | **E** | True | $\{y, \varepsilon\}$ | $\{x, z\}$ |
@@ -155,7 +155,7 @@ $$
 
 | 非终结符 | Nullable | FIRST | FOLLOW |
 | :---: | :---: | :--- | :--- |
-| **S** | False | $\{u\}$ | $\{\$\}$ |
+| **S** | False | $\{u\}$ | $\{\text{＄}\}$ |
 | **B** | False | $\{w\}$ | $\{x, y, z\}$ |
 | **B'** | True | $\{r, \varepsilon\}$ | $\{x, y, z\}$ |
 | **D** | True | $\{x, y, \varepsilon\}$ | $\{z\}$ |

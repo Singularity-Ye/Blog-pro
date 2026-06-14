@@ -12,11 +12,13 @@ import { BLOG_NEW_ASSETS } from '../constants/blogAssets';
 import { parseFrontmatter } from '../utils/frontmatter';
 import { fetchNotesIndex, fetchGraphData } from '../utils/publishData';
 import remarkHtmlBreaks from '../utils/remarkHtmlBreaks';
+import { encodeNotePath, toNoteHref } from '../utils/notePaths';
+import { normalizeMarkdownMath } from '../utils/markdownMath';
 
 // Helper to fix bold (** or __) formatting next to Chinese/English text and punctuation
 const preprocessMarkdown = (text) => {
   if (!text) return text;
-  return text
+  return normalizeMarkdownMath(text)
     // 1. letter/number/Chinese + **bold** -> insert space before opening **
     .replace(/([a-zA-Z0-9\u4e00-\u9fa5])\*\*([^*\s](?:(?:[^*]|\*[^*])*?[^*\s])?)\*\*/g, '$1 **$2**')
     // 2. **bold** + letter/number/Chinese -> insert space after closing **
@@ -2931,7 +2933,15 @@ const MarkdownBody = styled.div`
       .node .label, .node label, .node text, .node span, .node div,
       .actor text, text.actor, .actor span, .actor div,
       .note text, text.note, .note span, .note div,
-      .messageText {
+      .node .label *, .node label *, .node text *, .node span *, .node div *,
+      .actor text *, text.actor *, .actor span *, .actor div *,
+      .note text *, text.note *, .note span *, .note div *,
+      svg text, svg tspan, svg span, svg div, svg p, svg label,
+      .actorText, .actorText *,
+      .noteText, .noteText *,
+      .loopText, .loopText *,
+      .loopLabel, .loopLabel *,
+      .messageText, .messageText * {
         fill: #4a2d1b !important;
         color: #4a2d1b !important;
         font-family: inherit !important;
@@ -3732,7 +3742,7 @@ export default function Blog() {
     setArticleLoading(true);
     setArticleError(null);
 
-    fetch(`/notes/${selectedArticleSlug}.md`)
+    fetch(`/notes/${encodeNotePath(selectedArticleSlug)}.md`)
       .then(r => {
         if (!r.ok) throw new Error(`未找到该法宝的纸卷: ${selectedArticleSlug}`);
         return r.text();
@@ -3958,7 +3968,7 @@ export default function Blog() {
       
       setActiveLeafNote(targetNote);
 
-      fetch(`/notes/${targetNote.slug}.md`)
+      fetch(`/notes/${encodeNotePath(targetNote.slug)}.md`)
         .then(r => {
           if (!r.ok) throw new Error('Could not fetch note content');
           return r.text();

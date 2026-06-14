@@ -84,16 +84,26 @@ U → T | c
 
 ### 2. 错因分析：为什么手写解答偏离了标准？
 * **手写的改写方式**：你直接将 $T$ 和 $U$ 独立进行了左递归消除公式的套用，写成了：
-  $$T \to U T', \quad T' \to a T' \mid b T' \mid \varepsilon$$
-  $$U \to c U', \quad U' \to T' U' \mid \varepsilon$$
+  $$
+  T \to U T', \quad T' \to a T' \mid b T' \mid \varepsilon
+  $$
+  $$
+  U \to c U', \quad U' \to T' U' \mid \varepsilon
+  $$
   虽然这在字面上打破了左递归，但不符合标准的**间接左递归消除算法（依靠代入消元）**。
 * **规范解题法（老师推荐技巧）**：
   * **第一步：代入消元**。把产生式 $U \to T \mid c$ 直接代入到 $T \to T a \mid T b \mid U$ 的 $U$ 中。代入后得到：
-    $$T \to T a \mid T b \mid T \mid c$$
+    $$
+    T \to T a \mid T b \mid T \mid c
+    $$
     此时，间接左递归被成功转化为了直接左递归。
   * **第二步：套公式消除直接左递归**。因为 $T \to T$ 是自循环项（无终结符产出），可以归入 $\varepsilon$ 动作。应用公式后得到：
-    $$T \to c T'$$
-    $$T' \to a T' \mid b T' \mid \varepsilon$$
+    $$
+    T \to c T'
+    $$
+    $$
+    T' \to a T' \mid b T' \mid \varepsilon
+    $$
   * **第三步：消除死码**。由于代入后，非终结符 $U$ 从文法开始符号 $S$ 开始不再可达（$S \to T S'$, $T \to c T'$，两者均不涉及 $U$），$U$ 变为了死码，可以直接从文法中完全消去。
 
 ---

@@ -47,7 +47,9 @@ created: 2026-06-10
 <img src="../原题图片/Ch4_LL1_Ex4.21_原题.png" alt="原题图片" width="595">
 
 Given the grammar:
-$$A \to a A a \mid \varepsilon$$
+$$
+A \to a A a \mid \varepsilon
+$$
 
 a. Show that this grammar is not LL(1).
 
@@ -88,13 +90,17 @@ a. Show that this grammar is not LL(1).
    * 根据产生式 $A \to a A a$，其右部以终结符 $a$ 开头，因此 $a \in \text{FIRST}(A)$。
    * 根据产生式 $A \to \varepsilon$，因此 $\varepsilon \in \text{FIRST}(A)$。
    * 综上：
-     $$\text{FIRST}(A) = \{ a, \varepsilon \}$$
+     $$
+     \text{FIRST}(A) = \{ a, \varepsilon \}
+     $$
 
 2. **计算 $\text{FOLLOW}(A)$**：
-   * 因为 $A$ 是文法的主开始符号，所以输入结束符 $\$$ 必须加入 $\text{FOLLOW}(A)$。
+   * 因为 $A$ 是文法的主开始符号，所以输入结束符 $\text{＄}$ 必须加入 $\text{FOLLOW}(A)$。
    * 在产生式 $A \to a A a$ 的右部中，非终结符 $A$ 的后面跟着终结符 $a$，因此终结符 $a$ 也必须加入 $\text{FOLLOW}(A)$。
    * 综上：
-     $$\text{FOLLOW}(A) = \{ a, \$ \}$$
+     $$
+     \text{FOLLOW}(A) = \{ a, \text{＄} \}
+     $$
 
 ---
 
@@ -104,16 +110,22 @@ a. Show that this grammar is not LL(1).
 1. **对于产生式 $A \to a A a$**：
    * 计算右部的 FIRST 集合：$\text{FIRST}(a A a) = \{ a \}$。
    * 因此，将 $A \to a A a$ 填入第 $A$ 行、第 $a$ 列的单元格：
-     $$M[A, a] \leftarrow A \to a A a$$
+     $$
+     M[A, a] \leftarrow A \to a A a
+     $$
 2. **对于产生式 $A \to \varepsilon$**：
    * 因为该产生式右部为 $\varepsilon$，我们需要将其填入非终结符 $A$ 的 $\text{FOLLOW}$ 集合对应的所有终结符列。
-   * 已知 $\text{FOLLOW}(A) = \{ a, \$ \}$，因此我们需要将 $A \to \varepsilon$ 填入以下两个单元格：
-     $$M[A, a] \leftarrow A \to \varepsilon$$
-     $$M[A, \$] \leftarrow A \to \varepsilon$$
+   * 已知 $\text{FOLLOW}(A) = \{ a, \text{＄} \}$，因此我们需要将 $A \to \varepsilon$ 填入以下两个单元格：
+     $$
+     M[A, a] \leftarrow A \to \varepsilon
+     $$
+     $$
+     M[A, \text{＄}] \leftarrow A \to \varepsilon
+     $$
 
 构造出的 LL(1) 分析表如下所示：
 
-| 非终结符 | $a$ | $\$$ |
+| 非终结符 | $a$ | $\text{＄}$ |
 | :---: | :--- | :--- |
 | **$A$** | $A \to a A a$<br>$A \to \varepsilon$ | $A \to \varepsilon$ |
 
@@ -125,7 +137,9 @@ a. Show that this grammar is not LL(1).
   * $A \to a A a$
   * $A \to \varepsilon$
 * **冲突原因分析**：这是由于终结符 $a$ 同时存在于 $\text{FIRST}(a A a)$ 和 $\text{FOLLOW}(A)$ 中，且 $A$ 是一个可空符号（$\varepsilon \in \text{FIRST}(A)$）。这导致了经典的 **FIRST/FOLLOW 冲突**：
-  $$\text{FIRST}(a A a) \cap \text{FOLLOW}(A) = \{ a \} \cap \{ a, \$ \} = \{ a \} \neq \varnothing$$
+  $$
+  \text{FIRST}(a A a) \cap \text{FOLLOW}(A) = \{ a \} \cap \{ a, \text{＄} \} = \{ a \} \neq \varnothing
+  $$
   这在编译概念上意味着：当分析器栈顶为 $A$且当前输入 Token 为 $a$ 时，它面临多重选择（既可以展开为 $a A a$，也可以归约为 $\varepsilon$），从而无法做出确定性决策。
 
 ---
