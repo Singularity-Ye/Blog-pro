@@ -813,11 +813,11 @@ const MarkdownBody = styled.div`
 
       /* Edge labels background */
       .edgeLabel rect {
-        fill: var(--glass-bg-alt) !important;
+        fill: var(--md-pre-bg) !important;
         rx: 4px !important;
         ry: 4px !important;
         opacity: 0.95 !important;
-        stroke: var(--glass-border) !important;
+        stroke: none !important;
       }
 
       /* Edge labels text */

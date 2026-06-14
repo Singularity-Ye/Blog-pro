@@ -19,10 +19,10 @@
 ```mermaid
 flowchart TD
     %% Subgraph Styling (Card containers)
-    style HW fill:#181214,stroke:#ff5e5b,stroke-width:1px,stroke-dasharray: 5 5,rx:12px,ry:12px;
-    style PI fill:#0e1815,stroke:#2ec4b6,stroke-width:1px,stroke-dasharray: 5 5,rx:12px,ry:12px;
-    style NET fill:#0d151d,stroke:#00b4d8,stroke-width:1px,stroke-dasharray: 5 5,rx:12px,ry:12px;
-    style WEB fill:#130e1d,stroke:#9d4edd,stroke-width:1px,stroke-dasharray: 5 5,rx:12px,ry:12px;
+    style HW fill:none,stroke:#ff5e5b,stroke-width:1px,stroke-dasharray: 5 5,rx:12px,ry:12px;
+    style PI fill:none,stroke:#2ec4b6,stroke-width:1px,stroke-dasharray: 5 5,rx:12px,ry:12px;
+    style NET fill:none,stroke:#00b4d8,stroke-width:1px,stroke-dasharray: 5 5,rx:12px,ry:12px;
+    style WEB fill:none,stroke:#9d4edd,stroke-width:1px,stroke-dasharray: 5 5,rx:12px,ry:12px;
 
     %% 1. 硬件输入层
     subgraph HW["📷 硬件输入层"]
@@ -77,10 +77,10 @@ flowchart TD
     ThreeJS -->|⑮ 实时状态数值回写| Readout
 
     %% Card Aesthetic Class Definitions
-    classDef hwCard fill:#211417,stroke:#ff5e5b,stroke-width:2px,color:#ffb3b2,rx:8px,ry:8px;
-    classDef piCard fill:#121c18,stroke:#2ec4b6,stroke-width:2px,color:#a3ede3,rx:8px,ry:8px;
-    classDef netCard fill:#101924,stroke:#00b4d8,stroke-width:2px,color:#bceef7,rx:8px,ry:8px;
-    classDef webCard fill:#171224,stroke:#9d4edd,stroke-width:2px,color:#e8d3ff,rx:8px,ry:8px;
+    classDef hwCard stroke:#ff5e5b,stroke-width:2px,rx:8px,ry:8px;
+    classDef piCard stroke:#2ec4b6,stroke-width:2px,rx:8px,ry:8px;
+    classDef netCard stroke:#00b4d8,stroke-width:2px,rx:8px,ry:8px;
+    classDef webCard stroke:#9d4edd,stroke-width:2px,rx:8px,ry:8px;
 
     %% Apply CSS Classes to Nodes
     class CamPi,CamPC hwCard;
@@ -117,6 +117,7 @@ flowchart TD
 | **手势控制原理** | **精准骨骼解算**：测量特定指尖关节间距                                            | **物理投影变化**：比对运动区域的大小与面积                                                |
 | **控制维度**   | 1. **缩放 (Scale)**：大拇指与食指捏合度<br>2. **碰撞 (Collision)**：食指尖触碰 3D 边界 | **宏观状态映射**：<br>1. **手掌离屏幕远近 (Distance)**<br>2. **手掌张开与合拢 (Fist/Open)** |
 
+
 ### 2. 树莓派端控制机制深度剖析（远近与张合）
 
 > [!info] 树莓派端“面积即控制”的投射机制
@@ -152,7 +153,7 @@ ls -la /dev/video0
 
 * **标准后台运行模式**（推荐，低开销）：
   ```bash
-  python3 raspberry_gesture_server.py --width 480 --height 360 --fps 10 --no-preview
+  python3 raspberry_gesture_server.py --width 480 --height 360 --fps 10
   ```
 * **联调调试模式**（有图形界面时）：
   ```bash

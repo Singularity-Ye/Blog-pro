@@ -2937,10 +2937,11 @@ const MarkdownBody = styled.div`
 
       /* Edge labels background */
       .edgeLabel rect {
-        fill: #fbf9f4 !important;
+        fill: #faf6eb !important;
         rx: 3px !important;
         ry: 3px !important;
         opacity: 0.95 !important;
+        stroke: none !important;
       }
 
       /* Edge labels text */
