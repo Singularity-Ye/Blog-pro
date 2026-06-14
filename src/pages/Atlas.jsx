@@ -17,7 +17,7 @@ const METADATA_COLLECTIONS = [
   {
     slug: 'travel',
     kind: 'travel',
-    title: '落沙寻迹 | 图录',
+    title: '落沙行路 · 杭州旅游攻略',
     eyebrow: 'GEOMANTIC RECORDING MATRIX',
     description: '烙印在神州地脉之上的行走轨迹，凡人眼中的凡尘路线、烟火美味与逐日景致，在此阵中化作被封存的星沙坐标。',
     accent: '#d8a247',
@@ -26,7 +26,7 @@ const METADATA_COLLECTIONS = [
   {
     slug: 'project',
     kind: 'project',
-    title: '万象建站 | 炼成阵',
+    title: '万象构筑 · 个人建站流程',
     eyebrow: 'AETHERIC RECONSTRUCTION GRAPH',
     description: '探寻数字迷雾 of 营造法则。域名敕令、节点部署、DNS 织网、Cloudflare 避雷、Vercel 唤醒与 Quartz 雕琢，皆是可被逆向推演的构筑星轨。',
     accent: '#c8933f',
@@ -35,7 +35,7 @@ const METADATA_COLLECTIONS = [
   {
     slug: 'blog-design',
     kind: 'blog-design',
-    title: '叶间林径 | 编织手稿',
+    title: '松窗灵笈 · 个人博客构建',
     eyebrow: 'LEAF-BORDERED SANCTUARY ENTRANCE',
     description: '描绘彼端‘叶间树林’容貌的设计残卷。涵盖门户、文库、图谱大厅之营造图法，此间手稿借由星沙传送阵，与叶间树林的阅读法阵紧密呼应。',
     accent: '#c7a46a',
@@ -44,7 +44,7 @@ const METADATA_COLLECTIONS = [
   {
     slug: 'dream-site',
     kind: 'dream-site',
-    title: '造化筑梦 | 之阶',
+    title: '造化筑梦 · 博客开发计划',
     eyebrow: 'GENESIS FABRICATION SITE',
     description: '此间为万物破土之界。以意驭神，构筑大千世界之根基，记录一切重制与超凡创思的炼成仪轨。',
     accent: '#cfa258',
@@ -53,7 +53,7 @@ const METADATA_COLLECTIONS = [
   {
     slug: 'tianheng',
     kind: '天衡',
-    title: '天衡星轨 | 纪律',
+    title: '天衡规章 · 流程与规范',
     eyebrow: 'HEAVENLY BALANCE REGULATION',
     description: '洞悉天道运转之法则。仙门大典之流程、修行契约之规范，于此间被归纳平整，使诸般万象不离常轨。',
     accent: '#cca552',
@@ -62,7 +62,7 @@ const METADATA_COLLECTIONS = [
   {
     slug: 'tiangong',
     kind: '天工',
-    title: '巧夺天工 | 秘卷',
+    title: '巧夺天工 · 美学与设计',
     eyebrow: 'DIVINE CRAFT DESIGN AESTHETICS',
     description: '仙界奇观之图解，美轮美奂的排版法则与配色心诀，汇聚此中，夺天地之造化以饰仙居门庭。',
     accent: '#c49a45',
@@ -71,16 +71,16 @@ const METADATA_COLLECTIONS = [
   {
     slug: 'louge',
     kind: '楼阁',
-    title: '万象楼阁 | 构筑',
+    title: '万象楼阁 · 页面与开发',
     eyebrow: 'STELLAR PAVILION ARCHITECTURE',
-    description: '起手而平地生楼阁，虚实相生。探寻仙网界面的构筑秘符，一砖一瓦皆是仙元演化的代码玉简。',
+    description: '起手而平地生楼阁，虚实相生。探寻仙网界面的构筑秘符，一砖一瓦皆是仙元演化的代码代码。',
     accent: '#bfa261',
   },
   // 8. 造物 (玩具与工坊)
   {
     slug: 'zaowu',
     kind: '造物',
-    title: '太初造物 | 秘传',
+    title: '太初造物 · 小玩具与工坊',
     eyebrow: 'ARCHETYPAL MANUFACTURE WORKSHOP',
     description: '收录工坊之中所铸奇珍傀儡、法宝玩物。奇巧机关，造化玄机，皆可在此间一窥其以气运驭之妙术。',
     accent: '#cca15a',
@@ -89,7 +89,7 @@ const METADATA_COLLECTIONS = [
   {
     slug: 'mixu',
     kind: '秘术',
-    title: '天玄奥道 | 秘术',
+    title: '天玄奥道 · 技术札记',
     eyebrow: 'OCCULT AETHERIC METHODOLOGIES',
     description: '修真界诸般攻防真诀，包括系统性技术心得、算法符箓与道法传承，是克敌机先、稳固根基 the 无上古卷。',
     accent: '#cca362',
@@ -98,7 +98,7 @@ const METADATA_COLLECTIONS = [
   {
     slug: 'compiler-theory',
     kind: 'compiler-theory',
-    title: '天玄奥道秘术 · 编译卷',
+    title: '天玄奥道 · 编译原理',
     eyebrow: 'OCCULT AETHERIC METHODOLOGIES',
     description: '修真界诸般攻防真诀，包括系统性技术心得、算法符箓与道法传承，是克敌机先、稳固根基 the 无上古卷。',
     accent: '#cca362',
@@ -106,7 +106,7 @@ const METADATA_COLLECTIONS = [
   {
     slug: 'linux-notes',
     kind: 'linux-notes',
-    title: '天玄奥道秘术 · 筑基卷',
+    title: '天玄奥道 · Linux 笔记',
     eyebrow: 'OCCULT AETHERIC METHODOLOGIES',
     description: '修真界诸般攻防真诀，包括系统性技术心得、算法符箓与道法传承，是克敌机先、稳固根基 the 无上古卷。',
     accent: '#cca362',
@@ -114,7 +114,7 @@ const METADATA_COLLECTIONS = [
   {
     slug: 'embedded',
     kind: 'embedded',
-    title: '天玄奥道秘术 · 金石卷',
+    title: '天玄奥道 · 嵌入式开发',
     eyebrow: 'OCCULT AETHERIC METHODOLOGIES',
     description: '修真界诸般攻防真诀，包括系统性技术心得、算法符箓与道法传承，是克敌机先、稳固根基 the 无上古卷。',
     accent: '#cca362',
@@ -123,7 +123,7 @@ const METADATA_COLLECTIONS = [
   {
     slug: 'xianqing',
     kind: '闲情',
-    title: '青灯余暇 | 闲情',
+    title: '青灯闲情 · 随笔与手札',
     eyebrow: 'TRANQUIL MEDITATION JOURNAL',
     description: '修行有得，提笔著书。红尘游历、心魔感悟与道友杂谈，皆温存入纸，可堪在风定雨歇时佐茶细读。',
     accent: '#caa866',
@@ -131,7 +131,7 @@ const METADATA_COLLECTIONS = [
   {
     slug: 'knowledge-grocery',
     kind: 'knowledge-grocery',
-    title: '青灯余暇闲情 · 杂货卷',
+    title: '青灯闲情 · 知识杂货铺',
     eyebrow: 'TRANQUIL MEDITATION JOURNAL',
     description: '修行有得，提笔著书。红尘游历、心魔感悟与道友杂谈，皆温存入纸，可堪在风定雨歇时佐茶细读。',
     accent: '#caa866',
@@ -140,17 +140,16 @@ const METADATA_COLLECTIONS = [
   {
     slug: 'internal-skills',
     kind: 'internal-skills',
-    title: '太玄 | 认知札记',
+    title: '太玄 · 认知札记',
     eyebrow: 'COGNITIVE REFLECTIONS',
     description: '屋主关于心智模型、技术本质与知识工作流的底层思辨。在林间对抗知识腐化，探寻数字园艺的营造法式。',
     accent: '#cca362',
   },
-
   // 12. 纪要 (缺陷与工单)
   {
     slug: 'jiyao',
     kind: '纪要',
-    title: '业障 | 天道补缀',
+    title: '天道补缀 · 开发纪要',
     eyebrow: 'AETHERIC REPAIR RESOLUTIONS',
     description: '记载修行中遇阻的天道疏漏与缺陷因果，是消除破障、斩断业报、调顺仙力周天的补天纪要。',
     accent: '#caa75b',
@@ -159,7 +158,7 @@ const METADATA_COLLECTIONS = [
   {
     slug: 'yiji',
     kind: '遗迹',
-    title: '太古 | 历史遗迹',
+    title: '太古遗迹 · 历史陈迹',
     eyebrow: 'ANCIENT ARCHIVE RELICS',
     description: '过往修持之残篇、未尽之演算法阵，虽然尘封已久，却在岁月中凝结为值得回溯警醒的太古遗迹。',
     accent: '#b8a682',
