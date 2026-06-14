@@ -496,6 +496,11 @@ const Rail = styled.aside`
     border-radius: 999px;
   }
 
+  @media (min-height: 700px) {
+    max-height: none;
+    overflow: visible;
+  }
+
   @media (max-width: 780px) {
     position: static;
     max-height: none;
@@ -965,6 +970,11 @@ const RightPanel = styled.aside`
   &::-webkit-scrollbar-thumb {
     background: var(--glass-border-highlight);
     border-radius: 999px;
+  }
+
+  @media (min-height: 700px) {
+    max-height: none;
+    overflow: visible;
   }
 
   @media (max-width: 1120px) {
