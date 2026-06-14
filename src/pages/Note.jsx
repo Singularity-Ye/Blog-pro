@@ -18,14 +18,13 @@ import { normalizeMarkdownMath } from '../utils/markdownMath';
 import { MouseLeafDrift } from '../components/MouseEffects';
 import noteReadingBgLight from '../assets/images/atlas/note-reading-light.png';
 import noteReadingBgDark from '../assets/images/atlas/note-reading-dark.png';
-// Helper to fix bold (** or __) formatting next to Chinese/English text and punctuation
 const preprocessMarkdown = (text) => {
   if (!text) return text;
   return normalizeMarkdownMath(text)
-    // 1. letter/number/Chinese + ** + text + ** -> insert space before opening **
-    .replace(/([a-zA-Z0-9\u4e00-\u9fa5])\*\*(.*?)\*\*/g, '$1 **$2**')
-    // 2. ** + text + ** + letter/number/Chinese -> insert space after closing **
-    .replace(/\*\*(.*?)\*\*([a-zA-Z0-9\u4e00-\u9fa5])/g, '**$1** $2');
+    // 1. letter/number/Chinese + **bold** -> insert space before opening **
+    .replace(/([a-zA-Z0-9\u4e00-\u9fa5])\*\*([^*\s](?:(?:[^*]|\*[^*])*?[^*\s])?)\*\*/g, '$1 **$2**')
+    // 2. **bold** + letter/number/Chinese -> insert space after closing **
+    .replace(/\*\*([^*\s](?:(?:[^*]|\*[^*])*?[^*\s])?)\*\*([a-zA-Z0-9\u4e00-\u9fa5])/g, '**$1** $2');
 };
 
 // Helper to recursively replace <br> / <br/> / <br /> strings with React <br /> components

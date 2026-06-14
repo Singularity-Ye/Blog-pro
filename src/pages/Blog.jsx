@@ -17,10 +17,10 @@ import remarkHtmlBreaks from '../utils/remarkHtmlBreaks';
 const preprocessMarkdown = (text) => {
   if (!text) return text;
   return text
-    // 1. letter/number/Chinese + ** + text + ** -> insert space before opening **
-    .replace(/([a-zA-Z0-9\u4e00-\u9fa5])\*\*(.*?)\*\*/g, '$1 **$2**')
-    // 2. ** + text + ** + letter/number/Chinese -> insert space after closing **
-    .replace(/\*\*(.*?)\*\*([a-zA-Z0-9\u4e00-\u9fa5])/g, '**$1** $2');
+    // 1. letter/number/Chinese + **bold** -> insert space before opening **
+    .replace(/([a-zA-Z0-9\u4e00-\u9fa5])\*\*([^*\s](?:(?:[^*]|\*[^*])*?[^*\s])?)\*\*/g, '$1 **$2**')
+    // 2. **bold** + letter/number/Chinese -> insert space after closing **
+    .replace(/\*\*([^*\s](?:(?:[^*]|\*[^*])*?[^*\s])?)\*\*([a-zA-Z0-9\u4e00-\u9fa5])/g, '**$1** $2');
 };
 
 // -------------------------------------------------------------------------
@@ -3350,10 +3350,6 @@ const Mermaid = ({ value }) => {
 };
 
 // ── Obsidian Wikilinks 解析与辅助函数 ────────────────────────────────────
-function toNoteHref(slug) {
-  return `/note/${String(slug).split('/').map(encodeURIComponent).join('/')}`;
-}
-
 function normalizeLinkKey(value) {
   return String(value || '').trim().replace(/\.md$/i, '').toLowerCase();
 }
