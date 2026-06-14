@@ -13,163 +13,113 @@ import atlasArchiveBgDark from '../assets/images/atlas/Celestial-Sands-Field-Dar
 import { MouseWakeRipple } from '../components/MouseEffects';
 
 const METADATA_COLLECTIONS = [
-  // 1. 落沙寻迹图录 (原 travel)
+  // 1. 落沙寻迹图录 (travel)
   {
     slug: 'travel',
     kind: 'travel',
-    title: '落沙寻迹 | 图录',
+    title: '落沙行路 · 杭州旅游攻略',
     eyebrow: 'GEOMANTIC RECORDING MATRIX',
-    description: '烙印在神州地脉之上的行走轨迹，凡人眼中的凡尘路线、烟火美味与逐日景致，在此阵中化作被封存的星沙坐标。',
+    description: '行者无疆，落沙为迹。此志乃神游杭城之灵视地貌图谱，悉心收录凡尘街巷的烟火食单、西子湖畔的山水秘境与四季景致之实地勘测，指引每一位红尘游子在步履交错间，领略天地造化之美。',
     accent: '#d8a247',
   },
-  // 2. 万象建站炼成阵 (原 project / 对应 02_楼阁)
+  // 2. 万象建站炼成阵 (project)
   {
     slug: 'project',
     kind: 'project',
-    title: '万象建站 | 炼成阵',
+    title: '万象构筑 · 个人建站流程',
     eyebrow: 'AETHERIC RECONSTRUCTION GRAPH',
-    description: '探寻数字迷雾 of 营造法则。域名敕令、节点部署、DNS 织网、Cloudflare 避雷、Vercel 唤醒与 Quartz 雕琢，皆是可被逆向推演的构筑星轨。',
+    description: '破译数字虚无之营造秘仪。从域名敕令的生死绑定，到云端服务器的洞天开辟，乃至静态资源分发网络之阵法部署，完整记述仙术工坊开宗立派、抵御网络风暴侵蚀与防御攻守之工程实录。',
     accent: '#c8933f',
   },
-  // 3. 叶间林径编织手稿 (原 blog-design / 对应 01_天工)
+  // 3. 叶间林径编织手稿 (blog-design)
   {
     slug: 'blog-design',
     kind: 'blog-design',
-    title: '叶间林径 | 编织手稿',
+    title: '松窗灵笈 · 个人博客构建',
     eyebrow: 'LEAF-BORDERED SANCTUARY ENTRANCE',
-    description: '描绘彼端‘叶间树林’容貌的设计残卷。涵盖门户、文库、图谱大厅之营造图法，此间手稿借由星沙传送阵，与叶间树林的阅读法阵紧密呼应。',
+    description: '松窗临风，灵笈藏真。此册系松窗灵笈台的营造天工图纸，囊括星沙图谱的拓扑演算法则、仙居门户之极简美学构筑、以及前端交互法阵与光影动态特效的熔炼细节，记录本博客迭代升华之轨迹。',
     accent: '#c7a46a',
   },
-  // 4. 筑梦现场
-  {
-    slug: 'dream-site',
-    kind: 'dream-site',
-    title: '造化筑梦 | 之阶',
-    eyebrow: 'GENESIS FABRICATION SITE',
-    description: '此间为万物破土之界。以意驭神，构筑大千世界之根基，记录一切重制与超凡创思的炼成仪轨。',
-    accent: '#cfa258',
-  },
-  // 5. 天衡 (流程与规范)
-  {
-    slug: 'tianheng',
-    kind: '天衡',
-    title: '天衡星轨 | 纪律',
-    eyebrow: 'HEAVENLY BALANCE REGULATION',
-    description: '洞悉天道运转之法则。仙门大典之流程、修行契约之规范，于此间被归纳平整，使诸般万象不离常轨。',
-    accent: '#cca552',
-  },
-  // 6. 天工 (美学与设计)
-  {
-    slug: 'tiangong',
-    kind: '天工',
-    title: '巧夺天工 | 秘卷',
-    eyebrow: 'DIVINE CRAFT DESIGN AESTHETICS',
-    description: '仙界奇观之图解，美轮美奂的排版法则与配色心诀，汇聚此中，夺天地之造化以饰仙居门庭。',
-    accent: '#c49a45',
-  },
-  // 7. 楼阁 (页面与开发)
-  {
-    slug: 'louge',
-    kind: '楼阁',
-    title: '万象楼阁 | 构筑',
-    eyebrow: 'STELLAR PAVILION ARCHITECTURE',
-    description: '起手而平地生楼阁，虚实相生。探寻仙网界面的构筑秘符，一砖一瓦皆是仙元演化的代码玉简。',
-    accent: '#bfa261',
-  },
-  // 8. 造物 (玩具与工坊)
-  {
-    slug: 'zaowu',
-    kind: '造物',
-    title: '太初造物 | 秘传',
-    eyebrow: 'ARCHETYPAL MANUFACTURE WORKSHOP',
-    description: '收录工坊之中所铸奇珍傀儡、法宝玩物。奇巧机关，造化玄机，皆可在此间一窥其以气运驭之妙术。',
-    accent: '#cca15a',
-  },
-  // 9. 秘术 / 技术札记
-  {
-    slug: 'mixu',
-    kind: '秘术',
-    title: '天玄奥道 | 秘术',
-    eyebrow: 'OCCULT AETHERIC METHODOLOGIES',
-    description: '修真界诸般攻防真诀，包括系统性技术心得、算法符箓与道法传承，是克敌机先、稳固根基 the 无上古卷。',
-    accent: '#cca362',
-  },
-  // 兼容老的分类
+  // 4. 编译原理
   {
     slug: 'compiler-theory',
     kind: 'compiler-theory',
-    title: '天玄奥道秘术 · 编译卷',
+    title: '天玄奥道 · 编译原理',
     eyebrow: 'OCCULT AETHERIC METHODOLOGIES',
-    description: '修真界诸般攻防真诀，包括系统性技术心得、算法符箓与道法传承，是克敌机先、稳固根基 the 无上古卷。',
+    description: '洞悉混沌语言化为神念之天规秩序。剖析编译器法阵之符文流转，详解词法与语法分析之破阵之法，融会贯通中间代码生成与目标代码优化之无上真诀，为修士搭建从高级语言直通底层金石的通天桥梁。',
     accent: '#cca362',
   },
+  // 5. Linux 笔记
   {
     slug: 'linux-notes',
     kind: 'linux-notes',
-    title: '天玄奥道秘术 · 筑基卷',
+    title: '天玄奥道 · Linux 笔记',
     eyebrow: 'OCCULT AETHERIC METHODOLOGIES',
-    description: '修真界诸般攻防真诀，包括系统性技术心得、算法符箓与道法传承，是克敌机先、稳固根基 the 无上古卷。',
+    description: '驾驭Linux寰宇之筑基法门。总览系统内核之穴位运转，敕令常用命令行符咒，编制自动化 Shell 脚本傀儡，更有降伏服务宕机、调顺云端灵气运行之运维纪实，乃掌控多维服务器的通关秘籍。',
     accent: '#cca362',
   },
+  // 6. 嵌入式开发
   {
     slug: 'embedded',
     kind: 'embedded',
-    title: '天玄奥道秘术 · 金石卷',
+    title: '天玄奥道 · 嵌入式开发',
     eyebrow: 'OCCULT AETHERIC METHODOLOGIES',
-    description: '修真界诸般攻防真诀，包括系统性技术心得、算法符箓与道法传承，是克敌机先、稳固根基 the 无上古卷。',
+    description: '金石交感，妙动于微。此篇专研单片机硬件与现实世界的灵力共鸣，记述串口通信契约、外设接口的微秒级控制，以及裸机底层驱动程序的熔铸流程，助修士勘破软硬结界，以代码号令冷铁飞鸣。',
     accent: '#cca362',
   },
-  // 10. 闲情 (幕后与手札)
-  {
-    slug: 'xianqing',
-    kind: '闲情',
-    title: '青灯余暇 | 闲情',
-    eyebrow: 'TRANQUIL MEDITATION JOURNAL',
-    description: '修行有得，提笔著书。红尘游历、心魔感悟与道友杂谈，皆温存入纸，可堪在风定雨歇时佐茶细读。',
-    accent: '#caa866',
-  },
-  {
-    slug: 'desk-thoughts',
-    kind: 'desk-thoughts',
-    title: '青灯余暇闲情 · 案头卷',
-    eyebrow: 'TRANQUIL MEDITATION JOURNAL',
-    description: '修行有得，提笔著书。红尘游历、心魔感悟与道友杂谈，皆温存入纸，可堪在风定雨歇时佐茶细读。',
-    accent: '#caa866',
-  },
+  // 7. 知识杂货铺
   {
     slug: 'knowledge-grocery',
     kind: 'knowledge-grocery',
-    title: '青灯余暇闲情 · 杂货卷',
+    title: '青灯闲情 · 知识杂货铺',
     eyebrow: 'TRANQUIL MEDITATION JOURNAL',
-    description: '修行有得，提笔著书。红尘游历、心魔感悟与道友杂谈，皆温存入纸，可堪在风定雨歇时佐茶细读。',
+    description: '修行之余，闲听八方。这是一座收录大千世界奇闻轶事的杂货当铺，既有现代前沿科学之异端奇想，亦有古今冷门趣味之小道消息与互联网技术流变史话，清茶一盏，佐以天下见闻，博君莞尔一笑。',
     accent: '#caa866',
   },
-  // 11. 内功心法
+  // 8. 认知札记
   {
     slug: 'internal-skills',
     kind: 'internal-skills',
-    title: '太玄 | 内功心法',
-    eyebrow: 'INNER CULTIVATION DIRECTIVES',
-    description: '修仙者筑基长生、洗髓伐脉之底层核心心诀。吐纳归真，洗涤俗虑，重塑神识周天之根本。',
+    title: '太玄 · 认知札记',
+    eyebrow: 'COGNITIVE REFLECTIONS',
+    description: '识海洗髓，心魔退散。这里是磨砺神魂、构建心智模型的修真道场，旨在抗御外界纷扰与信息毒化的精神腐蚀，深度剖析自我认知壁垒、决断策略与底层思维逻辑，于静默中完成心性的涅槃与蜕变。',
     accent: '#cca362',
   },
-  // 12. 纪要 (缺陷与工单)
+  // 9. 代号《织墨》(WeaveInk)
   {
-    slug: 'jiyao',
-    kind: '纪要',
-    title: '业障 | 天道补缀',
-    eyebrow: 'AETHERIC REPAIR RESOLUTIONS',
-    description: '记载修行中遇阻的天道疏漏与缺陷因果，是消除破障、斩断业报、调顺仙力周天的补天纪要。',
-    accent: '#caa75b',
+    slug: 'weaveink',
+    kind: 'weaveink',
+    title: '代号《织墨》 · 引擎研发',
+    eyebrow: 'PROJECT WEAVEINK ENGINE',
+    description: '天工开物，笔落惊风。此乃自研“织墨”图文排版引擎的太初炼器秘籍，融合星空拓扑的图形法阵、自适应界面的伸缩道术，以及跨端流畅交互的飞羽动效，展现从零铸造一款现代排版神器的研发全貌。',
+    accent: '#8b5cf6',
   },
-  // 13. 遗迹 (历史陈迹)
+  // 10. 老韩宇宙
   {
-    slug: 'yiji',
-    kind: '遗迹',
-    title: '太古 | 历史遗迹',
-    eyebrow: 'ANCIENT ARCHIVE RELICS',
-    description: '过往修持之残篇、未尽之演算法阵，虽然尘封已久，却在岁月中凝结为值得回溯警醒的太古遗迹。',
-    accent: '#b8a682',
+    slug: 'laohan-criticism',
+    kind: 'laohan-criticism',
+    title: '老韩宇宙 · 乱世观察',
+    eyebrow: 'LAOHAN COSMIC OBSERVATORY',
+    description: '世事如棋，冷眼旁观。此乃散修“老韩”神游红尘之锐评手札，以辛辣幽默之文笔剖析世间百态，冷峻观察凡俗之离合悲欢，戳破浮华假象。读之如烈酒入喉，顿觉尘世喧嚣皆为笑谈，令人神清气爽。',
+    accent: '#ec4899',
+  },
+  // 11. 老头宇宙
+  {
+    slug: 'laotou-criticism',
+    kind: 'laotou-criticism',
+    title: '老头宇宙 · 岁月秘史',
+    eyebrow: 'LAOTOU CHRONICLES',
+    description: '光阴留痕，逝水无声。此集聚焦于“老头”漫长岁月的风雨纪事与生活感悟，收录古早岁月的逸闻旧事、尘封已久的心历路程与世事变迁的无声叹息，如同一卷昏黄画轴，缓缓诉说着时光深处的密语。',
+    accent: '#3b82f6',
+  },
+  // 12. 观心阁
+  {
+    slug: 'guanxin-pavilion',
+    kind: 'guanxin-pavilion',
+    title: '观心阁 · 自我审视',
+    eyebrow: 'GUANXIN REFLECTION CHAMBER',
+    description: '静室蒲团，面壁思过。此阁乃修士照见本性、拷问自我的绝对净土，剥离一切虚妄社交假象，直面“观己、观人、待人、待己”的心路暗流，在血淋淋的自我剖析与自省中，重建支离破碎的真我道心。',
+    accent: '#10b981',
   }
 ];
 
@@ -222,7 +172,7 @@ const Page = styled.div`
   min-height: 100vh;
   position: relative;
   isolation: isolate;
-  overflow-x: hidden;
+  overflow-x: clip;
   background: var(--bg-primary);
   color: var(--text-primary);
   transition: background 0.5s ease, color 0.5s ease;
@@ -544,6 +494,11 @@ const Rail = styled.aside`
   &::-webkit-scrollbar-thumb {
     background: var(--glass-border-highlight);
     border-radius: 999px;
+  }
+
+  @media (min-height: 700px) {
+    max-height: none;
+    overflow: visible;
   }
 
   @media (max-width: 780px) {
@@ -1063,6 +1018,9 @@ const PanelHeader = styled.div`
   padding: 0 0.9rem;
   border-bottom: 1px solid var(--glass-border);
   background: var(--glass-bg-alt);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 9px 9px 0 0;
   transition: background 0.5s ease, border-color 0.5s ease;
 `;
 
@@ -1142,6 +1100,9 @@ const PreviewBody = styled.div`
   aspect-ratio: 1 / 1;
   min-height: 280px;
   background: var(--glass-bg-alt);
+  border-radius: 0 0 9px 9px;
+  overflow: hidden;
+  position: relative;
   transition: background 0.5s ease;
 
   .mini-graph-container {
@@ -1156,6 +1117,9 @@ const SideList = styled.div`
   gap: 0.55rem;
   padding: 0.9rem;
   background: var(--glass-bg-alt);
+  border-radius: 0 0 9px 9px;
+  overflow: hidden;
+  position: relative;
   transition: background 0.5s ease;
 
   a,

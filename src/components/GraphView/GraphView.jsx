@@ -10,15 +10,33 @@ import { fetchGraphData } from '../../utils/publishData';
 import './GraphView.css';
 
 const COLLECTION_LABELS = {
-  travel: '杭州旅游攻略',
-  project: '建站流程指南',
-  'blog-design': '博客网站设计思路',
+  travel: '落沙行路 · 杭州旅游攻略',
+  project: '万象构筑 · 个人建站流程',
+  'blog-design': '松窗灵笈 · 个人博客构建',
+  'compiler-theory': '天玄奥道 · 编译原理',
+  'linux-notes': '天玄奥道 · Linux 笔记',
+  embedded: '天玄奥道 · 嵌入式开发',
+  'knowledge-grocery': '青灯闲情 · 知识杂货铺',
+  'internal-skills': '太玄 · 认知札记',
+  weaveink: '代号《织墨》(WeaveInk)',
+  'laohan-criticism': '老韩宇宙',
+  'laotou-criticism': '老头宇宙',
+  'guanxin-pavilion': '观心阁',
 };
 
 const COLLECTION_COLORS = {
-  travel: '#c88c51',
-  project: '#d69e63',
-  'blog-design': '#b68a5c',
+  travel: '#d8a247',
+  project: '#c8933f',
+  'blog-design': '#c7a46a',
+  'compiler-theory': '#cca362',
+  'linux-notes': '#cca362',
+  embedded: '#cca362',
+  'knowledge-grocery': '#caa866',
+  'internal-skills': '#cca362',
+  weaveink: '#8b5cf6',
+  'laohan-criticism': '#ec4899',
+  'laotou-criticism': '#3b82f6',
+  'guanxin-pavilion': '#10b981',
 };
 
 function toNoteHref(slug) {
