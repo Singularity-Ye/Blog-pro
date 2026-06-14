@@ -803,6 +803,25 @@ const MarkdownBody = styled.div`
         filter: drop-shadow(0 0 8px var(--glass-border));
       }
 
+      /* Theme-responsive custom flowchart node styles */
+      .orig rect, .orig circle, .orig polygon, .orig path,
+      .coreNode rect, .coreNode circle, .coreNode polygon, .coreNode path,
+      .core rect, .core circle, .core polygon, .core path {
+        fill: ${({ $theme }) => $theme === 'dark' ? 'rgba(239, 68, 68, 0.2) !important' : '#fff2f2 !important'};
+        stroke: #ff8080 !important;
+      }
+      .runNode rect, .runNode circle, .runNode polygon, .runNode path,
+      .run rect, .run circle, .run polygon, .run path,
+      .val rect, .val circle, .val polygon, .val path {
+        fill: ${({ $theme }) => $theme === 'dark' ? 'rgba(59, 130, 246, 0.2) !important' : '#f2f2ff !important'};
+        stroke: #8080ff !important;
+      }
+      .aug rect, .aug circle, .aug polygon, .aug path,
+      .conflictNode rect, .conflictNode circle, .conflictNode polygon, .conflictNode path {
+        fill: ${({ $theme }) => $theme === 'dark' ? 'rgba(16, 185, 129, 0.2) !important' : '#f2fff2 !important'};
+        stroke: #80ff80 !important;
+      }
+
       /* Text inside nodes and actor/note boxes */
       .node .label, .node label, .node text, .node span, .node div,
       .node .label *, .node label *, .node text *, .node span *, .node div *,

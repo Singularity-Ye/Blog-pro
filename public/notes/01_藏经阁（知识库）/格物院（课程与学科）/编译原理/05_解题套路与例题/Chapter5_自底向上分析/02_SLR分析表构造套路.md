@@ -85,8 +85,8 @@ created: 2026-06-11
 ## 📐 经典可视化表构造步骤 (Table Construction Walkthrough)
 
 基于上述最简文法和 DFA，我们计算 $\text{FOLLOW}$ 集合：
-*   $\text{FOLLOW}(S') = \{ \$ \}$
-*   $\text{FOLLOW}(S) = \{ \$ \}$
+*   $\text{FOLLOW}(S') = \{ \text{＄} \}$
+*   $\text{FOLLOW}(S) = \{ \text{＄} \}$
 *   $\text{FOLLOW}(A) = \{ \textbf{d} \}$
 
 ### 1. 填表映射拆解：
@@ -94,7 +94,7 @@ created: 2026-06-11
 | 状态 | 包含项目 | 适用填表规则与推导 | 填表项 |
 |:---:|---|---|---|
 | **$I_0$** | $S' \to \cdot S$<br>$S \to \cdot A \textbf{d}$<br>$A \to \cdot \textbf{x}$ | 点后为非终结符 $S$（查 GOTO）<br>点后为非终结符 $A$（查 GOTO）<br>点后为终结符 $\textbf{x}$（跳转至 $I_3$） | $\text{GOTO}[0, S] = 1$<br>$\text{GOTO}[0, A] = 2$<br>$\text{ACTION}[0, \textbf{x}] = s_3$ |
-| **$I_1$** | $S' \to S \cdot$ | 增广文法接收态（结束符 `$`） | $\text{ACTION}[1, \text{＄}] = \text{acc}$ |
+| **$I_1$** | $S' \to S \cdot$ | 增广文法接收态（结束符 `$`） | $\text{ACTION}[1, \$] = \text{acc}$ |
 | **$I_2$** | $S \to A \cdot \textbf{d}$ | 点后为终结符 $\textbf{d}$（跳转至 $I_4$） | $\text{ACTION}[2, \textbf{d}] = s_4$ |
 | **$I_3$** | $A \to \textbf{x} \cdot$ | 归约 (2) 号产生式，仅在 $\text{FOLLOW}(A) = \{\textbf{d}\}$ 列填入 | $\text{ACTION}[3, \textbf{d}] = r_2$ |
 | **$I_4$** | $S \to A \textbf{d} \cdot$ | 归约 (1) 号产生式，仅在 $\text{FOLLOW}(S) = \{\text{＄}\}$ 列填入 | $\text{ACTION}[4, \text{＄}] = r_1$ |

@@ -552,6 +552,11 @@ for (const file of fileRecords) {
   fs.writeFileSync(targetPath, processedContent, 'utf-8');
 }
 
+for (const file of walkMarkdown(NOTES_OUT)) {
+  const normalized = normalizeMarkdownMath(fs.readFileSync(file.full, 'utf-8'));
+  fs.writeFileSync(file.full, normalized, 'utf-8');
+}
+
 const wikilinkReport = {
   unresolvedCount: unresolvedWikilinks.length,
   ambiguousCount: ambiguousWikilinks.length,

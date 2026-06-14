@@ -154,7 +154,7 @@ $$
 > *   在 $list \to (\ lexp\text{-}seq\ )$ 中，`lexp-seq` 后紧跟 `)`，因此 $\text{FOLLOW}(lexp\text{-}seq) = \{ ) \}$。
 > *   在 $lexp\text{-}seq \to lexp\ lexp\text{-}seq'$ 中，`lexp` 后面跟着 `lexp-seq'`，所以 $\text{FOLLOW}(lexp)$ 包含 $\text{FIRST}(lexp\text{-}seq') \setminus \{\varepsilon\} = \{ number, identifier, ( \}$。
 > *   另外，因为 $lexp\text{-}seq' \Rightarrow^* \varepsilon$，根据规则，$\text{FOLLOW}(lexp)$ 还必须包含左部 $\text{FOLLOW}(lexp\text{-}seq) = \{ ) \}$。
-> *   综上：$\text{FOLLOW}(lexp) = \{ number, identifier, (, ), \$ \}$。
+> *   综上：$\text{FOLLOW}(lexp) = \{ number, identifier, (, ), \text{＄} \}$。
 
 ---
 
@@ -188,7 +188,7 @@ $$
 
 ### 4. part (d) 构造 LL(1) 分析表
 
-| 非终结符 | $number$ | $identifier$ | $($ | $)$ | $\$$ |
+| 非终结符 | $number$ | $identifier$ | $($ | $)$ | $\text{＄}$ |
 | :---: | :--- | :--- | :--- | :--- | :--- |
 | **lexp** | $lexp \to atom$ | $lexp \to atom$ | $lexp \to list$ | | |
 | **atom** | $atom \to number$ | $atom \to identifier$ | | | |

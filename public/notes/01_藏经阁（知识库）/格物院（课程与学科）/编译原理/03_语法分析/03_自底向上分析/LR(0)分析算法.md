@@ -94,7 +94,7 @@ LR(0) 分析算法查阅的分析表由以下静态结构映射生成：
 3.  **填表映射规则**：
     *   若  $[A \to \alpha\cdot a\beta] \in I_i$  且  $GOTO(I_i, a) = I_j$ ，填入  $ACTION[i, a] = s_j$ （移进）。
     *   若  $[A \to \alpha\cdot] \in I_i$ （ $A \neq S'$ ），则**无条件对所有列**填入  $ACTION[i, a] = r_k$ （归约）。
-    *   若  $[S' \to S\cdot] \in I_i$ ，填入  $ACTION[i, \$] = acc$ 。
+    *   若  $[S' \to S\cdot] \in I_i$ ，填入  $ACTION[i, \text{＄}] = acc$ 。
 
 ---
 

@@ -1,12 +1,15 @@
 function normalizeEscapedDollarsInMath(markdown) {
-  const text = String(markdown || '');
-  let out = '';
-  let inInlineMath = false;
+  const lines = String(markdown || '').replace(/\r\n?/g, '\n').split('\n');
+  const outLines = [];
   let inDisplayMath = false;
   let inFence = false;
 
-  for (let i = 0; i < text.length; i += 1) {
-    if (text.startsWith('```', i) && (i === 0 || text[i - 1] === '\n')) {
+  for (const line of lines) {
+    let out = '';
+    let inInlineMath = false;
+
+    for (let i = 0; i < line.length; i += 1) {
+      if (line.startsWith('```', i) && i === 0) {
       inFence = !inFence;
       out += '```';
       i += 2;
@@ -14,32 +17,32 @@ function normalizeEscapedDollarsInMath(markdown) {
     }
 
     if (inFence) {
-      out += text[i];
+      out += line[i];
       continue;
     }
 
-    if (!inFence && !inInlineMath && text.startsWith('\\[', i)) {
+    if (!inFence && !inInlineMath && line.startsWith('\\[', i)) {
       inDisplayMath = true;
       out += '\\[';
       i += 1;
       continue;
     }
 
-    if (!inFence && inDisplayMath && text.startsWith('\\]', i)) {
+    if (!inFence && inDisplayMath && line.startsWith('\\]', i)) {
       inDisplayMath = false;
       out += '\\]';
       i += 1;
       continue;
     }
 
-    if ((inInlineMath || inDisplayMath) && text[i] === '\\' && text[i + 1] === '$') {
+    if ((inInlineMath || inDisplayMath) && line[i] === '\\' && line[i + 1] === '$') {
       out += '\\text{＄}';
       i += 1;
       continue;
     }
 
-    if (text[i] === '$' && text[i - 1] !== '\\') {
-      if (text[i + 1] === '$') {
+    if (line[i] === '$' && line[i - 1] !== '\\') {
+      if (line[i + 1] === '$') {
         inDisplayMath = !inDisplayMath;
         out += '$$';
         i += 1;
@@ -51,10 +54,13 @@ function normalizeEscapedDollarsInMath(markdown) {
       }
     }
 
-    out += text[i];
+    out += line[i];
   }
 
-  return out;
+    outLines.push(out);
+  }
+
+  return outLines.join('\n');
 }
 
 function splitDisplayMathLine(line) {

@@ -107,27 +107,28 @@ $$
 
 下表展示了 Jacobi 风格的同步迭代更新过程（即当前轮次计算仅依赖于上一轮次的集合状态）：
 
-| 非终结符 | Round 0 (初始化) | Round 1 | Round 2 (收敛不动点) | 最终推导依据与关系链说明 |
-| :---: | :--- | :--- | :--- | :--- |
-| **S** | $\{ \text{＄} \}$ | $\{ \text{＄} \}$ | $\{ \text{＄} \}$ | 开始符号，默认包含结束符 `$`。 |
-| **A** | $\emptyset$ | $\{ b, c, d, \$ \}$ | $\{ b, c, d, \$ \}$ | $S \to A B C$。因 $B C$ 可空，并入 $\text{FIRST}(B) \setminus \{\varepsilon\}$、$\text{FIRST}(C) \setminus \{\varepsilon\}$ 及 $\text{FOLLOW}(S)$。 |
-| **B** | $\emptyset$ | $\{ d, \$ \}$ | $\{ d, \$ \}$ | $S \to A B C$。因 $C$ 可空，并入 $\text{FIRST}(C) \setminus \{\varepsilon\}$ 及 $\text{FOLLOW}(S)$。 |
-| **M** | $\emptyset$ | $\emptyset$ | $\{ d, \$ \}$ | $B \to M$。$M$ 位于产生式尾部，完全继承并复制上一轮的 $\text{FOLLOW}(B)$。 |
-| **C** | $\emptyset$ | $\{ \$ \}$ | $\{ \$ \}$ | $S \to A B C$。$C$ 位于产生式尾部，完全继承 $\text{FOLLOW}(S)$。 |
+| 非终结符  | Round 0 (初始化) | Round 1             | Round 2 (收敛不动点)     | 最终推导依据与关系链说明                                                                                                                              |
+| :---: | :------------ | :------------------ | :------------------ | :---------------------------------------------------------------------------------------------------------------------------------------- |
+| **S** | $\{ \text{＄} \}$    | $\{ \text{＄} \}$          | $\{ \text{＄} \}$          | 开始符号，默认包含结束符 `$`。                                                                                                                         |
+| **A** | $\emptyset$   | $\{ b, c, d, \text{＄} \}$ | $\{ b, c, d, \text{＄} \}$ | $S \to A B C$。因 $B C$ 可空，并入 $\text{FIRST}(B) \setminus \{\varepsilon\}$、$\text{FIRST}(C) \setminus \{\varepsilon\}$ 及 $\text{FOLLOW}(S)$。 |
+| **B** | $\emptyset$   | $\{ d, \text{＄} \}$       | $\{ d, \text{＄} \}$       | $S \to A B C$。因 $C$ 可空，并入 $\text{FIRST}(C) \setminus \{\varepsilon\}$ 及 $\text{FOLLOW}(S)$。                                               |
+| **M** | $\emptyset$   | $\emptyset$         | $\{ d, \text{＄} \}$       | $B \to M$。$M$ 位于产生式尾部，完全继承并复制上一轮的 $\text{FOLLOW}(B)$。                                                                                     |
+| **C** | $\emptyset$   | $\{ \text{＄} \}$          | $\{ \text{＄} \}$          | $S \to A B C$。$C$ 位于产生式尾部，完全继承 $\text{FOLLOW}(S)$。                                                                                        |
+
 
 > [!TIP] 迭代细节解析
-> 1. **Round 0**: 开始符号 $S$ 初始化为 $\{ \$ \}$，其余非终结符初始化为空集。
+> 1. **Round 0**: 开始符号 $S$ 初始化为 $\{ \text{＄} \}$，其余非终结符初始化为空集。
 > 2. **Round 1**:
 >    - 计算 $A$：根据 $S \to A B C$，扫描 $A$ 的右侧。右侧为 $B C$。
 >      - 引入 $\text{FIRST}(B) \setminus \{\varepsilon\} = \{ b, c \}$。
 >      - 由于 $B$ 可空，向右穿透，引入 $\text{FIRST}(C) \setminus \{\varepsilon\} = \{ d \}$。
->      - 由于 $B C$ 均可空，一路穿透至尾部，继承并入 Round 0 的 $\text{FOLLOW}(S) = \{ \$ \}$。
->      - 综上，$\text{FOLLOW}(A) \gets \{ b, c, d, \$ \}$。
->    - 计算 $B$：扫描右邻 $C$。引入 $\text{FIRST}(C) \setminus \{\varepsilon\} = \{ d \}$。由于 $C$ 可空，继承 Round 0 的 $\text{FOLLOW}(S) = \{ \$ \}$，得到 $\{ d, \$ \}$。
->    - 计算 $C$：位于 $S \to A B C$ 尾部，直接继承 Round 0 的 $\text{FOLLOW}(S) = \{ \$ \}$。
+>      - 由于 $B C$ 均可空，一路穿透至尾部，继承并入 Round 0 的 $\text{FOLLOW}(S) = \{ \text{＄} \}$。
+>      - 综上，$\text{FOLLOW}(A) \gets \{ b, c, d, \text{＄} \}$。
+>    - 计算 $B$：扫描右邻 $C$。引入 $\text{FIRST}(C) \setminus \{\varepsilon\} = \{ d \}$。由于 $C$ 可空，继承 Round 0 的 $\text{FOLLOW}(S) = \{ \text{＄} \}$，得到 $\{ d, \text{＄} \}$。
+>    - 计算 $C$：位于 $S \to A B C$ 尾部，直接继承 Round 0 的 $\text{FOLLOW}(S) = \{ \text{＄} \}$。
 >    - 计算 $M$：根据 $B \to M$ 继承 $\text{FOLLOW}(B)$。但上一轮 $\text{FOLLOW}(B) = \emptyset$，故本轮仍为 $\emptyset$。
 > 3. **Round 2**:
->    - 计算 $M$：继承上一轮的 $\text{FOLLOW}(B) = \{ d, \$ \}$，成功并入元素。
+>    - 计算 $M$：继承上一轮的 $\text{FOLLOW}(B) = \{ d, \text{＄} \}$，成功并入元素。
 >    - 其它非终结符集合与上一轮一致。
 > 4. **Round 3**: 全员无新元素并入，宣告收敛。
 
@@ -137,7 +138,7 @@ $$
 
 > [!CAUTION] 极高频扣分区
 > 1. **方向找反了（致命错误）**：求 $\text{FOLLOW}(A)$ 时，许多同学习惯性去查“以 $A$ 为左部的产生式 $A \to \alpha$”。 **求 FOLLOW(A) 必须扫描所有产生式的右部，找出所有出现符号 A 的位置！**  与 $A$ 开头的产生式毫无关系。
-> 2. **集合符号漏写**：$\text{FOLLOW}(E) = \$ , )$ 是严重格式错误，必须写成集合括弧格式：$\text{FOLLOW}(E) = \{ \$, ) \}$。
+> 2. **集合符号漏写**：$\text{FOLLOW}(E) = \text{＄} , )$ 是严重格式错误，必须写成集合括弧格式：$\text{FOLLOW}(E) = \{ \text{＄}, ) \}$。
 > 3. **遗漏传播链中的 Nullable 项**：对于 $S \to u B D z$。当 $D$ 可空时，$\text{FOLLOW}(B)$ 不仅有 $\text{FIRST}(D)$，还**必须**有 $z$（即穿透 $D$ 继承后面的符号）。如果 $D$ 处于尾部且可空，则必须完全继承 $\text{FOLLOW}(S)$。
 > 4. **$\varepsilon$ 漏填或错填**：$\varepsilon$ 绝对不能存在于任何非终结符的 $\text{FOLLOW}$ 集合中。
 

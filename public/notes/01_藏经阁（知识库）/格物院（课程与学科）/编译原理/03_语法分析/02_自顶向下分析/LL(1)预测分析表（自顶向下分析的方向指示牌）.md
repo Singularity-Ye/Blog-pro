@@ -53,7 +53,7 @@ $$
    $$
 2. **第二步（处理可空符号）**：
    如果 $\varepsilon \in \text{FIRST}(\alpha)$（即整个右部串 $\alpha$ 是 Nullable 的）：
-   对于所有的终结符 $b \in \text{FOLLOW}(A)$（包含 $\$$）：
+   对于所有的终结符 $b \in \text{FOLLOW}(A)$（包含 $\text{＄}$）：
    $$
    M[A, b] \leftarrow A \to \alpha
    $$
@@ -70,16 +70,16 @@ E' &\to + T E' \mid \varepsilon \\
 T  &\to id
 \end{aligned}
 $$
-*（已算得：$\text{FIRST}(E') = \{ +, \varepsilon \}$，$\text{FOLLOW}(E') = \{ \$ \}$）*
+*（已算得：$\text{FIRST}(E') = \{ +, \varepsilon \}$，$\text{FOLLOW}(E') = \{ \text{＄} \}$）*
 
 ### 填表决策链：
 * 对于 $E \to T E'$：由于 $\text{FIRST}(T E') = \{ id \}$，填入 $M[E, id]$。
 * 对于 $E' \to + T E'$：由于 $\text{FIRST}(+ T E') = \{ + \}$，填入 $M[E', +]$。
-* 对于 $E' \to \varepsilon$：因为是空产生式，查 $\text{FOLLOW}(E') = \{ \$ \}$，填入 $M[E', \$]$。
+* 对于 $E' \to \varepsilon$：因为是空产生式，查 $\text{FOLLOW}(E') = \{ \text{＄} \}$，填入 $M[E', \text{＄}]$。
 
 ### 最终 LL(1) 分析表：
 
-| 非终结符 | $id$ | $+$ | $\$$ |
+| 非终结符 | $id$ | $+$ | $\text{＄}$ |
 | :---: | :--- | :--- | :--- |
 | **$E$** | $E \to T E'$ | | |
 | **$E'$** | | $E' \to + T E'$ | $E' \to \varepsilon$ |

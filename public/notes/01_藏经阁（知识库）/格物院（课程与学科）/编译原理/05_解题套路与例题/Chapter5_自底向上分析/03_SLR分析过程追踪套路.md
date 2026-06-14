@@ -111,8 +111,8 @@ SLR(1) 分析追踪要求使用五列表格呈现（输入串末尾必须补上 
 | 1 | `0` | `$` | `x d $` | **Shift 3** <br> (查表得 $\text{ACTION}[0, \textbf{x}] = s_3$) |
 | 2 | `0` `3` | `$` `x` | `d $` | **Reduce by $A \to \textbf{x}$** <br> (查表得 $\text{ACTION}[3, \textbf{d}] = r_2$. 弹出栈顶状态 $3$ and 符号 $\textbf{x}$，暴露出状态 $0$，查 $\text{GOTO}[0, A] = 2$，将 $A, 2$ 压栈) |
 | 3 | `0` `2` | `$` `A` | `d $` | **Shift 4** <br> (查表得 $\text{ACTION}[2, \textbf{d}] = s_4$) |
-| 4 | `0` `2` `4` | `$` `A` `d` | `$` | **Reduce by $S \to A \textbf{d}$** <br> (查表得 $\text{ACTION}[4, \$] = r_1$. 弹出栈顶两个状态 $4, 2$ and 两个符号 $\textbf{d}, A$，暴露出状态 $0$，查 $\text{GOTO}[0, S] = 1$，将 $S, 1$ 压栈) |
-| 5 | `0` `1` | `$` `S` | `$` | **Accept** <br> (查表得 $\text{ACTION}[1, \$] = \text{acc}$，分析成功结束！) |
+| 4 | `0` `2` `4` | `$` `A` `d` | `$` | **Reduce by $S \to A \textbf{d}$** <br> (查表得 $\text{ACTION}[4, \text{＄}] = r_1$. 弹出栈顶两个状态 $4, 2$ and 两个符号 $\textbf{d}, A$，暴露出状态 $0$，查 $\text{GOTO}[0, S] = 1$，将 $S, 1$ 压栈) |
+| 5 | `0` `1` | `$` `S` | `$` | **Accept** <br> (查表得 $\text{ACTION}[1, \text{＄}] = \text{acc}$，分析成功结束！) |
 
 ---
 
