@@ -1103,6 +1103,8 @@ const PreviewBody = styled.div`
   min-height: 280px;
   background: var(--glass-bg-alt);
   border-radius: 0 0 9px 9px;
+  overflow: hidden;
+  position: relative;
   transition: background 0.5s ease;
 
   .mini-graph-container {
@@ -1118,6 +1120,8 @@ const SideList = styled.div`
   padding: 0.9rem;
   background: var(--glass-bg-alt);
   border-radius: 0 0 9px 9px;
+  overflow: hidden;
+  position: relative;
   transition: background 0.5s ease;
 
   a,
