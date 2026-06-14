@@ -122,7 +122,7 @@
     },
     {
       "enabled": true,
-      "label": "认知札记",
+      "label": "内功心法",
       "root": "01_藏经阁（知识库）/思辨录（认知与方法论）",
       "kind": "internal-skills",
       "include": [
