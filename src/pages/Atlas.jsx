@@ -172,7 +172,7 @@ const Page = styled.div`
   min-height: 100vh;
   position: relative;
   isolation: isolate;
-  overflow-x: hidden;
+  overflow-x: clip;
   background: var(--bg-primary);
   color: var(--text-primary);
   transition: background 0.5s ease, color 0.5s ease;
@@ -953,11 +953,25 @@ const RightPanel = styled.aside`
   align-self: start;
   display: grid;
   gap: 1rem;
-  padding: 1rem 0 0.75rem;
+  padding: 1rem 0.2rem 0.75rem 0;
+  max-height: calc(100vh - 2.5rem);
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--glass-border-highlight);
+    border-radius: 999px;
+  }
 
   @media (max-width: 1120px) {
     grid-column: 2;
     position: static;
+    max-height: none;
+    overflow: visible;
   }
 
   @media (max-width: 780px) {
