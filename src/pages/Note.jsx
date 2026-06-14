@@ -811,19 +811,23 @@ const MarkdownBody = styled.div`
         stroke-width: 2.2px !important;
       }
 
-      /* Edge labels background */
-      .edgeLabel rect {
-        fill: var(--md-pre-bg) !important;
-        rx: 4px !important;
-        ry: 4px !important;
-        opacity: 0.95 !important;
+      /* Edge labels background & container */
+      .edgeLabel,
+      .edgeLabel rect,
+      .edgeLabel span,
+      .edgeLabel div {
+        background: transparent !important;
+        background-color: transparent !important;
+        fill: transparent !important;
+        border: none !important;
         stroke: none !important;
+        box-shadow: none !important;
       }
 
       /* Edge labels text */
       .edgeLabel text, .edgeLabel span, .edgeLabel div {
-        fill: var(--text-accent) !important;
-        color: var(--text-accent) !important;
+        fill: var(--text-primary) !important;
+        color: var(--text-primary) !important;
         font-size: 11px !important;
         font-weight: 600 !important;
       }

@@ -2935,19 +2935,23 @@ const MarkdownBody = styled.div`
         stroke-width: 2px !important;
       }
 
-      /* Edge labels background */
-      .edgeLabel rect {
-        fill: #faf6eb !important;
-        rx: 3px !important;
-        ry: 3px !important;
-        opacity: 0.95 !important;
+      /* Edge labels background & container */
+      .edgeLabel,
+      .edgeLabel rect,
+      .edgeLabel span,
+      .edgeLabel div {
+        background: transparent !important;
+        background-color: transparent !important;
+        fill: transparent !important;
+        border: none !important;
         stroke: none !important;
+        box-shadow: none !important;
       }
 
       /* Edge labels text */
       .edgeLabel text, .edgeLabel span, .edgeLabel div {
-        fill: #854d0e !important;
-        color: #854d0e !important;
+        fill: #4a2d1b !important;
+        color: #4a2d1b !important;
         font-size: 10.5px !important;
         font-weight: 700 !important;
       }
