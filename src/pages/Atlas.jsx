@@ -962,6 +962,7 @@ const RightPanel = styled.aside`
   max-height: calc(100vh - 2.5rem);
   overflow-y: auto;
   overflow-x: hidden;
+  border-radius: 10px 10px 0 0;
 
   &::-webkit-scrollbar {
     width: 4px;
