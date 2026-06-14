@@ -13,156 +13,113 @@ import atlasArchiveBgDark from '../assets/images/atlas/Celestial-Sands-Field-Dar
 import { MouseWakeRipple } from '../components/MouseEffects';
 
 const METADATA_COLLECTIONS = [
-  // 1. 落沙寻迹图录 (原 travel)
+  // 1. 落沙寻迹图录 (travel)
   {
     slug: 'travel',
     kind: 'travel',
     title: '落沙行路 · 杭州旅游攻略',
     eyebrow: 'GEOMANTIC RECORDING MATRIX',
-    description: '烙印于神州地脉的行路志。收录杭城凡尘路线、烟火美味与山水风光实地探寻。',
+    description: '行者无疆，落沙为迹。此志乃神游杭城之灵视地貌图谱，悉心收录凡尘街巷的烟火食单、西子湖畔的山水秘境与四季景致之实地勘测，指引每一位红尘游子在步履交错间，领略天地造化之美。',
     accent: '#d8a247',
   },
-  // 2. 万象建站炼成阵 (原 project / 对应 02_楼阁)
+  // 2. 万象建站炼成阵 (project)
   {
     slug: 'project',
     kind: 'project',
     title: '万象构筑 · 个人建站流程',
     eyebrow: 'AETHERIC RECONSTRUCTION GRAPH',
-    description: '勘破数字迷雾的建站炼成阵。记录域名敕令、云端托管与避雷防线工程细节。',
+    description: '破译数字虚无之营造秘仪。从域名敕令的生死绑定，到云端服务器的洞天开辟，乃至静态资源分发网络之阵法部署，完整记述仙术工坊开宗立派、抵御网络风暴侵蚀与防御攻守之工程实录。',
     accent: '#c8933f',
   },
-  // 3. 叶间林径编织手稿 (原 blog-design / 对应 01_天工)
+  // 3. 叶间林径编织手稿 (blog-design)
   {
     slug: 'blog-design',
     kind: 'blog-design',
     title: '松窗灵笈 · 个人博客构建',
     eyebrow: 'LEAF-BORDERED SANCTUARY ENTRANCE',
-    description: '此间松窗灵笈台的营造手稿。涵盖星沙图谱、仙居门户与交互法阵开发轨迹。',
+    description: '松窗临风，灵笈藏真。此册系松窗灵笈台的营造天工图纸，囊括星沙图谱的拓扑演算法则、仙居门户之极简美学构筑、以及前端交互法阵与光影动态特效的熔炼细节，记录本博客迭代升华之轨迹。',
     accent: '#c7a46a',
   },
-  // 4. 筑梦现场
-  {
-    slug: 'dream-site',
-    kind: 'dream-site',
-    title: '造化筑梦 · 博客开发计划',
-    eyebrow: 'GENESIS FABRICATION SITE',
-    description: '万物破土之界。以意驭神构筑大千根基，记录一切重制与新颖创思筑梦现场。',
-    accent: '#cfa258',
-  },
-  // 5. 天衡 (流程与规范)
-  {
-    slug: 'tianheng',
-    kind: '天衡',
-    title: '天衡规章 · 流程与规范',
-    eyebrow: 'HEAVENLY BALANCE REGULATION',
-    description: '洞悉万物运转的天衡规章。建立自我纪律约束，调顺修行与生活日常之常轨。',
-    accent: '#cca552',
-  },
-  // 6. 天工 (美学与设计)
-  {
-    slug: 'tiangong',
-    kind: '天工',
-    title: '巧夺天工 · 美学与设计',
-    eyebrow: 'DIVINE CRAFT DESIGN AESTHETICS',
-    description: '夺天地造化的天工设计美学。沉淀界面排版法则、配色心诀与感官交互体系。',
-    accent: '#c49a45',
-  },
-  // 7. 楼阁 (页面与开发)
-  {
-    slug: 'louge',
-    kind: '楼阁',
-    title: '万象楼阁 · 页面与开发',
-    eyebrow: 'STELLAR PAVILION ARCHITECTURE',
-    description: '平地生万象楼阁的构筑秘符。一代码一砖瓦，打磨 React 组件与样式动效。',
-    accent: '#bfa261',
-  },
-  // 8. 造物 (玩具与工坊)
-  {
-    slug: 'zaowu',
-    kind: '造物',
-    title: '太初造物 · 小玩具与工坊',
-    eyebrow: 'ARCHETYPAL MANUFACTURE WORKSHOP',
-    description: '探寻太初造物的奇巧工坊。收录各类前端实验、趣味玩具与奇巧算法机关。',
-    accent: '#cca15a',
-  },
-  // 9. 秘术 / 技术札记
-  {
-    slug: 'mixu',
-    kind: '秘术',
-    title: '天玄奥道 · 技术札记',
-    eyebrow: 'OCCULT AETHERIC METHODOLOGIES',
-    description: '全栈修炼的技术札记。总结后端网络架构、开发框架以及工程提效技术真诀。',
-    accent: '#cca362',
-  },
-  // 兼容老的分类
+  // 4. 编译原理
   {
     slug: 'compiler-theory',
     kind: 'compiler-theory',
     title: '天玄奥道 · 编译原理',
     eyebrow: 'OCCULT AETHERIC METHODOLOGIES',
-    description: '破译编译器法阵的奥道秘术。梳理词法语法分析、解题套路与核心概念。',
+    description: '洞悉混沌语言化为神念之天规秩序。剖析编译器法阵之符文流转，详解词法与语法分析之破阵之法，融会贯通中间代码生成与目标代码优化之无上真诀，为修士搭建从高级语言直通底层金石的通天桥梁。',
     accent: '#cca362',
   },
+  // 5. Linux 笔记
   {
     slug: 'linux-notes',
     kind: 'linux-notes',
     title: '天玄奥道 · Linux 笔记',
     eyebrow: 'OCCULT AETHERIC METHODOLOGIES',
-    description: '驾驭 Linux 系统的筑基长生诀。记录常用命令行、shell 脚本与运维经验。',
+    description: '驾驭Linux寰宇之筑基法门。总览系统内核之穴位运转，敕令常用命令行符咒，编制自动化 Shell 脚本傀儡，更有降伏服务宕机、调顺云端灵气运行之运维纪实，乃掌控多维服务器的通关秘籍。',
     accent: '#cca362',
   },
+  // 6. 嵌入式开发
   {
     slug: 'embedded',
     kind: 'embedded',
     title: '天玄奥道 · 嵌入式开发',
     eyebrow: 'OCCULT AETHERIC METHODOLOGIES',
-    description: '金石交感之底层硬核调试。记录单片机通信、接口控制与裸机底层驱动开发。',
+    description: '金石交感，妙动于微。此篇专研单片机硬件与现实世界的灵力共鸣，记述串口通信契约、外设接口的微秒级控制，以及裸机底层驱动程序的熔铸流程，助修士勘破软硬结界，以代码号令冷铁飞鸣。',
     accent: '#cca362',
   },
-  // 10. 闲情 (幕后与手札)
-  {
-    slug: 'xianqing',
-    kind: '闲情',
-    title: '青灯闲情 · 随笔与手札',
-    eyebrow: 'TRANQUIL MEDITATION JOURNAL',
-    description: '修行有得，提笔著书。温存红尘琐事、心魔感悟与浮生随想，佐茶细读。',
-    accent: '#caa866',
-  },
-  // 11. 认知札记
+  // 7. 知识杂货铺
   {
     slug: 'knowledge-grocery',
     kind: 'knowledge-grocery',
     title: '青灯闲情 · 知识杂货铺',
     eyebrow: 'TRANQUIL MEDITATION JOURNAL',
-    description: '红尘百态的见闻杂货铺。收录科学新知、冷知识趣味分享与技术演变史话。',
+    description: '修行之余，闲听八方。这是一座收录大千世界奇闻轶事的杂货当铺，既有现代前沿科学之异端奇想，亦有古今冷门趣味之小道消息与互联网技术流变史话，清茶一盏，佐以天下见闻，博君莞尔一笑。',
     accent: '#caa866',
   },
-  // 11. 认知札记
+  // 8. 认知札记
   {
     slug: 'internal-skills',
     kind: 'internal-skills',
     title: '太玄 · 认知札记',
     eyebrow: 'COGNITIVE REFLECTIONS',
-    description: '太玄洗髓伐脉之心智模型探讨。在林间对抗知识腐化，剖析思维与认知方法。',
+    description: '识海洗髓，心魔退散。这里是磨砺神魂、构建心智模型的修真道场，旨在抗御外界纷扰与信息毒化的精神腐蚀，深度剖析自我认知壁垒、决断策略与底层思维逻辑，于静默中完成心性的涅槃与蜕变。',
     accent: '#cca362',
   },
-  // 12. 纪要 (缺陷与工单)
+  // 9. 代号《织墨》(WeaveInk)
   {
-    slug: 'jiyao',
-    kind: '纪要',
-    title: '天道补缀 · 开发纪要',
-    eyebrow: 'AETHERIC REPAIR RESOLUTIONS',
-    description: '修补天道疏漏的开发纪要。斩断 Bug 因果，沉淀研发避坑的珍贵印记。',
-    accent: '#caa75b',
+    slug: 'weaveink',
+    kind: 'weaveink',
+    title: '代号《织墨》 · 引擎研发',
+    eyebrow: 'PROJECT WEAVEINK ENGINE',
+    description: '天工开物，笔落惊风。此乃自研“织墨”图文排版引擎的太初炼器秘籍，融合星空拓扑的图形法阵、自适应界面的伸缩道术，以及跨端流畅交互的飞羽动效，展现从零铸造一款现代排版神器的研发全貌。',
+    accent: '#8b5cf6',
   },
-  // 13. 遗迹 (历史陈迹)
+  // 10. 老韩宇宙
   {
-    slug: 'yiji',
-    kind: '遗迹',
-    title: '太古遗迹 · 历史陈迹',
-    eyebrow: 'ANCIENT ARCHIVE RELICS',
-    description: '尘封已久的太古代码遗迹。作为警醒与前车之鉴，封存过往修持的废弃方案。',
-    accent: '#b8a682',
+    slug: 'laohan-criticism',
+    kind: 'laohan-criticism',
+    title: '老韩宇宙 · 乱世观察',
+    eyebrow: 'LAOHAN COSMIC OBSERVATORY',
+    description: '世事如棋，冷眼旁观。此乃散修“老韩”神游红尘之锐评手札，以辛辣幽默之文笔剖析世间百态，冷峻观察凡俗之离合悲欢，戳破浮华假象。读之如烈酒入喉，顿觉尘世喧嚣皆为笑谈，令人神清气爽。',
+    accent: '#ec4899',
+  },
+  // 11. 老头宇宙
+  {
+    slug: 'laotou-criticism',
+    kind: 'laotou-criticism',
+    title: '老头宇宙 · 岁月秘史',
+    eyebrow: 'LAOTOU CHRONICLES',
+    description: '光阴留痕，逝水无声。此集聚焦于“老头”漫长岁月的风雨纪事与生活感悟，收录古早岁月的逸闻旧事、尘封已久的心历路程与世事变迁的无声叹息，如同一卷昏黄画轴，缓缓诉说着时光深处的密语。',
+    accent: '#3b82f6',
+  },
+  // 12. 观心阁
+  {
+    slug: 'guanxin-pavilion',
+    kind: 'guanxin-pavilion',
+    title: '观心阁 · 自我审视',
+    eyebrow: 'GUANXIN REFLECTION CHAMBER',
+    description: '静室蒲团，面壁思过。此阁乃修士照见本性、拷问自我的绝对净土，剥离一切虚妄社交假象，直面“观己、观人、待人、待己”的心路暗流，在血淋淋的自我剖析与自省中，重建支离破碎的真我道心。',
+    accent: '#10b981',
   }
 ];
 

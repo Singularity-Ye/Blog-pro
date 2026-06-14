@@ -10,9 +10,18 @@ function toNoteHref(slug) {
 }
 
 const COLLECTION_COLORS = {
-  travel: '#c88c51',
-  project: '#d69e63',
-  'blog-design': '#b68a5c',
+  travel: '#d8a247',
+  project: '#c8933f',
+  'blog-design': '#c7a46a',
+  'compiler-theory': '#cca362',
+  'linux-notes': '#cca362',
+  embedded: '#cca362',
+  'knowledge-grocery': '#caa866',
+  'internal-skills': '#cca362',
+  weaveink: '#8b5cf6',
+  'laohan-criticism': '#ec4899',
+  'laotou-criticism': '#3b82f6',
+  'guanxin-pavilion': '#10b981',
 };
 
 const THEMES = {
