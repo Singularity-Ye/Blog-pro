@@ -953,12 +953,35 @@ function DirectoryNode({ node, accent, expandedPaths, onToggle, theme }) {
 }
 
 const RightPanel = styled.aside`
+  position: sticky;
+  top: 1.25rem;
+  align-self: start;
   display: grid;
   gap: 1rem;
-  padding: 1rem 0 0.75rem 0;
+  padding: 1rem 0.2rem 0.75rem 0;
+  max-height: calc(100vh - 2.5rem);
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--glass-border-highlight);
+    border-radius: 999px;
+  }
+
+  @media (min-height: 700px) {
+    max-height: none;
+    overflow: visible;
+  }
 
   @media (max-width: 1120px) {
     grid-column: 2;
+    position: static;
+    max-height: none;
+    overflow: visible;
   }
 
   @media (max-width: 780px) {
@@ -975,7 +998,8 @@ const PreviewPanel = styled.div`
     radial-gradient(circle at 82% 10%, rgba(255, 225, 151, 0.15), transparent 34%),
     var(--glass-bg);
   color: var(--text-primary);
-  overflow: hidden;
+  /* overflow: hidden; - Removed to allow child sticky headers to display properly */
+  position: relative;
   box-shadow:
     var(--glass-shadow),
     var(--glass-inset);
@@ -985,6 +1009,9 @@ const PreviewPanel = styled.div`
 `;
 
 const PanelHeader = styled.div`
+  position: sticky;
+  top: 0;
+  z-index: 10;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -993,6 +1020,9 @@ const PanelHeader = styled.div`
   padding: 0 0.9rem;
   border-bottom: 1px solid var(--glass-border);
   background: var(--glass-bg-alt);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 9px 9px 0 0;
   transition: background 0.5s ease, border-color 0.5s ease;
 `;
 
@@ -1072,6 +1102,7 @@ const PreviewBody = styled.div`
   aspect-ratio: 1 / 1;
   min-height: 280px;
   background: var(--glass-bg-alt);
+  border-radius: 0 0 9px 9px;
   transition: background 0.5s ease;
 
   .mini-graph-container {
@@ -1086,6 +1117,7 @@ const SideList = styled.div`
   gap: 0.55rem;
   padding: 0.9rem;
   background: var(--glass-bg-alt);
+  border-radius: 0 0 9px 9px;
   transition: background 0.5s ease;
 
   a,
