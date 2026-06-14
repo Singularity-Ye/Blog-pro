@@ -2,6 +2,9 @@ import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { useParams, Link, useLocation, useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+import 'katex/dist/katex.min.css';
 import mermaid from 'mermaid';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
@@ -9,10 +12,48 @@ import MiniGraph from '../components/GraphView/MiniGraph';
 import { filterGraphByLocal } from '../utils/graphFilters';
 import { parseFrontmatter } from '../utils/frontmatter';
 import { fetchGraphData } from '../utils/publishData';
+import remarkHtmlBreaks from '../utils/remarkHtmlBreaks';
 import { MouseLeafDrift } from '../components/MouseEffects';
 import noteReadingBgLight from '../assets/images/atlas/note-reading-light.png';
 import noteReadingBgDark from '../assets/images/atlas/note-reading-dark.png';
+// Helper to recursively replace <br> / <br/> / <br /> strings with React <br /> components
+const renderChildrenWithBr = (children) => {
+  if (!children) return children;
+  
+  const processNode = (node) => {
+    if (typeof node === 'string') {
+      const parts = node.split(/(<br\s*\/?>)/gi);
+      if (parts.length > 1) {
+        return parts.map((part, index) => {
+          if (part.match(/<br\s*\/?>/i)) {
+            return <br key={index} />;
+          }
+          return part;
+        });
+      }
+      return node;
+    }
+    if (React.isValidElement(node) && node.props && node.props.children) {
+      return React.cloneElement(node, {
+        ...node.props,
+        children: renderChildrenWithBr(node.props.children)
+      });
+    }
+    if (Array.isArray(node)) {
+      return node.map((child, index) => {
+        const processed = processNode(child);
+        return Array.isArray(processed)
+          ? processed.map((p, pIdx) =>
+              React.isValidElement(p) ? React.cloneElement(p, { key: `${index}-${pIdx}` }) : p
+            )
+          : processed;
+      });
+    }
+    return node;
+  };
 
+  return React.Children.map(children, processNode);
+};
 
 const METADATA_COLLECTIONS = [
   { slug: 'travel', kind: 'travel' },
@@ -1675,13 +1716,18 @@ export default function Note() {
         )}
         <MarkdownBody $theme={theme}>
           <ReactMarkdown
-            remarkPlugins={[remarkGfm, [remarkWikilinks, { resolve: wikilinkResolver }]]}
+            remarkPlugins={[remarkGfm, remarkMath, remarkHtmlBreaks, [remarkWikilinks, { resolve: wikilinkResolver }]]}
+            rehypePlugins={[rehypeKatex]}
             components={{
               table: ({children, ...props}) => (
                 <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', margin: '1rem 0' }}>
                   <table {...props}>{children}</table>
                 </div>
               ),
+              td: ({children, ...props}) => <td {...props}>{renderChildrenWithBr(children)}</td>,
+              th: ({children, ...props}) => <th {...props}>{renderChildrenWithBr(children)}</th>,
+              p: ({children, ...props}) => <p {...props}>{renderChildrenWithBr(children)}</p>,
+              li: ({children, ...props}) => <li {...props}>{renderChildrenWithBr(children)}</li>,
               h1: ({children, ...props}) => <Heading as="h1" {...props}>{children}</Heading>,
               h2: ({children, ...props}) => <Heading as="h2" {...props}>{children}</Heading>,
               h3: ({children, ...props}) => <Heading as="h3" {...props}>{children}</Heading>,

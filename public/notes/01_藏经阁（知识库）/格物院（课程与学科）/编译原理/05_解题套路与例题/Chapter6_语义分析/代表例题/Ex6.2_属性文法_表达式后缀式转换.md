@@ -7,7 +7,6 @@ aliases:
   - 表达式转后缀式的属性文法
   - Expression Postfix Attribute Grammar
   - SDD Expression Postfix
-  - 后缀表达式
 source_chapter:
   - 6
 used_in_chapter:

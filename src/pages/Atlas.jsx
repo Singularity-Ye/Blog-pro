@@ -958,13 +958,27 @@ const RightPanel = styled.aside`
   right: max(clamp(1rem, 2.5vw, 2rem), calc((100vw - 1500px) / 2 + clamp(1rem, 2.5vw, 2rem)));
   width: clamp(300px, 24vw, 380px);
   z-index: 8;
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 1rem;
-  padding: 1rem 0.2rem 0.75rem 0;
+  padding: 1.2rem 0.8rem 1.2rem 1rem;
   max-height: calc(100vh - 2.5rem);
   overflow-y: auto;
   overflow-x: hidden;
-  border-radius: 10px 10px 0 0;
+
+  border: 1px solid var(--glass-border);
+  border-left: 2.5px solid var(--glass-border-highlight);
+  border-radius: 10px;
+  background:
+    linear-gradient(180deg, rgba(255, 244, 218, 0.08), rgba(99, 61, 26, 0.04)),
+    radial-gradient(circle at 85% 8%, rgba(255, 225, 151, 0.12), transparent 32%),
+    var(--glass-bg);
+  box-shadow:
+    var(--glass-shadow),
+    var(--glass-inset);
+  backdrop-filter: blur(12px) saturate(1.2);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  transition: background 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease;
 
   &::-webkit-scrollbar {
     width: 4px;
@@ -981,6 +995,14 @@ const RightPanel = styled.aside`
     width: auto;
     max-height: none;
     overflow: visible;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    padding: 0;
+    display: grid;
+    gap: 1rem;
   }
 
   @media (max-width: 780px) {
@@ -990,21 +1012,26 @@ const RightPanel = styled.aside`
 
 const PreviewPanel = styled.div`
   border: 1px solid var(--glass-border);
-  border-left: 2.5px solid var(--glass-border-highlight);
-  border-radius: 10px;
-  background:
-    linear-gradient(135deg, rgba(255, 244, 218, 0.08), rgba(99, 61, 26, 0.04)),
-    radial-gradient(circle at 82% 10%, rgba(255, 225, 151, 0.15), transparent 34%),
-    var(--glass-bg);
+  border-radius: 8px;
+  background: var(--glass-bg-alt);
   color: var(--text-primary);
   overflow: hidden;
   position: relative;
-  box-shadow:
-    var(--glass-shadow),
-    var(--glass-inset);
-  backdrop-filter: blur(12px) saturate(1.2);
-  -webkit-backdrop-filter: blur(12px) saturate(1.2);
-  transition: background 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease;
+  transition: background 0.5s ease, border-color 0.5s ease;
+
+  @media (max-width: 1120px) {
+    border-left: 2.5px solid var(--glass-border-highlight);
+    border-radius: 10px;
+    background:
+      linear-gradient(135deg, rgba(255, 244, 218, 0.08), rgba(99, 61, 26, 0.04)),
+      radial-gradient(circle at 82% 10%, rgba(255, 225, 151, 0.15), transparent 34%),
+      var(--glass-bg);
+    box-shadow:
+      var(--glass-shadow),
+      var(--glass-inset);
+    backdrop-filter: blur(12px) saturate(1.2);
+    -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  }
 `;
 
 const PanelHeader = styled.div`

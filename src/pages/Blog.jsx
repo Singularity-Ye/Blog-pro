@@ -3,17 +3,19 @@ import styled, { keyframes, css } from 'styled-components';
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+import 'katex/dist/katex.min.css';
 import mermaid from 'mermaid';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { BLOG_NEW_ASSETS } from '../constants/blogAssets';
 import { parseFrontmatter } from '../utils/frontmatter';
 import { fetchNotesIndex, fetchGraphData } from '../utils/publishData';
+import remarkHtmlBreaks from '../utils/remarkHtmlBreaks';
 
 // -------------------------------------------------------------------------
 // 动效定义 (Animations)
 // -------------------------------------------------------------------------
-
-
 const paperSlideIn = keyframes`
   from { transform: translateY(12px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
@@ -4759,7 +4761,8 @@ export default function Blog() {
                 ) : (
                   <MarkdownBody>
                     <ReactMarkdown
-                      remarkPlugins={[remarkGfm, [remarkWikilinks, { resolve: wikilinkResolver }]]}
+                      remarkPlugins={[remarkGfm, remarkMath, remarkHtmlBreaks, [remarkWikilinks, { resolve: wikilinkResolver }]]}
+                      rehypePlugins={[rehypeKatex]}
                       components={{
                         a: ({href, children, ...props}) => {
                           if (href?.startsWith('#wikilink-unresolved:')) {
