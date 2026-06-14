@@ -953,35 +953,12 @@ function DirectoryNode({ node, accent, expandedPaths, onToggle, theme }) {
 }
 
 const RightPanel = styled.aside`
-  position: sticky;
-  top: 1.25rem;
-  align-self: start;
   display: grid;
   gap: 1rem;
-  padding: 1rem 0.2rem 0.75rem 0;
-  max-height: calc(100vh - 2.5rem);
-  overflow-y: auto;
-  overflow-x: hidden;
-
-  &::-webkit-scrollbar {
-    width: 4px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: var(--glass-border-highlight);
-    border-radius: 999px;
-  }
-
-  @media (min-height: 700px) {
-    max-height: none;
-    overflow: visible;
-  }
+  padding: 1rem 0 0.75rem 0;
 
   @media (max-width: 1120px) {
     grid-column: 2;
-    position: static;
-    max-height: none;
-    overflow: visible;
   }
 
   @media (max-width: 780px) {
