@@ -13,6 +13,16 @@ import { parseFrontmatter } from '../utils/frontmatter';
 import { fetchNotesIndex, fetchGraphData } from '../utils/publishData';
 import remarkHtmlBreaks from '../utils/remarkHtmlBreaks';
 
+// Helper to fix bold (** or __) formatting next to Chinese/English text and punctuation
+const preprocessMarkdown = (text) => {
+  if (!text) return text;
+  return text
+    // 1. letter/number/Chinese + ** + opening punctuation -> insert space before **
+    .replace(/([a-zA-Z0-9\u4e00-\u9fa5])\*\*([“"「『（(【[])/g, '$1 **$2')
+    // 2. closing punctuation + ** + letter/number/Chinese -> insert space after **
+    .replace(/([”"」』）)】\]])\*\*([a-zA-Z0-9\u4e00-\u9fa5])/g, '$1** $2');
+};
+
 // -------------------------------------------------------------------------
 // 动效定义 (Animations)
 // -------------------------------------------------------------------------
@@ -2898,8 +2908,9 @@ const MarkdownBody = styled.div`
       max-width: 100% !important;
       height: auto !important;
 
-      /* Node boxes */
-      .node rect, .node circle, .node polygon, .node path {
+      /* Node boxes and actor boxes */
+      .node rect, .node circle, .node polygon, .node path,
+      .actor rect, rect.actor, .note rect, rect.note {
         fill: #faf6eb !important;
         stroke: rgba(74, 45, 27, 0.4) !important;
         stroke-width: 1.5px !important;
@@ -2909,14 +2920,18 @@ const MarkdownBody = styled.div`
       }
 
       /* Hover effect */
-      .node:hover rect, .node:hover circle, .node:hover polygon, .node:hover path {
+      .node:hover rect, .node:hover circle, .node:hover polygon, .node:hover path,
+      .actor:hover rect, rect.actor:hover {
         fill: #fff !important;
         stroke: #854d0e !important;
         filter: drop-shadow(0 2px 6px rgba(74, 45, 27, 0.15));
       }
 
-      /* Text inside nodes */
-      .node .label, .node label, .node text, .node span, .node div {
+      /* Text inside nodes and actor/note boxes */
+      .node .label, .node label, .node text, .node span, .node div,
+      .actor text, text.actor, .actor span, .actor div,
+      .note text, text.note, .note span, .note div,
+      .messageText {
         fill: #4a2d1b !important;
         color: #4a2d1b !important;
         font-family: inherit !important;
@@ -2924,13 +2939,20 @@ const MarkdownBody = styled.div`
         font-weight: 600 !important;
       }
 
-      /* Connection lines */
-      .edgePath .path {
+      /* Connection lines & sequence diagram lines */
+      .edgePath .path,
+      .messageLine0,
+      .messageLine1,
+      .actor-line,
+      .loopLine {
         stroke: rgba(74, 45, 27, 0.45) !important;
         stroke-width: 1.6px !important;
+        transition: all 0.3s ease;
       }
 
-      .edgePath:hover .path {
+      .edgePath:hover .path,
+      .messageLine0:hover,
+      .messageLine1:hover {
         stroke: #854d0e !important;
         stroke-width: 2px !important;
       }
@@ -4833,7 +4855,7 @@ export default function Blog() {
                         }
                       }}
                     >
-                      {articleBody}
+                      {preprocessMarkdown(articleBody)}
                     </ReactMarkdown>
                   </MarkdownBody>
                 )}

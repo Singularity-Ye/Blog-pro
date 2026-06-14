@@ -16,6 +16,16 @@ import remarkHtmlBreaks from '../utils/remarkHtmlBreaks';
 import { MouseLeafDrift } from '../components/MouseEffects';
 import noteReadingBgLight from '../assets/images/atlas/note-reading-light.png';
 import noteReadingBgDark from '../assets/images/atlas/note-reading-dark.png';
+// Helper to fix bold (** or __) formatting next to Chinese/English text and punctuation
+const preprocessMarkdown = (text) => {
+  if (!text) return text;
+  return text
+    // 1. letter/number/Chinese + ** + opening punctuation -> insert space before **
+    .replace(/([a-zA-Z0-9\u4e00-\u9fa5])\*\*([“"「『（(【[])/g, '$1 **$2')
+    // 2. closing punctuation + ** + letter/number/Chinese -> insert space after **
+    .replace(/([”"」』）)】\]])\*\*([a-zA-Z0-9\u4e00-\u9fa5])/g, '$1** $2');
+};
+
 // Helper to recursively replace <br> / <br/> / <br /> strings with React <br /> components
 const renderChildrenWithBr = (children) => {
   if (!children) return children;
@@ -773,8 +783,9 @@ const MarkdownBody = styled.div`
       max-width: 100% !important;
       height: auto !important;
 
-      /* Node boxes */
-      .node rect, .node circle, .node polygon, .node path {
+      /* Node boxes and actor boxes */
+      .node rect, .node circle, .node polygon, .node path,
+      .actor rect, rect.actor, .note rect, rect.note {
         fill: var(--glass-bg-alt) !important;
         stroke: var(--glass-border) !important;
         stroke-width: 1.5px !important;
@@ -784,14 +795,18 @@ const MarkdownBody = styled.div`
       }
 
       /* Hover effect */
-      .node:hover rect, .node:hover circle, .node:hover polygon, .node:hover path {
+      .node:hover rect, .node:hover circle, .node:hover polygon, .node:hover path,
+      .actor:hover rect, rect.actor:hover {
         fill: var(--glass-bg) !important;
         stroke: var(--glass-border-highlight) !important;
         filter: drop-shadow(0 0 8px var(--glass-border));
       }
 
-      /* Text inside nodes */
-      .node .label, .node label, .node text, .node span, .node div {
+      /* Text inside nodes and actor/note boxes */
+      .node .label, .node label, .node text, .node span, .node div,
+      .actor text, text.actor, .actor span, .actor div,
+      .note text, text.note, .note span, .note div,
+      .messageText {
         fill: var(--text-primary) !important;
         color: var(--text-primary) !important;
         font-family: inherit !important;
@@ -799,14 +814,20 @@ const MarkdownBody = styled.div`
         font-weight: 500 !important;
       }
 
-      /* Connection lines */
-      .edgePath .path {
+      /* Connection lines & sequence diagram lines */
+      .edgePath .path,
+      .messageLine0,
+      .messageLine1,
+      .actor-line,
+      .loopLine {
         stroke: var(--glass-border) !important;
         stroke-width: 1.8px !important;
         transition: all 0.3s ease;
       }
 
-      .edgePath:hover .path {
+      .edgePath:hover .path,
+      .messageLine0:hover,
+      .messageLine1:hover {
         stroke: var(--glass-border-highlight) !important;
         stroke-width: 2.2px !important;
       }
@@ -1823,7 +1844,7 @@ export default function Note() {
               }
             }}
           >
-            {parsedNote.body}
+            {preprocessMarkdown(parsedNote.body)}
           </ReactMarkdown>
         </MarkdownBody>
 
