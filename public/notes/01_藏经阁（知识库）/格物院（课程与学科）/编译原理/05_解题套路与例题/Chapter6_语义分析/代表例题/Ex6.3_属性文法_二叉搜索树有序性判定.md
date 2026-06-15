@@ -37,7 +37,9 @@ created: 2026-06-11
 
 Consider the following grammar for integer binary trees (in linearized form):
 
-$$btree \to ( \textbf{number} \ btree \ btree ) \mid \mathbf{nil}$$
+$$
+btree \to ( \textbf{number} \ btree \ btree ) \mid \mathbf{nil}
+$$
 
 Write an attribute grammar to check that a binary tree is ordered, that is, that the values of the numbers of the first subtree are $\le$ the value of the current number and the values of all numbers of the second subtree are $\ge$ the value of the current number. For example, **`(2 (1 nil nil) (3 nil nil) )`** is ordered, but **`(1 (2 nil nil) (3 nil nil) )`** is not. 
 

@@ -14,9 +14,20 @@ import { filterGraphByLocal } from '../utils/graphFilters';
 import { parseFrontmatter } from '../utils/frontmatter';
 import { fetchGraphData } from '../utils/publishData';
 import remarkHtmlBreaks from '../utils/remarkHtmlBreaks';
+import { encodeNotePath, safeDecodeNotePath, toNoteHref } from '../utils/notePaths';
+import { normalizeMarkdownMath } from '../utils/markdownMath';
 import { MouseLeafDrift } from '../components/MouseEffects';
 import noteReadingBgLight from '../assets/images/atlas/note-reading-light.png';
 import noteReadingBgDark from '../assets/images/atlas/note-reading-dark.png';
+const preprocessMarkdown = (text) => {
+  if (!text) return text;
+  return normalizeMarkdownMath(text)
+    // 1. letter/number/Chinese + **bold** -> insert space before opening **
+    .replace(/([a-zA-Z0-9\u4e00-\u9fa5])\*\*([^*\s](?:(?:[^*]|\*[^*])*?[^*\s])?)\*\*/g, '$1 **$2**')
+    // 2. **bold** + letter/number/Chinese -> insert space after closing **
+    .replace(/\*\*([^*\s](?:(?:[^*]|\*[^*])*?[^*\s])?)\*\*([a-zA-Z0-9\u4e00-\u9fa5])/g, '**$1** $2');
+};
+
 // Helper to recursively replace <br> / <br/> / <br /> strings with React <br /> components
 const renderChildrenWithBr = (children) => {
   if (!children) return children;
@@ -774,8 +785,9 @@ const MarkdownBody = styled.div`
       max-width: 100% !important;
       height: auto !important;
 
-      /* Node boxes */
-      .node rect, .node circle, .node polygon, .node path {
+      /* Node boxes and actor boxes */
+      .node rect, .node circle, .node polygon, .node path,
+      .actor rect, rect.actor, .note rect, rect.note {
         fill: var(--glass-bg-alt) !important;
         stroke: var(--glass-border) !important;
         stroke-width: 1.5px !important;
@@ -785,14 +797,45 @@ const MarkdownBody = styled.div`
       }
 
       /* Hover effect */
-      .node:hover rect, .node:hover circle, .node:hover polygon, .node:hover path {
+      .node:hover rect, .node:hover circle, .node:hover polygon, .node:hover path,
+      .actor:hover rect, rect.actor:hover {
         fill: var(--glass-bg) !important;
         stroke: var(--glass-border-highlight) !important;
         filter: drop-shadow(0 0 8px var(--glass-border));
       }
 
-      /* Text inside nodes */
-      .node .label, .node label, .node text, .node span, .node div {
+      /* Theme-responsive custom flowchart node styles */
+      .orig rect, .orig circle, .orig polygon, .orig path,
+      .coreNode rect, .coreNode circle, .coreNode polygon, .coreNode path,
+      .core rect, .core circle, .core polygon, .core path {
+        fill: ${({ $theme }) => $theme === 'dark' ? 'rgba(239, 68, 68, 0.2) !important' : '#fff2f2 !important'};
+        stroke: #ff8080 !important;
+      }
+      .runNode rect, .runNode circle, .runNode polygon, .runNode path,
+      .run rect, .run circle, .run polygon, .run path,
+      .val rect, .val circle, .val polygon, .val path {
+        fill: ${({ $theme }) => $theme === 'dark' ? 'rgba(59, 130, 246, 0.2) !important' : '#f2f2ff !important'};
+        stroke: #8080ff !important;
+      }
+      .aug rect, .aug circle, .aug polygon, .aug path,
+      .conflictNode rect, .conflictNode circle, .conflictNode polygon, .conflictNode path {
+        fill: ${({ $theme }) => $theme === 'dark' ? 'rgba(16, 185, 129, 0.2) !important' : '#f2fff2 !important'};
+        stroke: #80ff80 !important;
+      }
+
+      /* Text inside nodes and actor/note boxes */
+      .node .label, .node label, .node text, .node span, .node div,
+      .node .label *, .node label *, .node text *, .node span *, .node div *,
+      .actor text, text.actor, .actor span, .actor div,
+      .actor text *, text.actor *, .actor span *, .actor div *,
+      .note text, text.note, .note span, .note div,
+      .note text *, text.note *, .note span *, .note div *,
+      svg text, svg tspan, svg span, svg div, svg p, svg label,
+      .actorText, .actorText *,
+      .noteText, .noteText *,
+      .loopText, .loopText *,
+      .loopLabel, .loopLabel *,
+      .messageText, .messageText * {
         fill: var(--text-primary) !important;
         color: var(--text-primary) !important;
         font-family: inherit !important;
@@ -800,31 +843,41 @@ const MarkdownBody = styled.div`
         font-weight: 500 !important;
       }
 
-      /* Connection lines */
-      .edgePath .path {
+      /* Connection lines & sequence diagram lines */
+      .edgePath .path,
+      .messageLine0,
+      .messageLine1,
+      .actor-line,
+      .loopLine {
         stroke: var(--glass-border) !important;
         stroke-width: 1.8px !important;
         transition: all 0.3s ease;
       }
 
-      .edgePath:hover .path {
+      .edgePath:hover .path,
+      .messageLine0:hover,
+      .messageLine1:hover {
         stroke: var(--glass-border-highlight) !important;
         stroke-width: 2.2px !important;
       }
 
-      /* Edge labels background */
-      .edgeLabel rect {
-        fill: var(--glass-bg-alt) !important;
-        rx: 4px !important;
-        ry: 4px !important;
-        opacity: 0.95 !important;
-        stroke: var(--glass-border) !important;
+      /* Edge labels background & container */
+      .edgeLabel,
+      .edgeLabel rect,
+      .edgeLabel span,
+      .edgeLabel div {
+        background: transparent !important;
+        background-color: transparent !important;
+        fill: transparent !important;
+        border: none !important;
+        stroke: none !important;
+        box-shadow: none !important;
       }
 
       /* Edge labels text */
       .edgeLabel text, .edgeLabel span, .edgeLabel div {
-        fill: var(--text-accent) !important;
-        color: var(--text-accent) !important;
+        fill: var(--text-primary) !important;
+        color: var(--text-primary) !important;
         font-size: 11px !important;
         font-weight: 600 !important;
       }
@@ -980,10 +1033,6 @@ const DecorationLayer = styled.div`
 
 
 // ── Wikilink 处理 ─────────────────────────────────────────────
-
-function toNoteHref(slug) {
-  return `/note/${String(slug).split('/').map(encodeURIComponent).join('/')}`;
-}
 
 function getTextContent(value) {
   if (Array.isArray(value)) return value.map(getTextContent).join('');
@@ -1966,7 +2015,7 @@ export default function Note() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const decodedSlug = useMemo(() => decodeURIComponent(slug || ''), [slug]);
+  const decodedSlug = useMemo(() => safeDecodeNotePath(slug || ''), [slug]);
 
   // 加载图谱数据
   useEffect(() => {
@@ -2037,7 +2086,7 @@ export default function Note() {
     setLoading(true);
     setError(null);
 
-    fetch(`/notes/${decodedSlug}.md`)
+    fetch(`/notes/${encodeNotePath(decodedSlug)}.md`)
       .then(r => {
         if (!r.ok) throw new Error(`笔记未找到: ${decodedSlug}`);
         return r.text();
@@ -2137,7 +2186,7 @@ export default function Note() {
     let frameId = 0;
     const timeoutId = window.setTimeout(() => {
       frameId = window.requestAnimationFrame(() => {
-        const targetId = decodeURIComponent(location.hash.slice(1));
+        const targetId = safeDecodeNotePath(location.hash.slice(1));
         document.getElementById(targetId)?.scrollIntoView({ block: 'start' });
       });
     }, 0);
@@ -2345,7 +2394,7 @@ export default function Note() {
               }
             }}
           >
-            {parsedNote.body}
+            {preprocessMarkdown(parsedNote.body)}
           </ReactMarkdown>
         </MarkdownBody>
 

@@ -121,10 +121,14 @@ created: 2026-06-12
 
 1.  **展开尾部项**：
     我们将尾部括号 `a(a|b|ε)` 进行分配展开：
-    $$a(a \mid b \mid \varepsilon) = aa \mid ab \mid a$$
+    $$
+    a(a \mid b \mid \varepsilon) = aa \mid ab \mid a
+    $$
 2.  **组合分析**：
     整个正规式可以写为：
-    $$(a \mid b)^*(aa \mid ab \mid a)$$
+    $$
+    (a \mid b)^*(aa \mid ab \mid a)
+    $$
     这说明该语言所生成的任何字符串，其尾部必须匹配以下三种后缀之一：
     *   以 `aa` 结尾
     *   以 `ab` 结尾

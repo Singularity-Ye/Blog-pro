@@ -143,9 +143,9 @@ $$
 
 | 非终结符 | $\text{FIRST}$ 集合 | $\text{FOLLOW}$ 集合 |
 | :---: | :--- | :--- |
-| **lexp** | $\{ number, identifier, ( \}$ | $\{ number, identifier, (, ), \$ \}$ |
-| **atom** | $\{ number, identifier \}$ | $\{ number, identifier, (, ), \$ \}$ |
-| **list** | $\{ ( \}$ | $\{ number, identifier, (, ), \$ \}$ |
+| **lexp** | $\{ number, identifier, ( \}$ | $\{ number, identifier, (, ), \text{＄} \}$ |
+| **atom** | $\{ number, identifier \}$ | $\{ number, identifier, (, ), \text{＄} \}$ |
+| **list** | $\{ ( \}$ | $\{ number, identifier, (, ), \text{＄} \}$ |
 | **lexp-seq** | $\{ number, identifier, ( \}$ | $\{ ) \}$ |
 | **lexp-seq'** | $\{ number, identifier, (, \varepsilon \}$ | $\{ ) \}$ |
 
@@ -154,7 +154,7 @@ $$
 > *   在 $list \to (\ lexp\text{-}seq\ )$ 中，`lexp-seq` 后紧跟 `)`，因此 $\text{FOLLOW}(lexp\text{-}seq) = \{ ) \}$。
 > *   在 $lexp\text{-}seq \to lexp\ lexp\text{-}seq'$ 中，`lexp` 后面跟着 `lexp-seq'`，所以 $\text{FOLLOW}(lexp)$ 包含 $\text{FIRST}(lexp\text{-}seq') \setminus \{\varepsilon\} = \{ number, identifier, ( \}$。
 > *   另外，因为 $lexp\text{-}seq' \Rightarrow^* \varepsilon$，根据规则，$\text{FOLLOW}(lexp)$ 还必须包含左部 $\text{FOLLOW}(lexp\text{-}seq) = \{ ) \}$。
-> *   综上：$\text{FOLLOW}(lexp) = \{ number, identifier, (, ), \$ \}$。
+> *   综上：$\text{FOLLOW}(lexp) = \{ number, identifier, (, ), \text{＄} \}$。
 
 ---
 
@@ -162,17 +162,25 @@ $$
 
 要证明一个文法是 LL(1) 的，必须满足以下两个条件：
 1.  对于任一非终结符 $A$，若其有多个产生式 $A \to \alpha_1 \mid \alpha_2 \mid \dots \mid \alpha_n$，则它们的 $\text{FIRST}$ 集合两两不相交：
-    $$\text{FIRST}(\alpha_i) \cap \text{FIRST}(\alpha_j) = \varnothing \quad (i \neq j)$$
+    $$
+    \text{FIRST}(\alpha_i) \cap \text{FIRST}(\alpha_j) = \varnothing \quad (i \neq j)
+    $$
 2.  若 $\varepsilon \in \text{FIRST}(A)$，则 $\text{FIRST}(A) \cap \text{FOLLOW}(A) = \varnothing$。
 
 **校验过程**：
 *   对于 $lexp \to atom \mid list$：
-    $$\text{FIRST}(atom) \cap \text{FIRST}(list) = \{ number, identifier \} \cap \{ ( \} = \varnothing \quad \text{(满足)}$$
+    $$
+    \text{FIRST}(atom) \cap \text{FIRST}(list) = \{ number, identifier \} \cap \{ ( \} = \varnothing \quad \text{(满足)}
+    $$
 *   对于 $atom \to number \mid identifier$：
-    $$\text{FIRST}(number) \cap \text{FIRST}(identifier) = \{ number \} \cap \{ identifier \} = \varnothing \quad \text{(满足)}$$
+    $$
+    \text{FIRST}(number) \cap \text{FIRST}(identifier) = \{ number \} \cap \{ identifier \} = \varnothing \quad \text{(满足)}
+    $$
 *   对于 $lexp\text{-}seq' \to lexp\ lexp\text{-}seq' \mid \varepsilon$：
     其第一项候选式首符集含 $\varepsilon$，需要计算：
-    $$\text{FIRST}(lexp\ lexp\text{-}seq') \cap \text{FOLLOW}(lexp\text{-}seq') = \{ number, identifier, ( \} \cap \{ ) \} = \varnothing \quad \text{(满足)}$$
+    $$
+    \text{FIRST}(lexp\ lexp\text{-}seq') \cap \text{FOLLOW}(lexp\text{-}seq') = \{ number, identifier, ( \} \cap \{ ) \} = \varnothing \quad \text{(满足)}
+    $$
 
 所有非终结符均满足 LL(1) 判定标准，因此该改写文法是 **LL(1) 文法**。
 
@@ -180,7 +188,7 @@ $$
 
 ### 4. part (d) 构造 LL(1) 分析表
 
-| 非终结符 | $number$ | $identifier$ | $($ | $)$ | $\$$ |
+| 非终结符 | $number$ | $identifier$ | $($ | $)$ | $\text{＄}$ |
 | :---: | :--- | :--- | :--- | :--- | :--- |
 | **lexp** | $lexp \to atom$ | $lexp \to atom$ | $lexp \to list$ | | |
 | **atom** | $atom \to number$ | $atom \to identifier$ | | | |

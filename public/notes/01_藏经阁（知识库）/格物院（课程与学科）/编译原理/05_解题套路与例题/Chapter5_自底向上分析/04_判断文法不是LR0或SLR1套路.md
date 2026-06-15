@@ -95,11 +95,15 @@ SLR(1) 引入了 $Follow$ 集合来进行归约限制过滤。但在以下情况
     -   $A \to \alpha \cdot a \beta$ （其中 $a \in V_T$）
     -   $B \to \gamma \cdot$
     且满足：
-    $$a \in \text{FOLLOW}(B)$$
+    $$
+    a \in \text{FOLLOW}(B)
+    $$
 
 -   **SLR(1) 归约-归约冲突** ：
     若 $I_k$ 中同时包含归约项目 $A \to \alpha \cdot$ 与 $B \to \beta \cdot$，且它们的 $Follow$ 集合存在交集：
-    $$\text{FOLLOW}(A) \cap \text{FOLLOW}(B) \neq \varnothing$$
+    $$
+    \text{FOLLOW}(A) \cap \text{FOLLOW}(B) \neq \varnothing
+    $$
 
 ---
 

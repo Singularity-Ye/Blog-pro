@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styled, { keyframes } from 'styled-components';
+import { toNoteHref } from '../utils/notePaths';
 
 // ── 动画定义 ──────────────────────────────────────────────────
 const backdropFadeIn = keyframes`
@@ -161,7 +162,7 @@ export default function BookFlipUI({ bookId = 'notes-source', onClose }) {
     
     // 触发书本放大淡出，然后导航至笔记页面，传递来源书本与分类
     setTimeout(() => {
-      navigate(`/note/${slug}`, { state: { fromBook: bookId, activeTab } });
+      navigate(toNoteHref(slug), { state: { fromBook: bookId, activeTab } });
     }, 600);
   };
 
@@ -253,7 +254,7 @@ export default function BookFlipUI({ bookId = 'notes-source', onClose }) {
                       filteredNotes.map((note, index) => (
                         <ArticleLink 
                           key={note.id} 
-                          href={`/note/${note.slug}`}
+                          href={toNoteHref(note.slug)}
                           style={{ animationDelay: `${index * 80}ms` }}
                           onClick={(e) => handleArticleClick(e, note.slug)}
                         >

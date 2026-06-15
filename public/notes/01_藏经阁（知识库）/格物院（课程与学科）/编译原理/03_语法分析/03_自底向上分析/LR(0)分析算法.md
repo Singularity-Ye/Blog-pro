@@ -44,7 +44,7 @@ used_in_chapter:
 
 ## 2. 输入与输出 (Inputs & Outputs)
 
-*   **输入**：输入缓冲区的 Token 流（以  $\$$  结尾），以及静态的 `ACTION/GOTO` 分析表。
+*   **输入**：输入缓冲区的 Token 流（以  $\text{＄}$  结尾），以及静态的 `ACTION/GOTO` 分析表。
 *   **输出**：若输入串合法，输出归约使用的产生式序列（构建语法分析树的逆过程）；若非法，报告语法错误。
 *   **核心结构**：双栈驱动。
     *   **状态栈**：记录历史状态（如 `[0, 3, 5]`）。
@@ -94,7 +94,7 @@ LR(0) 分析算法查阅的分析表由以下静态结构映射生成：
 3.  **填表映射规则**：
     *   若  $[A \to \alpha\cdot a\beta] \in I_i$  且  $GOTO(I_i, a) = I_j$ ，填入  $ACTION[i, a] = s_j$ （移进）。
     *   若  $[A \to \alpha\cdot] \in I_i$ （ $A \neq S'$ ），则**无条件对所有列**填入  $ACTION[i, a] = r_k$ （归约）。
-    *   若  $[S' \to S\cdot] \in I_i$ ，填入  $ACTION[i, \$] = acc$ 。
+    *   若  $[S' \to S\cdot] \in I_i$ ，填入  $ACTION[i, \text{＄}] = acc$ 。
 
 ---
 

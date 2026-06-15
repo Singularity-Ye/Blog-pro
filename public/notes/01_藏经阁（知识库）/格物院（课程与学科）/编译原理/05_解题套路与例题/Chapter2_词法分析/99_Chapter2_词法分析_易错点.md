@@ -32,12 +32,16 @@ created: 2026-06-13
 
 **错误写法：**
 把 NFA 转换为 DFA 时，直接把 NFA 的启动状态 $s_0$ 作为 DFA 的初始状态集：
-$$I_0 = \{ s_0 \}$$
+$$
+I_0 = \{ s_0 \}
+$$
 
 **问题：** 初始状态集**必须**是 $s_0$ 通过所有可能的 $\varepsilon$ 转移能到达的所有状态的集合（即 $s_0$ 的 $\varepsilon$ 闭包）。如果漏掉，后续推导的所有状态集和转移边都将彻底错乱。
 
 **推荐写法：**
-$$I_0 = \varepsilon\text{-closure}(s_0)$$
+$$
+I_0 = \varepsilon\text{-closure}(s_0)
+$$
 
 > **English Pattern:** The starting state of the constructed DFA must be $\varepsilon\text{-closure}(s_0)$, where $s_0$ is the start state of the NFA, rather than just $\{s_0\}$.
 
@@ -52,7 +56,9 @@ $$I_0 = \varepsilon\text{-closure}(s_0)$$
 
 **推荐写法：**
 设定初始划分集合：
-$$P_0 = \{ S \setminus F,\ F \}$$
+$$
+P_0 = \{ S \setminus F,\ F \}
+$$
 
 > **English Pattern:** The Hopcroft algorithm must begin with an initial partition that splits the state set into two groups: accepting states $F$ and non-accepting states $S \setminus F$.
 

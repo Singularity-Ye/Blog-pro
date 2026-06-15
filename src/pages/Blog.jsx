@@ -13,6 +13,18 @@ import { BLOG_NEW_ASSETS } from '../constants/blogAssets';
 import { parseFrontmatter } from '../utils/frontmatter';
 import { fetchNotesIndex, fetchGraphData } from '../utils/publishData';
 import remarkHtmlBreaks from '../utils/remarkHtmlBreaks';
+import { encodeNotePath, toNoteHref } from '../utils/notePaths';
+import { normalizeMarkdownMath } from '../utils/markdownMath';
+
+// Helper to fix bold (** or __) formatting next to Chinese/English text and punctuation
+const preprocessMarkdown = (text) => {
+  if (!text) return text;
+  return normalizeMarkdownMath(text)
+    // 1. letter/number/Chinese + **bold** -> insert space before opening **
+    .replace(/([a-zA-Z0-9\u4e00-\u9fa5])\*\*([^*\s](?:(?:[^*]|\*[^*])*?[^*\s])?)\*\*/g, '$1 **$2**')
+    // 2. **bold** + letter/number/Chinese -> insert space after closing **
+    .replace(/\*\*([^*\s](?:(?:[^*]|\*[^*])*?[^*\s])?)\*\*([a-zA-Z0-9\u4e00-\u9fa5])/g, '**$1** $2');
+};
 
 // -------------------------------------------------------------------------
 // 动效定义 (Animations)
@@ -2899,8 +2911,9 @@ const MarkdownBody = styled.div`
       max-width: 100% !important;
       height: auto !important;
 
-      /* Node boxes */
-      .node rect, .node circle, .node polygon, .node path {
+      /* Node boxes and actor boxes */
+      .node rect, .node circle, .node polygon, .node path,
+      .actor rect, rect.actor, .note rect, rect.note {
         fill: #faf6eb !important;
         stroke: rgba(74, 45, 27, 0.4) !important;
         stroke-width: 1.5px !important;
@@ -2910,14 +2923,26 @@ const MarkdownBody = styled.div`
       }
 
       /* Hover effect */
-      .node:hover rect, .node:hover circle, .node:hover polygon, .node:hover path {
+      .node:hover rect, .node:hover circle, .node:hover polygon, .node:hover path,
+      .actor:hover rect, rect.actor:hover {
         fill: #fff !important;
         stroke: #854d0e !important;
         filter: drop-shadow(0 2px 6px rgba(74, 45, 27, 0.15));
       }
 
-      /* Text inside nodes */
-      .node .label, .node label, .node text, .node span, .node div {
+      /* Text inside nodes and actor/note boxes */
+      .node .label, .node label, .node text, .node span, .node div,
+      .actor text, text.actor, .actor span, .actor div,
+      .note text, text.note, .note span, .note div,
+      .node .label *, .node label *, .node text *, .node span *, .node div *,
+      .actor text *, text.actor *, .actor span *, .actor div *,
+      .note text *, text.note *, .note span *, .note div *,
+      svg text, svg tspan, svg span, svg div, svg p, svg label,
+      .actorText, .actorText *,
+      .noteText, .noteText *,
+      .loopText, .loopText *,
+      .loopLabel, .loopLabel *,
+      .messageText, .messageText * {
         fill: #4a2d1b !important;
         color: #4a2d1b !important;
         font-family: inherit !important;
@@ -2925,29 +2950,41 @@ const MarkdownBody = styled.div`
         font-weight: 600 !important;
       }
 
-      /* Connection lines */
-      .edgePath .path {
+      /* Connection lines & sequence diagram lines */
+      .edgePath .path,
+      .messageLine0,
+      .messageLine1,
+      .actor-line,
+      .loopLine {
         stroke: rgba(74, 45, 27, 0.45) !important;
         stroke-width: 1.6px !important;
+        transition: all 0.3s ease;
       }
 
-      .edgePath:hover .path {
+      .edgePath:hover .path,
+      .messageLine0:hover,
+      .messageLine1:hover {
         stroke: #854d0e !important;
         stroke-width: 2px !important;
       }
 
-      /* Edge labels background */
-      .edgeLabel rect {
-        fill: #fbf9f4 !important;
-        rx: 3px !important;
-        ry: 3px !important;
-        opacity: 0.95 !important;
+      /* Edge labels background & container */
+      .edgeLabel,
+      .edgeLabel rect,
+      .edgeLabel span,
+      .edgeLabel div {
+        background: transparent !important;
+        background-color: transparent !important;
+        fill: transparent !important;
+        border: none !important;
+        stroke: none !important;
+        box-shadow: none !important;
       }
 
       /* Edge labels text */
       .edgeLabel text, .edgeLabel span, .edgeLabel div {
-        fill: #854d0e !important;
-        color: #854d0e !important;
+        fill: #4a2d1b !important;
+        color: #4a2d1b !important;
         font-size: 10.5px !important;
         font-weight: 700 !important;
       }
@@ -3849,10 +3886,6 @@ const Mermaid = ({ value, theme = 'light' }) => {
 };
 
 // ── Obsidian Wikilinks 解析与辅助函数 ────────────────────────────────────
-function toNoteHref(slug) {
-  return `/note/${String(slug).split('/').map(encodeURIComponent).join('/')}`;
-}
-
 function normalizeLinkKey(value) {
   return String(value || '').trim().replace(/\.md$/i, '').toLowerCase();
 }
@@ -4235,7 +4268,7 @@ export default function Blog() {
     setArticleLoading(true);
     setArticleError(null);
 
-    fetch(`/notes/${selectedArticleSlug}.md`)
+    fetch(`/notes/${encodeNotePath(selectedArticleSlug)}.md`)
       .then(r => {
         if (!r.ok) throw new Error(`未找到该法宝的纸卷: ${selectedArticleSlug}`);
         return r.text();
@@ -4461,7 +4494,7 @@ export default function Blog() {
       
       setActiveLeafNote(targetNote);
 
-      fetch(`/notes/${targetNote.slug}.md`)
+      fetch(`/notes/${encodeNotePath(targetNote.slug)}.md`)
         .then(r => {
           if (!r.ok) throw new Error('Could not fetch note content');
           return r.text();
@@ -5354,7 +5387,7 @@ export default function Blog() {
                         }
                       }}
                     >
-                      {articleBody}
+                      {preprocessMarkdown(articleBody)}
                     </ReactMarkdown>
                   </MarkdownBody>
                 )}

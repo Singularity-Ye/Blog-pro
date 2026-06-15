@@ -32,10 +32,16 @@ created: 2026-06-12
 
 **3.20**
 *   **(a)** Write a regular expression that generates the same language as the following grammar:
-    $$A \rightarrow aA \mid B \mid \varepsilon$$
-    $$B \rightarrow bB \mid A$$
+    $$
+    A \rightarrow aA \mid B \mid \varepsilon
+    $$
+    $$
+    B \rightarrow bB \mid A
+    $$
 *   **(b)** Write a grammar that generates the same language as the following regular expression:
-    $$(a \mid c \mid ba \mid bc)^* (b \mid \varepsilon)$$
+    $$
+    (a \mid c \mid ba \mid bc)^* (b \mid \varepsilon)
+    $$
 
 ---
 
@@ -43,10 +49,16 @@ created: 2026-06-12
 
 **3.20**
 *   **(a)** 写出一个正规式，它与下列文法生成相同的语言：
-    $$A \rightarrow aA \mid B \mid \varepsilon$$
-    $$B \rightarrow bB \mid A$$
+    $$
+    A \rightarrow aA \mid B \mid \varepsilon
+    $$
+    $$
+    B \rightarrow bB \mid A
+    $$
 *   **(b)** 写出一个文法，它与下列正规式生成相同的语言：
-    $$(a \mid c \mid ba \mid bc)^* (b \mid \varepsilon)$$
+    $$
+    (a \mid c \mid ba \mid bc)^* (b \mid \varepsilon)
+    $$
 
 ---
 
@@ -100,13 +112,15 @@ created: 2026-06-12
 
 ### 1. 题 (a)：文法求正规式的相互递归消解
 *   **学生解答**：
-    $$\begin{aligned}
+    $$
+    \begin{aligned}
     A &\rightarrow aA \mid B \mid \varepsilon \\
     &\Rightarrow A \rightarrow aA \mid bB \mid \varepsilon \quad (\text{代入 } B \rightarrow bB \mid A \text{ 中的一部分}) \\
     &\Rightarrow A \rightarrow aA \mid bA \mid \varepsilon \quad (\text{消除 } B \text{ 的递归}) \\
     &\Rightarrow A = (a + b)A + \varepsilon \\
     &\Rightarrow (a \mid b)^*
-    \end{aligned}$$
+    \end{aligned}
+    $$
     学生得出的正规式为 `(a|b)*`（或 `(a+b)*`），与官方答案 `(a|b)*` 一致，解答正确 ✅。
 *   **学术剖析**：
     *   该文法中 $A$ 和 $B$ 互相递归引用： $A$ 可以直接推导出 $B$ ，而 $B$ 又可以推导出 $A$ 。
@@ -122,8 +136,12 @@ created: 2026-06-12
 
 #### ❌ 学生错误手稿分析
 学生给出的文法为：
-$$A \rightarrow Aa \mid Ac \mid Aba \mid Abc \mid \varepsilon$$
-$$B \rightarrow Ab \mid A$$
+$$
+A \rightarrow Aa \mid Ac \mid Aba \mid Abc \mid \varepsilon
+$$
+$$
+B \rightarrow Ab \mid A
+$$
 *   **教师批语**：`b)，这个文法A和B没有联系起来，如果画图，就是2个独立的自动机，这明显不对。`
 *   **致命错误成因剖析**：
     1.  **起始符号与不可达性**：在文法中，通常默认第一个非终结符为文法的开始符号（这里是 $A$ ）。在非终结符 $A$ 的所有产生式中，右部**完全没有出现**非终结符 $B$ 。
@@ -176,17 +194,23 @@ $$B \rightarrow Ab \mid A$$
 ### 第三步：合并产生式并化简
 
 将上述映射结果汇总，得到文法：
-$$\begin{aligned}
+$$
+\begin{aligned}
 A &\rightarrow aA \mid cA \mid bB \mid bC \mid \varepsilon \\
 B &\rightarrow aA \mid cA \\
 C &\rightarrow \varepsilon
-\end{aligned}$$
+\end{aligned}
+$$
 
 由于 $C$ 只能推导出 $\varepsilon$ ，我们可以直接将 $A \rightarrow bC$ 中的 $C$ 代换为 $\varepsilon$ ，即简化为 $A \rightarrow b$ 。
 消去单产生式非终结符 $C$ 后，得到最终的规范右线性文法：
 
-$$A \rightarrow aA \mid cA \mid bB \mid b \mid \varepsilon$$
-$$B \rightarrow aA \mid cA$$
+$$
+A \rightarrow aA \mid cA \mid bB \mid b \mid \varepsilon
+$$
+$$
+B \rightarrow aA \mid cA
+$$
 
 此文法成功将 $A$ 和 $B$ 紧密联系在一起，且完全等价于目标正规式。
 

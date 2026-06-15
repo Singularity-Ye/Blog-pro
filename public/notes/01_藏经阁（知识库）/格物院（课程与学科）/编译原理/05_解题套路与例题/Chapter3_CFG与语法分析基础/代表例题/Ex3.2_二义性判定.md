@@ -29,7 +29,9 @@ created: 2026-06-12
 ## Original Question
 
 **3.2** Given the grammar:
-$$A \rightarrow AA \mid (A) \mid \varepsilon$$
+$$
+A \rightarrow AA \mid (A) \mid \varepsilon
+$$
 *   **(a)** Describe the language it generates.
 *   **(b)** Show that it is ambiguous.
 
@@ -38,7 +40,9 @@ $$A \rightarrow AA \mid (A) \mid \varepsilon$$
 ## 中文题意
 
 **3.2** 给定文法：
-$$A \rightarrow AA \mid (A) \mid \varepsilon$$
+$$
+A \rightarrow AA \mid (A) \mid \varepsilon
+$$
 *   **(a)** 描述该文法所生成的语言。
 *   **(b)** 证明该文法是二义性的。
 

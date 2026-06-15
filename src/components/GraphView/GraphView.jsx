@@ -7,6 +7,7 @@ import {
   normalizeGraph,
 } from '../../utils/graphFilters';
 import { fetchGraphData } from '../../utils/publishData';
+import { toNoteHref } from '../../utils/notePaths';
 import './GraphView.css';
 
 const COLLECTION_LABELS = {
@@ -38,10 +39,6 @@ const COLLECTION_COLORS = {
   'laotou-criticism': '#3b82f6',
   'guanxin-pavilion': '#10b981',
 };
-
-function toNoteHref(slug) {
-  return `/note/${String(slug).split('/').map(encodeURIComponent).join('/')}`;
-}
 
 const THEME = {
   node: '#e4b684', nodeHover: '#7a2e2e', nodeHighlight: '#c88c51', nodeMuted: '#f0e4d6',

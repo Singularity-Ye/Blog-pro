@@ -101,6 +101,8 @@ flowchart LR
 ## 🎯 考场常见丢分避坑指南
 
 1. **写出核心算子定义**：建议在表格前写出一行公式证明对概念的理解：
-   $$\varepsilon\text{-closure}(T) = \{ s \mid \text{从 } T \text{ 仅通过 } \varepsilon \text{ 边可达的状态 } s \}$$
+   $$
+   \varepsilon\text{-closure}(T) = \{ s \mid \text{从 } T \text{ 仅通过 } \varepsilon \text{ 边可达的状态 } s \}
+   $$
 2. **终态双圈标记**：考卷上或者绘图时，DFA 终态 B 必须用明显的**双圈（Mermaid 中的 `(((B)))`）**标记，初态 A 必须用箭头指向，遗漏这俩会被无情扣分。
 3. **关联卡片**：如果想要对最简 DFA 进一步合并同类项以压缩表空间，请参考下一套路卡片 [[02_DFA状态最小化套路]]。

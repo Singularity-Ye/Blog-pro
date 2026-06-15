@@ -3,12 +3,8 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import ForceGraph2D from 'react-force-graph-2d';
 import { normalizeGraph, filterGraphByLocal } from '../../utils/graphFilters';
 import { fetchGraphData } from '../../utils/publishData';
+import { toNoteHref } from '../../utils/notePaths';
 import './GraphView.css';
-
-function toNoteHref(slug) {
-  return `/note/${String(slug).split('/').map(encodeURIComponent).join('/')}`;
-}
-
 
 const THEMES = {
   dark: {

@@ -110,12 +110,16 @@ L-属性的继承属性只能依赖：
 
 **错误画法：**
 若语义规则为 $B.v = B.u$，画为：
-$$B.v \longrightarrow B.u$$
+$$
+B.v \longrightarrow B.u
+$$
 
 **问题：** 依赖图中的箭头是**求值依赖方向**（从输入/自变量指向输出/因变量）。这里计算 $B.v$ 需要先知道 $B.u$，所以应当是从 $B.u$ 指向 $B.v$。
 
 **推荐画法：**
-$$B.u \longrightarrow B.v$$
+$$
+B.u \longrightarrow B.v
+$$
 
 ---
 

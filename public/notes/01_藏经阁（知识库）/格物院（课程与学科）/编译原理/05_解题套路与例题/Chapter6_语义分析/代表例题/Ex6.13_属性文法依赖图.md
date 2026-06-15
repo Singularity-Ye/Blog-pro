@@ -95,7 +95,9 @@ flowchart LR
 #### 3. 合法的求值顺序 (Evaluation Order)
 
 对此有向无环图 (DAG) 进行拓扑排序，可以得到一个合法的属性计算顺序（其中之一）：
-$$\{ C.v, S.u \} \to B.u \to B.v \to A.u \to A.v \to S.v$$
+$$
+\{ C.v, S.u \} \to B.u \to B.v \to A.u \to A.v \to S.v
+$$
 
 ---
 
@@ -124,7 +126,9 @@ $$\{ C.v, S.u \} \to B.u \to B.v \to A.u \to A.v \to S.v$$
 *   $A.v = 2 \times A.u \implies A.u \to A.v$
 
 这将形成一个 **环路 (Cycle)**：
-$$A.u \to A.v \to C.u \to C.v \to A.u$$
+$$
+A.u \to A.v \to C.u \to C.v \to A.u
+$$
 
 **Mermaid 依赖图可视化**：
 
@@ -158,13 +162,23 @@ flowchart LR
 3.  $A.v = 2 \times A.u$
 
 将上述方程代入：
-$$C.v = 2 \times A.u - 2$$
-$$A.u = 3 + (2 \times A.u - 2)$$
-$$A.u = 2 \times A.u + 1$$
-$$A.u - 2 \times A.u = 1 \implies A.u = -1$$
+$$
+C.v = 2 \times A.u - 2
+$$
+$$
+A.u = 3 + (2 \times A.u - 2)
+$$
+$$
+A.u = 2 \times A.u + 1
+$$
+$$
+A.u - 2 \times A.u = 1 \implies A.u = -1
+$$
 
 从而求得：
-$$S.v = A.v = 2 \times A.u = 2 \times (-1) = -2$$
+$$
+S.v = A.v = 2 \times A.u = 2 \times (-1) = -2
+$$
 
 **计算结果** ：$S.v = -2$
 

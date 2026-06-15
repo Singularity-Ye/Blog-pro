@@ -117,10 +117,10 @@ SLR 综合题 / LR(0) DFA / SLR parsing table / parser trace / conflict 判断
     *   $First(E) = \{ (, a \}$
     *   $First(L) = First(E) = \{ (, a \}$
 *   **FOLLOW 集合**：
-    *   $Follow(E') = \{ \$ \}$
-    *   $Follow(E) = \{ \$, (, a, ) \}$
+    *   $Follow(E') = \{ \text{＄} \}$
+    *   $Follow(E) = \{ \text{＄}, (, a, ) \}$
         *   *解析*：
-            1.  根据 $E' \to E$，有 $\$ \in Follow(E)$；
+            1.  根据 $E' \to E$，有 $\text{＄} \in Follow(E)$；
             2.  根据 $L \to E L$，有 $First(L) \setminus \{\varepsilon\} = \{ (, a \} \subseteq Follow(E)$；
             3.  根据 $L \to E$，有 $Follow(L) \subseteq Follow(E)$；
     *   $Follow(L) = \{ ) \}$
@@ -135,32 +135,70 @@ SLR 综合题 / LR(0) DFA / SLR parsing table / parser trace / conflict 判断
 #### 项目集状态定义
 
 *   **State 0** (初始状态)：
-    $$E' \to \cdot E$$
-    $$E \to \cdot ( L )$$
-    $$E \to \cdot a$$
+    $$
+    E' \to \cdot E
+    $$
+    $$
+    E \to \cdot ( L )
+    $$
+    $$
+    E \to \cdot a
+    $$
 *   **State 1** ($Goto(I_0, E)$，接受状态)：
-    $$E' \to E \cdot$$
+    $$
+    E' \to E \cdot
+    $$
 *   **State 2** ($Goto(I_0, ($)：
-    $$E \to ( \cdot L )$$
-    $$L \to \cdot E L$$
-    $$L \to \cdot E$$
-    $$E \to \cdot ( L )$$
-    $$E \to \cdot a$$
+    $$
+    E \to ( \cdot L )
+    $$
+    $$
+    L \to \cdot E L
+    $$
+    $$
+    L \to \cdot E
+    $$
+    $$
+    E \to \cdot ( L )
+    $$
+    $$
+    E \to \cdot a
+    $$
 *   **State 3** ($Goto(I_0, a)$)：
-    $$E \to a \cdot$$
+    $$
+    E \to a \cdot
+    $$
 *   **State 4** ($Goto(I_2, L)$)：
-    $$E \to ( L \cdot )$$
+    $$
+    E \to ( L \cdot )
+    $$
 *   **State 5** ($Goto(I_2, E)$ 或 $Goto(I_5, E)$)：
-    $$L \to E \cdot L$$
-    $$L \to E \cdot$$
-    $$L \to \cdot E L$$
-    $$L \to \cdot E$$
-    $$E \to \cdot ( L )$$
-    $$E \to \cdot a$$
+    $$
+    L \to E \cdot L
+    $$
+    $$
+    L \to E \cdot
+    $$
+    $$
+    L \to \cdot E L
+    $$
+    $$
+    L \to \cdot E
+    $$
+    $$
+    E \to \cdot ( L )
+    $$
+    $$
+    E \to \cdot a
+    $$
 *   **State 6** ($Goto(I_4, )$)$)：
-    $$E \to ( L ) \cdot$$
+    $$
+    E \to ( L ) \cdot
+    $$
 *   **State 7** ($Goto(I_5, L)$)：
-    $$L \to E L \cdot$$
+    $$
+    L \to E L \cdot
+    $$
 
 #### DFA 状态转移图 (Mermaid)
 

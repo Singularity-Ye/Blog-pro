@@ -42,7 +42,9 @@ used_in_chapter:
 1. **确定核心（Core）**：对于任意一个 LR(1) 项目集 $I_i$，忽略所有项目的前看符号（Lookahead），仅保留其 LR(0) 项目的核心部分，得到 $\text{Core}(I_i)$。
 2. **同心判定与归类**：遍历所有 LR(1) 状态，将具有完全相同核心的状态归为一类。若 $\text{Core}(I_x) = \text{Core}(I_y)$，则称 $I_x$ 与 $I_y$ 为 **同心状态**。
 3. **状态合并与前看集合并**：将所有同心状态合并为一个新的 LALR(1) 状态。合并后，项目的核心保持不变，但对于核心相同的项目，将其前看符号集合取 **并集**。即：
-   $$[A \to \alpha \cdot \beta, L_1] \cup [A \to \alpha \cdot \beta, L_2] \implies [A \to \alpha \cdot \beta, L_1 \cup L_2]$$
+   $$
+   [A \to \alpha \cdot \beta, L_1] \cup [A \to \alpha \cdot \beta, L_2] \implies [A \to \alpha \cdot \beta, L_1 \cup L_2]
+   $$
 4. **重新映射转移边**：合并状态后，原先在同心状态之间的转移边也相应指向合并后的新状态，生成 LALR(1) DFA。
 
 ---
@@ -95,7 +97,9 @@ flowchart TD
 > 
 > 既然 $K$ 中归约项目的前看符号集合包含 $a$，而 $K$ 的前看符号集是所有子状态前看符号的并集：
 > 
-> $$\text{Lookahead}_K(B \to \delta \cdot) = \bigcup_{i=1}^{m} \text{Lookahead}_{I_i}(B \to \delta \cdot)$$
+> $$
+> \text{Lookahead}_K(B \to \delta \cdot) = \bigcup_{i=1}^{m} \text{Lookahead}_{I_i}(B \to \delta \cdot)
+> $$
 > 
 > 那么必定存在某一个原始状态 $I_k$（$1 \le k \le m$），其归约项目的前看符号已然包含 $a$（即 $[B \to \delta \cdot, a] \in I_k$）。
 > 
@@ -115,41 +119,77 @@ flowchart TD
 ## 5. 经典实证：引入归约-归约冲突的反例文法
 
 考虑如下上下文无关文法 $G$：
-$$S' \to S$$
-$$S \to a A d \mid b B d \mid a B c \mid b A c$$
-$$A \to e$$
-$$B \to e$$
+$$
+S' \to S
+$$
+$$
+S \to a A d \mid b B d \mid a B c \mid b A c
+$$
+$$
+A \to e
+$$
+$$
+B \to e
+$$
 
 ### 5.1 在 LR(1) 中的分析（安全无冲突）
 当分析器分别读入前缀 $a$ 或 $b$ 后，会生成两个**同心但前看符号不同**的状态：
 
 * **状态 $I_8$ (读入 $a$ 之后)**：
-  $$S \to a \cdot A d, \quad \{\$\}$$
-  $$S \to a \cdot B c, \quad \{\$\}$$
-  $$A \to \cdot e, \quad \{d\} \quad (\text{因 } A \text{ 后面是 } d)$$
-  $$B \to \cdot e, \quad \{c\} \quad (\text{因 } B \text{ 后面是 } c)$$
+  $$
+  S \to a \cdot A d, \quad \{\text{＄}\}
+  $$
+  $$
+  S \to a \cdot B c, \quad \{\text{＄}\}
+  $$
+  $$
+  A \to \cdot e, \quad \{d\} \quad (\text{因 } A \text{ 后面是 } d)
+  $$
+  $$
+  B \to \cdot e, \quad \{c\} \quad (\text{因 } B \text{ 后面是 } c)
+  $$
   
   若在 $I_8$ 面临输入 $e$，移进 $e$ 到达状态 $I_{11}$：
-  $$A \to e \cdot, \quad \{d\}$$
-  $$B \to e \cdot, \quad \{c\}$$
+  $$
+  A \to e \cdot, \quad \{d\}
+  $$
+  $$
+  B \to e \cdot, \quad \{c\}
+  $$
   此时，当面临输入 $d$ 时归约为 $A$，面临输入 $c$ 时归约为 $B$。**前看符号集合不交（$\{d\} \cap \{c\} = \emptyset$），在 LR(1) 中安全无冲突**。
 
 * **状态 $I_9$ (读入 $b$ 之后)**：
-  $$S \to b \cdot B d, \quad \{\$\}$$
-  $$S \to b \cdot A c, \quad \{\$\}$$
-  $$A \to \cdot e, \quad \{c\} \quad (\text{因 } A \text{ 后面是 } c)$$
-  $$B \to \cdot e, \quad \{d\} \quad (\text{因 } B \text{ 后面是 } d)$$
+  $$
+  S \to b \cdot B d, \quad \{\text{＄}\}
+  $$
+  $$
+  S \to b \cdot A c, \quad \{\text{＄}\}
+  $$
+  $$
+  A \to \cdot e, \quad \{c\} \quad (\text{因 } A \text{ 后面是 } c)
+  $$
+  $$
+  B \to \cdot e, \quad \{d\} \quad (\text{因 } B \text{ 后面是 } d)
+  $$
   
   若在 $I_9$ 面临输入 $e$，移进 $e$ 到达状态 $I_{12}$：
-  $$A \to e \cdot, \quad \{c\}$$
-  $$B \to e \cdot, \quad \{d\}$$
+  $$
+  A \to e \cdot, \quad \{c\}
+  $$
+  $$
+  B \to e \cdot, \quad \{d\}
+  $$
   面临 $c$ 时归约为 $A$，面临 $d$ 时归约为 $B$。**前看符号不交（$\{c\} \cap \{d\} = \emptyset$），在 LR(1) 中同样安全无冲突**。
 
 ### 5.2 在 LALR(1) 中的状态合并（爆发冲突）
 观察发现，状态 $I_{11}$ 与 $I_{12}$ 具有相同的 LR(0) 核心：$\{A \to e \cdot, B \to e \cdot\}$。
 LALR(1) 算法会将这两个状态强行合并为新状态 $I_{11-12}$：
-$$A \to e \cdot, \quad \{c, d\}$$
-$$B \to e \cdot, \quad \{c, d\}$$
+$$
+A \to e \cdot, \quad \{c, d\}
+$$
+$$
+B \to e \cdot, \quad \{c, d\}
+$$
 
 **冲突爆发**：在新状态 $I_{11-12}$ 下，如果输入符号为 $c$ 或 $d$，前看集出现重叠交集（$\{c, d\} \cap \{c, d\} = \{c, d\} \neq \emptyset$）。分析器无法判断应该按 $A \to e$ 归约还是按 $B \to e$ 归约，从而**爆发出 LALR(1) 归约-归约冲突**。该文法不是 LALR(1) 文法。
 
