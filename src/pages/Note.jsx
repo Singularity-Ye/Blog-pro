@@ -1404,6 +1404,19 @@ const Mermaid = ({ value, theme = 'light' }) => {
   const dragStart = useRef({ x: 0, y: 0 });
   const viewportRef = useRef(null);
 
+  const scaleRef = useRef(scale);
+  const positionRef = useRef(position);
+  const isDraggingRef = useRef(false);
+  const initialZoomCenterRef = useRef({ x: 0, y: 0 });
+  const lastTouchDistance = useRef(0);
+
+  const updateScaleAndPosition = (newScale, newPos) => {
+    scaleRef.current = newScale;
+    positionRef.current = newPos;
+    setScale(newScale);
+    setPosition(newPos);
+  };
+
   // Helper to extract SVG dimensions
   const getMermaidSvgSize = (svgElement) => {
     const viewBox = svgElement.getAttribute('viewBox');
@@ -1456,8 +1469,7 @@ const Mermaid = ({ value, theme = 'light' }) => {
     const initialX = (vpWidth - diagWidth * initialScale) / 2;
     const initialY = (vpHeight - diagHeight * initialScale) / 2;
 
-    setScale(initialScale);
-    setPosition({ x: initialX, y: initialY });
+    updateScaleAndPosition(initialScale, { x: initialX, y: initialY });
   };
 
   // Zoom handlers (relative to midpoint)
@@ -1466,11 +1478,12 @@ const Mermaid = ({ value, theme = 'light' }) => {
     const rect = viewportRef.current.getBoundingClientRect();
     const midX = rect.width / 2;
     const midY = rect.height / 2;
-    const newScale = Math.min(scale * 1.3, 15);
-    const newX = midX - (midX - position.x) * (newScale / scale);
-    const newY = midY - (midY - position.y) * (newScale / scale);
-    setScale(newScale);
-    setPosition({ x: newX, y: newY });
+    const currentScale = scaleRef.current;
+    const currentPosition = positionRef.current;
+    const newScale = Math.min(currentScale * 1.3, 15);
+    const newX = midX - (midX - currentPosition.x) * (newScale / currentScale);
+    const newY = midY - (midY - currentPosition.y) * (newScale / currentScale);
+    updateScaleAndPosition(newScale, { x: newX, y: newY });
   };
 
   const zoomOut = () => {
@@ -1478,11 +1491,12 @@ const Mermaid = ({ value, theme = 'light' }) => {
     const rect = viewportRef.current.getBoundingClientRect();
     const midX = rect.width / 2;
     const midY = rect.height / 2;
-    const newScale = Math.max(scale / 1.3, 0.15);
-    const newX = midX - (midX - position.x) * (newScale / scale);
-    const newY = midY - (midY - position.y) * (newScale / scale);
-    setScale(newScale);
-    setPosition({ x: newX, y: newY });
+    const currentScale = scaleRef.current;
+    const currentPosition = positionRef.current;
+    const newScale = Math.max(currentScale / 1.3, 0.15);
+    const newX = midX - (midX - currentPosition.x) * (newScale / currentScale);
+    const newY = midY - (midY - currentPosition.y) * (newScale / currentScale);
+    updateScaleAndPosition(newScale, { x: newX, y: newY });
   };
 
   useEffect(() => {
@@ -1552,11 +1566,6 @@ const Mermaid = ({ value, theme = 'light' }) => {
     };
   }, [isFocused]);
 
-  const scaleRef = useRef(scale);
-  const positionRef = useRef(position);
-  const isDraggingRef = useRef(false);
-  const initialZoomCenterRef = useRef({ x: 0, y: 0 });
-
   useEffect(() => {
     scaleRef.current = scale;
     positionRef.current = position;
@@ -1590,11 +1599,7 @@ const Mermaid = ({ value, theme = 'light' }) => {
     const newX = mouseX - (mouseX - currentPosition.x) * (newScale / currentScale);
     const newY = mouseY - (mouseY - currentPosition.y) * (newScale / currentScale);
 
-    scaleRef.current = newScale;
-    positionRef.current = { x: newX, y: newY };
-
-    setScale(newScale);
-    setPosition({ x: newX, y: newY });
+    updateScaleAndPosition(newScale, { x: newX, y: newY });
 
     if (isDraggingRef.current) {
       dragStart.current = {
@@ -1618,7 +1623,8 @@ const Mermaid = ({ value, theme = 'light' }) => {
     e.preventDefault();
     setIsDragging(true);
     isDraggingRef.current = true;
-    dragStart.current = { x: e.clientX - position.x, y: e.clientY - position.y };
+    const currentPosition = positionRef.current;
+    dragStart.current = { x: e.clientX - currentPosition.x, y: e.clientY - currentPosition.y };
 
     if (viewportRef.current) {
       const rect = viewportRef.current.getBoundingClientRect();
@@ -1630,12 +1636,11 @@ const Mermaid = ({ value, theme = 'light' }) => {
   };
 
   const handleMouseMove = (e) => {
-    if (!isDragging) return;
+    if (!isDraggingRef.current) return;
     e.preventDefault();
-    setPosition({
-      x: e.clientX - dragStart.current.x,
-      y: e.clientY - dragStart.current.y
-    });
+    const newX = e.clientX - dragStart.current.x;
+    const newY = e.clientY - dragStart.current.y;
+    updateScaleAndPosition(scaleRef.current, { x: newX, y: newY });
   };
 
   const handleMouseUpOrLeave = () => {
@@ -1648,15 +1653,15 @@ const Mermaid = ({ value, theme = 'light' }) => {
     resetZoom();
   };
 
-  // Touch handlers for pinch & swipe
-  const lastTouchDistance = useRef(0);
-  const handleTouchStart = (e) => {
+  // Touch handlers for pinch & swipe (synchronous, ref-based to avoid render lags/jitter)
+  const handleTouchStart = useCallback((e) => {
+    const currentPosition = positionRef.current;
     if (e.touches.length === 1) {
       setIsDragging(true);
       isDraggingRef.current = true;
       dragStart.current = {
-        x: e.touches[0].clientX - position.x,
-        y: e.touches[0].clientY - position.y
+        x: e.touches[0].clientX - currentPosition.x,
+        y: e.touches[0].clientY - currentPosition.y
       };
     } else if (e.touches.length === 2) {
       setIsDragging(false);
@@ -1667,14 +1672,18 @@ const Mermaid = ({ value, theme = 'light' }) => {
       );
       lastTouchDistance.current = dist;
     }
-  };
+  }, []);
 
-  const handleTouchMove = (e) => {
-    if (isDragging && e.touches.length === 1) {
-      setPosition({
-        x: e.touches[0].clientX - dragStart.current.x,
-        y: e.touches[0].clientY - dragStart.current.y
-      });
+  const handleTouchMove = useCallback((e) => {
+    // Completely disable default gesture (background scrolling) when focused
+    e.preventDefault();
+    const currentScale = scaleRef.current;
+    const currentPosition = positionRef.current;
+
+    if (isDraggingRef.current && e.touches.length === 1) {
+      const newX = e.touches[0].clientX - dragStart.current.x;
+      const newY = e.touches[0].clientY - dragStart.current.y;
+      updateScaleAndPosition(currentScale, { x: newX, y: newY });
     } else if (e.touches.length === 2) {
       const dist = Math.hypot(
         e.touches[0].clientX - e.touches[1].clientX,
@@ -1682,7 +1691,8 @@ const Mermaid = ({ value, theme = 'light' }) => {
       );
       if (lastTouchDistance.current > 0) {
         const factor = dist / lastTouchDistance.current;
-        const newScale = Math.min(Math.max(scale * factor, 0.15), 15);
+        let newScale = currentScale * factor;
+        newScale = Math.min(Math.max(newScale, 0.15), 15);
         
         const touchMidX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
         const touchMidY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
@@ -1692,22 +1702,39 @@ const Mermaid = ({ value, theme = 'light' }) => {
           const midX = touchMidX - rect.left;
           const midY = touchMidY - rect.top;
           
-          const newX = midX - (midX - position.x) * (newScale / scale);
-          const newY = midY - (midY - position.y) * (newScale / scale);
+          const newX = midX - (midX - currentPosition.x) * (newScale / currentScale);
+          const newY = midY - (midY - currentPosition.y) * (newScale / currentScale);
           
-          setScale(newScale);
-          setPosition({ x: newX, y: newY });
+          updateScaleAndPosition(newScale, { x: newX, y: newY });
         }
       }
       lastTouchDistance.current = dist;
     }
-  };
+  }, []);
 
-  const handleTouchEnd = () => {
+  const handleTouchEnd = useCallback(() => {
     setIsDragging(false);
     isDraggingRef.current = false;
     lastTouchDistance.current = 0;
-  };
+  }, []);
+
+  // Listen touch events non-passively on DOM directly to enforce e.preventDefault()
+  useEffect(() => {
+    if (!isFocused || !viewportRef.current) return;
+    const viewport = viewportRef.current;
+    
+    viewport.addEventListener('touchstart', handleTouchStart, { passive: false });
+    viewport.addEventListener('touchmove', handleTouchMove, { passive: false });
+    viewport.addEventListener('touchend', handleTouchEnd, { passive: false });
+    viewport.addEventListener('touchcancel', handleTouchEnd, { passive: false });
+    
+    return () => {
+      viewport.removeEventListener('touchstart', handleTouchStart);
+      viewport.removeEventListener('touchmove', handleTouchMove);
+      viewport.removeEventListener('touchend', handleTouchEnd);
+      viewport.removeEventListener('touchcancel', handleTouchEnd);
+    };
+  }, [isFocused, handleTouchStart, handleTouchMove, handleTouchEnd]);
 
   if (error) {
     return (
@@ -1870,9 +1897,6 @@ const Mermaid = ({ value, theme = 'light' }) => {
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUpOrLeave}
         onMouseLeave={handleMouseUpOrLeave}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
         onDoubleClick={handleDoubleClick}
         style={{
           width: '100%',
