@@ -20,10 +20,23 @@ import { normalizeMarkdownMath } from '../utils/markdownMath';
 const preprocessMarkdown = (text) => {
   if (!text) return text;
   return normalizeMarkdownMath(text)
-    // 1. letter/number/Chinese + **bold** -> insert space before opening **
-    .replace(/([a-zA-Z0-9\u4e00-\u9fa5])\*\*([^*\s](?:(?:[^*]|\*[^*])*?[^*\s])?)\*\*/g, '$1 **$2**')
-    // 2. **bold** + letter/number/Chinese -> insert space after closing **
-    .replace(/\*\*([^*\s](?:(?:[^*]|\*[^*])*?[^*\s])?)\*\*([a-zA-Z0-9\u4e00-\u9fa5])/g, '**$1** $2');
+    .replace(/\*\*([^*\s](?:(?:[^*]|\*[^*])*?[^*\s])?)\*\*/g, (match, content, offset, fullText) => {
+      const charBefore = offset > 0 ? fullText[offset - 1] : '';
+      const charAfter = offset + match.length < fullText.length ? fullText[offset + match.length] : '';
+      
+      let prefix = '';
+      let suffix = '';
+      
+      if (/[a-zA-Z0-9\u4e00-\u9fa5]/.test(charBefore)) {
+        prefix = ' ';
+      }
+      
+      if (/[a-zA-Z0-9\u4e00-\u9fa5]/.test(charAfter)) {
+        suffix = ' ';
+      }
+      
+      return `${prefix}**${content}**${suffix}`;
+    });
 };
 
 // -------------------------------------------------------------------------

@@ -18,3 +18,5 @@ www.douyin.com*.json
 # PPT 幻灯片等本地生成报告目录
 outputs/
 
+# Temporary scratch directory
+scratch/
