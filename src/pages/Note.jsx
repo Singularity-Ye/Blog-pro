@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useMemo, useRef } from 'react';
+import React, { useEffect, useState, useMemo, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { useParams, Link, useLocation, useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -1325,10 +1326,102 @@ if (typeof window !== 'undefined') {
 }
 
 let mermaidIdCounter = 0;
-const Mermaid = ({ value }) => {
+const Mermaid = ({ value, theme = 'light' }) => {
   const [svg, setSvg] = useState('');
   const [error, setError] = useState(null);
+  const [diagramShape, setDiagramShape] = useState('normal');
+  const [diagramSize, setDiagramSize] = useState({ width: 0, height: 0 });
+  const [isFocused, setIsFocused] = useState(false);
   const elementId = useRef(`mermaid-${++mermaidIdCounter}`);
+  const containerRef = useRef(null);
+
+  // Interactive Zoom/Pan States
+  const [scale, setScale] = useState(1);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStart = useRef({ x: 0, y: 0 });
+  const viewportRef = useRef(null);
+
+  // Helper to extract SVG dimensions
+  const getMermaidSvgSize = (svgElement) => {
+    const viewBox = svgElement.getAttribute('viewBox');
+    if (viewBox) {
+      const [, , width, height] = viewBox.split(/\s+/).map(Number);
+      if (width > 0 && height > 0) return { width, height };
+    }
+    const width = parseFloat(svgElement.getAttribute('width')) || 0;
+    const height = parseFloat(svgElement.getAttribute('height')) || 0;
+    return { width, height };
+  };
+
+  const getMermaidShape = (width, height) => {
+    if (!width || !height) return 'normal';
+    const ratio = width / height;
+    if (ratio >= 2.1 && width >= 720) return 'wide';
+    if (height >= 760 && ratio <= 1.25) return 'tall';
+    return 'normal';
+  };
+
+  const makeFocusableMermaidSvg = (renderedSvg) => {
+    return renderedSvg.replace(/<svg\b([^>]*)>/, (match, attrs) => {
+      let nextAttrs = attrs.replace(/\s(?:width|height)="[^"]*"/g, '');
+      if (!/\spreserveAspectRatio=/.test(nextAttrs)) {
+        nextAttrs += ' preserveAspectRatio="xMidYMid meet"';
+      }
+      return `<svg${nextAttrs}>`;
+    });
+  };
+
+  // Auto-center and fit diagram to viewport boundaries
+  const resetZoom = () => {
+    if (!viewportRef.current) return;
+    const rect = viewportRef.current.getBoundingClientRect();
+    const vpWidth = rect.width;
+    const vpHeight = rect.height;
+
+    const svgElement = viewportRef.current.querySelector('svg');
+    if (!svgElement) return;
+
+    const { width: svgW, height: svgH } = getMermaidSvgSize(svgElement);
+    const diagWidth = svgW || 800;
+    const diagHeight = svgH || 600;
+
+    const padding = 40;
+    const scaleX = (vpWidth - padding) / diagWidth;
+    const scaleY = (vpHeight - padding) / diagHeight;
+    const initialScale = Math.min(Math.min(scaleX, scaleY), 1.25);
+
+    const initialX = (vpWidth - diagWidth * initialScale) / 2;
+    const initialY = (vpHeight - diagHeight * initialScale) / 2;
+
+    setScale(initialScale);
+    setPosition({ x: initialX, y: initialY });
+  };
+
+  // Zoom handlers (relative to midpoint)
+  const zoomIn = () => {
+    if (!viewportRef.current) return;
+    const rect = viewportRef.current.getBoundingClientRect();
+    const midX = rect.width / 2;
+    const midY = rect.height / 2;
+    const newScale = Math.min(scale * 1.3, 15);
+    const newX = midX - (midX - position.x) * (newScale / scale);
+    const newY = midY - (midY - position.y) * (newScale / scale);
+    setScale(newScale);
+    setPosition({ x: newX, y: newY });
+  };
+
+  const zoomOut = () => {
+    if (!viewportRef.current) return;
+    const rect = viewportRef.current.getBoundingClientRect();
+    const midX = rect.width / 2;
+    const midY = rect.height / 2;
+    const newScale = Math.max(scale / 1.3, 0.15);
+    const newX = midX - (midX - position.x) * (newScale / scale);
+    const newY = midY - (midY - position.y) * (newScale / scale);
+    setScale(newScale);
+    setPosition({ x: newX, y: newY });
+  };
 
   useEffect(() => {
     let active = true;
@@ -1345,6 +1438,8 @@ const Mermaid = ({ value }) => {
         if (active) {
           setSvg(renderedSvg);
           setError(null);
+          setDiagramShape('normal');
+          setDiagramSize({ width: 0, height: 0 });
         }
       } catch (err) {
         removeMermaidErrorArtifacts();
@@ -1362,34 +1457,436 @@ const Mermaid = ({ value }) => {
     };
   }, [value]);
 
+  useEffect(() => {
+    if (!svg || !containerRef.current) return;
+    const svgElement = containerRef.current.querySelector('svg');
+    if (!svgElement) return;
+
+    const { width, height } = getMermaidSvgSize(svgElement);
+    const shape = getMermaidShape(width, height);
+    setDiagramSize({ width, height });
+    setDiagramShape(shape);
+  }, [svg]);
+
+  useEffect(() => {
+    if (isFocused) {
+      const timer = setTimeout(resetZoom, 80);
+      return () => clearTimeout(timer);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isFocused, svg]);
+
+  useEffect(() => {
+    if (!isFocused || typeof document === 'undefined') return;
+    const originalOverflow = document.body.style.overflow;
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') setIsFocused(false);
+    };
+    document.body.style.overflow = 'hidden';
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isFocused]);
+
+  const scaleRef = useRef(scale);
+  const positionRef = useRef(position);
+
+  useEffect(() => {
+    scaleRef.current = scale;
+    positionRef.current = position;
+  }, [scale, position]);
+
+  // Event handlers for mouse wheel, click drag, pinch-to-zoom
+  const handleWheel = useCallback((e) => {
+    e.preventDefault();
+    if (!viewportRef.current) return;
+
+    const rect = viewportRef.current.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+
+    const zoomFactor = 1.15;
+    const isZoomIn = e.deltaY < 0;
+
+    const currentScale = scaleRef.current;
+    const currentPosition = positionRef.current;
+
+    let newScale = isZoomIn ? currentScale * zoomFactor : currentScale / zoomFactor;
+    newScale = Math.min(Math.max(newScale, 0.15), 15);
+
+    const newX = mouseX - (mouseX - currentPosition.x) * (newScale / currentScale);
+    const newY = mouseY - (mouseY - currentPosition.y) * (newScale / currentScale);
+
+    scaleRef.current = newScale;
+    positionRef.current = { x: newX, y: newY };
+
+    setScale(newScale);
+    setPosition({ x: newX, y: newY });
+  }, []);
+
+  useEffect(() => {
+    if (!isFocused || !viewportRef.current) return;
+    const viewport = viewportRef.current;
+    viewport.addEventListener('wheel', handleWheel, { passive: false });
+    return () => {
+      viewport.removeEventListener('wheel', handleWheel);
+    };
+  }, [isFocused, handleWheel]);
+
+  const handleMouseDown = (e) => {
+    if (e.button !== 0) return;
+    e.preventDefault();
+    setIsDragging(true);
+    dragStart.current = { x: e.clientX - position.x, y: e.clientY - position.y };
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isDragging) return;
+    e.preventDefault();
+    setPosition({
+      x: e.clientX - dragStart.current.x,
+      y: e.clientY - dragStart.current.y
+    });
+  };
+
+  const handleMouseUpOrLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleDoubleClick = (e) => {
+    e.preventDefault();
+    resetZoom();
+  };
+
+  // Touch handlers for pinch & swipe
+  const lastTouchDistance = useRef(0);
+  const handleTouchStart = (e) => {
+    if (e.touches.length === 1) {
+      setIsDragging(true);
+      dragStart.current = {
+        x: e.touches[0].clientX - position.x,
+        y: e.touches[0].clientY - position.y
+      };
+    } else if (e.touches.length === 2) {
+      setIsDragging(false);
+      const dist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      lastTouchDistance.current = dist;
+    }
+  };
+
+  const handleTouchMove = (e) => {
+    if (isDragging && e.touches.length === 1) {
+      setPosition({
+        x: e.touches[0].clientX - dragStart.current.x,
+        y: e.touches[0].clientY - dragStart.current.y
+      });
+    } else if (e.touches.length === 2) {
+      const dist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      if (lastTouchDistance.current > 0) {
+        const factor = dist / lastTouchDistance.current;
+        const newScale = Math.min(Math.max(scale * factor, 0.15), 15);
+        
+        const touchMidX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+        const touchMidY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+        
+        if (viewportRef.current) {
+          const rect = viewportRef.current.getBoundingClientRect();
+          const midX = touchMidX - rect.left;
+          const midY = touchMidY - rect.top;
+          
+          const newX = midX - (midX - position.x) * (newScale / scale);
+          const newY = midY - (midY - position.y) * (newScale / scale);
+          
+          setScale(newScale);
+          setPosition({ x: newX, y: newY });
+        }
+      }
+      lastTouchDistance.current = dist;
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+    lastTouchDistance.current = 0;
+  };
+
   if (error) {
     return (
-      <pre style={{ background: 'rgba(9, 19, 17, 0.45)', border: '1px dashed rgba(231, 199, 126, 0.25)', padding: '10px', borderRadius: '6px', overflowX: 'auto' }}>
+      <pre style={{ background: 'rgba(74, 45, 27, 0.06)', border: '1px dashed rgba(118, 73, 26, 0.25)', padding: '10px', borderRadius: '6px', overflowX: 'auto' }}>
         <code>{value}</code>
       </pre>
     );
   }
 
   if (!svg) {
-    return <div style={{ padding: '20px', color: '#ffedd5', textAlign: 'center' }}>绘制星图导图中...</div>;
+    return <div style={{ padding: '20px', color: '#4a2d1b', textAlign: 'center' }}>绘制星图导图中...</div>;
   }
 
+  const isDark = theme === 'dark';
+
+  const focusStyle = {
+    position: 'fixed',
+    inset: 0,
+    zIndex: 9999,
+    background: isDark ? 'rgba(8, 10, 12, 0.82)' : 'rgba(255, 250, 240, 0.88)',
+    backdropFilter: 'blur(20px)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    boxSizing: 'border-box',
+    overflow: 'hidden'
+  };
+
+  const focusMermaidStyle = `
+    .mermaid-focus-dialog .mermaid-rendered {
+      width: 100%;
+      height: 100%;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      background: transparent !important;
+      border: 0 !important;
+      box-shadow: none !important;
+      overflow: visible !important;
+    }
+    .mermaid-focus-dialog .mermaid-rendered svg {
+      display: block !important;
+      width: 100% !important;
+      height: 100% !important;
+      max-width: none !important;
+      max-height: none !important;
+    }
+    .mermaid-focus-dialog .mermaid-rendered svg text,
+    .mermaid-focus-dialog .mermaid-rendered svg tspan,
+    .mermaid-focus-dialog .mermaid-rendered svg span,
+    .mermaid-focus-dialog .mermaid-rendered svg div,
+    .mermaid-focus-dialog .mermaid-rendered svg p,
+    .mermaid-focus-dialog .mermaid-rendered svg label,
+    .mermaid-focus-dialog .mermaid-rendered .nodeLabel,
+    .mermaid-focus-dialog .mermaid-rendered .edgeLabel,
+    .mermaid-focus-dialog .mermaid-rendered .cluster-label {
+      fill: ${isDark ? '#ffedd5' : '#4a2d1b'} !important;
+      color: ${isDark ? '#ffedd5' : '#4a2d1b'} !important;
+      opacity: 1 !important;
+      font-weight: 650 !important;
+    }
+    .mermaid-focus-dialog .mermaid-rendered .node rect,
+    .mermaid-focus-dialog .mermaid-rendered .node circle,
+    .mermaid-focus-dialog .mermaid-rendered .node polygon,
+    .mermaid-focus-dialog .mermaid-rendered .node path,
+    .mermaid-focus-dialog .mermaid-rendered .actor rect,
+    .mermaid-focus-dialog .mermaid-rendered rect.actor,
+    .mermaid-focus-dialog .mermaid-rendered .note rect,
+    .mermaid-focus-dialog .mermaid-rendered rect.note {
+      fill: ${isDark ? 'rgba(231, 199, 126, 0.08)' : 'rgba(196, 154, 69, 0.08)'} !important;
+      stroke: ${isDark ? 'rgba(231, 199, 126, 0.35)' : 'rgba(196, 154, 69, 0.35)'} !important;
+      stroke-width: 1.5px !important;
+    }
+    .mermaid-focus-dialog .mermaid-rendered .edgePath .path,
+    .mermaid-focus-dialog .mermaid-rendered .flowchart-link,
+    .mermaid-focus-dialog .mermaid-rendered .messageLine0,
+    .mermaid-focus-dialog .mermaid-rendered .messageLine1 {
+      stroke-opacity: 0.9 !important;
+      stroke: ${isDark ? 'rgba(231, 199, 126, 0.55)' : 'rgba(196, 154, 69, 0.55)'} !important;
+    }
+    .mermaid-focus-control-bar {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 6px 18px;
+      background: ${isDark ? 'rgba(15, 18, 22, 0.9)' : 'rgba(255, 250, 240, 0.95)'};
+      border: 1px solid ${isDark ? 'rgba(231, 199, 126, 0.25)' : 'rgba(196, 154, 69, 0.35)'};
+      border-radius: 30px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, ${isDark ? '0.5' : '0.15'}), inset 0 0 10px rgba(255,255,255,${isDark ? '0.03' : '0.4'});
+      backdrop-filter: blur(10px);
+      color: ${isDark ? '#ffedd5' : '#4a2d1b'};
+      font-size: 13px;
+      font-family: system-ui, -apple-system, sans-serif;
+      pointer-events: auto;
+      user-select: none;
+    }
+    .mermaid-focus-control-btn {
+      background: none;
+      border: none;
+      color: ${isDark ? '#ffedd5' : '#4a2d1b'};
+      font-size: 17px;
+      cursor: pointer;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      opacity: 0.8;
+      outline: none;
+    }
+    .mermaid-focus-control-btn:hover {
+      opacity: 1;
+      background: ${isDark ? 'rgba(231, 199, 126, 0.15)' : 'rgba(196, 154, 69, 0.15)'};
+      color: ${isDark ? '#ffd88f' : '#78350f'};
+    }
+    .mermaid-focus-close-btn {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      z-index: 30;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 1px solid ${isDark ? 'rgba(231, 199, 126, 0.2)' : 'rgba(196, 154, 69, 0.25)'};
+      background: ${isDark ? 'rgba(15, 18, 22, 0.9)' : 'rgba(255, 250, 240, 0.95)'};
+      color: ${isDark ? '#ffedd5' : '#4a2d1b'};
+      cursor: pointer;
+      font-size: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, ${isDark ? '0.4' : '0.1'});
+      outline: none;
+    }
+    .mermaid-focus-close-btn:hover {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+      transform: scale(1.08);
+    }
+  `;
+
+  const focusSvg = makeFocusableMermaidSvg(svg);
+
+  const focusDialog = isFocused && typeof document !== 'undefined' ? createPortal(
+    <div className="mermaid-focus-dialog" role="dialog" aria-modal="true" aria-label="流程图聚焦查看" style={focusStyle}>
+      <div
+        ref={viewportRef}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUpOrLeave}
+        onMouseLeave={handleMouseUpOrLeave}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onDoubleClick={handleDoubleClick}
+        style={{
+          width: '100%',
+          height: '100%',
+          position: 'relative',
+          overflow: 'hidden',
+          cursor: isDragging ? 'grabbing' : 'grab',
+          userSelect: 'none'
+        }}
+      >
+        <div
+          style={{
+            transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
+            transformOrigin: '0 0',
+            transition: isDragging ? 'none' : 'transform 0.12s cubic-bezier(0.25, 1, 0.5, 1)',
+            width: diagramSize.width ? `${Math.ceil(diagramSize.width)}px` : '100%',
+            height: diagramSize.height ? `${Math.ceil(diagramSize.height)}px` : '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+        >
+          <div
+            className={`mermaid-rendered mermaid-focus mermaid-${diagramShape}`}
+            dangerouslySetInnerHTML={{ __html: focusSvg }}
+          />
+        </div>
+      </div>
+
+      <div className="mermaid-focus-control-bar">
+        <button type="button" onClick={zoomOut} className="mermaid-focus-control-btn" title="缩小">
+          −
+        </button>
+        <span style={{ minWidth: '52px', textAlign: 'center', fontWeight: '600', letterSpacing: '0.02em' }}>
+          {Math.round(scale * 100)}%
+        </span>
+        <button type="button" onClick={zoomIn} className="mermaid-focus-control-btn" title="放大">
+          +
+        </button>
+        <div style={{ width: '1px', height: '16px', background: 'rgba(231, 199, 126, 0.2)' }} />
+        <button type="button" onClick={resetZoom} className="mermaid-focus-control-btn" title="适应屏幕 (双击重置)">
+          ⛶
+        </button>
+        <div style={{ width: '1px', height: '16px', background: 'rgba(231, 199, 126, 0.2)' }} />
+        <span style={{ opacity: 0.6, fontSize: '11px', whiteSpace: 'nowrap' }}>
+          滚轮缩放 | 拖拽移动
+        </span>
+      </div>
+
+      <button type="button" className="mermaid-focus-close-btn" title="关闭 (Esc)" onClick={() => setIsFocused(false)}>
+        ×
+      </button>
+
+      <style>{focusMermaidStyle}</style>
+    </div>,
+    document.body
+  ) : null;
+
   return (
-    <div 
-      className="mermaid-rendered" 
-      dangerouslySetInnerHTML={{ __html: svg }} 
-      style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        margin: '1.8rem auto',
-        padding: '1.2rem',
-        background: 'rgba(246, 240, 226, 0.65)',
-        border: '1.5px dashed rgba(196, 154, 69, 0.35)',
-        borderRadius: '12px',
-        boxShadow: '0 8px 24px rgba(91, 70, 48, 0.05)',
-        overflowX: 'auto'
-      }} 
-    />
+    <>
+      <div style={{ position: 'relative' }}>
+        <button
+          type="button"
+          aria-label="聚焦查看流程图"
+          title="聚焦查看"
+          onClick={() => setIsFocused(true)}
+          style={{
+            position: 'absolute',
+            top: '10px',
+            right: '10px',
+            zIndex: 1,
+            width: '34px',
+            height: '34px',
+            borderRadius: '8px',
+            border: '1px solid rgba(74, 45, 27, 0.32)',
+            background: 'rgba(255, 250, 239, 0.84)',
+            color: '#4a2d1b',
+            cursor: 'pointer',
+            fontSize: '18px',
+            lineHeight: 1
+          }}
+        >
+          ⛶
+        </button>
+        <div
+          ref={containerRef}
+          className={`mermaid-rendered mermaid-${diagramShape}`}
+          dangerouslySetInnerHTML={{ __html: svg }}
+          style={{
+            display: 'flex',
+            justifyContent: diagramShape === 'wide' ? 'flex-start' : 'center',
+            margin: '1.5rem auto',
+            padding: '0.8rem',
+            background: 'rgba(74, 45, 27, 0.05)',
+            border: '1px dashed rgba(74, 45, 27, 0.2)',
+            borderRadius: '10px',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
+            overflowX: 'auto',
+            overflowY: 'visible'
+          }}
+        />
+      </div>
+
+      {focusDialog}
+    </>
   );
 };
 
@@ -1791,7 +2288,7 @@ export default function Note() {
                 const match = /language-(\w+)/.exec(className || '');
                 const codeText = String(children).replace(/\n$/, '');
                 if (match && match[1] === 'mermaid') {
-                  return <Mermaid value={codeText} />;
+                  return <Mermaid value={codeText} theme={theme} />;
                 }
                 return <code className={className} {...rest}>{children}</code>;
               },

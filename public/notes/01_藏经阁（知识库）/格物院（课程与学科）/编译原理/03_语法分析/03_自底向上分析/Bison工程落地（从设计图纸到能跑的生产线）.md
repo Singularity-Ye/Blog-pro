@@ -214,7 +214,7 @@ expr : term { printf("Found Term\n"); } PLUS factor { $$ = $1 + $4; }
 
 ## 🛠️ 理论落地：Bison 与 Lab 2 科学计算器的 AST 映射
 
-在 [[Lab2-YACC科学计算器语法分析|Lab 2 科学计算器]] 中，Bison 语义动作正是 Chapter 6 语法制导定义（SDD）中**抽象语法树构造**的工业落地。
+在 [[Lab2-YACC科学计算器语法分析|Lab 2 科学计算器]] 中，Bison 语义动作正是 Chapter 6 语法制导定义（SDD）中 **抽象语法树构造** 的工业落地。
 
 ```
        理论属性文法规则 (Ch6 SDD)                Bison 语义动作实现 (Lab 2)

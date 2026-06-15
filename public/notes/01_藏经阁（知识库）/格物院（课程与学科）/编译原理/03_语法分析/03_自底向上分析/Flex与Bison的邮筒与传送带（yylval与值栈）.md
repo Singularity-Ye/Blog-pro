@@ -71,10 +71,10 @@ $$\text{State Stack} \quad \text{与} \quad \text{Value Stack}$$
 > 
 > **典型错误症状**：Bison 语法分析出来的值全为 0，或者程序直接 Segmentation Fault 段错误。
 > 
-> **排坑法则**：
+>  **排坑法则** ：
 > 1. 如果你在 Bison 中声明了 `%union { double dval; char* sval; Node* nval; }`；
 > 2. 并且声明了终结符关联 `%token <dval> NUMBER` 和 `%token <sval> ID`；
-> 3. 那么在 Flex 的动作块中，赋值时**必须**指明具体邮槽：
+> 3. 那么在 Flex 的动作块中，赋值时 **必须** 指明具体邮槽：
 >    - `yylval.dval = atof(yytext); return NUMBER;` （对）
 >    - `yylval = atof(yytext); return NUMBER;` （错！编译报错或类型混乱）
 >    - `yylval.sval = strdup(yytext); return ID;` （对）
