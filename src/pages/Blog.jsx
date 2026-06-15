@@ -3421,6 +3421,8 @@ const Mermaid = ({ value, theme = 'light' }) => {
 
   const scaleRef = useRef(scale);
   const positionRef = useRef(position);
+  const isDraggingRef = useRef(false);
+  const initialZoomCenterRef = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
     scaleRef.current = scale;
@@ -3433,8 +3435,15 @@ const Mermaid = ({ value, theme = 'light' }) => {
     if (!viewportRef.current) return;
 
     const rect = viewportRef.current.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
+    
+    let mouseX, mouseY;
+    if (isDraggingRef.current) {
+      mouseX = initialZoomCenterRef.current.x;
+      mouseY = initialZoomCenterRef.current.y;
+    } else {
+      mouseX = e.clientX - rect.left;
+      mouseY = e.clientY - rect.top;
+    }
 
     const zoomFactor = 1.15;
     const isZoomIn = e.deltaY < 0;
@@ -3468,7 +3477,16 @@ const Mermaid = ({ value, theme = 'light' }) => {
     if (e.button !== 0) return;
     e.preventDefault();
     setIsDragging(true);
+    isDraggingRef.current = true;
     dragStart.current = { x: e.clientX - position.x, y: e.clientY - position.y };
+
+    if (viewportRef.current) {
+      const rect = viewportRef.current.getBoundingClientRect();
+      initialZoomCenterRef.current = {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top
+      };
+    }
   };
 
   const handleMouseMove = (e) => {
@@ -3482,6 +3500,7 @@ const Mermaid = ({ value, theme = 'light' }) => {
 
   const handleMouseUpOrLeave = () => {
     setIsDragging(false);
+    isDraggingRef.current = false;
   };
 
   const handleDoubleClick = (e) => {
@@ -3494,12 +3513,14 @@ const Mermaid = ({ value, theme = 'light' }) => {
   const handleTouchStart = (e) => {
     if (e.touches.length === 1) {
       setIsDragging(true);
+      isDraggingRef.current = true;
       dragStart.current = {
         x: e.touches[0].clientX - position.x,
         y: e.touches[0].clientY - position.y
       };
     } else if (e.touches.length === 2) {
       setIsDragging(false);
+      isDraggingRef.current = false;
       const dist = Math.hypot(
         e.touches[0].clientX - e.touches[1].clientX,
         e.touches[0].clientY - e.touches[1].clientY
@@ -3544,6 +3565,7 @@ const Mermaid = ({ value, theme = 'light' }) => {
 
   const handleTouchEnd = () => {
     setIsDragging(false);
+    isDraggingRef.current = false;
     lastTouchDistance.current = 0;
   };
 
