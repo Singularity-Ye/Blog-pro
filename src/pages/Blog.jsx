@@ -3462,6 +3462,13 @@ const Mermaid = ({ value, theme = 'light' }) => {
 
     setScale(newScale);
     setPosition({ x: newX, y: newY });
+
+    if (isDraggingRef.current) {
+      dragStart.current = {
+        x: e.clientX - newX,
+        y: e.clientY - newY
+      };
+    }
   }, []);
 
   useEffect(() => {
