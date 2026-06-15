@@ -37,10 +37,14 @@ used_in_chapter:
 > Bison 就像是一个自动化的**流水线工厂车间**。读这张图时，先记住用户在 `.y` 文件里真正会写的是 **`$1`、`$2`、`$3` 和 `$$`**；`yyvsp` / `yyval` 是 Bison 把这些写法翻译成 C 代码后使用的内部变量。
 > *   **双轨道传送带**：工厂里有两条平行移动的传送带。第一条叫“状态栈”，上面放着当前装配到哪一步的状态号；第二条叫“属性值栈”，上面并排放着对应的属性值，比如数字、字符串、AST 指针或集合指针。
 > *   **用户视角公式**：对产生式
->     $$A \to X_1\ X_2\ \dots\ X_n$$
+>     $$
+>     A \to X_1\ X_2\ \dots\ X_n
+>     $$
 >     Bison 动作里的 `$i` 表示右部第 `i` 个符号 `X_i` 的属性，`$$` 表示左部符号 `A` 的归约结果属性。
 > *   **生成代码公式**：归约时属性栈指针 `yyvsp` 指向右部最后一个符号 `X_n`，所以 Bison 会把用户写法翻译为：
->     $$\$i \Longleftrightarrow yyvsp[i-n], \qquad \$\$ \Longleftrightarrow yyval$$
+>     $$
+>     \text{＄}i \Longleftrightarrow yyvsp[i-n], \qquad \text{＄}\text{＄} \Longleftrightarrow yyval
+>     $$
 > *   **具体例子**：若产生式是 `S : A B C { $$ = f($1, $3); }`，右部长度 `n = 3`，那么：
 >     *   `$1 = yyvsp[1-3] = yyvsp[-2]`，对应 `A` 的属性。
 >     *   `$2 = yyvsp[2-3] = yyvsp[-1]`，对应 `B` 的属性。

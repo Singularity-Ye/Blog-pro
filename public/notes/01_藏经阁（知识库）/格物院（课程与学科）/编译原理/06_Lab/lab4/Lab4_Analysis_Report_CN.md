@@ -34,7 +34,9 @@
 ### 1. 问题 1：整型二叉树有序性检查的属性文法设计 <sup>[一]</sup>
 #### 1.1 问题描述
 给定整型二叉树的线性化文法：
-$$\text{btree} \rightarrow (\text{ number } \text{ btree}_1 \text{ btree}_2 ) \mid \text{nil}$$
+$$
+\text{btree} \rightarrow (\text{ number } \text{ btree}_1 \text{ btree}_2 ) \mid \text{nil}
+$$
 需要编写属性文法，检查二叉树是否是“有序的”（即：左子树的所有数值 $\le$ 当前节点值，且右子树的所有数值 $\ge$ 当前节点值）。
 
 #### 1.2 属性定义与设计思路

@@ -34,7 +34,9 @@ Based on the evaluation criteria, this report assesses the experiment implementa
 ### 1. Question 1: Attribute Grammar for Integer Binary Tree Ordered-ness <sup>[一]</sup>
 #### 1.1 Problem Context
 Consider the linearized grammar for integer binary trees:
-$$\text{btree} \rightarrow (\text{ number } \text{ btree}_1 \text{ btree}_2 ) \mid \text{nil}$$
+$$
+\text{btree} \rightarrow (\text{ number } \text{ btree}_1 \text{ btree}_2 ) \mid \text{nil}
+$$
 We need to design an attribute grammar to check whether a binary tree is ordered (i.e., all numbers in the first subtree $\le$ current number, and all numbers in the second subtree $\ge$ current number).
 
 #### 1.2 Attribute Definitions & Design Rationale

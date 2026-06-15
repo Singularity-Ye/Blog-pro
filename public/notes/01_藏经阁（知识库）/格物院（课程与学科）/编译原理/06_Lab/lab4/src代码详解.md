@@ -72,7 +72,6 @@ struct Set {
 | `set_add(set, name)` | 向集合添加元素（去重） | $\text{stmt} \to \text{var} = \text{expr} \quad \{ \text{stmt.out} = \text{stmt.in} \cup \{ \text{var.sname} \} \}$ |
 | `set_union_new(L, R)` | 求并集，返回新集合 | 用于表达式综合属性合并（如 $E_1 + E_2$）和分支合并（`then` ∪ `else`）。 |
 | `set_difference_new(L, R)` | 求差集 $L - R$，返回新集合 | 检查未定义变量的核心：$\text{expr.ref} - \text{stmt.in}$ |
-| `set_is_empty(set)` | 判断集合是否为空 | 对应该差集是否为 ∅ |
 | `set_free(set)` | 递归释放集合及内部字符串 | C 语言手动内存管理，避免解析过程中的内存泄露。 |
 
 ---
