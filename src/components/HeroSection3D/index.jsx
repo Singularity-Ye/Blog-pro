@@ -36,6 +36,13 @@ const HeroWrapper = styled.section`
   display: flex;
   align-items: center;
 
+  @media (max-width: 768px) {
+    height: auto;
+    min-height: 100vh;
+    max-height: none;
+    overflow: visible;
+  }
+
   &::before,
   &::after {
     content: '';

@@ -10,6 +10,10 @@ const HomeWrapper = styled.main`
   position: relative;
   min-height: 100vh;
   overflow: hidden;
+
+  @media (max-width: 768px) {
+    overflow: visible;
+  }
 `;
 
 const LoadingScreen = styled(motion.div)`

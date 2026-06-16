@@ -3304,6 +3304,60 @@ function findAndModifyCallout(children) {
   return { isCallout: false, children };
 }
 
+const adaptMermaidSvgColorsForDarkMode = (svgHtml, isDark) => {
+  if (!svgHtml) return svgHtml;
+
+  // Detect custom styled nodes (matching rect/circle/polygon/path/ellipse with fill color)
+  // Mermaid CSS rules: #flowchart-nodeId-xx rect { fill: #... }
+  const regex = /(#[a-zA-Z0-9_-]+)\s+(?:.node\s+)?(?:rect|circle|polygon|path|ellipse)\s*\{\s*fill\s*:\s*([^;}]+)/gi;
+  let match;
+  let textOverrides = '';
+
+  while ((match = regex.exec(svgHtml)) !== null) {
+    const selector = match[1];
+    const fillColor = match[2].trim();
+
+    // Check if there is a valid fill color (not none/transparent)
+    if (fillColor && fillColor !== 'none' && fillColor !== 'transparent' && !fillColor.startsWith('rgba(0,0,0,0)')) {
+      // Force text color inside this specific node to be dark brown (#4a2d1b) for readability
+      textOverrides += `
+        ${selector} text,
+        ${selector} tspan,
+        ${selector} span,
+        ${selector} div,
+        ${selector} p,
+        ${selector} label,
+        ${selector} b,
+        ${selector} strong,
+        ${selector} i,
+        ${selector} em,
+        ${selector} a,
+        ${selector} .label *,
+        ${selector} text *,
+        ${selector} tspan *,
+        ${selector} span *,
+        ${selector} div *,
+        ${selector} p *,
+        ${selector} label * {
+          fill: #4a2d1b !important;
+          color: #4a2d1b !important;
+          font-weight: 600 !important;
+        }
+      `;
+    }
+  }
+
+  if (textOverrides) {
+    if (svgHtml.includes('</style>')) {
+      return svgHtml.replace('</style>', `${textOverrides}</style>`);
+    } else {
+      return svgHtml.replace(/<style\b([^>]*)>/, (m, attrs) => `<style${attrs}>${textOverrides}`);
+    }
+  }
+
+  return svgHtml;
+};
+
 let mermaidIdCounter = 0;
 const Mermaid = ({ value, theme = 'light' }) => {
   const [svg, setSvg] = useState('');
@@ -3653,6 +3707,10 @@ const Mermaid = ({ value, theme = 'light' }) => {
     };
   }, [isFocused, handleTouchStart, handleTouchMove, handleTouchEnd]);
 
+  const isDark = theme === 'dark';
+  const displaySvg = useMemo(() => adaptMermaidSvgColorsForDarkMode(svg, isDark), [svg, isDark]);
+  const focusSvg = useMemo(() => makeFocusableMermaidSvg(displaySvg), [displaySvg]);
+
   if (error) {
     return (
       <pre style={{ background: 'rgba(74, 45, 27, 0.06)', border: '1px dashed rgba(118, 73, 26, 0.25)', padding: '10px', borderRadius: '6px', overflowX: 'auto' }}>
@@ -3664,8 +3722,6 @@ const Mermaid = ({ value, theme = 'light' }) => {
   if (!svg) {
     return <div style={{ padding: '20px', color: '#4a2d1b', textAlign: 'center' }}>绘制星图导图中...</div>;
   }
-
-  const isDark = theme === 'dark';
 
   const focusStyle = {
     position: 'fixed',
@@ -3804,8 +3860,6 @@ const Mermaid = ({ value, theme = 'light' }) => {
     }
   `;
 
-  const focusSvg = makeFocusableMermaidSvg(svg);
-
   const focusDialog = isFocused && typeof document !== 'undefined' ? createPortal(
     <div className="mermaid-focus-dialog" role="dialog" aria-modal="true" aria-label="流程图聚焦查看" style={focusStyle}>
       <div
@@ -3901,7 +3955,7 @@ const Mermaid = ({ value, theme = 'light' }) => {
         <div
           ref={containerRef}
           className={`mermaid-rendered mermaid-${diagramShape}`}
-          dangerouslySetInnerHTML={{ __html: svg }}
+          dangerouslySetInnerHTML={{ __html: displaySvg }}
           style={{
             display: 'flex',
             justifyContent: diagramShape === 'wide' ? 'flex-start' : 'center',
