@@ -239,13 +239,18 @@ function selectFolder(defaultPath) {
     const psScript = `
 Add-Type -AssemblyName System.Windows.Forms
 $f = New-Object System.Windows.Forms.FolderBrowserDialog
-$f.SelectedPath = "${defaultPath.replace(/\\/g, '\\\\')}"
+$f.SelectedPath = '${defaultPath.replace(/'/g, "''")}'
 $f.Description = "请选择笔记目录 (必须在 Obsidian Vault 目录下)"
 $f.ShowNewFolderButton = $true
-$result = $f.ShowDialog()
+$dummy = New-Object System.Windows.Forms.Form
+$dummy.TopMost = $true
+$dummy.TopLevel = $true
+$result = $f.ShowDialog($dummy)
 if ($result -eq [System.Windows.Forms.DialogResult]::OK) {
     Write-Output $f.SelectedPath
 }
+$dummy.Dispose()
+$f.Dispose()
 `;
     try {
       fs.writeFileSync(tempFile, psScript, 'utf-8');
@@ -253,8 +258,8 @@ if ($result -eq [System.Windows.Forms.DialogResult]::OK) {
       return reject(new Error('无法创建临时脚本: ' + err.message));
     }
 
-    const child = spawn('powershell', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-Sta', '-WindowStyle', 'Hidden', '-File', tempFile], {
-      windowsHide: false
+    const child = spawn('powershell', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-Sta', '-File', tempFile], {
+      windowsHide: true
     });
 
     let stdout = '';
