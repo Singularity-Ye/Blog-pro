@@ -253,8 +253,8 @@ if ($result -eq [System.Windows.Forms.DialogResult]::OK) {
       return reject(new Error('无法创建临时脚本: ' + err.message));
     }
 
-    const child = spawn('powershell', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', tempFile], {
-      windowsHide: true
+    const child = spawn('powershell', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-Sta', '-WindowStyle', 'Hidden', '-File', tempFile], {
+      windowsHide: false
     });
 
     let stdout = '';
