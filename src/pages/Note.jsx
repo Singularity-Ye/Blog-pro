@@ -248,6 +248,7 @@ const NoteLayout = styled.div`
       position: absolute;
       background-attachment: scroll;
       filter: none;
+      background: none; /* 移动端背景交由 ParallaxBg 处理 */
     }
 
     &::after {
@@ -364,6 +365,325 @@ const MobileFloatingBackButton = styled(motion.button)`
     display: none; /* 仅在移动端展示 */
   }
 `;
+
+// ── 移动端增强体验组件样式 ──────────────────────────────────────
+
+const ProgressBar = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: ${props => props.$progress}%;
+  height: 2.5px;
+  background: linear-gradient(90deg, #b98234, #e7c77e);
+  z-index: 10002;
+  transition: width 0.1s ease-out;
+  pointer-events: none;
+`;
+
+const ParallaxBg = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -2;
+  pointer-events: none;
+  background: ${({ $theme }) => $theme === 'light'
+    ? `linear-gradient(90deg, rgba(255, 250, 238, 0.14), rgba(255, 246, 224, 0.02) 48%, rgba(229, 190, 119, 0.12)),
+       linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(237, 214, 170, 0.2)),
+       url(${noteReadingBgLight}) center center / cover,
+       #efe0bd`
+    : `linear-gradient(180deg, rgba(7, 16, 14, 0.4), rgba(7, 16, 14, 0.6)),
+       url(${noteReadingBgDark}) center center / cover,
+       #07100e`
+  };
+  transform: translate3d(0, ${props => props.$offset}px, 0);
+  transition: transform 0.05s linear;
+`;
+
+const MobileStickyHeader = styled(motion.div)`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 52px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1.5px solid var(--glass-border);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+  justify-content: space-between;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(${props => props.$visible ? '0' : '-100%'});
+
+  .back-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    cursor: pointer;
+    padding: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    outline: none;
+  }
+
+  .title-text {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0 1rem;
+    flex: 1;
+    text-align: center;
+  }
+
+  .progress-text {
+    font-size: 0.75rem;
+    color: var(--text-accent);
+    font-weight: 800;
+    font-family: monospace;
+    min-width: 32px;
+    text-align: right;
+  }
+`;
+
+const MobileFloatingButtonsWrapper = styled.div`
+  position: fixed;
+  bottom: 6rem;
+  right: 2.375rem;
+  z-index: 9998;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  pointer-events: auto;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+  transform: translateX(${props => props.$visible ? '0' : '80px'});
+  opacity: ${props => props.$visible ? 1 : 0};
+
+  @media (min-width: 901px) {
+    display: none;
+  }
+`;
+
+const MobileFloatingTocButton = styled(motion.button)`
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1.5px solid var(--glass-border);
+  background: var(--glass-bg);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--glass-shadow), inset 0 1px 0 rgba(255,255,255,0.1);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  outline: none;
+
+  svg {
+    width: 18px;
+    height: 18px;
+    stroke-width: 2.5;
+  }
+`;
+
+const TocDrawerOverlay = styled(motion.div)`
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 2, 10, 0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 10000;
+`;
+
+const TocDrawer = styled(motion.div)`
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-height: 65vh;
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-top: 1.5px solid var(--glass-border);
+  border-radius: 20px 20px 0 0;
+  z-index: 10001;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 -12px 40px rgba(0,0,0,0.3);
+  box-sizing: border-box;
+
+  .drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.2rem;
+    border-bottom: 1px dashed rgba(231,199,126,0.18);
+    padding-bottom: 0.8rem;
+  }
+
+  .drawer-title {
+    font-size: 1.05rem;
+    color: var(--text-accent);
+    font-weight: 850;
+    margin: 0;
+    letter-spacing: 0.04em;
+  }
+
+  .drawer-close {
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: 4px;
+    line-height: 1;
+    outline: none;
+  }
+
+  .drawer-content {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 0.4rem;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(231, 199, 126, 0.25) transparent;
+  }
+`;
+
+const DrawerTocItem = styled.div`
+  padding: 0.7rem 0;
+  border-bottom: 1px solid rgba(231, 199, 126, 0.05);
+  padding-left: ${props => Math.min((props.$level - 1) * 1.2, 3.6)}rem;
+
+  a {
+    color: ${props => props.$level === 1 ? 'var(--text-accent)' : 'var(--text-primary)'};
+    text-decoration: none;
+    font-size: 0.92rem;
+    font-weight: ${props => props.$level === 1 ? '700' : 'normal'};
+    display: block;
+    line-height: 1.4;
+
+    &:active {
+      color: var(--text-accent);
+    }
+  }
+`;
+
+const PreviewOverlay = styled(motion.div)`
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 2, 10, 0.4);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  z-index: 10000;
+`;
+
+const PreviewDrawer = styled(motion.div)`
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-top: 1.5px solid var(--glass-border);
+  border-radius: 20px 20px 0 0;
+  z-index: 10001;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  box-shadow: 0 -12px 40px rgba(0,0,0,0.3);
+  box-sizing: border-box;
+
+  .drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px dashed rgba(231,199,126,0.18);
+    padding-bottom: 0.6rem;
+
+    h4 {
+      margin: 0;
+      font-size: 1.02rem;
+      color: var(--text-accent);
+      font-weight: 850;
+    }
+
+    button {
+      background: transparent;
+      border: none;
+      color: var(--text-primary);
+      cursor: pointer;
+      font-size: 1.1rem;
+      padding: 2px;
+      outline: none;
+    }
+  }
+
+  .drawer-body {
+    font-size: 0.88rem;
+    line-height: 1.7;
+    color: var(--text-primary);
+    max-height: 25vh;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+
+  .drawer-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 0.4rem;
+
+    button, a {
+      height: 38px;
+      padding: 0 1.2rem;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      text-decoration: none;
+      font-weight: 600;
+      border: 1px solid var(--glass-border);
+      transition: all 0.2s ease;
+      outline: none;
+    }
+
+    .btn-cancel {
+      background: rgba(255,255,255,0.03);
+      color: var(--text-primary);
+
+      &:active {
+        background: rgba(255,255,255,0.1);
+      }
+    }
+
+    .btn-confirm {
+      background: linear-gradient(135deg, #b98234, #7b4a18);
+      border-color: rgba(255,247,223,0.18);
+      color: #fffdec;
+      box-shadow: 0 4px 12px rgba(123, 74, 24, 0.25);
+
+      &:active {
+        background: linear-gradient(135deg, #c8923e, #8b5520);
+      }
+    }
+  }
+`;
+
 
 const RelatedNotesList = styled.div`
   display: flex;
@@ -2102,6 +2422,12 @@ const Mermaid = ({ value, theme = 'light' }) => {
 
 // ── 主组件 ────────────────────────────────────────────────────
 
+const triggerVibration = (ms = 10) => {
+  if (typeof window !== 'undefined' && window.navigator && window.navigator.vibrate) {
+    try { window.navigator.vibrate(ms); } catch (e) {}
+  }
+};
+
 export default function Note() {
   const { '*': slug } = useParams();
   const location = useLocation();
@@ -2112,6 +2438,17 @@ export default function Note() {
   const [error, setError] = useState(null);
   const [graphData, setGraphData] = useState(null);
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' ? window.innerWidth <= 900 : false);
+
+  const [readingProgress, setReadingProgress] = useState(0);
+  const [isScrollingUp, setIsScrollingUp] = useState(true);
+  const [isHeaderSticky, setIsHeaderSticky] = useState(false);
+  const [isMobileTocOpen, setIsMobileTocOpen] = useState(false);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [previewTarget, setPreviewTarget] = useState(null);
+  const [previewContent, setPreviewContent] = useState('');
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [bgOffset, setBgOffset] = useState(0);
+  const lastScrollY = useRef(0);
 
   const [theme, setTheme] = useState(() => {
     const saved = localStorage.getItem('atlas-theme');
@@ -2249,6 +2586,127 @@ export default function Note() {
     };
   }, [decodedSlug]);
 
+  // 滚动方向、进度以及背景视差偏移监听
+  useEffect(() => {
+    if (loading) return;
+
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+      if (totalHeight > 0) {
+        const progress = (currentScrollY / totalHeight) * 100;
+        setReadingProgress(Math.min(Math.max(progress, 0), 100));
+      } else {
+        setReadingProgress(0);
+      }
+
+      setIsHeaderSticky(currentScrollY > 200);
+
+      if (currentScrollY > 120) {
+        if (currentScrollY > lastScrollY.current) {
+          setIsScrollingUp(false);
+        } else {
+          setIsScrollingUp(true);
+        }
+      } else {
+        setIsScrollingUp(true);
+      }
+
+      if (isMobile) {
+        setBgOffset(currentScrollY * 0.35);
+      } else {
+        setBgOffset(0);
+      }
+
+      lastScrollY.current = currentScrollY;
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [loading, isMobile]);
+
+  // 手势横滑返回上一页 (Swipe Right to Back)
+  const touchStartX = useRef(0);
+  const touchStartY = useRef(0);
+
+  useEffect(() => {
+    if (!isMobile) return;
+
+    const handleTouchStart = (e) => {
+      touchStartX.current = e.touches[0].clientX;
+      touchStartY.current = e.touches[0].clientY;
+    };
+
+    const handleTouchEnd = (e) => {
+      const diffX = e.changedTouches[0].clientX - touchStartX.current;
+      const diffY = e.changedTouches[0].clientY - touchStartY.current;
+
+      if (diffX > 100 && Math.abs(diffY) < 40) {
+        const isInteractive = e.target.closest('pre, code, table, canvas, svg, button, a, input, select, textarea');
+        if (!isInteractive) {
+          triggerVibration(10);
+          handleBackClick();
+        }
+      }
+    };
+
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchend', handleTouchEnd, { passive: true });
+
+    return () => {
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [isMobile]);
+
+  // 双链在移动端的防误触摘要卡片点击事件
+  const handleWikiLinkClick = useCallback(async (href, label) => {
+    triggerVibration(10);
+    const slug = href.replace(/^\/note\//, '');
+    setPreviewTarget({ slug, label: String(label), href });
+    setIsPreviewOpen(true);
+    setPreviewLoading(true);
+    setPreviewContent('正在检索星宿轨迹...');
+
+    try {
+      const res = await fetch(`/notes/${slug}.md`);
+      if (res.ok) {
+        const text = await res.text();
+        const { body } = parseFrontmatter(text);
+        const cleanBody = body
+          .replace(/---\n[\s\S]*?\n---\n/g, '')
+          .replace(/[#>\*\`\[\]\(\)]/g, '')
+          .trim()
+          .slice(0, 180);
+        setPreviewContent(cleanBody + (body.length > 180 ? '...' : ''));
+      } else {
+        setPreviewContent('无法读取此笔记摘要，该笔记可能尚未同步发布。');
+      }
+    } catch (err) {
+      console.error('Failed to load wiki-link preview:', err);
+      setPreviewContent('获取笔记摘要失败。');
+    } finally {
+      setPreviewLoading(false);
+    }
+  }, []);
+
+  // 目录与预览卡片打开时锁定 Body 滚动
+  useEffect(() => {
+    if (isMobile && (isMobileTocOpen || isPreviewOpen)) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isMobile, isMobileTocOpen, isPreviewOpen]);
+
   const parsedNote = useMemo(() => {
     const { body, data } = parseFrontmatter(markdown);
     return { body, properties: buildProperties(data) };
@@ -2385,7 +2843,27 @@ export default function Note() {
   }
 
   return (
-    <NoteLayout $theme={theme}>
+    <NoteLayout 
+      $theme={theme}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
+      <ProgressBar $progress={readingProgress} />
+      {isMobile && <ParallaxBg $theme={theme} $offset={bgOffset} />}
+      
+      {isMobile && isHeaderSticky && (
+        <MobileStickyHeader $visible={isScrollingUp}>
+          <button onClick={() => { triggerVibration(10); handleBackClick(); }} className="back-btn" aria-label="返回">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <line x1="19" y1="12" x2="5" y2="12"></line>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+          </button>
+          <div className="title-text">{mainText}</div>
+          <div className="progress-text">{Math.round(readingProgress)}%</div>
+        </MobileStickyHeader>
+      )}
+
       <MouseLeafDrift theme={theme} />
       <NoteContent>
         <ThemeToggleWrapper>
@@ -2415,7 +2893,6 @@ export default function Note() {
           返回上一页
         </BackButton>
         {(() => {
-          const { mainText, subText } = parseElegantTitle(title);
           return (
             <>
               <NoteTitle>{mainText}</NoteTitle>
@@ -2481,6 +2958,20 @@ export default function Note() {
                   );
                 }
                 if (href && href.startsWith('/note/')) {
+                  if (isMobile) {
+                    return (
+                      <a 
+                        href={href} 
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleWikiLinkClick(href, children);
+                        }}
+                        {...props}
+                      >
+                        {children}
+                      </a>
+                    );
+                  }
                   return <Link to={href} {...props}>{children}</Link>;
                 }
                 return <a href={href} target="_blank" rel="noopener noreferrer" {...props}>{children}</a>;
@@ -2559,15 +3050,15 @@ export default function Note() {
           <MobileRelatedNotes>
             <RelatedNotesTitle>✦ 相关星轨关联</RelatedNotesTitle>
             <RelatedNotesList>
-              {relatedNotes.map((node) => (
-                <RelatedNoteLink key={node.id} to={toNoteHref(node.slug ?? node.id)}>
-                  <span style={{ display: 'flex', alignItems: 'center', flex: 1, minWidth: 0 }}>
+              {relatedNotes.map((note) => (
+                <RelatedNoteLink key={note.id} to={toNoteHref(note.slug || note.id)}>
+                  <span style={{ display: 'flex', alignItems: 'center', minWidth: 0 }}>
                     <span className="bullet">✦</span>
-                    <span className="title">{node.title}</span>
+                    <span className="title" title={note.title}>{note.title}</span>
                   </span>
-                  <span className="category">
-                    {COLLECTION_LABELS[node.collection] || node.collection || '一般笔记'}
-                  </span>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
                 </RelatedNoteLink>
               ))}
             </RelatedNotesList>
@@ -2576,16 +3067,7 @@ export default function Note() {
       </NoteContent>
 
       <NoteSidebar>
-        {!isMobile && localGraphData && (
-          <MiniGraph
-            currentSlug={decodedSlug}
-            graphData={localGraphData}
-            label="局部关系图"
-            theme={theme}
-            expandHref={`/graph?local=${encodeURIComponent(decodedSlug)}`}
-          />
-        )}
-        {!isMobile && graphData && (
+        {collectionGraphHref && (
           <TocContainer>
             <TocTitle>图谱视图</TocTitle>
             <TocList>
@@ -2620,18 +3102,120 @@ export default function Note() {
           )}
         </StickySidebarContent>
       </NoteSidebar>
+
       {isMobile && (
-        <MobileFloatingBackButton
-          type="button"
-          onClick={handleBackClick}
-          whileTap={{ scale: 0.9 }}
-          aria-label="返回上一页"
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="19" y1="12" x2="5" y2="12"></line>
-            <polyline points="12 19 5 12 12 5"></polyline>
-          </svg>
-        </MobileFloatingBackButton>
+        <>
+          <MobileFloatingButtonsWrapper $visible={isScrollingUp}>
+            {headings.length > 0 && (
+              <MobileFloatingTocButton
+                type="button"
+                onClick={() => { triggerVibration(10); setIsMobileTocOpen(true); }}
+                whileTap={{ scale: 0.9 }}
+                aria-label="查看目录"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="21" y1="10" x2="7" y2="10"></line>
+                  <line x1="21" y1="6" x2="3" y2="6"></line>
+                  <line x1="21" y1="14" x2="3" y2="14"></line>
+                  <line x1="21" y1="18" x2="7" y2="18"></line>
+                </svg>
+              </MobileFloatingTocButton>
+            )}
+            <MobileFloatingBackButton
+              type="button"
+              onClick={() => { triggerVibration(10); handleBackClick(); }}
+              whileTap={{ scale: 0.9 }}
+              aria-label="返回上一页"
+              style={{ position: 'static', bottom: 'auto', right: 'auto' }}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+              </svg>
+            </MobileFloatingBackButton>
+          </MobileFloatingButtonsWrapper>
+
+          {/* 目录抽屉面板 */}
+          <AnimatePresence>
+            {isMobileTocOpen && (
+              <>
+                <TocDrawerOverlay 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setIsMobileTocOpen(false)}
+                />
+                <TocDrawer
+                  initial={{ y: '100%' }}
+                  animate={{ y: 0 }}
+                  exit={{ y: '100%' }}
+                  transition={{ type: 'spring', damping: 25, stiffness: 220 }}
+                >
+                  <div className="drawer-header">
+                    <h4 className="drawer-title">✦ 笈中纲要</h4>
+                    <button className="drawer-close" onClick={() => setIsMobileTocOpen(false)}>✕</button>
+                  </div>
+                  <div className="drawer-content">
+                    {headings.map((h, i) => (
+                      <DrawerTocItem key={i} $level={h.level}>
+                        <a 
+                          href={`#${h.id}`} 
+                          onClick={() => {
+                            triggerVibration(10);
+                            setIsMobileTocOpen(false);
+                          }}
+                        >
+                          {h.text}
+                        </a>
+                      </DrawerTocItem>
+                    ))}
+                  </div>
+                </TocDrawer>
+              </>
+            )}
+          </AnimatePresence>
+
+          {/* 双链预览抽屉面板 */}
+          <AnimatePresence>
+            {isPreviewOpen && (
+              <>
+                <PreviewOverlay 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setIsPreviewOpen(false)}
+                />
+                <PreviewDrawer
+                  initial={{ y: '100%' }}
+                  animate={{ y: 0 }}
+                  exit={{ y: '100%' }}
+                  transition={{ type: 'spring', damping: 25, stiffness: 220 }}
+                >
+                  <div className="drawer-header">
+                    <h4>✦ 星络预览: {previewTarget?.label}</h4>
+                    <button onClick={() => setIsPreviewOpen(false)}>✕</button>
+                  </div>
+                  <div className="drawer-body">
+                    {previewLoading ? '正在检索星宿轨迹...' : previewContent}
+                  </div>
+                  <div className="drawer-actions">
+                    <button onClick={() => setIsPreviewOpen(false)} className="btn-cancel">取消</button>
+                    <Link 
+                      to={previewTarget?.href || '#'} 
+                      onClick={() => {
+                        setIsPreviewOpen(false);
+                        triggerVibration(10);
+                      }} 
+                      className="btn-confirm"
+                    >
+                      进入笔记
+                    </Link>
+                  </div>
+                </PreviewDrawer>
+              </>
+            )}
+          </AnimatePresence>
+        </>
       )}
     </NoteLayout>
   );
