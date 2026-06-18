@@ -133,6 +133,8 @@
     }
     .field input:focus, .field textarea:focus { border-color: rgba(231,199,126,.5); }
     .field textarea { min-height: 72px; resize: vertical; line-height: 1.55; font-family: "IBM Plex Mono","Fira Code",monospace; font-size: .78rem; }
+    .input-group { display: flex; gap: 6px; align-items: center; width: 100%; }
+    .input-group input { flex: 1; }
     .toggle-label {
       display: inline-flex; align-items: center; gap: 8px;
       font-size: .85rem; cursor: pointer; user-select: none;
@@ -390,9 +392,14 @@
         <div class="settings-body">
           <label class="toggle-label"><input id="enabled" type="checkbox" /> 发布这个分类</label>
           <div class="field-grid field">
-            <label>显示名称<input id="label" /></label>
-            <label>Vault 目录<input id="root" list="vaultDirs" autocomplete="off" /></label>
-            <label>分类标识<input id="kind" /></label>
+             <label>显示名称<input id="label" /></label>
+             <label>Vault 目录
+               <div class="input-group">
+                 <input id="root" list="vaultDirs" autocomplete="off" />
+                 <button type="button" class="btn btn-sm" id="selectRootDirBtn" style="height: 36px; padding: 0 8px;" title="打开系统目录选择器">选择</button>
+               </div>
+             </label>
+             <label>分类标识<input id="kind" /></label>
           </div>
           <div class="field">
             <label>包含规则 (每行一个 glob)<textarea id="include"></textarea></label>
@@ -958,13 +965,33 @@
       $('logPane').classList.toggle('hidden', tab !== 'log');
     }
 
+    function selectFolderApi(onSelected) {
+      api('/api/select-folder', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      }).then(function(data) {
+        if (data.ok && data.relativePath !== undefined) {
+          onSelected(data.relativePath);
+        } else if (data.error) {
+          showToast(data.error, 'error');
+        }
+      }).catch(function(err) {
+        showToast('选择失败: ' + err.message, 'error');
+      });
+    }
+
     /* ── Add collection ── */
     function addCollectionModal() {
       showModal('新增分类', [
         '<div class="modal-form">',
-        '<label>显示名称 <input id="newLabel" placeholder="如：我的旅行日记" /></label>',
-        '<label>Vault 目录名 <input id="newRoot" list="vaultDirs" autocomplete="off" placeholder="如：旅行日记" /></label>',
-        '<label>分类标识 <input id="newKind" placeholder="如：travel" /></label>',
+        '  <label>显示名称 <input id="newLabel" placeholder="如：我的旅行日记" /></label>',
+        '  <label>Vault 目录名',
+        '    <div class="input-group">',
+        '      <input id="newRoot" list="vaultDirs" autocomplete="off" placeholder="如：旅行日记" />',
+        '      <button type="button" class="btn btn-sm" id="selectNewRootDirBtn" style="height: 36px; padding: 0 8px;">选择</button>',
+        '    </div>',
+        '  </label>',
+        '  <label>分类标识 <input id="newKind" placeholder="如：travel" /></label>',
         '</div>'
       ].join(''), function() {
         var label = document.getElementById('newLabel').value.trim();
@@ -983,6 +1010,15 @@
           showToast('分类「' + label + '」已创建', 'success');
         }).catch(function(err) { showToast('创建失败: ' + err.message, 'error'); });
       });
+
+      var btn = document.getElementById('selectNewRootDirBtn');
+      if (btn) {
+        btn.onclick = function() {
+          selectFolderApi(function(relativePath) {
+            document.getElementById('newRoot').value = relativePath;
+          });
+        };
+      }
     }
 
     /* ── Remove collection ── */
@@ -1027,6 +1063,13 @@
       $('syncBtn').onclick = syncPublish;
       $('addCollBtn').onclick = addCollectionModal;
       $('deleteCollBtn').onclick = removeCollectionModal;
+      $('selectRootDirBtn').onclick = function() {
+        selectFolderApi(function(relativePath) {
+          $('root').value = relativePath;
+          readFormToManifest();
+          render();
+        });
+      };
       $('searchInput').oninput = onSearchInput;
       $('selectAllBtn').onclick = function() { batchToggle('include'); };
       $('selectNoneBtn').onclick = function() { batchToggle('exclude'); };

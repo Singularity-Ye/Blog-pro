@@ -233,6 +233,63 @@ function removeCollection(index) {
   return manifest;
 }
 
+function selectFolder(defaultPath) {
+  return new Promise((resolve, reject) => {
+    const tempFile = path.join(__dirname, `.temp_select_${Date.now()}.ps1`);
+    const psScript = `
+Add-Type -AssemblyName System.Windows.Forms
+$f = New-Object System.Windows.Forms.FolderBrowserDialog
+$f.SelectedPath = "${defaultPath.replace(/\\/g, '\\\\')}"
+$f.Description = "请选择笔记目录 (必须在 Obsidian Vault 目录下)"
+$f.ShowNewFolderButton = $true
+$result = $f.ShowDialog()
+if ($result -eq [System.Windows.Forms.DialogResult]::OK) {
+    Write-Output $f.SelectedPath
+}
+`;
+    try {
+      fs.writeFileSync(tempFile, psScript, 'utf-8');
+    } catch (err) {
+      return reject(new Error('无法创建临时脚本: ' + err.message));
+    }
+
+    const child = spawn('powershell', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', tempFile], {
+      windowsHide: true
+    });
+
+    let stdout = '';
+    let stderr = '';
+
+    child.stdout.on('data', (chunk) => { stdout += chunk.toString(); });
+    child.stderr.on('data', (chunk) => { stderr += chunk.toString(); });
+
+    child.on('close', (code) => {
+      try {
+        if (fs.existsSync(tempFile)) {
+          fs.unlinkSync(tempFile);
+        }
+      } catch (e) {
+        console.error('删除临时脚本失败:', e);
+      }
+      if (code !== 0) {
+        reject(new Error(stderr || 'PowerShell 脚本运行出错，退出码: ' + code));
+      } else {
+        resolve(stdout.trim());
+      }
+    });
+
+    child.on('error', (err) => {
+      try {
+        if (fs.existsSync(tempFile)) {
+          fs.unlinkSync(tempFile);
+        }
+      } catch (e) {}
+      reject(err);
+    });
+  });
+}
+
+
 /* ── HTML SPA ──────────────────────────────────────────────── */
 
 const HTML_PATH = path.join(__dirname, 'publish-admin.html');
@@ -309,6 +366,34 @@ const server = http.createServer(async (req, res) => {
       send(res, 200, { dirs });
       return;
     }
+
+    if (req.method === 'POST' && url.pathname === '/api/select-folder') {
+      const manifest = readJson(MANIFEST_PATH);
+      const vaultRoot = path.resolve(manifest.vaultPath);
+      try {
+        const selectedPath = await selectFolder(vaultRoot);
+        if (!selectedPath) {
+          send(res, 200, { ok: false, error: '用户取消了选择' });
+          return;
+        }
+
+        const resolvedSelected = path.resolve(selectedPath);
+        if (!isPathWithin(vaultRoot, resolvedSelected)) {
+          send(res, 200, { ok: false, error: '选择的目录必须在 Obsidian Vault 目录内！' });
+          return;
+        }
+
+        let relPath = path.relative(vaultRoot, resolvedSelected);
+        relPath = normalizeRelPath(relPath);
+
+        send(res, 200, { ok: true, relativePath: relPath });
+      } catch (err) {
+        console.error('selectFolder error:', err);
+        send(res, 500, { error: '打开文件夹选择器失败: ' + err.message });
+      }
+      return;
+    }
+
 
     if (req.method === 'GET' && url.pathname === '/api/preview') {
       const collIdx = Number(url.searchParams.get('collection') || 0);
