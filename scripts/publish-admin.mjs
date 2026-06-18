@@ -66,6 +66,26 @@ function walkMarkdown(dir, base = '', excludedDirs = new Set()) {
   return results;
 }
 
+function walkDirs(dir, base = '', excludedDirs = new Set()) {
+  const results = [];
+  if (!fs.existsSync(dir)) return results;
+  try {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (entry.name.startsWith('.') || excludedDirs.has(entry.name) || ['node_modules', 'templates'].includes(entry.name)) {
+        continue;
+      }
+      if (entry.isDirectory()) {
+        const rel = base ? base + '/' + entry.name : entry.name;
+        results.push(rel);
+        results.push(...walkDirs(path.join(dir, entry.name), rel, excludedDirs));
+      }
+    }
+  } catch (err) {
+    console.error('walkDirs error on', dir, err);
+  }
+  return results;
+}
+
 function readBody(req) {
   return new Promise((resolve, reject) => {
     let body = '';
@@ -285,26 +305,7 @@ const server = http.createServer(async (req, res) => {
       const manifest = readJson(MANIFEST_PATH);
       const vpath = manifest.vaultPath;
       const excludeDirs = new Set(manifest.excludeDirs || []);
-      let dirs = [];
-      if (fs.existsSync(vpath)) {
-        const rootDirs = fs.readdirSync(vpath, { withFileTypes: true })
-          .filter(e => e.isDirectory() && !e.name.startsWith('.') && !['node_modules', 'templates'].includes(e.name) && !excludeDirs.has(e.name))
-          .map(e => e.name);
-        
-        for (const rdir of rootDirs) {
-          if (['系统性知识整理', '路边小项目'].includes(rdir)) {
-            const subpath = path.join(vpath, rdir);
-            if (fs.existsSync(subpath)) {
-              const subdirs = fs.readdirSync(subpath, { withFileTypes: true })
-                .filter(e => e.isDirectory() && !e.name.startsWith('.') && !excludeDirs.has(e.name))
-                .map(e => `${rdir}/${e.name}`);
-              dirs.push(...subdirs);
-            }
-          } else {
-            dirs.push(rdir);
-          }
-        }
-      }
+      const dirs = walkDirs(vpath, '', excludeDirs);
       send(res, 200, { dirs });
       return;
     }

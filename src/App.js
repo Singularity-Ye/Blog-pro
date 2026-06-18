@@ -1,6 +1,7 @@
-import React, { Suspense, lazy } from 'react';
+import React, { Suspense, lazy, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import GlobalStyle from './styles/GlobalStyle';
+import { scrollPositions } from './utils/scrollCache';
 
 // Landing page loads eagerly
 import Home from './pages/Home';
@@ -36,6 +37,43 @@ function AppRoutes() {
   // we mock the background location as '/atlas' so it always opens as a modal.
   const isGraphRoute = location.pathname === '/graph';
   const backgroundLocation = location.state?.backgroundLocation || (isGraphRoute ? { pathname: '/atlas' } : null);
+
+  // Set scrollRestoration to manual globally
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+  }, []);
+
+  // Listen to scroll events to record position under location.key
+  useEffect(() => {
+    const handleScroll = () => {
+      if (scrollPositions.isNoteLoading) return; // Ignore forced scrolls to 0 while Note page is loading/rendering
+      if (location.key) {
+        scrollPositions[location.key] = window.scrollY;
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [location.key]);
+
+  // Restore scroll position for non-note routes
+  useEffect(() => {
+    const isNoteRoute = location.pathname.startsWith('/note');
+    if (!isNoteRoute) {
+      const savedScroll = scrollPositions[location.key] || 0;
+      const timer = setTimeout(() => {
+        window.scrollTo({
+          top: savedScroll,
+          behavior: 'auto'
+        });
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [location.key, location.pathname]);
 
   return (
     <>

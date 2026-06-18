@@ -122,6 +122,16 @@
     },
     {
       "enabled": true,
+      "label": "计算机组成原理",
+      "root": "01_藏经阁（知识库）/格物院（课程与学科）/计算机组成原理",
+      "kind": "computer-organization",
+      "include": [
+        "**/*.md"
+      ],
+      "exclude": []
+    },
+    {
+      "enabled": true,
       "label": "内功心法",
       "root": "01_藏经阁（知识库）/思辨录（认知与方法论）",
       "kind": "internal-skills",

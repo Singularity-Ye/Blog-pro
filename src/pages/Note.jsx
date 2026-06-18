@@ -17,6 +17,7 @@ import remarkHtmlBreaks from '../utils/remarkHtmlBreaks';
 import { encodeNotePath, safeDecodeNotePath, toNoteHref } from '../utils/notePaths';
 import { normalizeMarkdownMath } from '../utils/markdownMath';
 import { MouseLeafDrift } from '../components/MouseEffects';
+import { scrollPositions } from '../utils/scrollCache';
 import noteReadingBgLight from '../assets/images/atlas/note-reading-light.png';
 import noteReadingBgDark from '../assets/images/atlas/note-reading-dark.png';
 const preprocessMarkdown = (text) => {
@@ -93,6 +94,7 @@ const METADATA_COLLECTIONS = [
   { slug: 'laohan-criticism', kind: 'laohan-criticism' },
   { slug: 'laotou-criticism', kind: 'laotou-criticism' },
   { slug: 'guanxin-pavilion', kind: 'guanxin-pavilion' },
+  { slug: 'computer-organization', kind: 'computer-organization' },
 ];
 
 const COLLECTION_LABELS = {
@@ -102,6 +104,7 @@ const COLLECTION_LABELS = {
   'compiler-theory': '天玄奥道 · 编译原理',
   'linux-notes': '天玄奥道 · Linux 笔记',
   embedded: '天玄奥道 · 嵌入式开发',
+  'computer-organization': '天玄奥道 · 计算机组成原理',
   'knowledge-grocery': '青灯闲情 · 知识杂货铺',
   'internal-skills': '太玄 · 认知札记',
   weaveink: '代号《织墨》(WeaveInk)',
@@ -322,6 +325,44 @@ const RelatedNotesTitle = styled.h3`
   letter-spacing: 0.06em;
   border-bottom: 1px dashed rgba(231, 199, 126, 0.2);
   padding-bottom: 0.6rem;
+`;
+
+const MobileFloatingBackButton = styled(motion.button)`
+  position: fixed;
+  right: 2.375rem; /* 与下方宽52px的传送门按钮中心点完美对齐 (38px) */
+  bottom: 6rem; /* 位于传送门按钮上方，留出12px的安全防误触空隙 */
+  z-index: 9998;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1.5px solid var(--glass-border);
+  background: var(--glass-bg);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--glass-shadow), inset 0 1px 0 rgba(255,255,255,0.1);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  outline: none;
+  transition: all 0.3s ease;
+
+  svg {
+    width: 18px;
+    height: 18px;
+    stroke-width: 2.5;
+  }
+
+  &:hover {
+    background: var(--button-hover-bg);
+    border-color: var(--glass-border-highlight);
+    transform: translateY(-2px);
+  }
+
+  @media (min-width: 901px) {
+    display: none; /* 仅在移动端展示 */
+  }
 `;
 
 const RelatedNotesList = styled.div`
@@ -2175,6 +2216,7 @@ export default function Note() {
   useEffect(() => {
     if (!decodedSlug) return;
     setLoading(true);
+    scrollPositions.isNoteLoading = true; // 锁定滚动记录，防止因页面高度塌陷覆盖已存的滚动高度
     setError(null);
 
     fetch(`/notes/${encodeNotePath(decodedSlug)}.md`)
@@ -2191,11 +2233,20 @@ export default function Note() {
         const fileName = decodedSlug.split('/').pop();
         setTitle(fmTitle?.[1] || h1Title?.[1] || fileName);
         setLoading(false);
+        // 延迟解锁，给滚动条滚动恢复留出时间
+        setTimeout(() => {
+          scrollPositions.isNoteLoading = false;
+        }, 100);
       })
       .catch(err => {
         setError(err.message);
         setLoading(false);
+        scrollPositions.isNoteLoading = false;
       });
+
+    return () => {
+      scrollPositions.isNoteLoading = false;
+    };
   }, [decodedSlug]);
 
   const parsedNote = useMemo(() => {
@@ -2287,6 +2338,20 @@ export default function Note() {
       if (frameId) window.cancelAnimationFrame(frameId);
     };
   }, [decodedSlug, loading, location.hash, parsedNote.body]);
+
+  // 恢复笔记页面历史滚动高度
+  useEffect(() => {
+    if (!loading && !location.hash) {
+      const savedScroll = scrollPositions[location.key] || 0;
+      const timer = setTimeout(() => {
+        window.scrollTo({
+          top: savedScroll,
+          behavior: 'auto'
+        });
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [loading, location.key, location.hash]);
 
   if (loading) {
     return (
@@ -2555,6 +2620,19 @@ export default function Note() {
           )}
         </StickySidebarContent>
       </NoteSidebar>
+      {isMobile && (
+        <MobileFloatingBackButton
+          type="button"
+          onClick={handleBackClick}
+          whileTap={{ scale: 0.9 }}
+          aria-label="返回上一页"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+        </MobileFloatingBackButton>
+      )}
     </NoteLayout>
   );
 }

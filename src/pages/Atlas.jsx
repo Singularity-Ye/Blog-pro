@@ -121,6 +121,15 @@ const METADATA_COLLECTIONS = [
     eyebrow: 'GUANXIN REFLECTION CHAMBER',
     description: '静室蒲团，面壁思过。此阁乃修士照见本性、拷问自我的绝对净土，剥离一切虚妄社交假象，直面“观己、观人、待人、待己”的心路暗流，在血淋淋的自我剖析与自省中，重建支离破碎的真我道心。',
     accent: '#10b981',
+  },
+  // 13. 计算机组成原理
+  {
+    slug: 'computer-organization',
+    kind: 'computer-organization',
+    title: '天玄奥道 · 计算机组成原理',
+    eyebrow: 'OCCULT AETHERIC METHODOLOGIES',
+    description: '探索计算机之精微构造与玄妙天规。剖析微处理器架构、总线契约、存储阵列与指令译码之演进细节，揭示数字电信号如何历经晶体管交织汇聚成天地万象之计算伟力。',
+    accent: '#cca362',
   }
 ];
 
