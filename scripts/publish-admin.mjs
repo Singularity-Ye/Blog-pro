@@ -238,22 +238,45 @@ function selectFolder(defaultPath) {
     const tempFile = path.join(__dirname, `.temp_select_${Date.now()}.ps1`);
     const psScript = `
 Add-Type -AssemblyName System.Windows.Forms
-$f = New-Object System.Windows.Forms.FolderBrowserDialog
-$f.SelectedPath = '${defaultPath.replace(/'/g, "''")}'
-$f.Description = "请选择笔记目录 (必须在 Obsidian Vault 目录下)"
-$f.ShowNewFolderButton = $true
+$Assembly = [System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms')
+$OpenFileDialog = New-Object System.Windows.Forms.OpenFileDialog
+
+$OpenFileDialog.AddExtension = $false
+$OpenFileDialog.CheckFileExists = $false
+$OpenFileDialog.DereferenceLinks = $true
+$OpenFileDialog.Filter = "Folders|\`n"
+$OpenFileDialog.Title = "请选择笔记目录 (必须在 Obsidian Vault 目录下)"
+$OpenFileDialog.InitialDirectory = '${defaultPath.replace(/'/g, "''")}'
+
+$OpenFileDialogType = $OpenFileDialog.GetType()
+$FileDialogInterfaceType = $Assembly.GetType('System.Windows.Forms.FileDialogNative+IFileDialog')
+$flags = [System.Reflection.BindingFlags]'NonPublic, Public, Static, Instance'
+
+$IFileDialog = $OpenFileDialogType.GetMethod('CreateVistaDialog', $flags).Invoke($OpenFileDialog, $null)
+$null = $OpenFileDialogType.GetMethod('OnBeforeVistaDialog', $flags).Invoke($OpenFileDialog, $IFileDialog)
+
+$FOS = $Assembly.GetType('System.Windows.Forms.FileDialogNative+FOS')
+$PickFoldersOption = $FOS.GetField('FOS_PICKFOLDERS', $flags).GetValue($null)
+
+$FolderOptions = $OpenFileDialogType.GetMethod('get_Options', $flags).Invoke($OpenFileDialog, $null) -bor $PickFoldersOption
+$null = $FileDialogInterfaceType.GetMethod('SetOptions', $flags).Invoke($IFileDialog, $FolderOptions)
+
 $dummy = New-Object System.Windows.Forms.Form
 $dummy.TopMost = $true
 $dummy.TopLevel = $true
-$result = $f.ShowDialog($dummy)
-if ($result -eq [System.Windows.Forms.DialogResult]::OK) {
-    Write-Output $f.SelectedPath
+
+$Result = $FileDialogInterfaceType.GetMethod('Show', $flags).Invoke($IFileDialog, $dummy.Handle)
+
+if ($Result -eq 0) {
+    $ResultItem = $FileDialogInterfaceType.GetMethod('GetResult', $flags).Invoke($IFileDialog, $null)
+    $Path = $ResultItem.GetType().GetMethod('GetDisplayName').Invoke($ResultItem, [System.Windows.Forms.FileDialogNative+SIGDN]::FILESYSPATH)
+    Write-Output $Path
 }
 $dummy.Dispose()
-$f.Dispose()
+$OpenFileDialog.Dispose()
 `;
     try {
-      fs.writeFileSync(tempFile, psScript, 'utf-8');
+      fs.writeFileSync(tempFile, '\ufeff' + psScript, 'utf-8');
     } catch (err) {
       return reject(new Error('无法创建临时脚本: ' + err.message));
     }
