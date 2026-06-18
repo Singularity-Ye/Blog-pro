@@ -8,9 +8,7 @@ import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
 import mermaid from 'mermaid';
 import styled from 'styled-components';
-import { motion } from 'framer-motion';
-import MiniGraph from '../components/GraphView/MiniGraph';
-import { filterGraphByLocal } from '../utils/graphFilters';
+import { motion, AnimatePresence } from 'framer-motion';
 import { parseFrontmatter } from '../utils/frontmatter';
 import { fetchGraphData } from '../utils/publishData';
 import remarkHtmlBreaks from '../utils/remarkHtmlBreaks';
@@ -96,22 +94,6 @@ const METADATA_COLLECTIONS = [
   { slug: 'guanxin-pavilion', kind: 'guanxin-pavilion' },
   { slug: 'computer-organization', kind: 'computer-organization' },
 ];
-
-const COLLECTION_LABELS = {
-  travel: '落沙行路 · 杭州旅游攻略',
-  project: '万象构筑 · 个人建站流程',
-  'blog-design': '松窗灵笈 · 个人博客构建',
-  'compiler-theory': '天玄奥道 · 编译原理',
-  'linux-notes': '天玄奥道 · Linux 笔记',
-  embedded: '天玄奥道 · 嵌入式开发',
-  'computer-organization': '天玄奥道 · 计算机组成原理',
-  'knowledge-grocery': '青灯闲情 · 知识杂货铺',
-  'internal-skills': '太玄 · 认知札记',
-  weaveink: '代号《织墨》(WeaveInk)',
-  'laohan-criticism': '老韩宇宙',
-  'laotou-criticism': '老头宇宙',
-  'guanxin-pavilion': '观心阁',
-};
 
 export function parseElegantTitle(title) {
   if (!title) return { mainText: '', subText: null };
@@ -2450,6 +2432,8 @@ export default function Note() {
   const [bgOffset, setBgOffset] = useState(0);
   const lastScrollY = useRef(0);
 
+  const { mainText, subText } = useMemo(() => parseElegantTitle(title), [title]);
+
   const [theme, setTheme] = useState(() => {
     const saved = localStorage.getItem('atlas-theme');
     if (saved) return saved;
@@ -2525,7 +2509,7 @@ export default function Note() {
     [decodedSlug, graphData]
   );
 
-  const handleBackClick = () => {
+  const handleBackClick = useCallback(() => {
     const fromBlog = location.state?.fromBlog;
     const blogState = location.state?.blogState;
     if (fromBlog && blogState) {
@@ -2547,7 +2531,7 @@ export default function Note() {
     } else {
       navigate(-1);
     }
-  };
+  }, [location, navigate, currentNode]);
 
   // 加载笔记内容
   useEffect(() => {
@@ -2634,35 +2618,25 @@ export default function Note() {
   const touchStartX = useRef(0);
   const touchStartY = useRef(0);
 
-  useEffect(() => {
+  const handleTouchStart = useCallback((e) => {
     if (!isMobile) return;
-
-    const handleTouchStart = (e) => {
-      touchStartX.current = e.touches[0].clientX;
-      touchStartY.current = e.touches[0].clientY;
-    };
-
-    const handleTouchEnd = (e) => {
-      const diffX = e.changedTouches[0].clientX - touchStartX.current;
-      const diffY = e.changedTouches[0].clientY - touchStartY.current;
-
-      if (diffX > 100 && Math.abs(diffY) < 40) {
-        const isInteractive = e.target.closest('pre, code, table, canvas, svg, button, a, input, select, textarea');
-        if (!isInteractive) {
-          triggerVibration(10);
-          handleBackClick();
-        }
-      }
-    };
-
-    window.addEventListener('touchstart', handleTouchStart, { passive: true });
-    window.addEventListener('touchend', handleTouchEnd, { passive: true });
-
-    return () => {
-      window.removeEventListener('touchstart', handleTouchStart);
-      window.removeEventListener('touchend', handleTouchEnd);
-    };
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
   }, [isMobile]);
+
+  const handleTouchEnd = useCallback((e) => {
+    if (!isMobile) return;
+    const diffX = e.changedTouches[0].clientX - touchStartX.current;
+    const diffY = e.changedTouches[0].clientY - touchStartY.current;
+
+    if (diffX > 100 && Math.abs(diffY) < 40) {
+      const isInteractive = e.target.closest('pre, code, table, canvas, svg, button, a, input, select, textarea');
+      if (!isInteractive) {
+        triggerVibration(10);
+        handleBackClick();
+      }
+    }
+  }, [isMobile, handleBackClick]);
 
   // 双链在移动端的防误触摘要卡片点击事件
   const handleWikiLinkClick = useCallback(async (href, label) => {
@@ -2680,7 +2654,7 @@ export default function Note() {
         const { body } = parseFrontmatter(text);
         const cleanBody = body
           .replace(/---\n[\s\S]*?\n---\n/g, '')
-          .replace(/[#>\*\`\[\]\(\)]/g, '')
+          .replace(/[#>*`[\]()]/g, '')
           .trim()
           .slice(0, 180);
         setPreviewContent(cleanBody + (body.length > 180 ? '...' : ''));
@@ -2712,10 +2686,6 @@ export default function Note() {
     return { body, properties: buildProperties(data) };
   }, [markdown]);
   const headings = useMemo(() => extractHeadings(parsedNote.body), [parsedNote.body]);
-  const localGraphData = useMemo(
-    () => (!isMobile && graphData ? filterGraphByLocal(graphData, decodedSlug) : null),
-    [decodedSlug, graphData, isMobile]
-  );
   const relatedNotes = useMemo(() => {
     if (!isMobile || !graphData || !decodedSlug) return [];
     
