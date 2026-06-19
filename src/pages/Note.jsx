@@ -272,6 +272,13 @@ const ImageZoomModal = ({ src, alt, onClose, theme }) => {
     const newX = mouseX - (mouseX - currentPosition.x) * (newScale / currentScale);
     const newY = mouseY - (mouseY - currentPosition.y) * (newScale / currentScale);
     updateScaleAndPosition(newScale, { x: newX, y: newY });
+
+    if (isDraggingRef.current) {
+      dragStart.current = {
+        x: e.clientX - newX,
+        y: e.clientY - newY
+      };
+    }
   }, []);
 
   useEffect(() => {
@@ -481,12 +488,18 @@ const LifestyleGallery = ({ images, theme }) => {
     setActiveIndex(idx);
   }, []);
 
-  const onMouseDown = () => {
+  const dragStartPosRef = useRef({ x: 0, y: 0 });
+
+  const onMouseDown = (e) => {
     clickTimeRef.current = Date.now();
+    dragStartPosRef.current = { x: e.clientX, y: e.clientY };
   };
 
-  const onMouseUp = () => {
-    if (Date.now() - clickTimeRef.current < 200) {
+  const onMouseUp = (e) => {
+    const dx = e.clientX - dragStartPosRef.current.x;
+    const dy = e.clientY - dragStartPosRef.current.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (Date.now() - clickTimeRef.current < 200 && dist < 6) {
       setIsZoomed(true);
     }
   };
