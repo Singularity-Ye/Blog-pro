@@ -41,6 +41,8 @@
     "publish-notes": "node scripts/build-graph.mjs",
     "publish-admin": "node scripts/publish-admin.mjs",
     "build-graph": "node scripts/build-graph.mjs",
+    "fix-links": "node scripts/fix-links.mjs",
+    "scan-links": "node scripts/scan-links.mjs",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
