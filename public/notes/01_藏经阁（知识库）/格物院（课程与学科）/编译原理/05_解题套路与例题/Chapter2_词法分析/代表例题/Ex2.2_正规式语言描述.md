@@ -68,17 +68,17 @@ created: 2026-06-12
 ### 1. 原题与标准答案 (扁平图片 - 纵向排布)
 
 **原题内容 Ex2.2**
-<img src="../原题图片/Ex2.2_正规式语言描述_原题_01.png" alt="原题内容" width="650">
+<img src="/notes/attachments/01_%E8%97%8F%E7%BB%8F%E9%98%81%EF%BC%88%E7%9F%A5%E8%AF%86%E5%BA%93%EF%BC%89/%E6%A0%BC%E7%89%A9%E9%99%A2%EF%BC%88%E8%AF%BE%E7%A8%8B%E4%B8%8E%E5%AD%A6%E7%A7%91%EF%BC%89/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86/05_%E8%A7%A3%E9%A2%98%E5%A5%97%E8%B7%AF%E4%B8%8E%E4%BE%8B%E9%A2%98/Chapter2_%E8%AF%8D%E6%B3%95%E5%88%86%E6%9E%90/%E5%8E%9F%E9%A2%98%E5%9B%BE%E7%89%87/Ex2.2_%E6%AD%A3%E8%A7%84%E5%BC%8F%E8%AF%AD%E8%A8%80%E6%8F%8F%E8%BF%B0_%E5%8E%9F%E9%A2%98_01.png" alt="原题内容" width="650">
 
 **官方标准答案**
-<img src="../原题图片/Ex2.2_正规式语言描述_标准答案_01.png" alt="官方标准答案" width="650">
+<img src="/notes/attachments/01_%E8%97%8F%E7%BB%8F%E9%98%81%EF%BC%88%E7%9F%A5%E8%AF%86%E5%BA%93%EF%BC%89/%E6%A0%BC%E7%89%A9%E9%99%A2%EF%BC%88%E8%AF%BE%E7%A8%8B%E4%B8%8E%E5%AD%A6%E7%A7%91%EF%BC%89/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86/05_%E8%A7%A3%E9%A2%98%E5%A5%97%E8%B7%AF%E4%B8%8E%E4%BE%8B%E9%A2%98/Chapter2_%E8%AF%8D%E6%B3%95%E5%88%86%E6%9E%90/%E5%8E%9F%E9%A2%98%E5%9B%BE%E7%89%87/Ex2.2_%E6%AD%A3%E8%A7%84%E5%BC%8F%E8%AF%AD%E8%A8%80%E6%8F%8F%E8%BF%B0_%E6%A0%87%E5%87%86%E7%AD%94%E6%A1%88_01.png" alt="官方标准答案" width="650">
 
 ---
 
 ### 2. 学生作答手稿 (纵向放大排布)
 
 **我的解答手稿**
-<img src="../我的答案图片/Ex2.2_正规式语言描述_我的答案_01.png" alt="我的解答" width="600">
+<img src="/notes/attachments/01_%E8%97%8F%E7%BB%8F%E9%98%81%EF%BC%88%E7%9F%A5%E8%AF%86%E5%BA%93%EF%BC%89/%E6%A0%BC%E7%89%A9%E9%99%A2%EF%BC%88%E8%AF%BE%E7%A8%8B%E4%B8%8E%E5%AD%A6%E7%A7%91%EF%BC%89/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86/05_%E8%A7%A3%E9%A2%98%E5%A5%97%E8%B7%AF%E4%B8%8E%E4%BE%8B%E9%A2%98/Chapter2_%E8%AF%8D%E6%B3%95%E5%88%86%E6%9E%90/%E6%88%91%E7%9A%84%E7%AD%94%E6%A1%88%E5%9B%BE%E7%89%87/Ex2.2_%E6%AD%A3%E8%A7%84%E5%BC%8F%E8%AF%AD%E8%A8%80%E6%8F%8F%E8%BF%B0_%E6%88%91%E7%9A%84%E7%AD%94%E6%A1%88_01.png" alt="我的解答" width="600">
 
 ---
 

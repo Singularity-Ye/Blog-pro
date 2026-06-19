@@ -197,6 +197,16 @@
         "01_观己/自我实验/少观察，多参与实验.md",
         "01_观己/自我实验/自我实验_索引.md"
       ]
+    },
+    {
+      "enabled": true,
+      "label": "美食与探店",
+      "root": "03_生活簿（生活区）/食味录（美食与探店）",
+      "kind": "food",
+      "include": [
+        "**/*.md"
+      ],
+      "exclude": []
     }
   ],
   "publicFrontmatterFields": [

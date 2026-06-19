@@ -421,6 +421,23 @@ function processMarkdownImages(content, fileRecord, imageList) {
     }
   });
 
+  // 3. Process HTML img tags: <img ... src="url" ...>
+  const htmlImgRegex = /<img\s+([^>]*?)src=["']([^"']+)["']([^>]*?)>/gi;
+  newContent = newContent.replace(htmlImgRegex, (match, beforeSrc, imgUrl, afterSrc) => {
+    if (imgUrl.startsWith('http://') || imgUrl.startsWith('https://') || imgUrl.startsWith('/')) {
+      return match;
+    }
+    const resolved = resolveImage(imgUrl, fileRecord, imageList);
+    if (resolved) {
+      copyAttachment(resolved.full, resolved.rel);
+      const destUrl = encodeURI(`/notes/attachments/${resolved.rel}`);
+      return `<img ${beforeSrc}src="${destUrl}"${afterSrc}>`;
+    } else {
+      console.warn(`[Image Sync] Cannot resolve HTML image: "${imgUrl}" in "${fileRecord.slug}"`);
+      return match;
+    }
+  });
+
   return newContent;
 }
 

@@ -5,6 +5,8 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
+import rehypeRaw from 'rehype-raw';
+import ImageCarousel from '../components/ImageCarousel';
 import 'katex/dist/katex.min.css';
 import mermaid from 'mermaid';
 import styled from 'styled-components';
@@ -2895,8 +2897,25 @@ export default function Note() {
         <MarkdownBody $theme={theme}>
           <ReactMarkdown
             remarkPlugins={[remarkGfm, remarkMath, remarkHtmlBreaks, [remarkWikilinks, { resolve: wikilinkResolver }]]}
-            rehypePlugins={[rehypeKatex]}
+            rehypePlugins={[rehypeKatex, rehypeRaw]}
             components={{
+              div: ({node, className, children, ...props}) => {
+                if (className === 'obsidian-carousel') {
+                  const images = [];
+                  const extractImages = (childrenArray) => {
+                    React.Children.forEach(childrenArray, child => {
+                      if (child && child.type === 'img') {
+                        images.push({ src: child.props.src, alt: child.props.alt });
+                      } else if (child && child.props && child.props.children) {
+                        extractImages(child.props.children);
+                      }
+                    });
+                  };
+                  extractImages(children);
+                  return <ImageCarousel images={images} />;
+                }
+                return <div className={className} {...props}>{children}</div>;
+              },
               table: ({children, ...props}) => (
                 <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', margin: '1rem 0' }}>
                   <table {...props}>{children}</table>

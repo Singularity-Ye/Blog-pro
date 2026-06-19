@@ -159,7 +159,7 @@ pi@raspberrypi:~ $
 系统信息：`Linux raspberrypi 5.10.63-v7+ armv7l`
 
 > 📸 **截图 1 在此**：SSH 窗口可见 `pi@raspberrypi:~ $` 和系统信息。
-> ![Pasted image 20260524233212.png](/notes/attachments/04_%E5%9B%BE%E5%BA%93/%E6%96%87%E7%AB%A0%E9%85%8D%E5%9B%BE/Pasted%20image%2020260524233212.png)
+> ![Pasted image 20260524233212.png](/notes/attachments/attachments/01_%E8%97%8F%E7%BB%8F%E9%98%81%EF%BC%88%E7%9F%A5%E8%AF%86%E5%BA%93%EF%BC%89/%E6%A0%BC%E7%89%A9%E9%99%A2%EF%BC%88%E8%AF%BE%E7%A8%8B%E4%B8%8E%E5%AD%A6%E7%A7%91%EF%BC%89/%E5%B5%8C%E5%85%A5%E5%BC%8F/Pasted%20image%2020260524233212.png)
 
 ---
 
@@ -215,7 +215,7 @@ VNC Viewer 窗口中显示树莓派桌面。
 > 📸 **截图 2 在此**：VNC Viewer 窗口内为完整树莓派桌面。
 
 
-![Pasted image 20260524233312.png](/notes/attachments/04_%E5%9B%BE%E5%BA%93/%E6%96%87%E7%AB%A0%E9%85%8D%E5%9B%BE/Pasted%20image%2020260524233312.png)
+![Pasted image 20260524233312.png](/notes/attachments/attachments/01_%E8%97%8F%E7%BB%8F%E9%98%81%EF%BC%88%E7%9F%A5%E8%AF%86%E5%BA%93%EF%BC%89/%E6%A0%BC%E7%89%A9%E9%99%A2%EF%BC%88%E8%AF%BE%E7%A8%8B%E4%B8%8E%E5%AD%A6%E7%A7%91%EF%BC%89/%E5%B5%8C%E5%85%A5%E5%BC%8F/Pasted%20image%2020260524233312.png)
 ---
 
 ## 八、问题清单

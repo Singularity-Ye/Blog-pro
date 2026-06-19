@@ -74,7 +74,7 @@ Bison 语法 / 自底向上语义计算 / 二叉搜索树 BST 判定 / 属性语
 
 | 我的解答 | 标准答案 |
 | :---: | :---: |
-| <img src="../我的答案图片/Ch6_属性文法_二叉搜索树有序性判定_我的答案_01.png" alt="我的解答" width="450"> | <img src="../原题图片/Ch6_属性文法_二叉搜索树有序性判定_标准答案_01.png" alt="标准答案" width="450"> |
+| <img src="/notes/attachments/01_%E8%97%8F%E7%BB%8F%E9%98%81%EF%BC%88%E7%9F%A5%E8%AF%86%E5%BA%93%EF%BC%89/%E6%A0%BC%E7%89%A9%E9%99%A2%EF%BC%88%E8%AF%BE%E7%A8%8B%E4%B8%8E%E5%AD%A6%E7%A7%91%EF%BC%89/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86/05_%E8%A7%A3%E9%A2%98%E5%A5%97%E8%B7%AF%E4%B8%8E%E4%BE%8B%E9%A2%98/Chapter6_%E8%AF%AD%E4%B9%89%E5%88%86%E6%9E%90/%E6%88%91%E7%9A%84%E7%AD%94%E6%A1%88%E5%9B%BE%E7%89%87/Ch6_%E5%B1%9E%E6%80%A7%E6%96%87%E6%B3%95_%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E6%9C%89%E5%BA%8F%E6%80%A7%E5%88%A4%E5%AE%9A_%E6%88%91%E7%9A%84%E7%AD%94%E6%A1%88_01.png" alt="我的解答" width="450"> | <img src="/notes/attachments/01_%E8%97%8F%E7%BB%8F%E9%98%81%EF%BC%88%E7%9F%A5%E8%AF%86%E5%BA%93%EF%BC%89/%E6%A0%BC%E7%89%A9%E9%99%A2%EF%BC%88%E8%AF%BE%E7%A8%8B%E4%B8%8E%E5%AD%A6%E7%A7%91%EF%BC%89/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86/05_%E8%A7%A3%E9%A2%98%E5%A5%97%E8%B7%AF%E4%B8%8E%E4%BE%8B%E9%A2%98/Chapter6_%E8%AF%AD%E4%B9%89%E5%88%86%E6%9E%90/%E5%8E%9F%E9%A2%98%E5%9B%BE%E7%89%87/Ch6_%E5%B1%9E%E6%80%A7%E6%96%87%E6%B3%95_%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E6%9C%89%E5%BA%8F%E6%80%A7%E5%88%A4%E5%AE%9A_%E6%A0%87%E5%87%86%E7%AD%94%E6%A1%88_01.png" alt="标准答案" width="450"> |
 
 ---
 
