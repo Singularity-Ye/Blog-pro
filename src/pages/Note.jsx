@@ -21,9 +21,17 @@ import { MouseLeafDrift } from '../components/MouseEffects';
 import { scrollPositions } from '../utils/scrollCache';
 import noteReadingBgLight from '../assets/images/atlas/note-reading-light.png';
 import noteReadingBgDark from '../assets/images/atlas/note-reading-dark.png';
-const preprocessMarkdown = (text) => {
+const normalizeComparePath = (p) => {
+  return String(p || '')
+    .toLowerCase()
+    .replace(/\s+/g, '')
+    .replace(/[（(]/g, '(')
+    .replace(/[）)]/g, ')');
+};
+
+const preprocessMarkdown = (text, isLifestyle = false) => {
   if (!text) return text;
-  return normalizeMarkdownMath(text)
+  let processed = normalizeMarkdownMath(text)
     .replace(/\*\*([^*\s](?:(?:[^*]|\*[^*])*?[^*\s])?)\*\*/g, (match, content, offset, fullText) => {
       const charBefore = offset > 0 ? fullText[offset - 1] : '';
       const charAfter = offset + match.length < fullText.length ? fullText[offset + match.length] : '';
@@ -41,6 +49,50 @@ const preprocessMarkdown = (text) => {
       
       return `${prefix}**${content}**${suffix}`;
     });
+
+  if (isLifestyle) {
+    // Look for headings like ## 🖼️ 图集手札, ## 图集手札, ## 🖼️ 图集, etc.
+    const gallerySectionRegex = /(^|\n)(#{2,3}\s+(?:🖼️\s*)?(?:图集|现场|图录|探店)(?:手札|图集|照片)?)\s*\n([\s\S]*?)(?=\n#{2,3}\s|\n---|$)/g;
+    
+    processed = processed.replace(gallerySectionRegex, (match, beforeHeading, heading, content) => {
+      if (content.includes('class="obsidian-carousel"') || content.includes('className="obsidian-carousel"')) {
+        return match;
+      }
+
+      // Find all markdown images in this section content
+      const imgRegex = /!\[([^\]]*)\]\(([^)]+)\)/g;
+      const images = [];
+      let imgMatch;
+      while ((imgMatch = imgRegex.exec(content)) !== null) {
+        images.push({
+          full: imgMatch[0],
+          alt: imgMatch[1],
+          url: imgMatch[2]
+        });
+      }
+
+      if (images.length >= 2) {
+        // Build the carousel HTML
+        const carouselHtml = [
+          '<div class="obsidian-carousel" style="display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 8px; width: 100%; max-width: 480px; margin: 15px auto; padding-bottom: 8px; -webkit-overflow-scrolling: touch;">',
+          ...images.map(img => `  <div style="flex: 0 0 100%; scroll-snap-align: start; box-sizing: border-box; border-radius: 12px; overflow: hidden; border: 1px solid var(--background-modifier-border);">\n    <img src="${img.url}" alt="${img.alt || '滑动查看'}" style="width: 100%; height: 320px; object-fit: cover; display: block;" />\n  </div>`),
+          '</div>',
+          '<div style="text-align: center; font-size: 0.85em; color: var(--text-muted); margin-top: -5px; margin-bottom: 15px;">💡 左右滑动或使用滚轮查看更多图片</div>'
+        ].join('\n');
+
+        let cleanContent = content;
+        images.forEach(img => {
+          cleanContent = cleanContent.replace(img.full, '');
+        });
+
+        return `${beforeHeading}${heading}\n\n${carouselHtml}\n\n${cleanContent}`;
+      }
+
+      return match;
+    });
+  }
+
+  return processed;
 };
 
 // Helper to recursively replace <br> / <br/> / <br /> strings with React <br /> components
@@ -142,6 +194,392 @@ export function parseElegantTitle(title) {
     subText: null
   };
 }
+
+const ImageZoomModal = ({ src, alt, onClose, theme }) => {
+  const isDark = theme === 'dark';
+  const viewportRef = useRef(null);
+  const [scale, setScale] = useState(1);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStart = useRef({ x: 0, y: 0 });
+  
+  const scaleRef = useRef(scale);
+  const positionRef = useRef(position);
+  const isDraggingRef = useRef(false);
+
+  const updateScaleAndPosition = (newScale, newPos) => {
+    scaleRef.current = newScale;
+    positionRef.current = newPos;
+    setScale(newScale);
+    setPosition(newPos);
+  };
+
+  const resetZoom = () => {
+    if (!viewportRef.current) return;
+    const rect = viewportRef.current.getBoundingClientRect();
+    updateScaleAndPosition(1, { x: (rect.width - 800) / 2, y: (rect.height - 550) / 2 });
+  };
+
+  useEffect(() => {
+    setTimeout(() => {
+      if (viewportRef.current) {
+        const rect = viewportRef.current.getBoundingClientRect();
+        const imgW = Math.min(800, rect.width * 0.85);
+        const imgH = Math.min(550, rect.height * 0.75);
+        updateScaleAndPosition(1, { x: (rect.width - imgW) / 2, y: (rect.height - imgH) / 2 });
+      }
+    }, 50);
+  }, []);
+
+  const zoomIn = () => {
+    if (!viewportRef.current) return;
+    const rect = viewportRef.current.getBoundingClientRect();
+    const midX = rect.width / 2;
+    const midY = rect.height / 2;
+    const currentScale = scaleRef.current;
+    const currentPosition = positionRef.current;
+    const newScale = Math.min(currentScale * 1.3, 15);
+    const newX = midX - (midX - currentPosition.x) * (newScale / currentScale);
+    const newY = midY - (midY - currentPosition.y) * (newScale / currentScale);
+    updateScaleAndPosition(newScale, { x: newX, y: newY });
+  };
+
+  const zoomOut = () => {
+    if (!viewportRef.current) return;
+    const rect = viewportRef.current.getBoundingClientRect();
+    const midX = rect.width / 2;
+    const midY = rect.height / 2;
+    const currentScale = scaleRef.current;
+    const currentPosition = positionRef.current;
+    const newScale = Math.max(currentScale / 1.3, 0.15);
+    const newX = midX - (midX - currentPosition.x) * (newScale / currentScale);
+    const newY = midY - (midY - currentPosition.y) * (newScale / currentScale);
+    updateScaleAndPosition(newScale, { x: newX, y: newY });
+  };
+
+  const handleWheel = useCallback((e) => {
+    e.preventDefault();
+    if (!viewportRef.current) return;
+    const rect = viewportRef.current.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    const zoomFactor = 1.15;
+    const isZoomIn = e.deltaY < 0;
+    const currentScale = scaleRef.current;
+    const currentPosition = positionRef.current;
+    let newScale = isZoomIn ? currentScale * zoomFactor : currentScale / zoomFactor;
+    newScale = Math.min(Math.max(newScale, 0.15), 15);
+    const newX = mouseX - (mouseX - currentPosition.x) * (newScale / currentScale);
+    const newY = mouseY - (mouseY - currentPosition.y) * (newScale / currentScale);
+    updateScaleAndPosition(newScale, { x: newX, y: newY });
+  }, []);
+
+  useEffect(() => {
+    const viewport = viewportRef.current;
+    if (viewport) {
+      viewport.addEventListener('wheel', handleWheel, { passive: false });
+    }
+    return () => {
+      if (viewport) viewport.removeEventListener('wheel', handleWheel);
+    };
+  }, [handleWheel]);
+
+  const handleMouseDown = (e) => {
+    if (e.button !== 0) return;
+    e.preventDefault();
+    setIsDragging(true);
+    isDraggingRef.current = true;
+    const currentPosition = positionRef.current;
+    dragStart.current = { x: e.clientX - currentPosition.x, y: e.clientY - currentPosition.y };
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isDraggingRef.current) return;
+    e.preventDefault();
+    const newX = e.clientX - dragStart.current.x;
+    const newY = e.clientY - dragStart.current.y;
+    updateScaleAndPosition(scaleRef.current, { x: newX, y: newY });
+  };
+
+  const handleMouseUpOrLeave = () => {
+    setIsDragging(false);
+    isDraggingRef.current = false;
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
+  const focusStyle = {
+    position: 'fixed',
+    inset: 0,
+    zIndex: 10005,
+    background: isDark ? 'rgba(8, 10, 12, 0.86)' : 'rgba(255, 250, 240, 0.9)',
+    backdropFilter: 'blur(25px)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    boxSizing: 'border-box',
+    overflow: 'hidden'
+  };
+
+  return createPortal(
+    <div style={focusStyle} role="dialog" aria-modal="true" aria-label="图片放大聚焦查看">
+      <div
+        ref={viewportRef}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUpOrLeave}
+        onMouseLeave={handleMouseUpOrLeave}
+        onDoubleClick={resetZoom}
+        style={{
+          width: '100%',
+          height: '100%',
+          position: 'relative',
+          overflow: 'hidden',
+          cursor: isDragging ? 'grabbing' : 'grab',
+          userSelect: 'none',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}
+      >
+        <div
+          style={{
+            transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
+            transformOrigin: '0 0',
+            transition: isDragging ? 'none' : 'transform 0.12s cubic-bezier(0.25, 1, 0.5, 1)',
+            maxWidth: '85vw',
+            maxHeight: '75vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <img
+            src={src}
+            alt={alt}
+            style={{
+              maxWidth: '800px',
+              maxHeight: '550px',
+              width: 'auto',
+              height: 'auto',
+              objectFit: 'contain',
+              borderRadius: '8px',
+              boxShadow: '0 12px 48px rgba(0,0,0,0.3)',
+              border: '1.5px solid var(--glass-border)',
+              pointerEvents: 'none'
+            }}
+          />
+        </div>
+      </div>
+
+      <div className="mermaid-focus-control-bar" style={{ zIndex: 10006 }}>
+        <button type="button" onClick={zoomOut} className="mermaid-focus-control-btn" style={{ fontSize: '17px', background: 'none', border: 'none', cursor: 'pointer', opacity: 0.8, color: 'inherit' }} title="缩小">
+          −
+        </button>
+        <span style={{ minWidth: '52px', textAlign: 'center', fontWeight: '600', letterSpacing: '0.02em', fontSize: '13px' }}>
+          {Math.round(scale * 100)}%
+        </span>
+        <button type="button" onClick={zoomIn} className="mermaid-focus-control-btn" style={{ fontSize: '17px', background: 'none', border: 'none', cursor: 'pointer', opacity: 0.8, color: 'inherit' }} title="放大">
+          +
+        </button>
+        <div style={{ width: '1px', height: '16px', background: 'rgba(231, 199, 126, 0.2)' }} />
+        <button type="button" onClick={resetZoom} className="mermaid-focus-control-btn" style={{ fontSize: '17px', background: 'none', border: 'none', cursor: 'pointer', opacity: 0.8, color: 'inherit' }} title="适应屏幕 (双击重置)">
+          ⛶
+        </button>
+        <div style={{ width: '1px', height: '16px', background: 'rgba(231, 199, 126, 0.2)' }} />
+        <span style={{ opacity: 0.6, fontSize: '11px', whiteSpace: 'nowrap' }}>
+          滚轮缩放 | 拖拽移动
+        </span>
+      </div>
+
+      <button
+        type="button"
+        style={{
+          position: 'absolute',
+          top: '24px',
+          right: '24px',
+          zIndex: 10007,
+          width: '44px',
+          height: '44px',
+          borderRadius: '50%',
+          border: '1px solid var(--glass-border)',
+          background: isDark ? 'rgba(15, 18, 22, 0.9)' : 'rgba(255, 250, 240, 0.95)',
+          color: 'inherit',
+          cursor: 'pointer',
+          fontSize: '24px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)',
+          outline: 'none'
+        }}
+        title="关闭 (Esc)"
+        onClick={onClose}
+      >
+        ×
+      </button>
+    </div>,
+    document.body
+  );
+};
+
+const ZoomableMarkdownImage = ({ src, alt, style, theme, ...props }) => {
+  const [isZoomed, setIsZoomed] = useState(false);
+  return (
+    <>
+      <img
+        src={src}
+        alt={alt}
+        style={{ ...style, cursor: 'zoom-in' }}
+        onClick={() => setIsZoomed(true)}
+        {...props}
+      />
+      {isZoomed && (
+        <ImageZoomModal
+          src={src}
+          alt={alt}
+          onClose={() => setIsZoomed(false)}
+          theme={theme}
+        />
+      )}
+    </>
+  );
+};
+
+const LifestyleGallery = ({ images, theme }) => {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [isZoomed, setIsZoomed] = useState(false);
+  const clickTimeRef = useRef(0);
+
+  const galleryItems = useMemo(() => {
+    return images.map(img => {
+      const parts = (img.alt || '').split('|');
+      return {
+        image: img.src,
+        text: parts[0]?.trim() || '图集图片',
+        description: parts[1]?.trim() || ''
+      };
+    });
+  }, [images]);
+
+  const activeImage = useMemo(() => {
+    return galleryItems[activeIndex % galleryItems.length];
+  }, [galleryItems, activeIndex]);
+
+  const activeDescription = useMemo(() => {
+    return activeImage ? activeImage.description : '';
+  }, [activeImage]);
+
+  const handleActiveIndexChange = useCallback((idx) => {
+    setActiveIndex(idx);
+  }, []);
+
+  const onMouseDown = () => {
+    clickTimeRef.current = Date.now();
+  };
+
+  const onMouseUp = () => {
+    if (Date.now() - clickTimeRef.current < 200) {
+      setIsZoomed(true);
+    }
+  };
+
+  return (
+    <div style={{ margin: '2.5rem 0', display: 'flex', flexDirection: 'column', gap: '1.2rem', width: '100%', alignItems: 'center' }}>
+      <div 
+        style={{ height: '380px', position: 'relative', width: '100%', overflow: 'hidden', borderRadius: '16px', cursor: 'zoom-in' }}
+        onMouseDown={onMouseDown}
+        onMouseUp={onMouseUp}
+      >
+        <CircularGallery 
+          items={galleryItems} 
+          bend={1.2} 
+          textColor={theme === 'light' ? '#4a2d1b' : '#ffe197'} 
+          onActiveIndexChange={handleActiveIndexChange}
+        />
+      </div>
+      <div style={{ minHeight: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+        <AnimatePresence mode="wait">
+          {activeDescription ? (
+            <motion.div 
+              key={activeIndex}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.25, ease: 'easeOut' }}
+              style={{
+                textAlign: 'left',
+                fontSize: '0.92rem',
+                color: 'var(--text-primary)',
+                background: 'var(--glass-bg-alt)',
+                border: '1px solid var(--glass-border)',
+                padding: '0.6rem 1.2rem',
+                borderRadius: '8px',
+                maxWidth: '600px',
+                backdropFilter: 'blur(8px)',
+                boxShadow: 'var(--glass-shadow)',
+                fontStyle: 'italic',
+                lineHeight: '1.5',
+                borderLeft: '4px solid var(--text-accent)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '1rem'
+              }}
+            >
+              <div style={{ flex: 1 }}>{activeDescription}</div>
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); setIsZoomed(true); }}
+                style={{
+                  background: 'rgba(231, 199, 126, 0.15)',
+                  border: '1px solid var(--glass-border)',
+                  borderRadius: '4px',
+                  color: 'var(--text-accent)',
+                  padding: '2px 8px',
+                  fontSize: '0.78rem',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap',
+                  outline: 'none'
+                }}
+              >
+                🔍 放大
+              </button>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="empty"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.4 }}
+              style={{
+                fontSize: '0.85rem',
+                color: 'var(--text-muted)',
+                fontStyle: 'italic'
+              }}
+            >
+              左右拖动或滚动滑轮查看图片详情，点击可放大查看
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {isZoomed && activeImage && (
+        <ImageZoomModal
+          src={activeImage.image}
+          alt={activeImage.text}
+          onClose={() => setIsZoomed(false)}
+          theme={theme}
+        />
+      )}
+    </div>
+  );
+};
 
 // ── 样式 ──────────────────────────────────────────────────────
 
@@ -1424,11 +1862,12 @@ function chooseWikilinkCandidate(candidates, sourceSlug, sourceCollectionRoot) {
   const unique = [...new Set(candidates.filter(Boolean))];
   if (unique.length <= 1) return { slug: unique[0] || null, status: unique[0] ? 'resolved' : 'unresolved' };
 
-  const sourceDir = sourceSlug.split('/').slice(0, -1).join('/');
-  const sameDir = unique.filter((slug) => slug.split('/').slice(0, -1).join('/') === sourceDir);
+  const sourceDirNorm = normalizeComparePath(sourceSlug.split('/').slice(0, -1).join('/'));
+  const sameDir = unique.filter((slug) => normalizeComparePath(slug.split('/').slice(0, -1).join('/')) === sourceDirNorm);
   if (sameDir.length === 1) return { slug: sameDir[0], status: 'resolved' };
 
-  const sameCollection = unique.filter((slug) => slug.startsWith(`${sourceCollectionRoot}/`));
+  const sameCollectionNorm = normalizeComparePath(sourceCollectionRoot);
+  const sameCollection = unique.filter((slug) => normalizeComparePath(slug.split('/')[0]).startsWith(sameCollectionNorm));
   if (sameCollection.length === 1) return { slug: sameCollection[0], status: 'resolved' };
 
   return { slug: null, status: 'ambiguous' };
@@ -2507,10 +2946,15 @@ export default function Note() {
     };
   }, [isMobile, loading, graphData]);
 
-  const currentNode = useMemo(
-    () => graphData?.nodes?.find((node) => node.id === decodedSlug || node.slug === decodedSlug) ?? null,
-    [decodedSlug, graphData]
-  );
+  const currentNode = useMemo(() => {
+    if (!graphData?.nodes) return null;
+    const normalizedDecoded = normalizeComparePath(decodedSlug);
+    return graphData.nodes.find(
+      (node) => 
+        normalizeComparePath(node.id) === normalizedDecoded || 
+        normalizeComparePath(node.slug) === normalizedDecoded
+    ) ?? null;
+  }, [decodedSlug, graphData]);
 
   const handleBackClick = useCallback(() => {
     const fromBlog = location.state?.fromBlog;
@@ -2573,9 +3017,16 @@ export default function Note() {
     };
   }, [decodedSlug]);
 
-  // 滚动方向、进度以及背景视差偏移监听
+  // 滚动方向、进度以及背景视差偏移监听 (仅在移动端时注册以避免网页端 scroll 事件触发 React 重绘造成的性能开销)
   useEffect(() => {
-    if (loading) return;
+    if (loading || !isMobile) {
+      // 网页端不需要这些滚动状态，直接清空/重置为默认值
+      setReadingProgress(0);
+      setIsHeaderSticky(false);
+      setIsScrollingUp(true);
+      setBgOffset(0);
+      return;
+    }
 
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
@@ -2600,12 +3051,7 @@ export default function Note() {
         setIsScrollingUp(true);
       }
 
-      if (isMobile) {
-        setBgOffset(currentScrollY * 0.35);
-      } else {
-        setBgOffset(0);
-      }
-
+      setBgOffset(currentScrollY * 0.35);
       lastScrollY.current = currentScrollY;
     };
 
@@ -2692,19 +3138,23 @@ export default function Note() {
   const relatedNotes = useMemo(() => {
     if (!isMobile || !graphData || !decodedSlug) return [];
     
+    const normalizedDecoded = normalizeComparePath(decodedSlug);
     const connectedIds = new Set();
     graphData.links?.forEach(link => {
       const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
       const targetId = typeof link.target === 'object' ? link.target.id : link.target;
       
-      if (sourceId === decodedSlug) {
-        connectedIds.add(targetId);
-      } else if (targetId === decodedSlug) {
-        connectedIds.add(sourceId);
+      if (normalizeComparePath(sourceId) === normalizedDecoded) {
+        connectedIds.add(normalizeComparePath(targetId));
+      } else if (normalizeComparePath(targetId) === normalizedDecoded) {
+        connectedIds.add(normalizeComparePath(sourceId));
       }
     });
     
-    return graphData.nodes?.filter(node => connectedIds.has(node.id) || connectedIds.has(node.slug)) ?? [];
+    return graphData.nodes?.filter(node => 
+      connectedIds.has(normalizeComparePath(node.id)) || 
+      connectedIds.has(normalizeComparePath(node.slug))
+    ) ?? [];
   }, [graphData, decodedSlug, isMobile]);
   const wikilinkResolver = useMemo(() => {
     const sourceCollectionRoot = decodedSlug.split('/')[0] || currentNode?.collection || '';
@@ -2752,6 +3202,155 @@ export default function Note() {
   const collectionGraphHref = currentNode?.collection
     ? `/graph?collection=${encodeURIComponent(currentNode.collection)}`
     : '/graph';
+
+  const remarkPlugins = useMemo(() => {
+    return [remarkGfm, remarkMath, remarkHtmlBreaks, [remarkWikilinks, { resolve: wikilinkResolver }]];
+  }, [wikilinkResolver]);
+
+  const rehypePlugins = useMemo(() => {
+    return [rehypeKatex, rehypeRaw];
+  }, []);
+
+  const markdownComponents = useMemo(() => {
+    return {
+      div: ({node, className, children, ...props}) => {
+        if (className === 'obsidian-carousel') {
+          const images = [];
+          const extractImages = (childrenArray) => {
+            React.Children.forEach(childrenArray, child => {
+              if (child && (child.type === 'img' || (child.props && child.props.src))) {
+                images.push({ src: child.props.src, alt: child.props.alt || child.props.title });
+              } else if (child && child.props && child.props.children) {
+                extractImages(child.props.children);
+              }
+            });
+          };
+          extractImages(children);
+          
+          const isLifestyle = currentNode?.collection === 'travel' || currentNode?.collection === 'food';
+          if (isLifestyle && images.length > 0) {
+            return <LifestyleGallery images={images} theme={theme} />;
+          }
+          
+          return <ImageCarousel images={images} />;
+        }
+        return <div className={className} {...props}>{children}</div>;
+      },
+      table: ({children, ...props}) => (
+        <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', margin: '1rem 0' }}>
+          <table {...props}>{children}</table>
+        </div>
+      ),
+      td: ({children, ...props}) => <td {...props}>{renderChildrenWithBr(children)}</td>,
+      th: ({children, ...props}) => <th {...props}>{renderChildrenWithBr(children)}</th>,
+      p: ({children, ...props}) => <p {...props}>{renderChildrenWithBr(children)}</p>,
+      li: ({children, ...props}) => <li {...props}>{renderChildrenWithBr(children)}</li>,
+      h1: ({children, ...props}) => <Heading as="h1" {...props}>{children}</Heading>,
+      h2: ({children, ...props}) => <Heading as="h2" {...props}>{children}</Heading>,
+      h3: ({children, ...props}) => <Heading as="h3" {...props}>{children}</Heading>,
+      h4: ({children, ...props}) => <Heading as="h4" {...props}>{children}</Heading>,
+      h5: ({children, ...props}) => <Heading as="h5" {...props}>{children}</Heading>,
+      h6: ({children, ...props}) => <Heading as="h6" {...props}>{children}</Heading>,
+      a: ({href, children, ...props}) => {
+        if (href?.startsWith('#wikilink-unresolved:')) {
+          return (
+            <span className="unresolved-wikilink" title="未发布或未收录">
+              {children}
+            </span>
+          );
+        }
+        if (href?.startsWith('#wikilink-ambiguous:')) {
+          return (
+            <span className="unresolved-wikilink" title="存在多个同名笔记，请在 Obsidian 中补全路径">
+              {children}
+            </span>
+          );
+        }
+        if (href && href.startsWith('/note/')) {
+          if (isMobile) {
+            return (
+              <a 
+                href={href} 
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleWikiLinkClick(href, children);
+                }}
+                {...props}
+              >
+                {children}
+              </a>
+            );
+          }
+          return <Link to={href} {...props}>{children}</Link>;
+        }
+        return <a href={href} target="_blank" rel="noopener noreferrer" {...props}>{children}</a>;
+      },
+      img: ({src, alt, ...props}) => {
+        let width = undefined;
+        let cleanAlt = alt || '';
+        if (cleanAlt.includes('|')) {
+          const parts = cleanAlt.split('|');
+          cleanAlt = parts[0];
+          const sizePart = parts[1];
+          if (/^\d+$/.test(sizePart)) {
+            width = sizePart + 'px';
+          } else if (sizePart.includes('x')) {
+            const [w] = sizePart.split('x');
+            width = w + 'px';
+          }
+        }
+        return (
+          <ZoomableMarkdownImage
+            src={src}
+            alt={cleanAlt}
+            theme={theme}
+            style={{
+              width: width || '100%',
+              maxWidth: '100%',
+              height: 'auto',
+              display: 'block',
+              margin: '1.8rem auto',
+              borderRadius: '8px',
+              boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
+              border: '1px solid rgba(231, 199, 126, 0.16)'
+            }}
+            {...props}
+          />
+        );
+      },
+      code: (props) => {
+        const { className, children, ...rest } = props;
+        const match = /language-(\w+)/.exec(className || '');
+        const codeText = String(children).replace(/\n$/, '');
+        if (match && match[1] === 'mermaid') {
+          return <Mermaid value={codeText} theme={theme} />;
+        }
+        return <code className={className} {...rest}>{children}</code>;
+      },
+      blockquote: (props) => {
+        const { children, ...rest } = props;
+        const calloutData = findAndModifyCallout(children);
+        if (calloutData.isCallout) {
+          const config = CALLOUT_MAP[calloutData.type] || { title: calloutData.type, color: '#94a3b8', icon: 'info', theme: 'info' };
+          const displayTitle = calloutData.title || config.title;
+          return (
+            <div className={`callout callout-${config.theme}`} style={{ '--callout-color': config.color }}>
+              <div className="callout-title">
+                <span className="callout-icon">
+                  <CalloutIcon iconType={config.icon} />
+                </span>
+                <span className="callout-title-text">{displayTitle}</span>
+              </div>
+              <div className="callout-content">
+                {calloutData.children}
+              </div>
+            </div>
+          );
+        }
+        return <blockquote {...rest}>{children}</blockquote>;
+      }
+    };
+  }, [currentNode?.collection, theme, isMobile, handleWikiLinkClick]);
 
   useEffect(() => {
     if (loading || !location.hash) return undefined;
@@ -2821,7 +3420,7 @@ export default function Note() {
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      <ProgressBar $progress={readingProgress} />
+      {isMobile && <ProgressBar $progress={readingProgress} />}
       {isMobile && <ParallaxBg $theme={theme} $offset={bgOffset} />}
       
       {isMobile && isHeaderSticky && (
@@ -2897,155 +3496,11 @@ export default function Note() {
         )}
         <MarkdownBody $theme={theme}>
           <ReactMarkdown
-            remarkPlugins={[remarkGfm, remarkMath, remarkHtmlBreaks, [remarkWikilinks, { resolve: wikilinkResolver }]]}
-            rehypePlugins={[rehypeKatex, rehypeRaw]}
-            components={{
-              div: ({node, className, children, ...props}) => {
-                if (className === 'obsidian-carousel') {
-                  const images = [];
-                  const extractImages = (childrenArray) => {
-                    React.Children.forEach(childrenArray, child => {
-                      if (child && child.type === 'img') {
-                        images.push({ src: child.props.src, alt: child.props.alt });
-                      } else if (child && child.props && child.props.children) {
-                        extractImages(child.props.children);
-                      }
-                    });
-                  };
-                  extractImages(children);
-                  
-                  const isLifestyle = currentNode?.collection === 'travel' || currentNode?.collection === 'food';
-                  if (isLifestyle && images.length > 0) {
-                    const galleryItems = images.map(img => ({
-                      image: img.src,
-                      text: img.alt || '滑动查看'
-                    }));
-                    return (
-                      <div style={{ height: '380px', position: 'relative', width: '100%', margin: '2.5rem 0', overflow: 'hidden', borderRadius: '16px' }}>
-                        <CircularGallery items={galleryItems} bend={1.2} textColor="var(--text-accent, #ffe197)" />
-                      </div>
-                    );
-                  }
-                  
-                  return <ImageCarousel images={images} />;
-                }
-                return <div className={className} {...props}>{children}</div>;
-              },
-              table: ({children, ...props}) => (
-                <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', margin: '1rem 0' }}>
-                  <table {...props}>{children}</table>
-                </div>
-              ),
-              td: ({children, ...props}) => <td {...props}>{renderChildrenWithBr(children)}</td>,
-              th: ({children, ...props}) => <th {...props}>{renderChildrenWithBr(children)}</th>,
-              p: ({children, ...props}) => <p {...props}>{renderChildrenWithBr(children)}</p>,
-              li: ({children, ...props}) => <li {...props}>{renderChildrenWithBr(children)}</li>,
-              h1: ({children, ...props}) => <Heading as="h1" {...props}>{children}</Heading>,
-              h2: ({children, ...props}) => <Heading as="h2" {...props}>{children}</Heading>,
-              h3: ({children, ...props}) => <Heading as="h3" {...props}>{children}</Heading>,
-              h4: ({children, ...props}) => <Heading as="h4" {...props}>{children}</Heading>,
-              h5: ({children, ...props}) => <Heading as="h5" {...props}>{children}</Heading>,
-              h6: ({children, ...props}) => <Heading as="h6" {...props}>{children}</Heading>,
-              a: ({href, children, ...props}) => {
-                if (href?.startsWith('#wikilink-unresolved:')) {
-                  return (
-                    <span className="unresolved-wikilink" title="未发布或未收录">
-                      {children}
-                    </span>
-                  );
-                }
-                if (href?.startsWith('#wikilink-ambiguous:')) {
-                  return (
-                    <span className="unresolved-wikilink" title="存在多个同名笔记，请在 Obsidian 中补全路径">
-                      {children}
-                    </span>
-                  );
-                }
-                if (href && href.startsWith('/note/')) {
-                  if (isMobile) {
-                    return (
-                      <a 
-                        href={href} 
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleWikiLinkClick(href, children);
-                        }}
-                        {...props}
-                      >
-                        {children}
-                      </a>
-                    );
-                  }
-                  return <Link to={href} {...props}>{children}</Link>;
-                }
-                return <a href={href} target="_blank" rel="noopener noreferrer" {...props}>{children}</a>;
-              },
-              img: ({src, alt, ...props}) => {
-                let width = undefined;
-                let cleanAlt = alt || '';
-                if (cleanAlt.includes('|')) {
-                  const parts = cleanAlt.split('|');
-                  cleanAlt = parts[0];
-                  const sizePart = parts[1];
-                  if (/^\d+$/.test(sizePart)) {
-                    width = sizePart + 'px';
-                  } else if (sizePart.includes('x')) {
-                    const [w] = sizePart.split('x');
-                    width = w + 'px';
-                  }
-                }
-                return (
-                  <img
-                    src={src}
-                    alt={cleanAlt}
-                    style={{
-                      width: width || '100%',
-                      maxWidth: '100%',
-                      height: 'auto',
-                      display: 'block',
-                      margin: '1.8rem auto',
-                      borderRadius: '8px',
-                      boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
-                      border: '1px solid rgba(231, 199, 126, 0.16)'
-                    }}
-                    {...props}
-                  />
-                );
-              },
-              code: (props) => {
-                const { className, children, ...rest } = props;
-                const match = /language-(\w+)/.exec(className || '');
-                const codeText = String(children).replace(/\n$/, '');
-                if (match && match[1] === 'mermaid') {
-                  return <Mermaid value={codeText} theme={theme} />;
-                }
-                return <code className={className} {...rest}>{children}</code>;
-              },
-              blockquote: (props) => {
-                const { children, ...rest } = props;
-                const calloutData = findAndModifyCallout(children);
-                if (calloutData.isCallout) {
-                  const config = CALLOUT_MAP[calloutData.type] || { title: calloutData.type, color: '#94a3b8', icon: 'info', theme: 'info' };
-                  const displayTitle = calloutData.title || config.title;
-                  return (
-                    <div className={`callout callout-${config.theme}`} style={{ '--callout-color': config.color }}>
-                      <div className="callout-title">
-                        <span className="callout-icon">
-                          <CalloutIcon iconType={config.icon} />
-                        </span>
-                        <span className="callout-title-text">{displayTitle}</span>
-                      </div>
-                      <div className="callout-content">
-                        {calloutData.children}
-                      </div>
-                    </div>
-                  );
-                }
-                return <blockquote {...rest}>{children}</blockquote>;
-              }
-            }}
+            remarkPlugins={remarkPlugins}
+            rehypePlugins={rehypePlugins}
+            components={markdownComponents}
           >
-            {preprocessMarkdown(parsedNote.body)}
+            {preprocessMarkdown(parsedNote.body, currentNode?.collection === 'travel' || currentNode?.collection === 'food')}
           </ReactMarkdown>
         </MarkdownBody>
 
