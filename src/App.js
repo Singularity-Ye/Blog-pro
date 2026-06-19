@@ -1,5 +1,5 @@
 import React, { Suspense, lazy, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import GlobalStyle from './styles/GlobalStyle';
 import { scrollPositions } from './utils/scrollCache';
 
@@ -32,7 +32,20 @@ const PageFallback = () => (
 function AppRoutes() {
   const location = useLocation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isEmbed = searchParams.get('embed') === 'true';
   
+  useEffect(() => {
+    if (isEmbed) {
+      document.body.classList.add('is-embed');
+    } else {
+      document.body.classList.remove('is-embed');
+    }
+    return () => {
+      document.body.classList.remove('is-embed');
+    };
+  }, [isEmbed]);
+
   // If we are directly visiting '/graph' without a background location,
   // we mock the background location as '/atlas' so it always opens as a modal.
   const isGraphRoute = location.pathname === '/graph';
@@ -110,7 +123,7 @@ function AppRoutes() {
         </Routes>
         </Suspense>
       )}
-      <GlobalNav />
+      {!isEmbed && <GlobalNav />}
     </>
   );
 }

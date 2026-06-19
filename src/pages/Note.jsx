@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { useParams, Link, useLocation, useNavigate } from 'react-router-dom';
+import { useParams, Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
@@ -27,6 +27,24 @@ const normalizeComparePath = (p) => {
     .replace(/\s+/g, '')
     .replace(/[（(]/g, '(')
     .replace(/[）)]/g, ')');
+};
+
+const extractLifestyleImages = (text) => {
+  if (!text) return [];
+  const gallerySectionRegex = /(^|\n)(#{2,3}\s+(?:🖼️\s*)?(?:图集|现场|图录|探店)(?:手札|图集|照片)?)\s*\n([\s\S]*?)(?=\n#{2,3}\s|\n---|$)/;
+  const match = text.match(gallerySectionRegex);
+  if (!match) return [];
+  const content = match[3];
+  const imgRegex = /!\[([^\]]*)\]\(([^)]+)\)/g;
+  const images = [];
+  let imgMatch;
+  while ((imgMatch = imgRegex.exec(content)) !== null) {
+    images.push({
+      src: imgMatch[2],
+      alt: imgMatch[1]
+    });
+  }
+  return images;
 };
 
 const preprocessMarkdown = (text, isLifestyle = false) => {
@@ -600,9 +618,9 @@ const NoteLayout = styled.div`
   display: flex;
   max-width: 1400px;
   margin: 0 auto;
-  padding: 2rem 1.5rem;
+  padding: ${({ $isEmbed }) => $isEmbed ? '0' : '2rem 1.5rem'};
   gap: 2rem;
-  min-height: 100vh;
+  min-height: ${({ $isEmbed }) => $isEmbed ? 'auto' : '100vh'};
   position: relative;
   isolation: isolate;
 
@@ -636,6 +654,7 @@ const NoteLayout = styled.div`
     position: fixed;
     inset: 0;
     pointer-events: none;
+    display: ${({ $isEmbed }) => $isEmbed ? 'none' : 'block'};
   }
 
   &::before {
@@ -678,7 +697,7 @@ const NoteLayout = styled.div`
   }
 
   @media (max-width: 900px) {
-    padding: 1rem 0.75rem;
+    padding: ${({ $isEmbed }) => $isEmbed ? '0' : '1rem 0.75rem'};
 
     &::before {
       position: absolute;
@@ -698,28 +717,21 @@ const NoteContent = styled.div`
   flex: 1;
   min-width: 0;
   position: relative;
-  background:
-    linear-gradient(135deg, var(--glass-bg-alt), rgba(20, 16, 23, 0.02)),
-    var(--glass-bg);
-  backdrop-filter: blur(6px) saturate(1.08);
-  -webkit-backdrop-filter: blur(6px) saturate(1.08);
-  border: 1.5px solid var(--glass-border);
+  background: ${({ $isEmbed }) => $isEmbed ? 'transparent' : 'linear-gradient(135deg, var(--glass-bg-alt), rgba(20, 16, 23, 0.02)), var(--glass-bg)'};
+  backdrop-filter: ${({ $isEmbed }) => $isEmbed ? 'none' : 'blur(6px) saturate(1.08)'};
+  -webkit-backdrop-filter: ${({ $isEmbed }) => $isEmbed ? 'none' : 'blur(6px) saturate(1.08)'};
+  border: ${({ $isEmbed }) => $isEmbed ? 'none' : '1.5px solid var(--glass-border)'};
   border-radius: 12px;
-  padding: clamp(1.2rem, 3.5vw, 2.5rem);
-  box-shadow: 
-    var(--glass-shadow),
-    var(--glass-inset),
-    inset 0 0 30px rgba(231, 199, 126, 0.05);
-  outline: 1px solid rgba(255, 255, 255, 0.05);
+  padding: ${({ $isEmbed }) => $isEmbed ? '0' : 'clamp(1.2rem, 3.5vw, 2.5rem)'};
+  box-shadow: ${({ $isEmbed }) => $isEmbed ? 'none' : 'var(--glass-shadow), var(--glass-inset), inset 0 0 30px rgba(231, 199, 126, 0.05)'};
+  outline: ${({ $isEmbed }) => $isEmbed ? 'none' : '1px solid rgba(255, 255, 255, 0.05)'};
   outline-offset: -5px;
   transition: all 0.5s ease;
 
   @media (max-width: 900px) {
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
-    background:
-      linear-gradient(135deg, color-mix(in srgb, var(--glass-bg-alt) 70%, transparent), rgba(20, 16, 23, 0.02)),
-      color-mix(in srgb, var(--glass-bg) 78%, transparent);
+    background: ${({ $isEmbed }) => $isEmbed ? 'transparent' : 'linear-gradient(135deg, color-mix(in srgb, var(--glass-bg-alt) 70%, transparent), rgba(20, 16, 23, 0.02)), color-mix(in srgb, var(--glass-bg) 78%, transparent)'};
   }
 `;
 
@@ -2869,6 +2881,9 @@ export default function Note() {
   const { '*': slug } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isEmbed = searchParams.get('embed') === 'true';
+  const galleryOnly = searchParams.get('galleryOnly') === 'true';
   const [markdown, setMarkdown] = useState('');
   const [title, setTitle] = useState('');
   const [loading, setLoading] = useState(true);
@@ -2890,11 +2905,21 @@ export default function Note() {
   const { mainText, subText } = useMemo(() => parseElegantTitle(title), [title]);
 
   const [theme, setTheme] = useState(() => {
+    const themeParam = new URLSearchParams(window.location.search).get('theme');
+    if (themeParam === 'light' || themeParam === 'dark') return themeParam;
+    
     const saved = localStorage.getItem('atlas-theme');
     if (saved) return saved;
+
+    if (window.matchMedia) {
+      if (window.matchMedia('(prefers-color-scheme: dark)').matches) return 'dark';
+      if (window.matchMedia('(prefers-color-scheme: light)').matches) return 'light';
+    }
+
     const hour = new Date().getHours();
     return (hour >= 7 && hour < 19) ? 'light' : 'dark';
   });
+
   const toggleTheme = () => {
     const next = theme === 'light' ? 'dark' : 'light';
     setTheme(next);
@@ -2903,7 +2928,18 @@ export default function Note() {
   };
 
   useEffect(() => {
+    const themeParam = searchParams.get('theme');
+    if (themeParam === 'light' || themeParam === 'dark') {
+      setTheme(themeParam);
+      return;
+    }
+
     const syncTheme = () => {
+      const currentParam = new URLSearchParams(window.location.search).get('theme');
+      if (currentParam === 'light' || currentParam === 'dark') {
+        setTheme(currentParam);
+        return;
+      }
       const saved = localStorage.getItem('atlas-theme');
       if (saved) {
         setTheme(saved);
@@ -2913,8 +2949,27 @@ export default function Note() {
       }
     };
     window.addEventListener('storage', syncTheme);
-    return () => window.removeEventListener('storage', syncTheme);
-  }, []);
+
+    const mediaQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+    const handleSystemThemeChange = (e) => {
+      const currentParam = new URLSearchParams(window.location.search).get('theme');
+      const saved = localStorage.getItem('atlas-theme');
+      if (!currentParam && !saved) {
+        setTheme(e.matches ? 'dark' : 'light');
+      }
+    };
+    
+    if (mediaQuery) {
+      mediaQuery.addEventListener('change', handleSystemThemeChange);
+    }
+
+    return () => {
+      window.removeEventListener('storage', syncTheme);
+      if (mediaQuery) {
+        mediaQuery.removeEventListener('change', handleSystemThemeChange);
+      }
+    };
+  }, [searchParams]);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 900);
@@ -3148,6 +3203,9 @@ export default function Note() {
     return { body, properties: buildProperties(data) };
   }, [markdown]);
   const headings = useMemo(() => extractHeadings(parsedNote.body), [parsedNote.body]);
+  const hasGallery = useMemo(() => {
+    return extractLifestyleImages(parsedNote.body).length >= 2;
+  }, [parsedNote.body]);
   const relatedNotes = useMemo(() => {
     if (!isMobile || !graphData || !decodedSlug) return [];
     
@@ -3397,9 +3455,18 @@ export default function Note() {
   }, [loading, location.key, location.hash]);
 
   if (loading) {
+    if (galleryOnly) {
+      return (
+        <NoteLayout $theme={theme} $isEmbed={true} style={{ minHeight: 'auto', padding: 0 }}>
+          <div style={{ color: theme === 'light' ? '#63503a' : 'rgba(224,231,255,0.5)', padding: '4rem 0', textAlign: 'center', width: '100%' }}>
+            正在加载图集...
+          </div>
+        </NoteLayout>
+      );
+    }
     return (
-      <NoteLayout $theme={theme}>
-        <NoteContent>
+      <NoteLayout $theme={theme} $isEmbed={isEmbed}>
+        <NoteContent $isEmbed={isEmbed}>
           <div style={{ color: 'rgba(224,231,255,0.5)', padding: '4rem 0', textAlign: 'center' }}>
             加载中...
           </div>
@@ -3409,16 +3476,27 @@ export default function Note() {
   }
 
   if (error) {
+    if (galleryOnly) {
+      return (
+        <NoteLayout $theme={theme} $isEmbed={true} style={{ minHeight: 'auto', padding: 0 }}>
+          <div style={{ color: '#ef4444', padding: '4rem 0', textAlign: 'center', width: '100%' }}>
+            {error}
+          </div>
+        </NoteLayout>
+      );
+    }
     return (
-      <NoteLayout $theme={theme}>
-        <NoteContent>
-          <BackButton type="button" onClick={handleBackClick}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
-              <line x1="19" y1="12" x2="5" y2="12"></line>
-              <polyline points="12 19 5 12 12 5"></polyline>
-            </svg>
-            返回上一页
-          </BackButton>
+      <NoteLayout $theme={theme} $isEmbed={isEmbed}>
+        <NoteContent $isEmbed={isEmbed}>
+          {!isEmbed && (
+            <BackButton type="button" onClick={handleBackClick}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+              </svg>
+              返回上一页
+            </BackButton>
+          )}
           <div style={{ color: 'rgba(224,231,255,0.5)', padding: '4rem 0', textAlign: 'center' }}>
             {error}
           </div>
@@ -3427,16 +3505,32 @@ export default function Note() {
     );
   }
 
+  if (galleryOnly) {
+    const images = extractLifestyleImages(parsedNote.body);
+    return (
+      <NoteLayout $theme={theme} $isEmbed={true} style={{ minHeight: 'auto', padding: 0 }}>
+        {images.length > 0 ? (
+          <LifestyleGallery images={images} theme={theme} />
+        ) : (
+          <div style={{ color: theme === 'light' ? '#63503a' : 'rgba(224,231,255,0.5)', padding: '4rem 0', textAlign: 'center', width: '100%' }}>
+            未在此笔记中找到图集。请确保图集放置在“## 🖼️ 图集手札”等标题下。
+          </div>
+        )}
+      </NoteLayout>
+    );
+  }
+
   return (
     <NoteLayout 
       $theme={theme}
+      $isEmbed={isEmbed}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      {isMobile && <ProgressBar $progress={readingProgress} />}
-      {isMobile && <ParallaxBg $theme={theme} $offset={bgOffset} />}
+      {!isEmbed && isMobile && <ProgressBar $progress={readingProgress} />}
+      {!isEmbed && isMobile && <ParallaxBg $theme={theme} $offset={bgOffset} />}
       
-      {isMobile && isHeaderSticky && (
+      {!isEmbed && isMobile && isHeaderSticky && (
         <MobileStickyHeader $visible={isScrollingUp}>
           <button onClick={() => { triggerVibration(10); handleBackClick(); }} className="back-btn" aria-label="返回">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -3449,34 +3543,38 @@ export default function Note() {
         </MobileStickyHeader>
       )}
 
-      <MouseLeafDrift theme={theme} />
-      <NoteContent>
-        <ThemeToggleWrapper>
-          <ToggleLabel $theme={theme}>
-            {theme === 'light' ? '推演 · 晨曦' : '推演 · 幽夜'}
-          </ToggleLabel>
-          <ThemeToggle $theme={theme} onClick={toggleTheme} aria-label="切换主题">
-            <DecorationLayer $theme={theme}>
-              <div className="cloud cloud-1" />
-              <div className="cloud cloud-2" />
-              <div className="star star-1" />
-              <div className="star star-2" />
-              <div className="star star-3" />
-            </DecorationLayer>
-            <ToggleKnob 
-              $theme={theme}
-              animate={{ y: theme === 'light' ? 0 : 42 }}
-              transition={{ type: 'spring', stiffness: 250, damping: 25 }}
-            />
-          </ThemeToggle>
-        </ThemeToggleWrapper>
-        <BackButton type="button" onClick={handleBackClick}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
-            <line x1="19" y1="12" x2="5" y2="12"></line>
-            <polyline points="12 19 5 12 12 5"></polyline>
-          </svg>
-          返回上一页
-        </BackButton>
+      {!isEmbed && <MouseLeafDrift theme={theme} />}
+      <NoteContent $isEmbed={isEmbed}>
+        {!isEmbed && (
+          <ThemeToggleWrapper>
+            <ToggleLabel $theme={theme}>
+              {theme === 'light' ? '推演 · 晨曦' : '推演 · 幽夜'}
+            </ToggleLabel>
+            <ThemeToggle $theme={theme} onClick={toggleTheme} aria-label="切换主题">
+              <DecorationLayer $theme={theme}>
+                <div className="cloud cloud-1" />
+                <div className="cloud cloud-2" />
+                <div className="star star-1" />
+                <div className="star star-2" />
+                <div className="star star-3" />
+              </DecorationLayer>
+              <ToggleKnob 
+                $theme={theme}
+                animate={{ y: theme === 'light' ? 0 : 42 }}
+                transition={{ type: 'spring', stiffness: 250, damping: 25 }}
+              />
+            </ThemeToggle>
+          </ThemeToggleWrapper>
+        )}
+        {!isEmbed && (
+          <BackButton type="button" onClick={handleBackClick}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+              <line x1="19" y1="12" x2="5" y2="12"></line>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            返回上一页
+          </BackButton>
+        )}
         {(() => {
           return (
             <>
@@ -3485,8 +3583,8 @@ export default function Note() {
             </>
           );
         })()}
-        <NoteMeta>笔记路径: {decodedSlug}</NoteMeta>
-        {parsedNote.properties.length > 0 && (
+        {!isEmbed && <NoteMeta>笔记路径: {decodedSlug}</NoteMeta>}
+        {!isEmbed && parsedNote.properties.length > 0 && (
           <PropertyPanel>
             <PropertyTitle>档案属性</PropertyTitle>
             <PropertyGrid>
@@ -3518,7 +3616,7 @@ export default function Note() {
         </MarkdownBody>
 
         {/* 移动端专用的相关笔记列表 */}
-        {isMobile && relatedNotes.length > 0 && (
+        {!isEmbed && isMobile && relatedNotes.length > 0 && (
           <MobileRelatedNotes>
             <RelatedNotesTitle>✦ 相关星轨关联</RelatedNotesTitle>
             <RelatedNotesList>
@@ -3538,42 +3636,67 @@ export default function Note() {
         )}
       </NoteContent>
 
-      <NoteSidebar>
-        {collectionGraphHref && (
-          <TocContainer>
-            <TocTitle>图谱视图</TocTitle>
-            <TocList>
-              <TocItem $level={1}>
-                <Link to={`/graph?local=${encodeURIComponent(decodedSlug)}`} state={{ backgroundLocation: location }}>展开局部关系图</Link>
-              </TocItem>
-              <TocItem $level={1}>
-                <Link to={collectionGraphHref} state={{ backgroundLocation: location }}>展开分类全局图</Link>
-              </TocItem>
-            </TocList>
-          </TocContainer>
-        )}
-        <StickySidebarContent>
-          <SidebarBackButton type="button" onClick={handleBackClick}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
-              <line x1="19" y1="12" x2="5" y2="12"></line>
-              <polyline points="12 19 5 12 12 5"></polyline>
-            </svg>
-            返回上一页
-          </SidebarBackButton>
-          {headings.length > 0 && (
-            <ScrollableToc>
-              <TocTitle>目录</TocTitle>
+      {!isEmbed && (
+        <NoteSidebar>
+          {collectionGraphHref && (
+            <TocContainer>
+              <TocTitle>图谱视图</TocTitle>
               <TocList>
-                {headings.map((h, i) => (
-                  <TocItem key={i} $level={h.level}>
-                    <a href={`#${h.id}`}>{h.text}</a>
-                  </TocItem>
-                ))}
+                <TocItem $level={1}>
+                  <Link to={`/graph?local=${encodeURIComponent(decodedSlug)}`} state={{ backgroundLocation: location }}>展开局部关系图</Link>
+                </TocItem>
+                <TocItem $level={1}>
+                  <Link to={collectionGraphHref} state={{ backgroundLocation: location }}>展开分类全局图</Link>
+                </TocItem>
               </TocList>
-            </ScrollableToc>
+            </TocContainer>
           )}
-        </StickySidebarContent>
-      </NoteSidebar>
+          {hasGallery && (
+            <TocContainer>
+              <TocTitle>Obsidian 联动</TocTitle>
+              <TocList>
+                <TocItem $level={1}>
+                  <a 
+                    href="#copy-embed" 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      const embedUrl = `${window.location.origin}${toNoteHref(decodedSlug)}?embed=true&galleryOnly=true`;
+                      const iframeTag = `<iframe src="${embedUrl}" style="width: 100%; height: 480px; border: none; background: transparent;" scrolling="no"></iframe>`;
+                      navigator.clipboard.writeText(iframeTag)
+                        .then(() => alert('Obsidian 3D 轮播画廊嵌入代码已复制到剪贴板！可以直接粘贴到 Obsidian 笔记中了 🌟'))
+                        .catch(() => alert('复制失败，请手动复制代码。'));
+                    }}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    复制 3D 轮播图嵌入代码
+                  </a>
+                </TocItem>
+              </TocList>
+            </TocContainer>
+          )}
+          <StickySidebarContent>
+            <SidebarBackButton type="button" onClick={handleBackClick}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+              </svg>
+              返回上一页
+            </SidebarBackButton>
+            {headings.length > 0 && (
+              <ScrollableToc>
+                <TocTitle>目录</TocTitle>
+                <TocList>
+                  {headings.map((h, i) => (
+                    <TocItem key={i} $level={h.level}>
+                      <a href={`#${h.id}`}>{h.text}</a>
+                    </TocItem>
+                  ))}
+                </TocList>
+              </ScrollableToc>
+            )}
+          </StickySidebarContent>
+        </NoteSidebar>
+      )}
 
       {isMobile && (
         <>

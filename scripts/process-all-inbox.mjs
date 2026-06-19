@@ -75,8 +75,8 @@ function truncateContent(content) {
   return fm + body;
 }
 
-// Search and migrate inbox physical image attachments to vault global 08_附件/ directory
-function processInboxImages(originalContent, baseDir, VAULT_ROOT, INBOX_DIR) {
+// Search and migrate inbox physical image attachments to vault global attachments/<category>/ directory
+function processInboxImages(originalContent, baseDir, VAULT_ROOT, INBOX_DIR, targetCategory) {
   const images = [];
   
   // 1. Match Obsidian Wikilink image: ![[image.png]]
@@ -101,9 +101,9 @@ function processInboxImages(originalContent, baseDir, VAULT_ROOT, INBOX_DIR) {
   const uniqueImages = [...new Set(images)];
   if (uniqueImages.length === 0) return null;
 
-  const globalAttachmentDir = path.join(VAULT_ROOT, '08_附件');
-  if (!fs.existsSync(globalAttachmentDir)) {
-    fs.mkdirSync(globalAttachmentDir, { recursive: true });
+  const targetAttachmentDir = path.join(VAULT_ROOT, 'attachments', targetCategory);
+  if (!fs.existsSync(targetAttachmentDir)) {
+    fs.mkdirSync(targetAttachmentDir, { recursive: true });
   }
 
   const copiedImages = [];
@@ -153,11 +153,11 @@ function processInboxImages(originalContent, baseDir, VAULT_ROOT, INBOX_DIR) {
     }
 
     if (foundPath) {
-      const destPath = path.join(globalAttachmentDir, imgName);
+      const destPath = path.join(targetAttachmentDir, imgName);
       try {
         fs.copyFileSync(foundPath, destPath);
         copiedImages.push(imgName);
-        console.log(`   [Image Migration] Copied attachment: ${imgName} ➡️ 08_附件/`);
+        console.log(`   [Image Migration] Copied attachment: ${imgName} ➡️ attachments/${targetCategory.replace(/\\/g, '/')}/`);
       } catch (e) {
         console.error(`   [Image Migration] Failed to copy ${imgName}:`, e.message);
       }
@@ -441,17 +441,24 @@ ${content}
       expandedMarkdown = expandedMarkdown.replace(/本地证据：\[\[.*?\]\]/, `本地证据：[[${rawNameNoExt}]]`);
 
       // Search, copy, and construct image carousel slider if any physical image references exist
-      const copiedImages = processInboxImages(originalContent, path.dirname(filePath), VAULT_ROOT, INBOX_DIR);
+      const copiedImages = processInboxImages(originalContent, path.dirname(filePath), VAULT_ROOT, INBOX_DIR, targetCategory);
       if (copiedImages && copiedImages.length > 0) {
+        // Calculate depth and relative path prefix
+        const cleanTargetCategory = targetCategory.replace(/\\/g, '/');
+        const segments = cleanTargetCategory.split('/').filter(Boolean);
+        const depth = segments.length;
+        const prefix = '../'.repeat(depth);
+
         let carouselHtml = '';
         if (copiedImages.length === 1) {
           carouselHtml = `\n![[${copiedImages[0]}]]\n`;
         } else {
           let slides = '';
           for (const img of copiedImages) {
-            slides += `  <div style="flex: 0 0 100%; scroll-snap-align: start; box-sizing: border-box; border-radius: 12px; overflow: hidden; border: 1px solid var(--background-modifier-border);">\n    <img src="08_附件/${img}" style="width: 100%; height: 320px; object-fit: cover; display: block;" />\n  </div>\n`;
+            const relImgUrl = `${prefix}attachments/${cleanTargetCategory}/${img}`;
+            slides += `  <div style="flex: 0 0 100%; scroll-snap-align: start; box-sizing: border-box; border-radius: 12px; overflow: hidden; border: 1px solid var(--background-modifier-border);">\n    <img src="${relImgUrl}" style="width: 100%; height: 320px; object-fit: cover; display: block;" />\n  </div>\n`;
           }
-          carouselHtml = `\n<div class="obsidian-carousel" style="display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 8px; width: 100%; max-width: 480px; margin: 15px auto; padding-bottom: 8px; -webkit-overflow-scrolling: touch;">\n${slides}</div>\n<div style="text-align: center; font-size: 0.85em; color: var(--text-muted); margin-top: -5px; margin-bottom: 15px;">💡 左右滑动或使用滚轮查看更多图片</div>\n`;
+          carouselHtml = `\n<div class="obsidian-carousel" style="display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 8px; width: 100%; max-width: 480px; margin: 15px auto; padding-bottom: 8px; -webkit-overflow-scrolling: touch;">\n${slides}</div>\n<div style="text-align: center; font-size: 0.85em; color: var(--text-muted); margin-top: -5px; margin-bottom: 15px;">💡 左右滑动 or 使用滚轮查看更多图片</div>\n`;
         }
 
         const titleMatch = expandedMarkdown.match(/^#\s+(.+)$/m);

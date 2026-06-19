@@ -14,6 +14,17 @@ date: 2026-06-01
 
 # 🐢蛤蟆手札：杭州也能吃到台北味？5cm厚切鸡排的「太厚甲」入侵记
 
+<div class="obsidian-carousel" style="display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 8px; width: 100%; max-width: 480px; margin: 15px auto; padding-bottom: 8px; -webkit-overflow-scrolling: touch;">
+  <div style="flex: 0 0 100%; scroll-snap-align: start; box-sizing: border-box; border-radius: 12px; overflow: hidden; border: 1px solid var(--background-modifier-border);">
+    <img src="/notes/attachments/attachments/03_%E7%94%9F%E6%B4%BB%E7%B0%BF%EF%BC%88%E7%94%9F%E6%B4%BB%E5%8C%BA%EF%BC%89/%E9%A3%9F%E5%91%B3%E5%BD%95%EF%BC%88%E7%BE%8E%E9%A3%9F%E4%B8%8E%E6%8E%A2%E5%BA%97%EF%BC%89/2026-06-01_%E6%9D%AD%E5%B7%9E%E5%AF%BB%E6%AD%A3%E5%AE%97%E5%8F%B0%E5%91%B3%E9%B8%A1%E6%8E%92_0.jpg" style="width: 100%; height: 320px; object-fit: cover; display: block;" />
+  </div>
+  <div style="flex: 0 0 100%; scroll-snap-align: start; box-sizing: border-box; border-radius: 12px; overflow: hidden; border: 1px solid var(--background-modifier-border);">
+    <img src="/notes/attachments/attachments/03_%E7%94%9F%E6%B4%BB%E7%B0%BF%EF%BC%88%E7%94%9F%E6%B4%BB%E5%8C%BA%EF%BC%89/%E9%A3%9F%E5%91%B3%E5%BD%95%EF%BC%88%E7%BE%8E%E9%A3%9F%E4%B8%8E%E6%8E%A2%E5%BA%97%EF%BC%89/2026-06-01_%E6%9D%AD%E5%B7%9E%E5%AF%BB%E6%AD%A3%E5%AE%97%E5%8F%B0%E5%91%B3%E9%B8%A1%E6%8E%92_1.jpg" style="width: 100%; height: 320px; object-fit: cover; display: block;" />
+  </div>
+</div>
+<div style="text-align: center; font-size: 0.85em; color: var(--text-muted); margin-top: -5px; margin-bottom: 15px;">💡 左右滑动或使用滚轮查看更多图片</div>
+
+
 ![鸡排入侵示意图](https://via.placeholder.com/600x400?text=5cm厚切鸡排入侵杭州)
 > 蛤蟆观测到：当台湾鸡排穿越海峡，杭州人用动车把它带回家
 

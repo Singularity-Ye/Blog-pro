@@ -17,6 +17,11 @@ const GlobalStyle = createGlobalStyle`
     overflow-x: clip;
   }
 
+  body.is-embed,
+  body.is-embed #root {
+    background: transparent !important;
+  }
+
   #root {
     min-height: 100vh;
     background: #05000f;
