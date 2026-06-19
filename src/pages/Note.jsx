@@ -7,6 +7,7 @@ import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import rehypeRaw from 'rehype-raw';
 import ImageCarousel from '../components/ImageCarousel';
+import CircularGallery from '../components/CircularGallery';
 import 'katex/dist/katex.min.css';
 import mermaid from 'mermaid';
 import styled from 'styled-components';
@@ -2912,6 +2913,20 @@ export default function Note() {
                     });
                   };
                   extractImages(children);
+                  
+                  const isLifestyle = currentNode?.collection === 'travel' || currentNode?.collection === 'food';
+                  if (isLifestyle && images.length > 0) {
+                    const galleryItems = images.map(img => ({
+                      image: img.src,
+                      text: img.alt || '滑动查看'
+                    }));
+                    return (
+                      <div style={{ height: '380px', position: 'relative', width: '100%', margin: '2.5rem 0', overflow: 'hidden', borderRadius: '16px' }}>
+                        <CircularGallery items={galleryItems} bend={1.2} textColor="var(--text-accent, #ffe197)" />
+                      </div>
+                    );
+                  }
+                  
                   return <ImageCarousel images={images} />;
                 }
                 return <div className={className} {...props}>{children}</div>;
