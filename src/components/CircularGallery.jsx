@@ -24,89 +24,9 @@ function autoBind(instance) {
   });
 }
 
-const DEFAULT_FONT = 'bold 30px Figtree';
-const DEFAULT_FONT_URL = 'https://fonts.googleapis.com/css2?family=Figtree:wght@400;700&display=swap';
-
-function deriveFontFamilyFromUrl(url) {
-  const fileName = (url.split('/').pop() || 'custom-font').split('?')[0];
-  const base = fileName.replace(/\.(woff2?|ttf|otf|eot)$/i, '');
-  return base.replace(/[^a-zA-Z0-9-_ ]/g, '').trim() || 'CircularGalleryFont';
-}
-
-async function loadFontFromStylesheet(url) {
-  const response = await fetch(url);
-  if (!response.ok) throw new Error(`Failed to fetch font stylesheet (${response.status})`);
-  const cssText = await response.text();
-  const faceBlocks = cssText.match(/@font-face\s*{[^}]*}/g) || [];
-  let family = null;
-  const fontFaces = [];
-  for (const block of faceBlocks) {
-    const familyMatch = block.match(/font-family:\s*['"]?([^;'"]+)['"]?/);
-    const urlMatch = block.match(/url\(\s*['"]?([^'")]+)['"]?\s*\)/);
-    if (!familyMatch || !urlMatch) continue;
-    family = familyMatch[1].trim();
-    const descriptors = {};
-    const weightMatch = block.match(/font-weight:\s*([^;]+);/);
-    const styleMatch = block.match(/font-style:\s*([^;]+);/);
-    const rangeMatch = block.match(/unicode-range:\s*([^;]+);/);
-    if (weightMatch) descriptors.weight = weightMatch[1].trim();
-    if (styleMatch) descriptors.style = styleMatch[1].trim();
-    if (rangeMatch) descriptors.unicodeRange = rangeMatch[1].trim();
-    fontFaces.push(new FontFace(family, `url(${urlMatch[1]})`, descriptors));
-  }
-  if (!family) throw new Error('No @font-face rule found in the stylesheet');
-  await Promise.allSettled(
-    fontFaces.map(async face => {
-      await face.load();
-      document.fonts.add(face);
-    })
-  );
-  return family;
-}
-
-async function loadFontFromFile(url) {
-  const family = deriveFontFamilyFromUrl(url);
-  const fontFace = new FontFace(family, `url(${url})`);
-  await fontFace.load();
-  document.fonts.add(fontFace);
-  return family;
-}
-
-async function loadCustomFont(fontUrl) {
-  const isStylesheet = fontUrl.includes('fonts.googleapis.com') || /\.css(\?.*)?$/i.test(fontUrl);
-  return isStylesheet ? loadFontFromStylesheet(fontUrl) : loadFontFromFile(fontUrl);
-}
-
-async function resolveFont(font, fontUrl) {
-  const effectiveUrl = fontUrl || (font === DEFAULT_FONT ? DEFAULT_FONT_URL : null);
-  if (!effectiveUrl) {
-    if (document.fonts && document.fonts.load) {
-      try {
-        await document.fonts.load(font);
-        await document.fonts.ready;
-      } catch {
-        // Ignore
-      }
-    }
-    return font;
-  }
-  try {
-    const family = await loadCustomFont(effectiveUrl);
-    const sizeMatch = font.match(/^\s*(.*?\d+px)/);
-    const prefix = sizeMatch ? sizeMatch[1].trim() : 'bold 30px';
-    const resolved = `${prefix} "${family}"`;
-    if (document.fonts && document.fonts.load) {
-      try {
-        await document.fonts.load(resolved);
-      } catch {
-        // Ignore
-      }
-    }
-    return resolved;
-  } catch (error) {
-    console.error('CircularGallery: unable to load font from', fontUrl, error);
-    return font;
-  }
+function resolveFont(font, fontUrl) {
+  // Directly resolve with the local font stack to avoid blocking fetches
+  return Promise.resolve(font);
 }
 
 function getFontSize(font) {
@@ -147,6 +67,9 @@ class Title {
   }
   createMesh() {
     const { texture, width, height } = createTextTexture(this.gl, this.text, this.font, this.textColor);
+    this.textWidth = width;
+    this.textHeight = height;
+
     const geometry = new Plane(this.gl);
     const program = new Program(this.gl, {
       vertex: `
@@ -174,12 +97,20 @@ class Title {
       uniforms: { tMap: { value: texture } }
     });
     this.mesh = new Mesh(this.gl, { geometry, program });
-    const aspect = width / height;
-    const textHeight = this.plane.scale.y * 0.15;
-    const textWidth = textHeight * aspect;
-    this.mesh.scale.set(textWidth, textHeight, 1);
-    this.mesh.position.y = -this.plane.scale.y * 0.5 - textHeight * 0.5 - 0.05;
     this.mesh.setParent(this.plane);
+    this.onResize();
+  }
+  onResize() {
+    if (!this.mesh) return;
+    const aspect = this.textWidth / this.textHeight;
+    const worldHeight = this.plane.scale.y * 0.15;
+    const worldWidth = worldHeight * aspect;
+    
+    // Scale correction: cancel out parent's non-uniform scale inheritance
+    this.mesh.scale.set(worldWidth / this.plane.scale.x, worldHeight / this.plane.scale.y, 1);
+    
+    // Position correction: adjust local offset Y to account for parent scale
+    this.mesh.position.y = -0.5 - (worldHeight * 0.5 + 0.05) / this.plane.scale.y;
   }
 }
 
@@ -354,20 +285,21 @@ class Media {
   }
   onResize({ screen, viewport } = {}) {
     if (screen) this.screen = screen;
-    if (viewport) {
-      this.viewport = viewport;
-      if (this.plane.program.uniforms.uViewportSizes) {
-        this.plane.program.uniforms.uViewportSizes.value = [this.viewport.width, this.viewport.height];
-      }
-    }
+    if (viewport) this.viewport = viewport;
+
     this.scale = this.screen.height / 1500;
     this.plane.scale.y = (this.viewport.height * (900 * this.scale)) / this.screen.height;
     this.plane.scale.x = (this.viewport.width * (700 * this.scale)) / this.screen.width;
     this.plane.program.uniforms.uPlaneSizes.value = [this.plane.scale.x, this.plane.scale.y];
+
     this.padding = 2;
     this.width = this.plane.scale.x + this.padding;
     this.widthTotal = this.width * this.length;
     this.x = this.width * this.index;
+
+    if (this.title) {
+      this.title.onResize();
+    }
   }
 }
 
@@ -379,9 +311,10 @@ class App {
       bend,
       textColor = '#ffffff',
       borderRadius = 0,
-      font = 'bold 30px Figtree',
+      font = 'bold 30px Outfit, Inter, system-ui, -apple-system, sans-serif',
       scrollSpeed = 2,
-      scrollEase = 0.05
+      scrollEase = 0.05,
+      onChange
     } = {}
   ) {
     document.documentElement.classList.remove('no-js');
@@ -389,6 +322,8 @@ class App {
     this.scrollSpeed = scrollSpeed;
     this.scroll = { ease: scrollEase, current: 0, target: 0, last: 0 };
     this.onCheckDebounce = debounce(this.onCheck, 200);
+    this.onChange = onChange;
+    this.lastActiveIndex = -1;
     this.createRenderer();
     this.createCamera();
     this.createScene();
@@ -527,6 +462,20 @@ class App {
     }
     this.renderer.render({ scene: this.scene, camera: this.camera });
     this.scroll.last = this.scroll.current;
+
+    // Calculate active item index (center-most element)
+    if (this.medias && this.medias[0]) {
+      const width = this.medias[0].width;
+      const rawIndex = Math.round(this.scroll.current / width);
+      const len = this.mediasImages.length;
+      const activeIndex = ((rawIndex % len) + len) % len;
+      
+      if (activeIndex !== this.lastActiveIndex && typeof this.onChange === 'function') {
+        this.lastActiveIndex = activeIndex;
+        this.onChange(activeIndex);
+      }
+    }
+
     this.raf = window.requestAnimationFrame(this.update.bind(this));
   }
   addEventListeners() {
@@ -538,34 +487,41 @@ class App {
     this.boundOnKeyDown = this.onKeyDown.bind(this);
 
     window.addEventListener('resize', this.boundOnResize);
-    window.addEventListener('mousewheel', this.boundOnWheel);
-    window.addEventListener('wheel', this.boundOnWheel);
-    window.addEventListener('mousedown', this.boundOnTouchDown);
+    
+    // Bind interaction events to the container instead of window to prevent page-wide hijacking
+    this.container.addEventListener('mousewheel', this.boundOnWheel);
+    this.container.addEventListener('wheel', this.boundOnWheel);
+    this.container.addEventListener('mousedown', this.boundOnTouchDown);
+    this.container.addEventListener('touchstart', this.boundOnTouchDown);
+    this.container.addEventListener('touchmove', this.boundOnTouchMove, { passive: true });
+    this.container.addEventListener('touchend', this.boundOnTouchUp);
+    this.container.addEventListener('touchcancel', this.boundOnTouchUp);
+
+    // Keep dragging events on window to allow smooth release outside canvas
     window.addEventListener('mousemove', this.boundOnTouchMove);
     window.addEventListener('mouseup', this.boundOnTouchUp);
-    window.addEventListener('touchstart', this.boundOnTouchDown);
-    window.addEventListener('touchmove', this.boundOnTouchMove);
-    window.addEventListener('touchend', this.boundOnTouchUp);
 
     this.container?.addEventListener('keydown', this.boundOnKeyDown);
   }
   destroy() {
     window.cancelAnimationFrame(this.raf);
     window.removeEventListener('resize', this.boundOnResize);
-    window.removeEventListener('mousewheel', this.boundOnWheel);
-    window.removeEventListener('wheel', this.boundOnWheel);
-    window.removeEventListener('mousedown', this.boundOnTouchDown);
     window.removeEventListener('mousemove', this.boundOnTouchMove);
     window.removeEventListener('mouseup', this.boundOnTouchUp);
-    window.removeEventListener('touchstart', this.boundOnTouchDown);
-    window.removeEventListener('touchmove', this.boundOnTouchMove);
-    window.removeEventListener('touchend', this.boundOnTouchUp);
-    if (this.renderer && this.renderer.gl && this.renderer.gl.canvas.parentNode) {
-      this.renderer.gl.canvas.parentNode.removeChild(this.renderer.gl.canvas);
+    
+    if (this.container) {
+      this.container.removeEventListener('mousewheel', this.boundOnWheel);
+      this.container.removeEventListener('wheel', this.boundOnWheel);
+      this.container.removeEventListener('mousedown', this.boundOnTouchDown);
+      this.container.removeEventListener('touchstart', this.boundOnTouchDown);
+      this.container.removeEventListener('touchmove', this.boundOnTouchMove);
+      this.container.removeEventListener('touchend', this.boundOnTouchUp);
+      this.container.removeEventListener('touchcancel', this.boundOnTouchUp);
+      this.container.removeEventListener('keydown', this.boundOnKeyDown);
     }
 
-    if (this.container) {
-      this.container.removeEventListener('keydown', this.boundOnKeyDown);
+    if (this.renderer && this.renderer.gl && this.renderer.gl.canvas.parentNode) {
+      this.renderer.gl.canvas.parentNode.removeChild(this.renderer.gl.canvas);
     }
   }
 }
@@ -575,34 +531,93 @@ export default function CircularGallery({
   bend = 3,
   textColor = '#ffffff',
   borderRadius = 0.05,
-  font = 'bold 30px Figtree',
+  font = 'bold 30px Outfit, Inter, system-ui, -apple-system, sans-serif',
   fontUrl,
   scrollSpeed = 2,
-  scrollEase = 0.05
+  scrollEase = 0.05,
+  onActiveIndexChange
 }) {
   const containerRef = useRef(null);
+  const appRef = useRef(null);
+  const prevItemsRef = useRef([]);
+  const prevConfigRef = useRef({});
+
+  // Sync callback ref without recreating App
+  useEffect(() => {
+    if (appRef.current) {
+      appRef.current.onChange = onActiveIndexChange;
+    }
+  }, [onActiveIndexChange]);
+
+  // Lifecycle effect: handle cleanup ONLY on unmount
+  useEffect(() => {
+    return () => {
+      if (appRef.current) {
+        appRef.current.destroy();
+        appRef.current = null;
+      }
+    };
+  }, []);
+
+  // Initialization and update effect
   useEffect(() => {
     if (!containerRef.current) return;
-    let app;
+
+    // Check if items have actually changed in value rather than reference
+    const itemsChanged = prevItemsRef.current.length !== items.length ||
+      items.some((item, idx) => item.image !== prevItemsRef.current[idx]?.image || item.text !== prevItemsRef.current[idx]?.text);
+
+    // Check if other configs have actually changed in value
+    const configChanged = 
+      prevConfigRef.current.bend !== bend ||
+      prevConfigRef.current.textColor !== textColor ||
+      prevConfigRef.current.borderRadius !== borderRadius ||
+      prevConfigRef.current.font !== font ||
+      prevConfigRef.current.fontUrl !== fontUrl ||
+      prevConfigRef.current.scrollSpeed !== scrollSpeed ||
+      prevConfigRef.current.scrollEase !== scrollEase;
+
+    if (!itemsChanged && !configChanged && appRef.current) {
+      // Keep running the existing canvas, do not recreate!
+      return;
+    }
+
+    // Update reference cache
+    prevItemsRef.current = items;
+    prevConfigRef.current = { bend, textColor, borderRadius, font, fontUrl, scrollSpeed, scrollEase };
+
+    // Clean up previous app if it exists
+    if (appRef.current) {
+      appRef.current.destroy();
+      appRef.current = null;
+    }
+
     let isMounted = true;
     resolveFont(font, fontUrl).then(resolvedFont => {
       if (!isMounted || !containerRef.current) return;
-      app = new App(containerRef.current, {
+      
+      // Safety check: destroy any app that might have been initialized in a race condition
+      if (appRef.current) {
+        appRef.current.destroy();
+      }
+
+      appRef.current = new App(containerRef.current, {
         items,
         bend,
         textColor,
         borderRadius,
         font: resolvedFont,
         scrollSpeed,
-        scrollEase
+        scrollEase,
+        onChange: onActiveIndexChange
       });
     });
 
     return () => {
       isMounted = false;
-      if (app) app.destroy();
     };
   }, [items, bend, textColor, borderRadius, font, fontUrl, scrollSpeed, scrollEase]);
+
   return (
     <div
       className="circular-gallery"
