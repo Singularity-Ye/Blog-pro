@@ -49,7 +49,11 @@ const extractLifestyleImages = (text) => {
 
 const preprocessMarkdown = (text, isLifestyle = false) => {
   if (!text) return text;
-  let processed = normalizeMarkdownMath(text)
+  
+  // 移除 Obsidian 3D 圆弧画廊的 iframe 本地自嵌入，防止在网页端重复渲染
+  const cleanText = text.replace(/<iframe\s+[^>]*?src=["'][^"']*?galleryOnly=true[^"']*?["'][^>]*?>\s*<\/iframe>/gi, '');
+  
+  let processed = normalizeMarkdownMath(cleanText)
     .replace(/\*\*([^*\s](?:(?:[^*]|\*[^*])*?[^*\s])?)\*\*/g, (match, content, offset, fullText) => {
       const charBefore = offset > 0 ? fullText[offset - 1] : '';
       const charAfter = offset + match.length < fullText.length ? fullText[offset + match.length] : '';
