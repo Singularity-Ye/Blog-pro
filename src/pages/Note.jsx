@@ -218,6 +218,7 @@ const ImageZoomModal = ({ src, alt, onClose, theme }) => {
   const viewportRef = useRef(null);
   const [scale, setScale] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [imgSize, setImgSize] = useState({ width: 800, height: 550 });
   const [isDragging, setIsDragging] = useState(false);
   const dragStart = useRef({ x: 0, y: 0 });
   
@@ -235,7 +236,7 @@ const ImageZoomModal = ({ src, alt, onClose, theme }) => {
   const resetZoom = () => {
     if (!viewportRef.current) return;
     const rect = viewportRef.current.getBoundingClientRect();
-    updateScaleAndPosition(1, { x: (rect.width - 800) / 2, y: (rect.height - 550) / 2 });
+    updateScaleAndPosition(1, { x: (rect.width - imgSize.width) / 2, y: (rect.height - imgSize.height) / 2 });
   };
 
   useEffect(() => {
@@ -244,6 +245,7 @@ const ImageZoomModal = ({ src, alt, onClose, theme }) => {
         const rect = viewportRef.current.getBoundingClientRect();
         const imgW = Math.min(800, rect.width * 0.85);
         const imgH = Math.min(550, rect.height * 0.75);
+        setImgSize({ width: imgW, height: imgH });
         updateScaleAndPosition(1, { x: (rect.width - imgW) / 2, y: (rect.height - imgH) / 2 });
       }
     }, 50);
@@ -375,11 +377,14 @@ const ImageZoomModal = ({ src, alt, onClose, theme }) => {
       >
         <div
           style={{
+            position: 'absolute',
+            left: 0,
+            top: 0,
+            width: `${imgSize.width}px`,
+            height: `${imgSize.height}px`,
             transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
             transformOrigin: '0 0',
             transition: isDragging ? 'none' : 'transform 0.12s cubic-bezier(0.25, 1, 0.5, 1)',
-            maxWidth: '85vw',
-            maxHeight: '75vh',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center'
@@ -390,8 +395,8 @@ const ImageZoomModal = ({ src, alt, onClose, theme }) => {
             src={src}
             alt={alt}
             style={{
-              maxWidth: '800px',
-              maxHeight: '550px',
+              maxWidth: '100%',
+              maxHeight: '100%',
               width: 'auto',
               height: 'auto',
               objectFit: 'contain',
@@ -481,7 +486,6 @@ const ZoomableMarkdownImage = ({ src, alt, style, theme, ...props }) => {
 const LifestyleGallery = ({ images, theme }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isZoomed, setIsZoomed] = useState(false);
-  const clickTimeRef = useRef(0);
 
   const galleryItems = useMemo(() => {
     return images.map(img => {
@@ -506,34 +510,17 @@ const LifestyleGallery = ({ images, theme }) => {
     setActiveIndex(idx);
   }, []);
 
-  const dragStartPosRef = useRef({ x: 0, y: 0 });
-
-  const onMouseDown = (e) => {
-    clickTimeRef.current = Date.now();
-    dragStartPosRef.current = { x: e.clientX, y: e.clientY };
-  };
-
-  const onMouseUp = (e) => {
-    const dx = e.clientX - dragStartPosRef.current.x;
-    const dy = e.clientY - dragStartPosRef.current.y;
-    const dist = Math.sqrt(dx * dx + dy * dy);
-    if (Date.now() - clickTimeRef.current < 200 && dist < 6) {
-      setIsZoomed(true);
-    }
-  };
-
   return (
     <div style={{ margin: '2.5rem 0', display: 'flex', flexDirection: 'column', gap: '1.2rem', width: '100%', alignItems: 'center' }}>
       <div 
         style={{ height: '380px', position: 'relative', width: '100%', overflow: 'hidden', borderRadius: '16px', cursor: 'zoom-in' }}
-        onMouseDown={onMouseDown}
-        onMouseUp={onMouseUp}
       >
         <CircularGallery 
           items={galleryItems} 
           bend={1.2} 
           textColor={theme === 'light' ? '#4a2d1b' : '#ffe197'} 
           onActiveIndexChange={handleActiveIndexChange}
+          onCenterClick={() => setIsZoomed(true)}
         />
       </div>
       <div style={{ minHeight: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>

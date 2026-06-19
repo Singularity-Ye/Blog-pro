@@ -314,7 +314,8 @@ class App {
       font = 'bold 30px Outfit, Inter, system-ui, -apple-system, sans-serif',
       scrollSpeed = 2,
       scrollEase = 0.05,
-      onChange
+      onChange,
+      onCenterClick
     } = {}
   ) {
     document.documentElement.classList.remove('no-js');
@@ -323,6 +324,7 @@ class App {
     this.scroll = { ease: scrollEase, current: 0, target: 0, last: 0 };
     this.onCheckDebounce = debounce(this.onCheck, 200);
     this.onChange = onChange;
+    this.onCenterClick = onCenterClick;
     this.lastActiveIndex = -1;
     this.createRenderer();
     this.createCamera();
@@ -389,6 +391,12 @@ class App {
     this.isDown = true;
     this.scroll.position = this.scroll.current;
     this.start = e.touches ? e.touches[0].clientX : e.clientX;
+    
+    // Save start position and time for click detection
+    this.clickStartTime = Date.now();
+    const x = e.touches ? e.touches[0].clientX : e.clientX;
+    const y = e.touches ? e.touches[0].clientY : e.clientY;
+    this.clickStartPos = { x, y };
   }
   onTouchMove(e) {
     if (!this.isDown) return;
@@ -396,9 +404,47 @@ class App {
     const distance = (this.start - x) * (this.scrollSpeed * 0.025);
     this.scroll.target = this.scroll.position + distance;
   }
-  onTouchUp() {
+  onTouchUp(e) {
     this.isDown = false;
     this.onCheck();
+
+    if (e && this.clickStartPos) {
+      const endX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+      const endY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
+      if (endX !== undefined && endY !== undefined) {
+        const dx = endX - this.clickStartPos.x;
+        const dy = endY - this.clickStartPos.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        
+        if (Date.now() - this.clickStartTime < 250 && dist < 6) {
+          // Click detected!
+          const rect = this.container.getBoundingClientRect();
+          const clickX = endX - rect.left;
+          const pct = clickX / rect.width;
+          
+          if (pct < 0.35) {
+            // Clicked left side card: scroll left
+            if (this.medias && this.medias[0]) {
+              const width = this.medias[0].width;
+              this.scroll.target -= width;
+              this.onCheckDebounce();
+            }
+          } else if (pct > 0.65) {
+            // Clicked right side card: scroll right
+            if (this.medias && this.medias[0]) {
+              const width = this.medias[0].width;
+              this.scroll.target += width;
+              this.onCheckDebounce();
+            }
+          } else {
+            // Clicked center card: open zoom!
+            if (typeof this.onCenterClick === 'function') {
+              this.onCenterClick();
+            }
+          }
+        }
+      }
+    }
   }
   onWheel(e) {
     const delta = e.deltaY || e.wheelDelta || e.detail;
@@ -535,7 +581,8 @@ export default function CircularGallery({
   fontUrl,
   scrollSpeed = 2,
   scrollEase = 0.05,
-  onActiveIndexChange
+  onActiveIndexChange,
+  onCenterClick
 }) {
   const containerRef = useRef(null);
   const appRef = useRef(null);
@@ -546,8 +593,9 @@ export default function CircularGallery({
   useEffect(() => {
     if (appRef.current) {
       appRef.current.onChange = onActiveIndexChange;
+      appRef.current.onCenterClick = onCenterClick;
     }
-  }, [onActiveIndexChange]);
+  }, [onActiveIndexChange, onCenterClick]);
 
   // Lifecycle effect: handle cleanup ONLY on unmount
   useEffect(() => {
@@ -609,7 +657,8 @@ export default function CircularGallery({
         font: resolvedFont,
         scrollSpeed,
         scrollEase,
-        onChange: onActiveIndexChange
+        onChange: onActiveIndexChange,
+        onCenterClick
       });
     });
 
