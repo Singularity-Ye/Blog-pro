@@ -394,6 +394,7 @@ function parseRawNoteImages(rawFilePath) {
       
       // Clean up headers and keys
       fullDesc = fullDesc
+        .replace(/#+\s*/g, '') // Strip Markdown heading hashes (e.g. ###, ##)
         .replace(/💡\s*\*\*蛤蟆祥法眼解析\*\*：?/g, '')
         .replace(/\*\*[蛤蛤]蟆法眼解析\*\*：?/g, '')
         .replace(/###\s*描述/g, '')
@@ -494,19 +495,17 @@ walkDir(FOOD_DIR, (filePath) => {
       const carouselRegex = /<div class="obsidian-carousel"[\s\S]*?<\/div>\s*(?:<div style="text-align: center;[\s\S]*?<\/div>)?/g;
       let newContent = content.replace(carouselRegex, '').trim();
       
-      const galleryRegex = /## 🖼️ 图集手札[\s\S]*?(?:##|$)/;
+      const galleryRegex = /## 🖼️ 图集手札[\s\S]*?(?=\n##\s|$)/;
       if (galleryRegex.test(newContent)) {
-        newContent = newContent.replace(galleryRegex, (match) => {
-          const ending = match.endsWith('##') ? '##' : '';
-          return newGallerySection + ending;
-        });
+        newContent = newContent.replace(galleryRegex, () => newGallerySection);
       } else {
         // Insert before the last section (typically ## 👣 避坑与出行红尘账 or similar)
         const lastSectionIndex = newContent.lastIndexOf('## 👣');
         if (lastSectionIndex !== -1) {
           newContent = newContent.substring(0, lastSectionIndex) + newGallerySection + newContent.substring(lastSectionIndex);
         } else {
-          const lastSectionIndex2 = newContent.lastIndexOf('---');
+          // Look for ## 📜
+          const lastSectionIndex2 = newContent.lastIndexOf('## 📜');
           if (lastSectionIndex2 !== -1) {
             newContent = newContent.substring(0, lastSectionIndex2) + newGallerySection + newContent.substring(lastSectionIndex2);
           } else {

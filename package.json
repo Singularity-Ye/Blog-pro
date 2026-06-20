@@ -48,7 +48,10 @@
     "fix-frontmatter": "node scripts/fix-frontmatter.mjs",
     "clean-no-image-notes": "node scripts/clean-no-image-notes.mjs",
     "analyze-vault-issues": "node scripts/analyze-vault-issues.mjs",
-    "cleanup-and-restore": "node scripts/cleanup-and-restore.mjs && node scripts/fix-remaining-images.mjs",
+    "cleanup-and-restore": "node scripts/cleanup-and-restore.mjs && node scripts/fix-remaining-images.mjs && node scripts/fix-images-paths.mjs",
+    "fix-images-paths": "node scripts/fix-images-paths.mjs",
+    "check-paths": "node scratch/check_paths.mjs",
+    "check-filenames": "node scratch/check_filenames.mjs",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
