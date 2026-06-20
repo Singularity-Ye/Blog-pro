@@ -440,7 +440,7 @@ ${content}
       const rawNameNoExt = path.basename(correctedRawName, '.md');
       expandedMarkdown = expandedMarkdown.replace(/本地证据：\[\[.*?\]\]/, `本地证据：[[${rawNameNoExt}]]`);
 
-      // Search, copy, and construct image carousel slider if any physical image references exist
+      // Search, copy, and construct image gallery / carousel slider if any physical image references exist
       const copiedImages = processInboxImages(originalContent, path.dirname(filePath), VAULT_ROOT, INBOX_DIR, targetCategory);
       if (copiedImages && copiedImages.length > 0) {
         // Calculate depth and relative path prefix
@@ -449,26 +449,50 @@ ${content}
         const depth = segments.length;
         const prefix = '../'.repeat(depth);
 
-        let carouselHtml = '';
-        if (copiedImages.length === 1) {
-          carouselHtml = `\n![[${copiedImages[0]}]]\n`;
-        } else {
-          let slides = '';
-          for (const img of copiedImages) {
-            const relImgUrl = `${prefix}attachments/${cleanTargetCategory}/${img}`;
-            slides += `  <div style="flex: 0 0 100%; scroll-snap-align: start; box-sizing: border-box; border-radius: 12px; overflow: hidden; border: 1px solid var(--background-modifier-border);">\n    <img src="${relImgUrl}" style="width: 100%; height: 320px; object-fit: cover; display: block;" />\n  </div>\n`;
-          }
-          carouselHtml = `\n<div class="obsidian-carousel" style="display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 8px; width: 100%; max-width: 480px; margin: 15px auto; padding-bottom: 8px; -webkit-overflow-scrolling: touch;">\n${slides}</div>\n<div style="text-align: center; font-size: 0.85em; color: var(--text-muted); margin-top: -5px; margin-bottom: 15px;">💡 左右滑动 or 使用滚轮查看更多图片</div>\n`;
-        }
+        const isFoodNote = cleanTargetCategory.includes('食味录');
+        let galleryHtml = '';
 
-        const titleMatch = expandedMarkdown.match(/^#\s+(.+)$/m);
-        if (titleMatch) {
-          const insertIndex = titleMatch.index + titleMatch[0].length;
-          expandedMarkdown = expandedMarkdown.slice(0, insertIndex) + `\n${carouselHtml}` + expandedMarkdown.slice(insertIndex);
+        if (isFoodNote) {
+          const imgMarkdowns = copiedImages.map(img => `![${img}](${prefix}attachments/${cleanTargetCategory}/${img})`);
+          galleryHtml = `\n## 🖼️ 图集手札\n\n<!--\n${imgMarkdowns.join('\n')}\n-->\n`;
+
+          // Search for "## 0. 原始资料" and insert it before it
+          const rawDataMatch = expandedMarkdown.match(/^(#{2,3}\s+0\.\s*原始资料)/m);
+          if (rawDataMatch) {
+            const insertIndex = rawDataMatch.index;
+            expandedMarkdown = expandedMarkdown.slice(0, insertIndex) + galleryHtml + '\n' + expandedMarkdown.slice(insertIndex);
+          } else {
+            // Fallback: below title
+            const titleMatch = expandedMarkdown.match(/^#\s+(.+)$/m);
+            if (titleMatch) {
+              const insertIndex = titleMatch.index + titleMatch[0].length;
+              expandedMarkdown = expandedMarkdown.slice(0, insertIndex) + `\n` + galleryHtml + expandedMarkdown.slice(insertIndex);
+            } else {
+              expandedMarkdown = galleryHtml + expandedMarkdown;
+            }
+          }
+          console.log(`   [Food Note Gallery] Created hidden gallery with ${copiedImages.length} images.`);
         } else {
-          expandedMarkdown = carouselHtml + expandedMarkdown;
+          if (copiedImages.length === 1) {
+            galleryHtml = `\n![[${copiedImages[0]}]]\n`;
+          } else {
+            let slides = '';
+            for (const img of copiedImages) {
+              const relImgUrl = `${prefix}attachments/${cleanTargetCategory}/${img}`;
+              slides += `  <div style="flex: 0 0 100%; scroll-snap-align: start; box-sizing: border-box; border-radius: 12px; overflow: hidden; border: 1px solid var(--background-modifier-border);">\n    <img src="${relImgUrl}" style="width: 100%; height: 320px; object-fit: cover; display: block;" />\n  </div>\n`;
+            }
+            galleryHtml = `\n<div class="obsidian-carousel" style="display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 8px; width: 100%; max-width: 480px; margin: 15px auto; padding-bottom: 8px; -webkit-overflow-scrolling: touch;">\n${slides}</div>\n<div style="text-align: center; font-size: 0.85em; color: var(--text-muted); margin-top: -5px; margin-bottom: 15px;">💡 左右滑动 or 使用滚轮查看更多图片</div>\n`;
+          }
+
+          const titleMatch = expandedMarkdown.match(/^#\s+(.+)$/m);
+          if (titleMatch) {
+            const insertIndex = titleMatch.index + titleMatch[0].length;
+            expandedMarkdown = expandedMarkdown.slice(0, insertIndex) + `\n${galleryHtml}` + expandedMarkdown.slice(insertIndex);
+          } else {
+            expandedMarkdown = galleryHtml + expandedMarkdown;
+          }
+          console.log(`   [Image Carousel] Created carousel with ${copiedImages.length} images.`);
         }
-        console.log(`   [Image Carousel] Created carousel with ${copiedImages.length} images.`);
       }
 
       // Ensure target directory exists
