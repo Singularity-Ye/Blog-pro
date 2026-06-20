@@ -2924,6 +2924,7 @@ const MarkdownBody = styled.div`
 
     svg {
       max-width: 100% !important;
+      width: auto !important;
       height: auto !important;
 
       /* Node boxes and actor boxes */
