@@ -1638,7 +1638,7 @@ const MarkdownBody = styled.div`
       .actor text *, text.actor *, .actor span *, .actor div *,
       .note text, text.note, .note span, .note div,
       .note text *, text.note *, .note span *, .note div *,
-      svg text, svg tspan, svg span, svg div, svg p, svg label,
+      text, tspan, span, div, p, label,
       .actorText, .actorText *,
       .noteText, .noteText *,
       .loopText, .loopText *,
@@ -2845,7 +2845,9 @@ const Mermaid = ({ value, theme = 'light' }) => {
             borderRadius: '10px',
             boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
             overflowX: 'auto',
-            overflowY: 'visible'
+            overflowY: 'visible',
+            width: '100%',
+            maxWidth: diagramSize.width ? `${Math.ceil(diagramSize.width) + 32}px` : '100%'
           }}
         />
       </div>
