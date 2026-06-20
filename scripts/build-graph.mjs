@@ -361,8 +361,12 @@ function resolveImage(refPath, sourceFile, imageList) {
     const absoluteImgPath = path.resolve(noteDir, refPath.split('|')[0].trim());
     if (fs.existsSync(absoluteImgPath)) {
       const normalizedAbs = path.normalize(absoluteImgPath);
-      const found = imageList.find(img => path.normalize(img.full) === normalizedAbs);
-      if (found) return found;
+      const relPath = path.relative(vaultPath, normalizedAbs);
+      return {
+        full: normalizedAbs,
+        rel: normalizeRelPath(relPath),
+        name: path.basename(normalizedAbs)
+      };
     }
   }
 

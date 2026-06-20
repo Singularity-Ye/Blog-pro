@@ -47,6 +47,8 @@
     "reorganize-vault": "node scripts/reorganize-vault.mjs",
     "fix-frontmatter": "node scripts/fix-frontmatter.mjs",
     "clean-no-image-notes": "node scripts/clean-no-image-notes.mjs",
+    "analyze-vault-issues": "node scripts/analyze-vault-issues.mjs",
+    "cleanup-and-restore": "node scripts/cleanup-and-restore.mjs && node scripts/fix-remaining-images.mjs",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

@@ -16,19 +16,6 @@ verified: true
 
 # 浙大龙虾节的“火鸡面 vs 咸蛋黄龙虾”大战
 
-<div class="obsidian-carousel" style="display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 8px; width: 100%; max-width: 480px; margin: 15px auto; padding-bottom: 8px; -webkit-overflow-scrolling: touch;">
-  <div style="flex: 0 0 100%; scroll-snap-align: start; box-sizing: border-box; border-radius: 12px; overflow: hidden; border: 1px solid var(--background-modifier-border);">
-    <img src="/notes/attachments/attachments/03_%E7%94%9F%E6%B4%BB%E7%B0%BF%EF%BC%88%E7%94%9F%E6%B4%BB%E5%8C%BA%EF%BC%89/%E9%A3%9F%E5%91%B3%E5%BD%95%EF%BC%88%E7%BE%8E%E9%A3%9F%E4%B8%8E%E6%8E%A2%E5%BA%97%EF%BC%89/2026-06-01_%E6%B5%99%E5%A4%A7%E9%BE%99%E8%99%BE%E8%8A%82%E8%A7%85%E9%A3%9F%E5%AE%9E%E5%BD%95_0.jpg" style="width: 100%; height: 320px; object-fit: cover; display: block;" />
-  </div>
-  <div style="flex: 0 0 100%; scroll-snap-align: start; box-sizing: border-box; border-radius: 12px; overflow: hidden; border: 1px solid var(--background-modifier-border);">
-    <img src="/notes/attachments/attachments/03_%E7%94%9F%E6%B4%BB%E7%B0%BF%EF%BC%88%E7%94%9F%E6%B4%BB%E5%8C%BA%EF%BC%89/%E9%A3%9F%E5%91%B3%E5%BD%95%EF%BC%88%E7%BE%8E%E9%A3%9F%E4%B8%8E%E6%8E%A2%E5%BA%97%EF%BC%89/2026-06-01_%E6%B5%99%E5%A4%A7%E9%BE%99%E8%99%BE%E8%8A%82%E8%A7%85%E9%A3%9F%E5%AE%9E%E5%BD%95_1.jpg" style="width: 100%; height: 320px; object-fit: cover; display: block;" />
-  </div>
-  <div style="flex: 0 0 100%; scroll-snap-align: start; box-sizing: border-box; border-radius: 12px; overflow: hidden; border: 1px solid var(--background-modifier-border);">
-    <img src="/notes/attachments/attachments/03_%E7%94%9F%E6%B4%BB%E7%B0%BF%EF%BC%88%E7%94%9F%E6%B4%BB%E5%8C%BA%EF%BC%89/%E9%A3%9F%E5%91%B3%E5%BD%95%EF%BC%88%E7%BE%8E%E9%A3%9F%E4%B8%8E%E6%8E%A2%E5%BA%97%EF%BC%89/2026-06-01_%E6%B5%99%E5%A4%A7%E9%BE%99%E8%99%BE%E8%8A%82%E8%A7%85%E9%A3%9F%E5%AE%9E%E5%BD%95_2.jpg" style="width: 100%; height: 320px; object-fit: cover; display: block;" />
-  </div>
-</div>
-<div style="text-align: center; font-size: 0.85em; color: var(--text-muted); margin-top: -5px; margin-bottom: 15px;">💡 左右滑动或使用滚轮查看更多图片</div>
-
 ## 🌟 0. 原始资料
 本地证据：[[2026-06-01_浙大龙虾节觅食实录_c37398]]
 
@@ -60,11 +47,33 @@ verified: true
 
 ## 🖼️ 图集手札
 
-![龙虾节现场|浙大小龙虾节现场的超级长龙队伍，吃货们太疯狂了](/notes/attachments/attachments/03_%E7%94%9F%E6%B4%BB%E7%B0%BF%EF%BC%88%E7%94%9F%E6%B4%BB%E5%8C%BA%EF%BC%89/%E9%A3%9F%E5%91%B3%E5%BD%95%EF%BC%88%E7%BE%8E%E9%A3%9F%E4%B8%8E%E6%8E%A2%E5%BA%97%EF%BC%89/2026-06-01_%E6%B5%99%E5%A4%A7%E9%BE%99%E8%99%BE%E8%8A%82%E8%A7%85%E9%A3%9F%E5%AE%9E%E5%BD%95_0.jpg)
+![美食影像|乐队在户外舞台演出，背景屏幕显示“杀无赦 不要轻易”及英文“Kill the One from Shijiazhuang”。右上角有“STCC”字样。](/notes/attachments/attachments/03_%E7%94%9F%E6%B4%BB%E7%B0%BF%EF%BC%88%E7%94%9F%E6%B4%BB%E5%8C%BA%EF%BC%89/%E9%A3%9F%E5%91%B3%E5%BD%95%EF%BC%88%E7%BE%8E%E9%A3%9F%E4%B8%8E%E6%8E%A2%E5%BA%97%EF%BC%89/%E8%A5%BF%E6%B9%96%E5%8C%BA/2026-06-01_%E6%B5%99%E5%A4%A7%E9%BE%99%E8%99%BE%E8%8A%82%E8%A7%85%E9%A3%9F%E5%AE%9E%E5%BD%95_0.jpg)
 
-![咸蛋黄小龙虾|黄澄澄的咸蛋黄小龙虾，隔着屏幕都能闻到沙沙的香味](/notes/attachments/attachments/03_%E7%94%9F%E6%B4%BB%E7%B0%BF%EF%BC%88%E7%94%9F%E6%B4%BB%E5%8C%BA%EF%BC%89/%E9%A3%9F%E5%91%B3%E5%BD%95%EF%BC%88%E7%BE%8E%E9%A3%9F%E4%B8%8E%E6%8E%A2%E5%BA%97%EF%BC%89/2026-06-01_%E6%B5%99%E5%A4%A7%E9%BE%99%E8%99%BE%E8%8A%82%E8%A7%85%E9%A3%9F%E5%AE%9E%E5%BD%95_1.jpg)
+![美食影像|一盘烤好的花形酥皮甜点，饰有红色配料，摆放在铝箔托盘上。](/notes/attachments/attachments/03_%E7%94%9F%E6%B4%BB%E7%B0%BF%EF%BC%88%E7%94%9F%E6%B4%BB%E5%8C%BA%EF%BC%89/%E9%A3%9F%E5%91%B3%E5%BD%95%EF%BC%88%E7%BE%8E%E9%A3%9F%E4%B8%8E%E6%8E%A2%E5%BA%97%EF%BC%89/%E8%A5%BF%E6%B9%96%E5%8C%BA/2026-06-01_%E6%B5%99%E5%A4%A7%E9%BE%99%E8%99%BE%E8%8A%82%E8%A7%85%E9%A3%9F%E5%AE%9E%E5%BD%95_1.jpg)
 
----
+![绿色桌布上摆放多份纸碗装的麻辣小龙虾|绿色桌布上摆放多份纸碗装的麻辣小龙虾。 无](/notes/attachments/attachments/03_%E7%94%9F%E6%B4%BB%E7%B0%BF%EF%BC%88%E7%94%9F%E6%B4%BB%E5%8C%BA%EF%BC%89/%E9%A3%9F%E5%91%B3%E5%BD%95%EF%BC%88%E7%BE%8E%E9%A3%9F%E4%B8%8E%E6%8E%A2%E5%BA%97%EF%BC%89/%E8%A5%BF%E6%B9%96%E5%8C%BA/2026-06-01_%E6%B5%99%E5%A4%A7%E9%BE%99%E8%99%BE%E8%8A%82%E8%A7%85%E9%A3%9F%E5%AE%9E%E5%BD%95_2.jpg)
+
+![美食影像|美食餐食，含煎饺、小龙虾杯、小龙虾拌面、柠檬饮。无。](/notes/attachments/attachments/03_%E7%94%9F%E6%B4%BB%E7%B0%BF%EF%BC%88%E7%94%9F%E6%B4%BB%E5%8C%BA%EF%BC%89/%E9%A3%9F%E5%91%B3%E5%BD%95%EF%BC%88%E7%BE%8E%E9%A3%9F%E4%B8%8E%E6%8E%A2%E5%BA%97%EF%BC%89/%E8%A5%BF%E6%B9%96%E5%8C%BA/2026-06-01_%E6%B5%99%E5%A4%A7%E9%BE%99%E8%99%BE%E8%8A%82%E8%A7%85%E9%A3%9F%E5%AE%9E%E5%BD%95_3.jpg)
+
+![一个卷着方便面|一个卷着方便面和火腿肠的煎饼果子特写。 无。](/notes/attachments/attachments/03_%E7%94%9F%E6%B4%BB%E7%B0%BF%EF%BC%88%E7%94%9F%E6%B4%BB%E5%8C%BA%EF%BC%89/%E9%A3%9F%E5%91%B3%E5%BD%95%EF%BC%88%E7%BE%8E%E9%A3%9F%E4%B8%8E%E6%8E%A2%E5%BA%97%EF%BC%89/%E8%A5%BF%E6%B9%96%E5%8C%BA/2026-06-01_%E6%B5%99%E5%A4%A7%E9%BE%99%E8%99%BE%E8%8A%82%E8%A7%85%E9%A3%9F%E5%AE%9E%E5%BD%95_4.jpg)
+
+![美食影像|户外餐饮分餐现场，厨师正将麻辣小龙虾等菜肴盛入碗中。 杯身有“龙虾节”字样。](/notes/attachments/attachments/03_%E7%94%9F%E6%B4%BB%E7%B0%BF%EF%BC%88%E7%94%9F%E6%B4%BB%E5%8C%BA%EF%BC%89/%E9%A3%9F%E5%91%B3%E5%BD%95%EF%BC%88%E7%BE%8E%E9%A3%9F%E4%B8%8E%E6%8E%A2%E5%BA%97%EF%BC%89/%E8%A5%BF%E6%B9%96%E5%8C%BA/2026-06-01_%E6%B5%99%E5%A4%A7%E9%BE%99%E8%99%BE%E8%8A%82%E8%A7%85%E9%A3%9F%E5%AE%9E%E5%BD%95_5.jpg)
+
+![美食影像|厨师在户外餐台分餐，有麻辣小龙虾等菜品，有人接取餐食。 无](/notes/attachments/attachments/03_%E7%94%9F%E6%B4%BB%E7%B0%BF%EF%BC%88%E7%94%9F%E6%B4%BB%E5%8C%BA%EF%BC%89/%E9%A3%9F%E5%91%B3%E5%BD%95%EF%BC%88%E7%BE%8E%E9%A3%9F%E4%B8%8E%E6%8E%A2%E5%BA%97%EF%BC%89/%E8%A5%BF%E6%B9%96%E5%8C%BA/2026-06-01_%E6%B5%99%E5%A4%A7%E9%BE%99%E8%99%BE%E8%8A%82%E8%A7%85%E9%A3%9F%E5%AE%9E%E5%BD%95_6.jpg)
+
+![美食影像|戴手套的手打理杯装橙色饮品，旁有烤串、餐盒，背景有收银机。 OCR17:00](/notes/attachments/attachments/03_%E7%94%9F%E6%B4%BB%E7%B0%BF%EF%BC%88%E7%94%9F%E6%B4%BB%E5%8C%BA%EF%BC%89/%E9%A3%9F%E5%91%B3%E5%BD%95%EF%BC%88%E7%BE%8E%E9%A3%9F%E4%B8%8E%E6%8E%A2%E5%BA%97%EF%BC%89/%E8%A5%BF%E6%B9%96%E5%8C%BA/2026-06-01_%E6%B5%99%E5%A4%A7%E9%BE%99%E8%99%BE%E8%8A%82%E8%A7%85%E9%A3%9F%E5%AE%9E%E5%BD%95_7.jpg)
+
+![美食影像|煎饺摊位有人用夹子取餐，旁有饮品与熊猫装饰。 OCR餐 出；白色包装（部分模糊）。](/notes/attachments/attachments/03_%E7%94%9F%E6%B4%BB%E7%B0%BF%EF%BC%88%E7%94%9F%E6%B4%BB%E5%8C%BA%EF%BC%89/%E9%A3%9F%E5%91%B3%E5%BD%95%EF%BC%88%E7%BE%8E%E9%A3%9F%E4%B8%8E%E6%8E%A2%E5%BA%97%EF%BC%89/%E8%A5%BF%E6%B9%96%E5%8C%BA/2026-06-01_%E6%B5%99%E5%A4%A7%E9%BE%99%E8%99%BE%E8%8A%82%E8%A7%85%E9%A3%9F%E5%AE%9E%E5%BD%95_8.jpg)
+
+![美食影像|蛤蟆祥在红尘中为您呈现的美味瞬间。](/notes/attachments/attachments/03_%E7%94%9F%E6%B4%BB%E7%B0%BF%EF%BC%88%E7%94%9F%E6%B4%BB%E5%8C%BA%EF%BC%89/%E9%A3%9F%E5%91%B3%E5%BD%95%EF%BC%88%E7%BE%8E%E9%A3%9F%E4%B8%8E%E6%8E%A2%E5%BA%97%EF%BC%89/%E8%A5%BF%E6%B9%96%E5%8C%BA/2026-06-01_%E6%B5%99%E5%A4%A7%E9%BE%99%E8%99%BE%E8%8A%82%E8%A7%85%E9%A3%9F%E5%AE%9E%E5%BD%95_9.jpg)
+
+![美食影像|图片展示了摆满纸碗的夜市小吃摊，碗中装有麻辣小龙虾和炸肉条。 识别出的My Sweet，小红书。](/notes/attachments/attachments/03_%E7%94%9F%E6%B4%BB%E7%B0%BF%EF%BC%88%E7%94%9F%E6%B4%BB%E5%8C%BA%EF%BC%89/%E9%A3%9F%E5%91%B3%E5%BD%95%EF%BC%88%E7%BE%8E%E9%A3%9F%E4%B8%8E%E6%8E%A2%E5%BA%97%EF%BC%89/%E8%A5%BF%E6%B9%96%E5%8C%BA/2026-06-01_%E6%B5%99%E5%A4%A7%E9%BE%99%E8%99%BE%E8%8A%82%E8%A7%85%E9%A3%9F%E5%AE%9E%E5%BD%95_10.jpg)
+
+![美食影像|蛤蟆祥在红尘中为您呈现的美味瞬间。](/notes/attachments/attachments/03_%E7%94%9F%E6%B4%BB%E7%B0%BF%EF%BC%88%E7%94%9F%E6%B4%BB%E5%8C%BA%EF%BC%89/%E9%A3%9F%E5%91%B3%E5%BD%95%EF%BC%88%E7%BE%8E%E9%A3%9F%E4%B8%8E%E6%8E%A2%E5%BA%97%EF%BC%89/%E8%A5%BF%E6%B9%96%E5%8C%BA/2026-06-01_%E6%B5%99%E5%A4%A7%E9%BE%99%E8%99%BE%E8%8A%82%E8%A7%85%E9%A3%9F%E5%AE%9E%E5%BD%95_11.jpg)
+
+![美食影像|一只手捧着纸袋装的烘焙食品，背景是人群聚集的公共场所。 （图片中因模糊难完整识别，需更清晰版本提取）](/notes/attachments/attachments/03_%E7%94%9F%E6%B4%BB%E7%B0%BF%EF%BC%88%E7%94%9F%E6%B4%BB%E5%8C%BA%EF%BC%89/%E9%A3%9F%E5%91%B3%E5%BD%95%EF%BC%88%E7%BE%8E%E9%A3%9F%E4%B8%8E%E6%8E%A2%E5%BA%97%EF%BC%89/%E8%A5%BF%E6%B9%96%E5%8C%BA/2026-06-01_%E6%B5%99%E5%A4%A7%E9%BE%99%E8%99%BE%E8%8A%82%E8%A7%85%E9%A3%9F%E5%AE%9E%E5%BD%95_12.jpg)
+
+![美食影像|繁忙的食堂取餐点，前景是打包餐食，背景挤满排队人群。 联系电话：025-68119990 地址：南京市建邺区泰山路168号 有限公司](/notes/attachments/attachments/03_%E7%94%9F%E6%B4%BB%E7%B0%BF%EF%BC%88%E7%94%9F%E6%B4%BB%E5%8C%BA%EF%BC%89/%E9%A3%9F%E5%91%B3%E5%BD%95%EF%BC%88%E7%BE%8E%E9%A3%9F%E4%B8%8E%E6%8E%A2%E5%BA%97%EF%BC%89/%E8%A5%BF%E6%B9%96%E5%8C%BA/2026-06-01_%E6%B5%99%E5%A4%A7%E9%BE%99%E8%99%BE%E8%8A%82%E8%A7%85%E9%A3%9F%E5%AE%9E%E5%BD%95_13.jpg)
 
 ## 👣 避坑与出行红尘账
 
