@@ -1,4 +1,4 @@
-```yaml
+---
 tags:
   - AI吃字怪
   - Token玄学
@@ -8,7 +8,7 @@ tags:
 url: "https://www.bilibili.com/video/BV1zU5X6nE8i"
 title: "AI吃字怪：文言文反而喂不饱它？Token的玄学世界揭秘"
 date: 2026-06-01
-```
+---
 
 # AI吃字怪：文言文反而喂不饱它？Token的玄学世界揭秘
 

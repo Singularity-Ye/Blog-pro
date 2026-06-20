@@ -45,6 +45,8 @@
     "scan-links": "node scripts/scan-links.mjs",
     "move-notes": "node scripts/move-notes.mjs",
     "reorganize-vault": "node scripts/reorganize-vault.mjs",
+    "fix-frontmatter": "node scripts/fix-frontmatter.mjs",
+    "clean-no-image-notes": "node scripts/clean-no-image-notes.mjs",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
