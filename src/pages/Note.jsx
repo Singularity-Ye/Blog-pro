@@ -811,7 +811,7 @@ const ProgressBar = styled.div`
   position: fixed;
   top: 0;
   left: 0;
-  width: ${props => props.$progress}%;
+  width: 0%;
   height: 2.5px;
   background: linear-gradient(90deg, #b98234, #e7c77e);
   z-index: 10002;
@@ -836,7 +836,6 @@ const ParallaxBg = styled.div`
        url(${noteReadingBgDark}) center center / cover,
        #07100e`
   };
-  transform: translate3d(0, ${props => props.$offset}px, 0);
   transition: transform 0.05s linear;
 `;
 
@@ -856,8 +855,6 @@ const MobileStickyHeader = styled(motion.div)`
   padding: 0 1rem;
   justify-content: space-between;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  transform: translateY(${props => props.$visible ? '0' : '-100%'});
 
   .back-btn {
     background: transparent;
@@ -902,9 +899,6 @@ const MobileFloatingButtonsWrapper = styled.div`
   flex-direction: column;
   gap: 0.8rem;
   pointer-events: auto;
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
-  transform: translateX(${props => props.$visible ? '0' : '80px'});
-  opacity: ${props => props.$visible ? 1 : 0};
 
   @media (min-width: 901px) {
     display: none;
@@ -2882,16 +2876,16 @@ export default function Note() {
   const [graphData, setGraphData] = useState(null);
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' ? window.innerWidth <= 900 : false);
 
-  const [readingProgress, setReadingProgress] = useState(0);
-  const [isScrollingUp, setIsScrollingUp] = useState(true);
   const [isHeaderSticky, setIsHeaderSticky] = useState(false);
   const [isMobileTocOpen, setIsMobileTocOpen] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [previewTarget, setPreviewTarget] = useState(null);
   const [previewContent, setPreviewContent] = useState('');
   const [previewLoading, setPreviewLoading] = useState(false);
-  const [bgOffset, setBgOffset] = useState(0);
-  const lastScrollY = useRef(0);
+
+  const progressBarRef = useRef(null);
+  const progressTextRef = useRef(null);
+  const bgRef = useRef(null);
 
   const { mainText, subText } = useMemo(() => parseElegantTitle(title), [title]);
 
@@ -3076,42 +3070,47 @@ export default function Note() {
     };
   }, [decodedSlug]);
 
-  // 滚动方向、进度以及背景视差偏移监听 (仅在移动端时注册以避免网页端 scroll 事件触发 React 重绘造成的性能开销)
+  const getInitialProgress = useCallback(() => {
+    if (typeof window === 'undefined') return 0;
+    const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+    if (totalHeight <= 0) return 0;
+    return Math.min(Math.max((window.scrollY / totalHeight) * 100, 0), 100);
+  }, []);
+
+  // 滚动方向、进度以及背景视差偏移监听 (通过直接 DOM 操作更新进度条和视差背景，彻底避免 scroll 事件触发 React 重绘带来的卡顿)
   useEffect(() => {
     if (loading || !isMobile) {
-      // 网页端不需要这些滚动状态，直接清空/重置为默认值
-      setReadingProgress(0);
       setIsHeaderSticky(false);
-      setIsScrollingUp(true);
-      setBgOffset(0);
       return;
     }
 
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      
       const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
-      if (totalHeight > 0) {
-        const progress = (currentScrollY / totalHeight) * 100;
-        setReadingProgress(Math.min(Math.max(progress, 0), 100));
-      } else {
-        setReadingProgress(0);
+      const progress = totalHeight > 0 ? (currentScrollY / totalHeight) * 100 : 0;
+      const clampedProgress = Math.min(Math.max(progress, 0), 100);
+
+      // 1. 直操 DOM 更新顶部进度条
+      if (progressBarRef.current) {
+        progressBarRef.current.style.width = `${clampedProgress}%`;
       }
 
-      setIsHeaderSticky(currentScrollY > 200);
-
-      if (currentScrollY > 120) {
-        if (currentScrollY > lastScrollY.current) {
-          setIsScrollingUp(false);
-        } else {
-          setIsScrollingUp(true);
-        }
-      } else {
-        setIsScrollingUp(true);
+      // 2. 直操 DOM 更新顶部 Sticky 标题栏中的百分比文字
+      if (progressTextRef.current) {
+        progressTextRef.current.textContent = `${Math.round(clampedProgress)}%`;
       }
 
-      setBgOffset(currentScrollY * 0.35);
-      lastScrollY.current = currentScrollY;
+      // 3. 直操 DOM 更新视差背景 transform 属性 (使用 translate3d 开启 GPU 加速)
+      if (bgRef.current) {
+        bgRef.current.style.transform = `translate3d(0, ${currentScrollY * 0.35}px, 0)`;
+      }
+
+      // 4. 只有当 Sticky 状态发生改变时才触发 state 更新，防止无意义重绘
+      const sticky = currentScrollY > 200;
+      setIsHeaderSticky(prev => {
+        if (prev !== sticky) return sticky;
+        return prev;
+      });
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -3518,23 +3517,41 @@ export default function Note() {
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      {!isEmbed && isMobile && <ProgressBar $progress={readingProgress} />}
-      {!isEmbed && isMobile && <ParallaxBg $theme={theme} $offset={bgOffset} />}
-      
-      {!isEmbed && isMobile && isHeaderSticky && (
-        <MobileStickyHeader $visible={isScrollingUp}>
-          <button onClick={() => { triggerVibration(10); handleBackClick(); }} className="back-btn" aria-label="返回">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <line x1="19" y1="12" x2="5" y2="12"></line>
-              <polyline points="12 19 5 12 12 5"></polyline>
-            </svg>
-          </button>
-          <div className="title-text">{mainText}</div>
-          <div className="progress-text">{Math.round(readingProgress)}%</div>
-        </MobileStickyHeader>
-      )}
+      {(() => {
+        const initProg = getInitialProgress();
+        return (
+          <>
+            {!isEmbed && isMobile && (
+              <ProgressBar 
+                ref={progressBarRef} 
+                style={{ width: `${initProg}%` }} 
+              />
+            )}
+            {!isEmbed && isMobile && (
+              <ParallaxBg 
+                ref={bgRef} 
+                $theme={theme} 
+                style={{ transform: `translate3d(0, ` + (typeof window !== 'undefined' ? window.scrollY * 0.35 : 0) + `px, 0)` }} 
+              />
+            )}
+            
+            {!isEmbed && isMobile && isHeaderSticky && (
+              <MobileStickyHeader>
+                <button onClick={() => { triggerVibration(10); handleBackClick(); }} className="back-btn" aria-label="返回">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                  </svg>
+                </button>
+                <div className="title-text">{mainText}</div>
+                <div className="progress-text" ref={progressTextRef}>{Math.round(initProg)}%</div>
+              </MobileStickyHeader>
+            )}
+          </>
+        );
+      })()}
 
-      {!isEmbed && <MouseLeafDrift theme={theme} />}
+      {!isEmbed && !isMobile && <MouseLeafDrift theme={theme} />}
       <NoteContent $isEmbed={isEmbed}>
         {!isEmbed && (
           <ThemeToggleWrapper>
@@ -3627,7 +3644,7 @@ export default function Note() {
         )}
       </NoteContent>
 
-      {!isEmbed && (
+      {!isEmbed && !isMobile && (
         <NoteSidebar>
           {collectionGraphHref && (
             <TocContainer>
@@ -3691,7 +3708,7 @@ export default function Note() {
 
       {isMobile && (
         <>
-          <MobileFloatingButtonsWrapper $visible={isScrollingUp}>
+          <MobileFloatingButtonsWrapper>
             {headings.length > 0 && (
               <MobileFloatingTocButton
                 type="button"
