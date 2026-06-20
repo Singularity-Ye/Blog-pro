@@ -50,15 +50,45 @@ export default class ErrorBoundary extends React.Component {
   }
 
   static getDerivedStateFromError(error) {
+    const isChunkError = error && (
+      error.name === 'ChunkLoadError' || 
+      (error.message && error.message.includes('Loading chunk'))
+    );
+    
+    if (isChunkError) {
+      try {
+        const hasRetried = window.sessionStorage.getItem('chunk-retry-failed');
+        if (!hasRetried) {
+          window.sessionStorage.setItem('chunk-retry-failed', 'true');
+          window.location.reload();
+          return { hasError: false, error: null };
+        }
+      } catch (e) {
+        console.error('SessionStorage access failed:', e);
+      }
+    }
+    
     return { hasError: true, error };
+  }
+
+  componentDidMount() {
+    try {
+      window.sessionStorage.removeItem('chunk-retry-failed');
+    } catch (e) {}
   }
 
   componentDidCatch(error, errorInfo) {
     console.error('[ErrorBoundary]', error, errorInfo);
+    try {
+      window.sessionStorage.removeItem('chunk-retry-failed');
+    } catch (e) {}
   }
 
   handleRetry = () => {
-    this.setState({ hasError: false, error: null });
+    try {
+      window.sessionStorage.removeItem('chunk-retry-failed');
+    } catch (e) {}
+    window.location.reload();
   };
 
   render() {
