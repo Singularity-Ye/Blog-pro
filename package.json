@@ -41,6 +41,7 @@
     "publish-notes": "node scripts/build-graph.mjs",
     "publish-admin": "node scripts/publish-admin.mjs",
     "build-graph": "node scripts/build-graph.mjs",
+    "reorder-gallery": "node scripts/reorder_and_hide_gallery.mjs",
     "fix-links": "node scripts/fix-links.mjs",
     "scan-links": "node scripts/scan-links.mjs",
     "move-notes": "node scripts/move-notes.mjs",
