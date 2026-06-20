@@ -35,6 +35,7 @@
     "start": "react-scripts start",
     "dev": "react-scripts start",
     "build": "react-scripts build",
+    "cleanup-duplicates": "node scripts/scan_and_cleanup_all_duplicates.mjs",
     "sync-notes": "node scripts/build-graph.mjs",
     "process-batch-notes": "node scripts/process-batch-notes.mjs",
     "process-all-inbox": "node scripts/process-all-inbox.mjs",
