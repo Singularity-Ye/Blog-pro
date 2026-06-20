@@ -101,13 +101,13 @@ walkDir(FOOD_DIR, (filePath) => {
     insertLineIdx = lines.length; // append to end if all else fails
   }
   
-  // Build new gallery block with images inside HTML comments
+  // Build new gallery block with images inside hidden HTML div (hides in both Obsidian Reading and Live Preview)
   const galleryLines = [
     '## 🖼️ 图集手札',
     '',
-    '<!--',
+    '<div style="display: none;">',
     ...images,
-    '-->'
+    '</div>'
   ];
   
   // Local padding adjustments

@@ -114,9 +114,6 @@ const preprocessMarkdown = (text, isLifestyle = false) => {
     });
   }
 
-  // 移除 Obsidian 的 %% 注释，防止在网页端渲染出来
-  processed = processed.replace(/%%[\s\S]*?%%/g, '');
-
   return processed;
 };
 
