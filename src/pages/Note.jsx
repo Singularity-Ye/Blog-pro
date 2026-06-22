@@ -783,11 +783,11 @@ const ProgressBar = styled.div`
 `;
 
 const ParallaxBg = styled.div`
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
+  width: 100%;
+  height: 100svh;
   z-index: -2;
   pointer-events: none;
   background: ${({ $theme }) => $theme === 'light'
@@ -799,7 +799,6 @@ const ParallaxBg = styled.div`
        url(${noteReadingBgDark}) center center / cover,
        #07100e`
   };
-  transition: transform 0.05s linear;
 `;
 
 const MobileFloatingDock = styled(motion.div)`
@@ -3032,10 +3031,12 @@ export default function Note() {
         progressTextRef.current.textContent = `${Math.round(clampedProgress)}%`;
       }
 
-      // 3. 直操 DOM 更新视差背景 transform 属性 (使用 translate3d 开启 GPU 加速)
+      // 3. 直操 DOM 更新视差背景 transform 属性 (移动端已设为 position: fixed 静态背景，免去重绘以确保 60/120fps Buttery Smooth 滚动)
+      /*
       if (bgRef.current) {
         bgRef.current.style.transform = `translate3d(0, ${currentScrollY * 0.35}px, 0)`;
       }
+      */
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -3453,7 +3454,6 @@ export default function Note() {
         <ParallaxBg 
           ref={bgRef} 
           $theme={theme} 
-          style={{ transform: `translate3d(0, ` + (typeof window !== 'undefined' ? window.scrollY * 0.35 : 0) + `px, 0)` }} 
         />
       )}
 
