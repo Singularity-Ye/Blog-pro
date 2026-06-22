@@ -16,6 +16,14 @@ date: 2026-06-01
 
 > 蛤蟆观测到：当台湾鸡排穿越海峡，杭州人用动车把它带回家
 
+## 🖼️ 图集手札
+
+<div style="display: none;">
+![鸡排入侵示意图](https://via.placeholder.com/600x400?text=5cm厚切鸡排入侵杭州)
+![厚切鸡排|道友们，快来看看这块咬过的厚切鸡排！背景的包装袋上印着“厚切”和“TAIHOUJIA”，还有“臺灣厚切雞排”的字样，真是太有台北味了！](/notes/attachments/attachments/03_%E7%94%9F%E6%B4%BB%E7%B0%BF%EF%BC%88%E7%94%9F%E6%B4%BB%E5%8C%BA%EF%BC%89/%E9%A3%9F%E5%91%B3%E5%BD%95%EF%BC%88%E7%BE%8E%E9%A3%9F%E4%B8%8E%E6%8E%A2%E5%BA%97%EF%BC%89/%E6%9D%AD%E5%B7%9E%E5%B8%82%E5%8C%BA%EF%BC%88%E5%85%B6%E4%BB%96%EF%BC%89/2026-06-01_%E6%9D%AD%E5%B7%9E%E5%AF%BB%E6%AD%A3%E5%AE%97%E5%8F%B0%E5%91%B3%E9%B8%A1%E6%8E%92_0.jpg)
+![太厚甲鸡排|这块油炸食品放在“太厚甲TAIHOUJIA”纸袋里，背景还有同款包装，真是美味的极致！源自台北的太厚甲，5公分的厚度，简直是美食的天堂！](/notes/attachments/attachments/03_%E7%94%9F%E6%B4%BB%E7%B0%BF%EF%BC%88%E7%94%9F%E6%B4%BB%E5%8C%BA%EF%BC%89/%E9%A3%9F%E5%91%B3%E5%BD%95%EF%BC%88%E7%BE%8E%E9%A3%9F%E4%B8%8E%E6%8E%A2%E5%BA%97%EF%BC%89/%E6%9D%AD%E5%B7%9E%E5%B8%82%E5%8C%BA%EF%BC%88%E5%85%B6%E4%BB%96%EF%BC%89/2026-06-01_%E6%9D%AD%E5%B7%9E%E5%AF%BB%E6%AD%A3%E5%AE%97%E5%8F%B0%E5%91%B3%E9%B8%A1%E6%8E%92_1.jpg)
+</div>
+
 ## 0. 原始资料
 本地证据：[[2026-06-01_杭州寻正宗台味鸡排_f3e1bd]]
 
@@ -75,11 +83,3 @@ sequenceDiagram
 - 风险提示：小心甘梅粉的酸味触发「台北夜市」PTSD（对某些人来说）
 
 > 🐢蛤蟆结语：当台湾夜市的烟火气撞上杭州的外卖江湖，这场「5cm厚切鸡排」的跨海迁徙，或许正是美食版的「两岸一家亲」。下次去杭州，记得用动车把这份台北味带回家！呱呱呱~
-
-## 🖼️ 图集手札
-
-<div style="display: none;">
-![鸡排入侵示意图](https://via.placeholder.com/600x400?text=5cm厚切鸡排入侵杭州)
-![厚切鸡排|道友们，快来看看这块咬过的厚切鸡排！背景的包装袋上印着“厚切”和“TAIHOUJIA”，还有“臺灣厚切雞排”的字样，真是太有台北味了！](/notes/attachments/attachments/03_%E7%94%9F%E6%B4%BB%E7%B0%BF%EF%BC%88%E7%94%9F%E6%B4%BB%E5%8C%BA%EF%BC%89/%E9%A3%9F%E5%91%B3%E5%BD%95%EF%BC%88%E7%BE%8E%E9%A3%9F%E4%B8%8E%E6%8E%A2%E5%BA%97%EF%BC%89/%E6%9D%AD%E5%B7%9E%E5%B8%82%E5%8C%BA%EF%BC%88%E5%85%B6%E4%BB%96%EF%BC%89/2026-06-01_%E6%9D%AD%E5%B7%9E%E5%AF%BB%E6%AD%A3%E5%AE%97%E5%8F%B0%E5%91%B3%E9%B8%A1%E6%8E%92_0.jpg)
-![太厚甲鸡排|这块油炸食品放在“太厚甲TAIHOUJIA”纸袋里，背景还有同款包装，真是美味的极致！源自台北的太厚甲，5公分的厚度，简直是美食的天堂！](/notes/attachments/attachments/03_%E7%94%9F%E6%B4%BB%E7%B0%BF%EF%BC%88%E7%94%9F%E6%B4%BB%E5%8C%BA%EF%BC%89/%E9%A3%9F%E5%91%B3%E5%BD%95%EF%BC%88%E7%BE%8E%E9%A3%9F%E4%B8%8E%E6%8E%A2%E5%BA%97%EF%BC%89/%E6%9D%AD%E5%B7%9E%E5%B8%82%E5%8C%BA%EF%BC%88%E5%85%B6%E4%BB%96%EF%BC%89/2026-06-01_%E6%9D%AD%E5%B7%9E%E5%AF%BB%E6%AD%A3%E5%AE%97%E5%8F%B0%E5%91%B3%E9%B8%A1%E6%8E%92_1.jpg)
-</div>
