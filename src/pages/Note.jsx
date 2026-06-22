@@ -864,9 +864,8 @@ const TocDrawerOverlay = styled(motion.div)`
   position: fixed;
   inset: 0;
   background: rgba(4, 2, 10, 0.45);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
   z-index: 10000;
+  touch-action: none;
 `;
 
 const TocDrawer = styled(motion.div)`
@@ -875,9 +874,7 @@ const TocDrawer = styled(motion.div)`
   left: 0;
   right: 0;
   max-height: 65vh;
-  background: var(--glass-bg);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  background: var(--bg-primary);
   border-top: 1.5px solid var(--glass-border);
   border-radius: 20px 20px 0 0;
   z-index: 10001;
@@ -947,9 +944,8 @@ const PreviewOverlay = styled(motion.div)`
   position: fixed;
   inset: 0;
   background: rgba(4, 2, 10, 0.4);
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
   z-index: 10000;
+  touch-action: none;
 `;
 
 const PreviewDrawer = styled(motion.div)`
@@ -957,9 +953,7 @@ const PreviewDrawer = styled(motion.div)`
   bottom: 0;
   left: 0;
   right: 0;
-  background: var(--glass-bg);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  background: var(--bg-primary);
   border-top: 1.5px solid var(--glass-border);
   border-radius: 20px 20px 0 0;
   z-index: 10001;
@@ -2819,6 +2813,22 @@ export default function Note() {
   const progressBarRef = useRef(null);
   const progressTextRef = useRef(null);
   const bgRef = useRef(null);
+
+  // 移动端弹窗/目录打开时锁住 body 滚动，防止背景穿透滚动
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      if (isMobileTocOpen || isPreviewOpen) {
+        document.body.style.overflow = 'hidden';
+      } else {
+        document.body.style.overflow = '';
+      }
+    }
+    return () => {
+      if (typeof document !== 'undefined') {
+        document.body.style.overflow = '';
+      }
+    };
+  }, [isMobileTocOpen, isPreviewOpen]);
 
   const { mainText, subText } = useMemo(() => parseElegantTitle(title), [title]);
 
