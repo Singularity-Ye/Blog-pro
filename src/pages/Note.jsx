@@ -688,7 +688,7 @@ const NoteLayout = styled.div`
   }
 
   @media (max-width: 900px) {
-    padding: ${({ $isEmbed }) => $isEmbed ? '0' : '1rem 0.75rem'};
+    padding: ${({ $isEmbed }) => $isEmbed ? '0' : '1.5rem 0.75rem 5rem'};
 
     &::before {
       position: absolute;
@@ -767,43 +767,6 @@ const RelatedNotesTitle = styled.h3`
   padding-bottom: 0.6rem;
 `;
 
-const MobileFloatingBackButton = styled(motion.button)`
-  position: fixed;
-  right: 2.375rem; /* 与下方宽52px的传送门按钮中心点完美对齐 (38px) */
-  bottom: 6rem; /* 位于传送门按钮上方，留出12px的安全防误触空隙 */
-  z-index: 9998;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 1.5px solid var(--glass-border);
-  background: var(--glass-bg);
-  color: var(--text-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  box-shadow: var(--glass-shadow), inset 0 1px 0 rgba(255,255,255,0.1);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  outline: none;
-  transition: all 0.3s ease;
-
-  svg {
-    width: 18px;
-    height: 18px;
-    stroke-width: 2.5;
-  }
-
-  &:hover {
-    background: var(--button-hover-bg);
-    border-color: var(--glass-border-highlight);
-    transform: translateY(-2px);
-  }
-
-  @media (min-width: 901px) {
-    display: none; /* 仅在移动端展示 */
-  }
-`;
 
 // ── 移动端增强体验组件样式 ──────────────────────────────────────
 
@@ -839,24 +802,30 @@ const ParallaxBg = styled.div`
   transition: transform 0.05s linear;
 `;
 
-const MobileStickyHeader = styled(motion.div)`
+const MobileFloatingDock = styled(motion.div)`
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 52px;
-  background: var(--glass-bg);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1.5px solid var(--glass-border);
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%) !important;
   z-index: 9999;
+  height: 46px;
+  padding: 0 1.2rem;
+  border-radius: 23px;
+  border: 1.5px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px) saturate(1.1);
+  -webkit-backdrop-filter: blur(16px) saturate(1.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.24), var(--glass-inset);
   display: flex;
   align-items: center;
-  padding: 0 1rem;
-  justify-content: space-between;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  gap: 0.8rem;
+  pointer-events: auto;
 
-  .back-btn {
+  @media (min-width: 901px) {
+    display: none;
+  }
+
+  .dock-btn {
     background: transparent;
     border: none;
     color: var(--text-primary);
@@ -866,65 +835,29 @@ const MobileStickyHeader = styled(motion.div)`
     align-items: center;
     justify-content: center;
     outline: none;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+
+    &:active {
+      transform: scale(0.85);
+      opacity: 0.7;
+    }
   }
 
-  .title-text {
-    font-size: 0.92rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    margin: 0 1rem;
-    flex: 1;
-    text-align: center;
+  .dock-divider {
+    width: 1.5px;
+    height: 16px;
+    background: var(--glass-border);
+    opacity: 0.6;
   }
 
-  .progress-text {
+  .dock-progress {
     font-size: 0.75rem;
     color: var(--text-accent);
     font-weight: 800;
     font-family: monospace;
     min-width: 32px;
-    text-align: right;
-  }
-`;
-
-const MobileFloatingButtonsWrapper = styled.div`
-  position: fixed;
-  bottom: 6rem;
-  right: 2.375rem;
-  z-index: 9998;
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
-  pointer-events: auto;
-
-  @media (min-width: 901px) {
-    display: none;
-  }
-`;
-
-const MobileFloatingTocButton = styled(motion.button)`
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 1.5px solid var(--glass-border);
-  background: var(--glass-bg);
-  color: var(--text-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  box-shadow: var(--glass-shadow), inset 0 1px 0 rgba(255,255,255,0.1);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  outline: none;
-
-  svg {
-    width: 18px;
-    height: 18px;
-    stroke-width: 2.5;
+    text-align: center;
+    user-select: none;
   }
 `;
 
@@ -2878,8 +2811,6 @@ export default function Note() {
   const [error, setError] = useState(null);
   const [graphData, setGraphData] = useState(null);
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' ? window.innerWidth <= 900 : false);
-
-  const [isHeaderSticky, setIsHeaderSticky] = useState(false);
   const [isMobileTocOpen, setIsMobileTocOpen] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [previewTarget, setPreviewTarget] = useState(null);
@@ -3080,10 +3011,8 @@ export default function Note() {
     return Math.min(Math.max((window.scrollY / totalHeight) * 100, 0), 100);
   }, []);
 
-  // 滚动方向、进度以及背景视差偏移监听 (通过直接 DOM 操作更新进度条和视差背景，彻底避免 scroll 事件触发 React 重绘带来的卡顿)
   useEffect(() => {
     if (loading || !isMobile) {
-      setIsHeaderSticky(false);
       return;
     }
 
@@ -3107,13 +3036,6 @@ export default function Note() {
       if (bgRef.current) {
         bgRef.current.style.transform = `translate3d(0, ${currentScrollY * 0.35}px, 0)`;
       }
-
-      // 4. 只有当 Sticky 状态发生改变时才触发 state 更新，防止无意义重绘
-      const sticky = currentScrollY > 200;
-      setIsHeaderSticky(prev => {
-        if (prev !== sticky) return sticky;
-        return prev;
-      });
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -3512,6 +3434,7 @@ export default function Note() {
       </NoteLayout>
     );
   }
+  const initProg = getInitialProgress();
 
   return (
     <NoteLayout 
@@ -3520,39 +3443,19 @@ export default function Note() {
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      {(() => {
-        const initProg = getInitialProgress();
-        return (
-          <>
-            {!isEmbed && isMobile && (
-              <ProgressBar 
-                ref={progressBarRef} 
-                style={{ width: `${initProg}%` }} 
-              />
-            )}
-            {!isEmbed && isMobile && (
-              <ParallaxBg 
-                ref={bgRef} 
-                $theme={theme} 
-                style={{ transform: `translate3d(0, ` + (typeof window !== 'undefined' ? window.scrollY * 0.35 : 0) + `px, 0)` }} 
-              />
-            )}
-            
-            {!isEmbed && isMobile && isHeaderSticky && (
-              <MobileStickyHeader>
-                <button onClick={() => { triggerVibration(10); handleBackClick(); }} className="back-btn" aria-label="返回">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <line x1="19" y1="12" x2="5" y2="12"></line>
-                    <polyline points="12 19 5 12 12 5"></polyline>
-                  </svg>
-                </button>
-                <div className="title-text">{mainText}</div>
-                <div className="progress-text" ref={progressTextRef}>{Math.round(initProg)}%</div>
-              </MobileStickyHeader>
-            )}
-          </>
-        );
-      })()}
+      {!isEmbed && isMobile && (
+        <ProgressBar 
+          ref={progressBarRef} 
+          style={{ width: `${initProg}%` }} 
+        />
+      )}
+      {!isEmbed && isMobile && (
+        <ParallaxBg 
+          ref={bgRef} 
+          $theme={theme} 
+          style={{ transform: `translate3d(0, ` + (typeof window !== 'undefined' ? window.scrollY * 0.35 : 0) + `px, 0)` }} 
+        />
+      )}
 
       {!isEmbed && !isMobile && <MouseLeafDrift theme={theme} />}
       <NoteContent $isEmbed={isEmbed}>
@@ -3711,35 +3614,47 @@ export default function Note() {
 
       {isMobile && (
         <>
-          <MobileFloatingButtonsWrapper>
-            {headings.length > 0 && (
-              <MobileFloatingTocButton
-                type="button"
-                onClick={() => { triggerVibration(10); setIsMobileTocOpen(true); }}
-                whileTap={{ scale: 0.9 }}
-                aria-label="查看目录"
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="21" y1="10" x2="7" y2="10"></line>
-                  <line x1="21" y1="6" x2="3" y2="6"></line>
-                  <line x1="21" y1="14" x2="3" y2="14"></line>
-                  <line x1="21" y1="18" x2="7" y2="18"></line>
-                </svg>
-              </MobileFloatingTocButton>
-            )}
-            <MobileFloatingBackButton
-              type="button"
-              onClick={() => { triggerVibration(10); handleBackClick(); }}
-              whileTap={{ scale: 0.9 }}
-              aria-label="返回上一页"
-              style={{ position: 'static', bottom: 'auto', right: 'auto' }}
+          {!isEmbed && (
+            <MobileFloatingDock
+              initial={{ y: 80, x: '-50%' }}
+              animate={{ y: 0, x: '-50%' }}
+              transition={{ type: 'spring', damping: 22, stiffness: 180 }}
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="19" y1="12" x2="5" y2="12"></line>
-                <polyline points="12 19 5 12 12 5"></polyline>
-              </svg>
-            </MobileFloatingBackButton>
-          </MobileFloatingButtonsWrapper>
+              <button 
+                type="button"
+                onClick={() => { triggerVibration(10); handleBackClick(); }} 
+                className="dock-btn" 
+                aria-label="返回"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="19" y1="12" x2="5" y2="12"></line>
+                  <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+              </button>
+              
+              <div className="dock-divider" />
+              <div className="dock-progress" ref={progressTextRef}>{Math.round(initProg)}%</div>
+              
+              {headings.length > 0 && (
+                <>
+                  <div className="dock-divider" />
+                  <button 
+                    type="button"
+                    onClick={() => { triggerVibration(10); setIsMobileTocOpen(true); }} 
+                    className="dock-btn" 
+                    aria-label="目录"
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="21" y1="10" x2="7" y2="10"></line>
+                      <line x1="21" y1="6" x2="3" y2="6"></line>
+                      <line x1="21" y1="14" x2="3" y2="14"></line>
+                      <line x1="21" y1="18" x2="7" y2="18"></line>
+                    </svg>
+                  </button>
+                </>
+              )}
+            </MobileFloatingDock>
+          )}
 
           {/* 目录抽屉面板 */}
           <AnimatePresence>
