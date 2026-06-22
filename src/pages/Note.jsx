@@ -473,6 +473,8 @@ const ZoomableMarkdownImage = ({ src, alt, style, theme, ...props }) => {
         alt={alt}
         style={{ ...style, cursor: 'zoom-in' }}
         onClick={() => setIsZoomed(true)}
+        loading="lazy"
+        decoding="async"
         {...props}
       />
       {isZoomed && (
@@ -774,12 +776,15 @@ const ProgressBar = styled.div`
   position: fixed;
   top: 0;
   left: 0;
-  width: 0%;
+  width: 100%;
   height: 2.5px;
   background: linear-gradient(90deg, #b98234, #e7c77e);
   z-index: 10002;
-  transition: width 0.1s ease-out;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.08s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   pointer-events: none;
+  will-change: transform;
 `;
 
 const ParallaxBg = styled.div`
@@ -915,6 +920,7 @@ const TocDrawer = styled(motion.div)`
   .drawer-content {
     flex: 1;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     padding-right: 0.4rem;
     scrollbar-width: thin;
     scrollbar-color: rgba(231, 199, 126, 0.25) transparent;
@@ -995,6 +1001,7 @@ const PreviewDrawer = styled(motion.div)`
     color: var(--text-primary);
     max-height: 25vh;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     white-space: pre-wrap;
     word-break: break-all;
   }
@@ -3025,28 +3032,30 @@ export default function Note() {
       return;
     }
 
+    let ticking = false;
+
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
-      const progress = totalHeight > 0 ? (currentScrollY / totalHeight) * 100 : 0;
-      const clampedProgress = Math.min(Math.max(progress, 0), 100);
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const currentScrollY = window.scrollY;
+          const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+          const progress = totalHeight > 0 ? (currentScrollY / totalHeight) * 100 : 0;
+          const clampedProgress = Math.min(Math.max(progress, 0), 100);
 
-      // 1. 直操 DOM 更新顶部进度条
-      if (progressBarRef.current) {
-        progressBarRef.current.style.width = `${clampedProgress}%`;
-      }
+          // 1. 直操 DOM 更新顶部进度条 (使用 scaleX GPU 加速)
+          if (progressBarRef.current) {
+            progressBarRef.current.style.transform = `scaleX(${clampedProgress / 100})`;
+          }
 
-      // 2. 直操 DOM 更新顶部 Sticky 标题栏中的百分比文字
-      if (progressTextRef.current) {
-        progressTextRef.current.textContent = `${Math.round(clampedProgress)}%`;
-      }
+          // 2. 直操 DOM 更新顶部 Sticky 标题栏中的百分比文字
+          if (progressTextRef.current) {
+            progressTextRef.current.textContent = `${Math.round(clampedProgress)}%`;
+          }
 
-      // 3. 直操 DOM 更新视差背景 transform 属性 (移动端已设为 position: fixed 静态背景，免去重绘以确保 60/120fps Buttery Smooth 滚动)
-      /*
-      if (bgRef.current) {
-        bgRef.current.style.transform = `translate3d(0, ${currentScrollY * 0.35}px, 0)`;
+          ticking = false;
+        });
+        ticking = true;
       }
-      */
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -3457,7 +3466,7 @@ export default function Note() {
       {!isEmbed && isMobile && (
         <ProgressBar 
           ref={progressBarRef} 
-          style={{ width: `${initProg}%` }} 
+          style={{ transform: `scaleX(${initProg / 100})` }} 
         />
       )}
       {!isEmbed && isMobile && (
