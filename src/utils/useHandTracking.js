@@ -228,9 +228,14 @@ export function HandTrackingProvider({ children }) {
         videoRef.current = video;
       }
 
-      // 2. Get Camera stream
+      // 2. Get Camera stream (request ideal 60 FPS from hardware webcam)
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { width: 640, height: 480, facingMode: 'user' },
+        video: { 
+          width: 640, 
+          height: 480, 
+          facingMode: 'user',
+          frameRate: { ideal: 60, min: 30 }
+        },
       });
       videoRef.current.srcObject = stream;
       setCameraActive(true);
