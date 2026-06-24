@@ -160,7 +160,7 @@ export function HandTrackingProvider({ children }) {
 
       // Pinch check (Distance between Thumb Tip 4 and Index Tip 8)
       const pinchDist = getDistance(hand[4], hand[8]);
-      const pinchActive = pinchDist < 0.06; // Adjusted to 0.06 to balance quick triggering and instant release
+      const pinchActive = pinchDist < 0.07; // Adjusted to 0.07 for precise finger tracking
       setIsPinching(pinchActive);
 
       // Fist check (curl of index, middle, ring, pinky)
@@ -246,9 +246,9 @@ export function HandTrackingProvider({ children }) {
         });
         hands.setOptions({
           maxNumHands: 1,
-          modelComplexity: 0, // Lite model for significantly higher frame rate and lower CPU overhead
-          minDetectionConfidence: 0.55,
-          minTrackingConfidence: 0.55,
+          modelComplexity: 1, // Changed back to Full for maximum fingertip tracking precision
+          minDetectionConfidence: 0.6,
+          minTrackingConfidence: 0.6,
         });
         hands.onResults(onResults);
         mediaPipeHandsRef.current = hands;
@@ -311,7 +311,7 @@ export function HandTrackingProvider({ children }) {
 
             // Pinch and grab states
             if (data.pinchDistance !== undefined) {
-              setIsPinching(data.pinchDistance < 0.06); // Adjusted to 0.06 to match webcam threshold
+              setIsPinching(data.pinchDistance < 0.07); // Adjusted to 0.07 to match webcam threshold
             } else if (data.gesture) {
               setIsPinching(data.gesture === 'pinch');
             }
