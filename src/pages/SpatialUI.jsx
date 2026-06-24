@@ -689,17 +689,29 @@ function SpatialScene({ activeModel, explode, hoveredHotspot, setHoveredHotspot 
 
       // Force React Three Fiber to run its raycasting event loop by dispatching a synthetic pointermove event.
       // This is crucial because when the physical mouse is stationary, R3F does not trigger hover tests for hand tracking.
+      // R3F reads event.offsetX/Y to compute normalized coordinates, so we must inject these properties.
       const canvasEl = state.gl.domElement;
       if (canvasEl) {
         const rect = canvasEl.getBoundingClientRect();
         const clientX = rect.left + (smoothedCursorRef.current.x + 1) * rect.width / 2;
         const clientY = rect.top + (1 - smoothedCursorRef.current.y) * rect.height / 2;
-        canvasEl.dispatchEvent(new PointerEvent('pointermove', {
+        const offsetX = (smoothedCursorRef.current.x + 1) * rect.width / 2;
+        const offsetY = (1 - smoothedCursorRef.current.y) * rect.height / 2;
+
+        const ev = new PointerEvent('pointermove', {
           clientX,
           clientY,
           bubbles: true,
           cancelable: true,
-        }));
+        });
+
+        // Define read-only properties on the event object
+        Object.defineProperties(ev, {
+          offsetX: { value: offsetX },
+          offsetY: { value: offsetY },
+        });
+
+        canvasEl.dispatchEvent(ev);
       }
     } else {
       wasHandDetectedRef.current = false;
