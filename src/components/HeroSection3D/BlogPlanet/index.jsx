@@ -19,10 +19,11 @@ function BlogPlanet({ activeBiome, onBiomeHover, onBiomeSelect, onNavigate }) {
   const targetScaleRef = useRef(1.04);
 
   // Hand tracking state
-  const { handDetected, cursor, isPinching, isFist } = useHandTracking();
+  const { handDetected, cursor, isPinching } = useHandTracking();
   const wasGrabbingRef = useRef(false);
   const prevCursorRef = useRef({ x: 0, y: 0 });
   const smoothedCursorRef = useRef({ x: 0, y: 0 });
+  const cursorVelocityRef = useRef({ x: 0, y: 0 });
   const wasHandDetectedRef = useRef(false);
 
   const zoomPlanet = useCallback((deltaY) => {
@@ -96,34 +97,55 @@ function BlogPlanet({ activeBiome, onBiomeHover, onBiomeSelect, onNavigate }) {
     };
   }, [gl.domElement, zoomPlanet]);
 
-  useFrame((state) => {
+  useFrame((state, delta) => {
     const group = groupRef.current;
     if (!group) return;
 
-    // Smoothly interpolate hand cursor coordinates inside R3F frame loop to achieve 60 FPS motion updates
-    // Using adaptive lerping: large displacements use higher lerp factors for latency-free swiping,
-    // while small movements use low factors to filter out hand tremors.
+    // Smoothly interpolate hand cursor coordinates inside R3F frame loop to achieve 60+ FPS motion updates.
+    // We use a spring-damper system to interpolate the 30 FPS camera tracking coordinate input,
+    // which generates continuous motion coordinates at native monitor refresh rates and absorbs jitter.
+    const dt = Math.min(delta, 0.1); // Clamp dt to prevent layout explosion on frame drops
     if (handDetected) {
       if (!wasHandDetectedRef.current) {
         wasHandDetectedRef.current = true;
         smoothedCursorRef.current = { ...cursor };
+        cursorVelocityRef.current = { x: 0, y: 0 };
       } else {
-        const dist = Math.sqrt(
-          Math.pow(cursor.x - smoothedCursorRef.current.x, 2) +
-          Math.pow(cursor.y - smoothedCursorRef.current.y, 2)
-        );
-        const adaptiveLerp = THREE.MathUtils.clamp(dist * 2.2, 0.16, 0.88);
-        smoothedCursorRef.current.x = THREE.MathUtils.lerp(smoothedCursorRef.current.x, cursor.x, adaptiveLerp);
-        smoothedCursorRef.current.y = THREE.MathUtils.lerp(smoothedCursorRef.current.y, cursor.y, adaptiveLerp);
+        const stiffness = 280; // High stiffness for responsive hand following
+        const damping = 22;    // Damping to prevent spring oscillation
+        
+        const forceX = -stiffness * (smoothedCursorRef.current.x - cursor.x) - damping * cursorVelocityRef.current.x;
+        const forceY = -stiffness * (smoothedCursorRef.current.y - cursor.y) - damping * cursorVelocityRef.current.y;
+        
+        cursorVelocityRef.current.x += forceX * dt;
+        cursorVelocityRef.current.y += forceY * dt;
+        
+        smoothedCursorRef.current.x += cursorVelocityRef.current.x * dt;
+        smoothedCursorRef.current.y += cursorVelocityRef.current.y * dt;
       }
       state.pointer.set(smoothedCursorRef.current.x, smoothedCursorRef.current.y);
+
+      // Force React Three Fiber to run its raycasting event loop by dispatching a synthetic pointermove event.
+      // This is crucial because when the physical mouse is stationary, R3F does not trigger hover tests for hand tracking.
+      const canvasEl = state.gl.domElement;
+      if (canvasEl) {
+        const rect = canvasEl.getBoundingClientRect();
+        const clientX = rect.left + (smoothedCursorRef.current.x + 1) * rect.width / 2;
+        const clientY = rect.top + (1 - smoothedCursorRef.current.y) * rect.height / 2;
+        canvasEl.dispatchEvent(new PointerEvent('pointermove', {
+          clientX,
+          clientY,
+          bubbles: true,
+          cancelable: true,
+        }));
+      }
     } else {
       wasHandDetectedRef.current = false;
     }
 
     // Hand-grabbing rotation (only active when not hovering any biome to avoid interaction conflict)
     if (handDetected && activeBiome === null) {
-      const isGrab = isFist || isPinching;
+      const isGrab = isPinching; // Only pinch is used for dragging/rotation as fist clenching is retired
       if (isGrab) {
         if (!wasGrabbingRef.current) {
           wasGrabbingRef.current = true;

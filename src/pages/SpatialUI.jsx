@@ -652,33 +652,62 @@ function SpatialScene({ activeModel, explode, hoveredHotspot, setHoveredHotspot 
   const groupRef = useRef();
   
   // Hand tracking coordinate states
-  const { handDetected, cursor, isPinching, isFist } = useHandTracking();
+  const { handDetected, cursor, isPinching } = useHandTracking();
   const wasGrabbingRef = useRef(false);
   const prevCursorRef = useRef({ x: 0, y: 0 });
   const smoothedCursorRef = useRef({ x: 0, y: 0 });
+  const cursorVelocityRef = useRef({ x: 0, y: 0 });
   const wasHandDetectedRef = useRef(false);
 
-  useFrame((state) => {
+  useFrame((state, delta) => {
     const group = groupRef.current;
     if (!group) return;
 
-    // Overwrite R3F pointer coordinates with smoothly interpolated coordinates to run at 60 FPS
+    // Smoothly interpolate hand cursor coordinates inside R3F frame loop to achieve 60+ FPS motion updates.
+    // We use a spring-damper system to interpolate the 30 FPS camera tracking coordinate input,
+    // which generates continuous motion coordinates at native monitor refresh rates and absorbs jitter.
+    const dt = Math.min(delta, 0.1); // Clamp dt to prevent layout explosion on frame drops
     if (handDetected) {
       if (!wasHandDetectedRef.current) {
         wasHandDetectedRef.current = true;
         smoothedCursorRef.current = { ...cursor };
+        cursorVelocityRef.current = { x: 0, y: 0 };
       } else {
-        smoothedCursorRef.current.x = THREE.MathUtils.lerp(smoothedCursorRef.current.x, cursor.x, 0.22);
-        smoothedCursorRef.current.y = THREE.MathUtils.lerp(smoothedCursorRef.current.y, cursor.y, 0.22);
+        const stiffness = 280; // High stiffness for responsive hand following
+        const damping = 22;    // Damping to prevent spring oscillation
+        
+        const forceX = -stiffness * (smoothedCursorRef.current.x - cursor.x) - damping * cursorVelocityRef.current.x;
+        const forceY = -stiffness * (smoothedCursorRef.current.y - cursor.y) - damping * cursorVelocityRef.current.y;
+        
+        cursorVelocityRef.current.x += forceX * dt;
+        cursorVelocityRef.current.y += forceY * dt;
+        
+        smoothedCursorRef.current.x += cursorVelocityRef.current.x * dt;
+        smoothedCursorRef.current.y += cursorVelocityRef.current.y * dt;
       }
       state.pointer.set(smoothedCursorRef.current.x, smoothedCursorRef.current.y);
+
+      // Force React Three Fiber to run its raycasting event loop by dispatching a synthetic pointermove event.
+      // This is crucial because when the physical mouse is stationary, R3F does not trigger hover tests for hand tracking.
+      const canvasEl = state.gl.domElement;
+      if (canvasEl) {
+        const rect = canvasEl.getBoundingClientRect();
+        const clientX = rect.left + (smoothedCursorRef.current.x + 1) * rect.width / 2;
+        const clientY = rect.top + (1 - smoothedCursorRef.current.y) * rect.height / 2;
+        canvasEl.dispatchEvent(new PointerEvent('pointermove', {
+          clientX,
+          clientY,
+          bubbles: true,
+          cancelable: true,
+        }));
+      }
     } else {
       wasHandDetectedRef.current = false;
     }
 
     // Gestural Hand-Dragging Rotation logic
     if (handDetected) {
-      const isGrab = isFist || isPinching;
+      const isGrab = isPinching; // Only pinch is used for dragging/rotation as fist clenching is retired
       
       // Rotate model when grabbing in empty space (i.e. not hovering any hotspot)
       if (isGrab && hoveredHotspot === null) {
@@ -759,7 +788,6 @@ export default function SpatialUI() {
     handDetected,
     cursor,
     isPinching,
-    isFist,
     isConnected,
     wsUrl,
     setWsUrl,
@@ -857,7 +885,7 @@ export default function SpatialUI() {
               侦测: {handDetected ? 'ACTIVE' : 'OFFLINE'}<br />
               指针 X: {cursor.x.toFixed(3)}<br />
               指针 Y: {cursor.y.toFixed(3)}<br />
-              姿态: {isPinching ? '双指捏合 (PINCH)' : isFist ? '握拳抓取 (DRAG)' : '掌心展开 (OPEN)'}<br />
+              姿态: {isPinching ? '捏合拖拽 (PINCH/DRAG)' : '掌心展开 (OPEN)'}<br />
             </div>
           </div>
         </Sidebar>

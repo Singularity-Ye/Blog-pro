@@ -1,4 +1,4 @@
-import React, { Suspense, useCallback, useState, useEffect } from 'react';
+import React, { Suspense, useCallback, useState, useEffect, useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { Preload } from '@react-three/drei';
 import styled, { keyframes } from 'styled-components';
@@ -771,7 +771,6 @@ function HeroSection3D({ onActiveBiomeChange }) {
     handDetected,
     cursor,
     isPinching,
-    isFist,
     wsUrl,
     setWsUrl,
     isConnected,
@@ -781,6 +780,17 @@ function HeroSection3D({ onActiveBiomeChange }) {
   } = useHandTracking();
 
   const [dwellProgress, setDwellProgress] = useState(0);
+  const activeBiomeRef = useRef(activeBiome);
+  const dwellStateRef = useRef({
+    progress: 0,
+    currentTargetBiome: null,
+    graceTimeRemaining: 0,
+    lastTime: Date.now(),
+  });
+
+  useEffect(() => {
+    activeBiomeRef.current = activeBiome;
+  }, [activeBiome]);
 
   const handleActiveBiomeChange = useCallback((biomeKey) => {
     setActiveBiome(biomeKey);
@@ -799,37 +809,92 @@ function HeroSection3D({ onActiveBiomeChange }) {
     window.setTimeout(() => navigate(biome.href), 220);
   }, [navigate, handleActiveBiomeChange]);
 
-  // 1. Dwell Click timer logic
+  // 1. Dwell Click timer logic with grace period (hysteresis) to handle micro-jitters
   useEffect(() => {
-    if (trackingMode === TRACKING_MODES.MOUSE || !handDetected || !activeBiome) {
+    if (trackingMode === TRACKING_MODES.MOUSE || !handDetected) {
       setDwellProgress(0);
+      dwellStateRef.current = {
+        progress: 0,
+        currentTargetBiome: null,
+        graceTimeRemaining: 0,
+        lastTime: Date.now(),
+      };
       return;
     }
 
-    const duration = 1200; // 1.2s hover dwell duration
-    const startTime = Date.now();
+    dwellStateRef.current.lastTime = Date.now();
+    let animationFrameId;
+    const GRACE_PERIOD = 350; // 350ms grace period to survive hand jitter
 
-    const interval = setInterval(() => {
-      const elapsed = Date.now() - startTime;
-      const progress = Math.min(100, (elapsed / duration) * 100);
-      setDwellProgress(progress);
+    const updateDwell = () => {
+      const now = Date.now();
+      const dt = now - dwellStateRef.current.lastTime;
+      dwellStateRef.current.lastTime = now;
 
-      if (progress >= 100) {
-        clearInterval(interval);
-        const biome = BIOMES[activeBiome];
-        if (biome) {
-          handleActiveBiomeChange(activeBiome);
-          window.setTimeout(() => navigate(biome.href), 150);
+      const currentActive = activeBiomeRef.current;
+      const state = dwellStateRef.current;
+
+      // Ignore 'ocean' for page navigation dwell, treat it as empty space
+      if (currentActive && currentActive !== 'ocean') {
+        if (state.currentTargetBiome !== currentActive) {
+          // If we transitioned to a new valid biome, reset progress
+          state.currentTargetBiome = currentActive;
+          state.progress = 0;
+          state.graceTimeRemaining = 0;
+        } else {
+          // Hovering same valid biome: advance progress
+          state.graceTimeRemaining = 0;
+          state.progress = Math.min(100, state.progress + (dt / 1200) * 100);
+        }
+      } else {
+        // We are hovering over nothing or ocean
+        if (state.currentTargetBiome) {
+          // Start/decrement grace period countdown
+          if (state.graceTimeRemaining === 0) {
+            state.graceTimeRemaining = GRACE_PERIOD;
+          }
+          state.graceTimeRemaining -= dt;
+          
+          if (state.graceTimeRemaining <= 0) {
+            // Grace period expired, slowly drain progress
+            state.currentTargetBiome = null;
+            state.progress = Math.max(0, state.progress - (dt / 300) * 100);
+          }
+        } else {
+          state.progress = Math.max(0, state.progress - (dt / 300) * 100);
         }
       }
-    }, 16);
 
-    return () => clearInterval(interval);
-  }, [activeBiome, handDetected, trackingMode, navigate, handleActiveBiomeChange]);
+      setDwellProgress(state.progress);
 
-  // 2. Pinch Click trigger logic
+      if (state.progress >= 100) {
+        const target = state.currentTargetBiome;
+        if (target) {
+          const biome = BIOMES[target];
+          if (biome) {
+            handleActiveBiomeChange(target);
+            window.setTimeout(() => navigate(biome.href), 150);
+          }
+        }
+        // Reset state
+        state.progress = 0;
+        state.currentTargetBiome = null;
+        state.graceTimeRemaining = 0;
+      } else {
+        animationFrameId = requestAnimationFrame(updateDwell);
+      }
+    };
+
+    animationFrameId = requestAnimationFrame(updateDwell);
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, [handDetected, trackingMode, navigate, handleActiveBiomeChange]);
+
+  // 2. Pinch Click trigger logic (no clenching fist)
   useEffect(() => {
-    if (trackingMode !== TRACKING_MODES.MOUSE && handDetected && activeBiome && isPinching) {
+    if (trackingMode !== TRACKING_MODES.MOUSE && handDetected && activeBiome && activeBiome !== 'ocean' && isPinching) {
       const biome = BIOMES[activeBiome];
       if (biome) {
         handleActiveBiomeChange(activeBiome);
@@ -936,7 +1001,7 @@ function HeroSection3D({ onActiveBiomeChange }) {
           状态: {trackingMode.toUpperCase()}<br />
           手部侦测: {handDetected ? 'DETECTED' : 'NOT DETECTED'}<br />
           指针坐标: X:{cursor.x.toFixed(2)} Y:{cursor.y.toFixed(2)}<br />
-          动作: {isPinching ? '捏合 (Click)' : isFist ? '握拳 (Drag)' : '悬停 (Hover)'}
+          动作: {isPinching ? '捏合拖拽 (Pinch/Drag)' : '悬停 (Hover)'}
           {dwellProgress > 0 && <><br />确认进度: {Math.round(dwellProgress)}%</>}
         </div>
       </ControlPanel>
