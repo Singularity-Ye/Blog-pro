@@ -22,6 +22,8 @@ function BlogPlanet({ activeBiome, onBiomeHover, onBiomeSelect, onNavigate }) {
   const { handDetected, cursor, isPinching, isFist } = useHandTracking();
   const wasGrabbingRef = useRef(false);
   const prevCursorRef = useRef({ x: 0, y: 0 });
+  const smoothedCursorRef = useRef({ x: 0, y: 0 });
+  const wasHandDetectedRef = useRef(false);
 
   const zoomPlanet = useCallback((deltaY) => {
     const direction = deltaY > 0 ? -1 : 1;
@@ -98,9 +100,18 @@ function BlogPlanet({ activeBiome, onBiomeHover, onBiomeSelect, onNavigate }) {
     const group = groupRef.current;
     if (!group) return;
 
-    // Hijack R3F raycaster coordinate using hand cursor
+    // Smoothly interpolate hand cursor coordinates inside R3F frame loop to achieve 60 FPS motion updates
     if (handDetected) {
-      state.pointer.set(cursor.x, cursor.y);
+      if (!wasHandDetectedRef.current) {
+        wasHandDetectedRef.current = true;
+        smoothedCursorRef.current = { ...cursor };
+      } else {
+        smoothedCursorRef.current.x = THREE.MathUtils.lerp(smoothedCursorRef.current.x, cursor.x, 0.22);
+        smoothedCursorRef.current.y = THREE.MathUtils.lerp(smoothedCursorRef.current.y, cursor.y, 0.22);
+      }
+      state.pointer.set(smoothedCursorRef.current.x, smoothedCursorRef.current.y);
+    } else {
+      wasHandDetectedRef.current = false;
     }
 
     // Hand-grabbing rotation (only active when not hovering any biome to avoid interaction conflict)
@@ -109,10 +120,10 @@ function BlogPlanet({ activeBiome, onBiomeHover, onBiomeSelect, onNavigate }) {
       if (isGrab) {
         if (!wasGrabbingRef.current) {
           wasGrabbingRef.current = true;
-          prevCursorRef.current = { ...cursor };
+          prevCursorRef.current = { ...smoothedCursorRef.current };
         } else {
-          const dx = cursor.x - prevCursorRef.current.x;
-          const dy = cursor.y - prevCursorRef.current.y;
+          const dx = smoothedCursorRef.current.x - prevCursorRef.current.x;
+          const dy = smoothedCursorRef.current.y - prevCursorRef.current.y;
 
           group.rotation.y += dx * 2.2;
           group.rotation.x = clamp(
@@ -126,7 +137,7 @@ function BlogPlanet({ activeBiome, onBiomeHover, onBiomeSelect, onNavigate }) {
             y: dx * 2.2,
           };
 
-          prevCursorRef.current = { ...cursor };
+          prevCursorRef.current = { ...smoothedCursorRef.current };
         }
       } else {
         wasGrabbingRef.current = false;

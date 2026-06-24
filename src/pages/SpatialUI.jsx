@@ -655,14 +655,25 @@ function SpatialScene({ activeModel, explode, hoveredHotspot, setHoveredHotspot 
   const { handDetected, cursor, isPinching, isFist } = useHandTracking();
   const wasGrabbingRef = useRef(false);
   const prevCursorRef = useRef({ x: 0, y: 0 });
+  const smoothedCursorRef = useRef({ x: 0, y: 0 });
+  const wasHandDetectedRef = useRef(false);
 
   useFrame((state) => {
     const group = groupRef.current;
     if (!group) return;
 
-    // Overwrite R3F pointer coordinates if hand is active
+    // Overwrite R3F pointer coordinates with smoothly interpolated coordinates to run at 60 FPS
     if (handDetected) {
-      state.pointer.set(cursor.x, cursor.y);
+      if (!wasHandDetectedRef.current) {
+        wasHandDetectedRef.current = true;
+        smoothedCursorRef.current = { ...cursor };
+      } else {
+        smoothedCursorRef.current.x = THREE.MathUtils.lerp(smoothedCursorRef.current.x, cursor.x, 0.22);
+        smoothedCursorRef.current.y = THREE.MathUtils.lerp(smoothedCursorRef.current.y, cursor.y, 0.22);
+      }
+      state.pointer.set(smoothedCursorRef.current.x, smoothedCursorRef.current.y);
+    } else {
+      wasHandDetectedRef.current = false;
     }
 
     // Gestural Hand-Dragging Rotation logic
@@ -673,10 +684,10 @@ function SpatialScene({ activeModel, explode, hoveredHotspot, setHoveredHotspot 
       if (isGrab && hoveredHotspot === null) {
         if (!wasGrabbingRef.current) {
           wasGrabbingRef.current = true;
-          prevCursorRef.current = { ...cursor };
+          prevCursorRef.current = { ...smoothedCursorRef.current };
         } else {
-          const dx = cursor.x - prevCursorRef.current.x;
-          const dy = cursor.y - prevCursorRef.current.y;
+          const dx = smoothedCursorRef.current.x - prevCursorRef.current.x;
+          const dy = smoothedCursorRef.current.y - prevCursorRef.current.y;
 
           group.rotation.y += dx * 2.5;
           group.rotation.x = THREE.MathUtils.clamp(
@@ -685,7 +696,7 @@ function SpatialScene({ activeModel, explode, hoveredHotspot, setHoveredHotspot 
             0.85
           );
 
-          prevCursorRef.current = { ...cursor };
+          prevCursorRef.current = { ...smoothedCursorRef.current };
         }
       } else {
         wasGrabbingRef.current = false;
