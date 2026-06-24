@@ -1,10 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
-
-// -------------------------------------------------------------------------
-// 动效定义 (Animations)
-// -------------------------------------------------------------------------
+import { useNavigate } from 'react-router-dom';
 
 const spinCw = keyframes`
   from { transform: rotate(0deg); }
@@ -26,6 +23,20 @@ const floatAnim = keyframes`
 // -------------------------------------------------------------------------
 
 const PROJECTS_DATA = [
+  {
+    id: 'holographic-spatial-ui',
+    title: '以太空间全息交互舱',
+    category: 'webgl',
+    categoryLabel: '幻镜术',
+    element: 'Holography (光斑)',
+    elementColor: '#00f0ff',
+    mana: '88',
+    power: '95',
+    ingredients: ['Three.js', 'React Three Fiber', 'WebSocket', 'MediaPipe Hand Tracking'],
+    shortDesc: '基于手势识别与 WebGL 射线检测的 3D 空间交互沙盒，支持冰箱与电池模型的精密拆解。',
+    longDesc: '这是一个融合了空气手势追踪与 3D WebGL UI 的全息展示系统。用户可通过本地摄像头（基于 MediaPipe）或树莓派 WebSocket 接口，以食指尖作为虚拟三维激光指针，在空气中实现高精度悬停与捏合操作；支持全息冰箱与固态电池模型的部件爆炸图分离，以及随动引线的 tech 信息看板展示。',
+    demoUrl: '/spatial-ui',
+  },
   {
     id: 'daimao-new-year',
     title: '怪猎呆猫贺新春',
@@ -759,6 +770,7 @@ const CloseButton = styled.button`
 // -------------------------------------------------------------------------
 
 const Projects = () => {
+  const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState('all');
   const [selectedProject, setSelectedProject] = useState(null);
   const [shockwaveIndex, setShockwaveIndex] = useState(null);
@@ -1139,7 +1151,16 @@ const Projects = () => {
                       {selectedProject.demoUrl && (
                         <PortalButton
                           $primary
-                          href={selectedProject.demoUrl}
+                          as={selectedProject.demoUrl.startsWith('/') ? undefined : 'a'}
+                          href={selectedProject.demoUrl.startsWith('/') ? undefined : selectedProject.demoUrl}
+                          onClick={
+                            selectedProject.demoUrl.startsWith('/')
+                              ? (e) => {
+                                  e.preventDefault();
+                                  navigate(selectedProject.demoUrl);
+                                }
+                              : undefined
+                          }
                           target={selectedProject.demoUrl.startsWith('http') ? '_blank' : undefined}
                           rel={selectedProject.demoUrl.startsWith('http') ? 'noopener noreferrer' : undefined}
                         >

@@ -1,4 +1,4 @@
-import React, { Suspense, useCallback, useState } from 'react';
+import React, { Suspense, useCallback, useState, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { Preload } from '@react-three/drei';
 import styled, { keyframes } from 'styled-components';
@@ -9,6 +9,8 @@ import heroMapBackground from '../../assets/images/home/hero-map-background.png'
 import { BIOMES, BIOME_ORDER } from './BlogPlanet/biomeConfig';
 import Scene from './Scene';
 import ErrorBoundary from '../ErrorBoundary';
+import { useHandTracking, TRACKING_MODES } from '../../utils/useHandTracking';
+import HandHologram from './HandHologram';
 
 const pulseAnim = keyframes`
   0%, 100% { opacity: 0.42; }
@@ -559,9 +561,222 @@ const HintText = styled.span`
   }
 `;
 
+const ControlPanel = styled.div`
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  z-index: 100;
+  width: 250px;
+  padding: 0.85rem;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 240, 255, 0.2);
+  background: rgba(8, 12, 18, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    0 0 15px rgba(0, 240, 255, 0.05);
+  color: #e0f2f1;
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 0.76rem;
+  pointer-events: all;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  transition: border-color 0.3s ease;
+
+  &:hover {
+    border-color: rgba(0, 240, 255, 0.45);
+  }
+
+  h3 {
+    margin: 0;
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #00f0ff;
+    text-shadow: 0 0 6px rgba(0, 240, 255, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .mode-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.25rem;
+  }
+
+  button {
+    background: rgba(0, 240, 255, 0.05);
+    border: 1px solid rgba(0, 240, 255, 0.15);
+    border-radius: 4px;
+    color: rgba(224, 242, 241, 0.65);
+    font-size: 0.66rem;
+    font-weight: 700;
+    padding: 0.35rem 0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    outline: none;
+
+    &:hover {
+      border-color: rgba(0, 240, 255, 0.4);
+      color: #fff;
+      background: rgba(0, 240, 255, 0.1);
+    }
+
+    &.active {
+      background: rgba(0, 240, 255, 0.16);
+      border-color: #00f0ff;
+      color: #fff;
+      box-shadow: 0 0 8px rgba(0, 240, 255, 0.25);
+    }
+  }
+
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+
+    label {
+      font-size: 0.65rem;
+      color: rgba(224, 242, 241, 0.5);
+    }
+
+    input {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(0, 240, 255, 0.15);
+      border-radius: 4px;
+      color: #fff;
+      font-size: 0.7rem;
+      padding: 0.25rem 0.4rem;
+      outline: none;
+
+      &:focus {
+        border-color: #00f0ff;
+      }
+    }
+  }
+
+  .status-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #ef4444;
+    box-shadow: 0 0 6px #ef4444;
+
+    &.connected {
+      background: #10b981;
+      box-shadow: 0 0 6px #10b981;
+    }
+  }
+
+  .readout {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    padding: 0.35rem;
+    font-family: monospace;
+    font-size: 0.65rem;
+    color: rgba(0, 240, 255, 0.8);
+    line-height: 1.35;
+  }
+`;
+
+const CameraPiP = styled.div`
+  position: absolute;
+  bottom: 2rem;
+  left: 2rem;
+  width: 140px;
+  height: 105px;
+  border-radius: 8px;
+  border: 1.5px solid rgba(0, 240, 255, 0.3);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  z-index: 100;
+  background: #000;
+  transform: scaleX(-1);
+  pointer-events: none;
+  
+  canvas {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+`;
+
+const FloatingCursor = styled.div`
+  position: fixed;
+  left: ${props => props.$left};
+  top: ${props => props.$top};
+  width: 10px;
+  height: 10px;
+  background: ${props => props.$isPinching ? '#10b981' : '#00f0ff'};
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 99999;
+  pointer-events: none;
+  box-shadow: 
+    0 0 8px ${props => props.$isPinching ? '#10b981' : '#00f0ff'},
+    0 0 16px ${props => props.$isPinching ? '#10b981' : '#00f0ff'};
+  transition: background-color 0.15s, transform 0.1s;
+
+  ${props => props.$isPinching && 'transform: translate(-50%, -50%) scale(0.75);'}
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -12px;
+    left: -12px;
+    right: -12px;
+    bottom: -12px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(0, 240, 255, 0.3);
+    animation: cursorSpin 6s linear infinite;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: -12px;
+    left: -12px;
+    right: -12px;
+    bottom: -12px;
+    border-radius: 50%;
+    border: 2px solid #00f0ff;
+    border-color: #00f0ff transparent transparent transparent;
+    opacity: ${props => props.$dwellProgress > 0 ? 1 : 0};
+    transform: rotate(${props => props.$dwellProgress * 3.6}deg);
+    transition: opacity 0.1s;
+  }
+
+  @keyframes cursorSpin {
+    to { transform: rotate(360deg); }
+  }
+`;
+
+
 function HeroSection3D({ onActiveBiomeChange }) {
   const navigate = useNavigate();
   const [activeBiome, setActiveBiome] = useState(null);
+
+  // Hand tracking states from context
+  const {
+    trackingMode,
+    setTrackingMode,
+    handDetected,
+    cursor,
+    isPinching,
+    isFist,
+    wsUrl,
+    setWsUrl,
+    isConnected,
+    cameraActive,
+    canvasRef,
+  } = useHandTracking();
+
+  const [dwellProgress, setDwellProgress] = useState(0);
 
   const handleActiveBiomeChange = useCallback((biomeKey) => {
     setActiveBiome(biomeKey);
@@ -579,6 +794,48 @@ function HeroSection3D({ onActiveBiomeChange }) {
     handleActiveBiomeChange(biomeKey);
     window.setTimeout(() => navigate(biome.href), 220);
   }, [navigate, handleActiveBiomeChange]);
+
+  // 1. Dwell Click timer logic
+  useEffect(() => {
+    if (trackingMode === TRACKING_MODES.MOUSE || !handDetected || !activeBiome) {
+      setDwellProgress(0);
+      return;
+    }
+
+    const duration = 1200; // 1.2s hover dwell duration
+    const startTime = Date.now();
+
+    const interval = setInterval(() => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(100, (elapsed / duration) * 100);
+      setDwellProgress(progress);
+
+      if (progress >= 100) {
+        clearInterval(interval);
+        const biome = BIOMES[activeBiome];
+        if (biome) {
+          handleActiveBiomeChange(activeBiome);
+          window.setTimeout(() => navigate(biome.href), 150);
+        }
+      }
+    }, 16);
+
+    return () => clearInterval(interval);
+  }, [activeBiome, handDetected, trackingMode, navigate, handleActiveBiomeChange]);
+
+  // 2. Pinch Click trigger logic
+  useEffect(() => {
+    if (trackingMode !== TRACKING_MODES.MOUSE && handDetected && activeBiome && isPinching) {
+      const biome = BIOMES[activeBiome];
+      if (biome) {
+        handleActiveBiomeChange(activeBiome);
+        window.setTimeout(() => navigate(biome.href), 150);
+      }
+    }
+  }, [isPinching, activeBiome, handDetected, trackingMode, navigate, handleActiveBiomeChange]);
+
+  const cursorLeft = `${(cursor.x + 1) * 50}%`;
+  const cursorTop = `${(1 - cursor.y) * 50}%`;
 
   return (
     <HeroWrapper>
@@ -603,11 +860,83 @@ function HeroSection3D({ onActiveBiomeChange }) {
               onBiomeSelect={handleActiveBiomeChange}
               onNavigate={handleNavigate}
             />
+            <HandHologram />
             <Preload all />
           </Suspense>
         </Canvas>
         </ErrorBoundary>
       </CanvasWrapper>
+
+      {/* Floating HUD Cyber Cursor */}
+      {handDetected && trackingMode !== TRACKING_MODES.MOUSE && (
+        <FloatingCursor
+          $left={cursorLeft}
+          $top={cursorTop}
+          $isPinching={isPinching}
+          $dwellProgress={dwellProgress}
+        />
+      )}
+
+      {/* Camera PiP Window */}
+      {trackingMode === TRACKING_MODES.CAMERA && cameraActive && (
+        <CameraPiP>
+          <canvas ref={canvasRef} width="640" height="480" />
+        </CameraPiP>
+      )}
+
+      {/* Sci-Fi Control Panel */}
+      <ControlPanel>
+        <h3>
+          空间交互控制台
+          <span className={`status-dot ${isConnected || (trackingMode === TRACKING_MODES.CAMERA && cameraActive) ? 'connected' : ''}`} />
+        </h3>
+        
+        <div className="mode-row">
+          <button
+            className={trackingMode === TRACKING_MODES.MOUSE ? 'active' : ''}
+            onClick={() => setTrackingMode(TRACKING_MODES.MOUSE)}
+          >
+            鼠标
+          </button>
+          <button
+            className={trackingMode === TRACKING_MODES.CAMERA ? 'active' : ''}
+            onClick={() => setTrackingMode(TRACKING_MODES.CAMERA)}
+          >
+            相机
+          </button>
+          <button
+            className={trackingMode === TRACKING_MODES.WEBSOCKET ? 'active' : ''}
+            onClick={() => setTrackingMode(TRACKING_MODES.WEBSOCKET)}
+          >
+            网口
+          </button>
+          <button
+            className={trackingMode === TRACKING_MODES.SIMULATE ? 'active' : ''}
+            onClick={() => setTrackingMode(TRACKING_MODES.SIMULATE)}
+          >
+            模拟
+          </button>
+        </div>
+
+        {trackingMode === TRACKING_MODES.WEBSOCKET && (
+          <div className="input-group">
+            <label>WebSocket Server URL</label>
+            <input
+              type="text"
+              value={wsUrl}
+              onChange={(e) => setWsUrl(e.target.value)}
+            />
+          </div>
+        )}
+
+        <div className="readout">
+          状态: {trackingMode.toUpperCase()}<br />
+          手部侦测: {handDetected ? 'DETECTED' : 'NOT DETECTED'}<br />
+          指针坐标: X:{cursor.x.toFixed(2)} Y:{cursor.y.toFixed(2)}<br />
+          动作: {isPinching ? '捏合 (Click)' : isFist ? '握拳 (Drag)' : '悬停 (Hover)'}
+          {dwellProgress > 0 && <><br />确认进度: {Math.round(dwellProgress)}%</>}
+        </div>
+      </ControlPanel>
 
       <Overlay>
         <GreetBadge

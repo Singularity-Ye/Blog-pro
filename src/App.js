@@ -2,6 +2,7 @@ import React, { Suspense, lazy, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import GlobalStyle from './styles/GlobalStyle';
 import { scrollPositions } from './utils/scrollCache';
+import { HandTrackingProvider } from './utils/useHandTracking';
 
 // Landing page loads eagerly
 import Home from './pages/Home';
@@ -17,6 +18,7 @@ const Contact = lazy(() => import('./pages/Contact'));
 const Note = lazy(() => import('./pages/Note'));
 const Atlas = lazy(() => import('./pages/Atlas'));
 const GraphView = lazy(() => import('./components/GraphView/GraphView'));
+const SpatialUI = lazy(() => import('./pages/SpatialUI'));
 
 const PageFallback = () => (
   <div style={{
@@ -104,6 +106,7 @@ function AppRoutes() {
           <Route path="/atlas/:type" element={<Atlas />} />
           <Route path="/graph" element={<GraphView />} />
           <Route path="/note/*" element={<Note />} />
+          <Route path="/spatial-ui" element={<SpatialUI />} />
         </Routes>
         </Suspense>
         </ErrorBoundary>
@@ -128,16 +131,19 @@ function AppRoutes() {
   );
 }
 
+
 function App() {
   return (
     <>
       <GlobalStyle />
-      <Router>
-        <AppRoutes />
-      </Router>
+      <HandTrackingProvider>
+        <Router>
+          <AppRoutes />
+        </Router>
+      </HandTrackingProvider>
     </>
   );
 }
 
 export default App;
-// deploy sync trigger: 2026-05-23 19:55
+// deploy sync trigger: 2026-06-24 21:00

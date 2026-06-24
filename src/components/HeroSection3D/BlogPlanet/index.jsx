@@ -3,6 +3,7 @@ import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { BIOMES } from './biomeConfig';
 import PlanetSurface from './PlanetSurface';
+import { useHandTracking } from '../../../utils/useHandTracking';
 
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 
@@ -16,6 +17,11 @@ function BlogPlanet({ activeBiome, onBiomeHover, onBiomeSelect, onNavigate }) {
   const velocityRef = useRef({ x: 0, y: 0 });
   const currentScaleRef = useRef(1.04);
   const targetScaleRef = useRef(1.04);
+
+  // Hand tracking state
+  const { handDetected, cursor, isPinching, isFist } = useHandTracking();
+  const wasGrabbingRef = useRef(false);
+  const prevCursorRef = useRef({ x: 0, y: 0 });
 
   const zoomPlanet = useCallback((deltaY) => {
     const direction = deltaY > 0 ? -1 : 1;
@@ -88,11 +94,49 @@ function BlogPlanet({ activeBiome, onBiomeHover, onBiomeSelect, onNavigate }) {
     };
   }, [gl.domElement, zoomPlanet]);
 
-  useFrame(() => {
+  useFrame((state) => {
     const group = groupRef.current;
     if (!group) return;
 
-    if (!draggingRef.current) {
+    // Hijack R3F raycaster coordinate using hand cursor
+    if (handDetected) {
+      state.pointer.set(cursor.x, cursor.y);
+    }
+
+    // Hand-grabbing rotation (only active when not hovering any biome to avoid interaction conflict)
+    if (handDetected && activeBiome === null) {
+      const isGrab = isFist || isPinching;
+      if (isGrab) {
+        if (!wasGrabbingRef.current) {
+          wasGrabbingRef.current = true;
+          prevCursorRef.current = { ...cursor };
+        } else {
+          const dx = cursor.x - prevCursorRef.current.x;
+          const dy = cursor.y - prevCursorRef.current.y;
+
+          group.rotation.y += dx * 2.2;
+          group.rotation.x = clamp(
+            group.rotation.x - dy * 1.8,
+            -0.65,
+            0.65
+          );
+
+          velocityRef.current = {
+            x: -dy * 1.8,
+            y: dx * 2.2,
+          };
+
+          prevCursorRef.current = { ...cursor };
+        }
+      } else {
+        wasGrabbingRef.current = false;
+      }
+    } else {
+      wasGrabbingRef.current = false;
+    }
+
+    // Rotation physics (inertia on mouse or hand release)
+    if (!draggingRef.current && !wasGrabbingRef.current) {
       group.rotation.y += velocityRef.current.y + 0.00045;
       group.rotation.x = clamp(group.rotation.x + velocityRef.current.x, -0.65, 0.65);
       velocityRef.current.x *= 0.92;
