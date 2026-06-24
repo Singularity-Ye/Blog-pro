@@ -258,6 +258,7 @@ const FloatingCursor = styled.div`
   z-index: 99999;
   pointer-events: none;
   box-shadow: 0 0 10px ${props => props.$isPinching ? '#10b981' : '#00f0ff'};
+  transition: left 0.08s cubic-bezier(0.1, 0.8, 0.2, 1), top 0.08s cubic-bezier(0.1, 0.8, 0.2, 1), background-color 0.15s, transform 0.1s;
 `;
 
 const CameraPiP = styled.div`

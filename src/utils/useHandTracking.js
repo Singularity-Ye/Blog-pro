@@ -246,9 +246,9 @@ export function HandTrackingProvider({ children }) {
         });
         hands.setOptions({
           maxNumHands: 1,
-          modelComplexity: 1,
-          minDetectionConfidence: 0.6,
-          minTrackingConfidence: 0.6,
+          modelComplexity: 0, // Lite model for significantly higher frame rate and lower CPU overhead
+          minDetectionConfidence: 0.55,
+          minTrackingConfidence: 0.55,
         });
         hands.onResults(onResults);
         mediaPipeHandsRef.current = hands;
@@ -263,6 +263,7 @@ export function HandTrackingProvider({ children }) {
           },
           width: 640,
           height: 480,
+          fps: 60 // Request 60 FPS from the webcam stream
         });
         mediaPipeCameraRef.current = cameraObj;
         cameraObj.start();

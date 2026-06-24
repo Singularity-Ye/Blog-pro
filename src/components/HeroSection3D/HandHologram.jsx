@@ -1,6 +1,7 @@
-import React, { useMemo } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import * as THREE from 'three';
 import { Line } from '@react-three/drei';
+import { useFrame } from '@react-three/fiber';
 import { useHandTracking } from '../../utils/useHandTracking';
 
 // Define the indices for joints in each finger
@@ -15,10 +16,12 @@ const FINGER_CONNECTIONS = {
 
 export default function HandHologram() {
   const { handDetected, landmarks, isPinching } = useHandTracking();
+  const [smoothedPoints, setSmoothedPoints] = useState([]);
+  const smoothedRef = useRef([]);
 
-  // Map landmarks to Three.js world coordinates
-  const worldPoints = useMemo(() => {
-    if (!handDetected || !landmarks || landmarks.length < 21) return [];
+  // Map raw landmarks to target THREE.Vector3 coordinates in the 3D space
+  const targets = useMemo(() => {
+    if (!landmarks || landmarks.length < 21) return [];
 
     // Scale factors to stretch the hand to match screen space bounds
     const scaleX = 3.6;
@@ -32,14 +35,50 @@ export default function HandHologram() {
       const z = -lm.z * scaleZ + 1.2; // Push forward slightly in front of center (Z=0)
       return new THREE.Vector3(x, y, z);
     });
-  }, [handDetected, landmarks]);
+  }, [landmarks]);
 
-  // If no hand is detected, or we're in mouse mode, don't render the 3D hand skeleton
-  if (!handDetected || worldPoints.length < 21) return null;
+  // Interpolate joint positions at the monitor's native frame rate (60Hz/120Hz/144Hz)
+  useFrame(() => {
+    if (!handDetected || targets.length < 21) {
+      if (smoothedRef.current.length > 0) {
+        smoothedRef.current = [];
+        setSmoothedPoints([]);
+      }
+      return;
+    }
+
+    // Initialize with targets directly if first detection to prevent flying-in from origin
+    if (smoothedRef.current.length === 0) {
+      smoothedRef.current = targets.map(t => t.clone());
+      setSmoothedPoints(smoothedRef.current);
+      return;
+    }
+
+    // Perform smooth lerp: current = current + (target - current) * lerpFactor
+    let changed = false;
+    const nextPoints = smoothedRef.current.map((pt, idx) => {
+      const target = targets[idx];
+      if (!target) return pt;
+      const nextPt = pt.clone().lerp(target, 0.28);
+      // Only trigger updates if displacement is noticeable to save cycles
+      if (pt.distanceToSquared(nextPt) > 0.00001) {
+        changed = true;
+      }
+      return nextPt;
+    });
+
+    if (changed || smoothedPoints.length === 0) {
+      smoothedRef.current = nextPoints;
+      setSmoothedPoints(nextPoints);
+    }
+  });
+
+  // If no hand is detected, or we don't have smoothed points, don't render the 3D hand skeleton
+  if (!handDetected || smoothedPoints.length < 21) return null;
 
   // Render finger lines and joint spheres
   const fingerLines = Object.entries(FINGER_CONNECTIONS).map(([fingerName, indices]) => {
-    const points = indices.map(idx => worldPoints[idx]);
+    const points = indices.map(idx => smoothedPoints[idx]);
     
     // Choose neon green for pinching state, cyan for normal tracking
     const lineColor = isPinching ? '#10b981' : '#00f0ff';
@@ -64,7 +103,7 @@ export default function HandHologram() {
       {fingerLines}
 
       {/* 2. Joint points */}
-      {worldPoints.map((pt, idx) => {
+      {smoothedPoints.map((pt, idx) => {
         // Highlight thumb tip (4) and index tip (8)
         const isTip = idx === 4 || idx === 8;
         const color = isTip 

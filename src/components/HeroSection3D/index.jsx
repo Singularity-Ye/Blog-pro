@@ -723,7 +723,7 @@ const FloatingCursor = styled.div`
   box-shadow: 
     0 0 8px ${props => props.$isPinching ? '#10b981' : '#00f0ff'},
     0 0 16px ${props => props.$isPinching ? '#10b981' : '#00f0ff'};
-  transition: background-color 0.15s, transform 0.1s;
+  transition: left 0.08s cubic-bezier(0.1, 0.8, 0.2, 1), top 0.08s cubic-bezier(0.1, 0.8, 0.2, 1), background-color 0.15s, transform 0.1s;
 
   ${props => props.$isPinching && 'transform: translate(-50%, -50%) scale(0.75);'}
 
