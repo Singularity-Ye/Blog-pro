@@ -141,10 +141,9 @@ export function HandTrackingProvider({ children }) {
     const canvas = canvasRef.current;
     const ctx = canvas ? canvas.getContext('2d') : null;
 
-    // Draw video frames to PiP canvas if active
-    if (canvas && ctx && videoRef.current) {
+    // Clear transparent canvas
+    if (canvas && ctx) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
     }
 
     if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
@@ -415,6 +414,7 @@ export function HandTrackingProvider({ children }) {
         setWsUrl,
         handRot,
         cameraActive,
+        videoRef,
         canvasRef,
       }}
     >

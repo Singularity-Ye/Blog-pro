@@ -274,8 +274,11 @@ const CameraPiP = styled.div`
   background: #000;
   transform: scaleX(-1);
   pointer-events: none;
+  display: ${props => props.$visible ? 'grid' : 'none'};
+  grid-template-areas: "stack";
   
-  canvas {
+  video, canvas {
+    grid-area: stack;
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -749,6 +752,7 @@ export default function SpatialUI() {
     wsUrl,
     setWsUrl,
     cameraActive,
+    videoRef,
     canvasRef,
   } = useHandTracking();
 
@@ -891,11 +895,10 @@ export default function SpatialUI() {
           )}
 
           {/* Camera debug PiP window */}
-          {trackingMode === TRACKING_MODES.CAMERA && cameraActive && (
-            <CameraPiP>
-              <canvas ref={canvasRef} width="640" height="480" />
-            </CameraPiP>
-          )}
+          <CameraPiP $visible={trackingMode === TRACKING_MODES.CAMERA && cameraActive}>
+            <video ref={videoRef} autoPlay playsInline muted />
+            <canvas ref={canvasRef} width="640" height="480" />
+          </CameraPiP>
 
           <div className="pip-instructions">
             💡 提示: 悬停在模型上的 <span style={{ color: '#00f0ff', fontWeight: 900 }}>发光环</span> 上即可展开详细技术卡片。

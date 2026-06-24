@@ -698,8 +698,11 @@ const CameraPiP = styled.div`
   background: #000;
   transform: scaleX(-1);
   pointer-events: none;
+  display: ${props => props.$visible ? 'grid' : 'none'};
+  grid-template-areas: "stack";
   
-  canvas {
+  video, canvas {
+    grid-area: stack;
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -773,6 +776,7 @@ function HeroSection3D({ onActiveBiomeChange }) {
     setWsUrl,
     isConnected,
     cameraActive,
+    videoRef,
     canvasRef,
   } = useHandTracking();
 
@@ -878,11 +882,10 @@ function HeroSection3D({ onActiveBiomeChange }) {
       )}
 
       {/* Camera PiP Window */}
-      {trackingMode === TRACKING_MODES.CAMERA && cameraActive && (
-        <CameraPiP>
-          <canvas ref={canvasRef} width="640" height="480" />
-        </CameraPiP>
-      )}
+      <CameraPiP $visible={trackingMode === TRACKING_MODES.CAMERA && cameraActive}>
+        <video ref={videoRef} autoPlay playsInline muted />
+        <canvas ref={canvasRef} width="640" height="480" />
+      </CameraPiP>
 
       {/* Sci-Fi Control Panel */}
       <ControlPanel>
