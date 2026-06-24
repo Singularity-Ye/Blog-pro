@@ -101,13 +101,20 @@ function BlogPlanet({ activeBiome, onBiomeHover, onBiomeSelect, onNavigate }) {
     if (!group) return;
 
     // Smoothly interpolate hand cursor coordinates inside R3F frame loop to achieve 60 FPS motion updates
+    // Using adaptive lerping: large displacements use higher lerp factors for latency-free swiping,
+    // while small movements use low factors to filter out hand tremors.
     if (handDetected) {
       if (!wasHandDetectedRef.current) {
         wasHandDetectedRef.current = true;
         smoothedCursorRef.current = { ...cursor };
       } else {
-        smoothedCursorRef.current.x = THREE.MathUtils.lerp(smoothedCursorRef.current.x, cursor.x, 0.22);
-        smoothedCursorRef.current.y = THREE.MathUtils.lerp(smoothedCursorRef.current.y, cursor.y, 0.22);
+        const dist = Math.sqrt(
+          Math.pow(cursor.x - smoothedCursorRef.current.x, 2) +
+          Math.pow(cursor.y - smoothedCursorRef.current.y, 2)
+        );
+        const adaptiveLerp = THREE.MathUtils.clamp(dist * 2.2, 0.16, 0.88);
+        smoothedCursorRef.current.x = THREE.MathUtils.lerp(smoothedCursorRef.current.x, cursor.x, adaptiveLerp);
+        smoothedCursorRef.current.y = THREE.MathUtils.lerp(smoothedCursorRef.current.y, cursor.y, adaptiveLerp);
       }
       state.pointer.set(smoothedCursorRef.current.x, smoothedCursorRef.current.y);
     } else {
@@ -125,16 +132,16 @@ function BlogPlanet({ activeBiome, onBiomeHover, onBiomeSelect, onNavigate }) {
           const dx = smoothedCursorRef.current.x - prevCursorRef.current.x;
           const dy = smoothedCursorRef.current.y - prevCursorRef.current.y;
 
-          group.rotation.y += dx * 2.2;
+          group.rotation.y += dx * 2.4;
           group.rotation.x = clamp(
-            group.rotation.x - dy * 1.8,
+            group.rotation.x - dy * 2.0,
             -0.65,
             0.65
           );
 
           velocityRef.current = {
-            x: -dy * 1.8,
-            y: dx * 2.2,
+            x: -dy * 2.0,
+            y: dx * 2.4,
           };
 
           prevCursorRef.current = { ...smoothedCursorRef.current };
@@ -150,8 +157,8 @@ function BlogPlanet({ activeBiome, onBiomeHover, onBiomeSelect, onNavigate }) {
     if (!draggingRef.current && !wasGrabbingRef.current) {
       group.rotation.y += velocityRef.current.y + 0.00045;
       group.rotation.x = clamp(group.rotation.x + velocityRef.current.x, -0.65, 0.65);
-      velocityRef.current.x *= 0.92;
-      velocityRef.current.y *= 0.92;
+      velocityRef.current.x *= 0.97; // Lowered friction (from 0.92 to 0.97) for long-lasting cosmic spin
+      velocityRef.current.y *= 0.97;
     }
 
     currentScaleRef.current = THREE.MathUtils.lerp(
