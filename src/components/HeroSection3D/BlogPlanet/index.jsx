@@ -111,8 +111,8 @@ function BlogPlanet({ activeBiome, onBiomeHover, onBiomeSelect, onNavigate }) {
         smoothedCursorRef.current = { ...cursor };
         cursorVelocityRef.current = { x: 0, y: 0 };
       } else {
-        const stiffness = 280; // High stiffness for responsive hand following
-        const damping = 22;    // Damping to prevent spring oscillation
+        const stiffness = 170; // Reduced stiffness to filter out hand tremors and micro-jitters
+        const damping = 26;    // Higher damping to make cursor glide and settle smoothly without bouncing
         
         const forceX = -stiffness * (smoothedCursorRef.current.x - cursor.x) - damping * cursorVelocityRef.current.x;
         const forceY = -stiffness * (smoothedCursorRef.current.y - cursor.y) - damping * cursorVelocityRef.current.y;

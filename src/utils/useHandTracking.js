@@ -86,13 +86,26 @@ export function HandTrackingProvider({ children }) {
   const [cameraActive, setCameraActive] = useState(false);
 
   // Hidden video and canvas refs for MediaPipe
-  const videoRef = useRef(null);
-  const canvasRef = useRef(null);
+  const videoRefInternal = useRef(null);
+  const canvasRefInternal = useRef(null);
   const wsRef = useRef(null);
   const mediaPipeHandsRef = useRef(null);
   const mediaPipeCameraRef = useRef(null);
   const simulationIntervalRef = useRef(null);
   const activeModeRef = useRef(trackingMode);
+
+  // Callback refs to detect mounting/unmounting of video/canvas elements across page transitions
+  const [elementTrigger, setElementTrigger] = useState(0);
+
+  const videoRefCallback = useCallback((node) => {
+    videoRefInternal.current = node;
+    setElementTrigger((prev) => prev + 1);
+  }, []);
+
+  const canvasRefCallback = useCallback((node) => {
+    canvasRefInternal.current = node;
+    setElementTrigger((prev) => prev + 1);
+  }, []);
 
   // Sync mode ref to avoid closure problems in callbacks
   useEffect(() => {
@@ -124,10 +137,10 @@ export function HandTrackingProvider({ children }) {
       mediaPipeCameraRef.current = null;
     }
 
-    if (videoRef.current && videoRef.current.srcObject) {
-      const stream = videoRef.current.srcObject;
+    if (videoRefInternal.current && videoRefInternal.current.srcObject) {
+      const stream = videoRefInternal.current.srcObject;
       stream.getTracks().forEach((track) => track.stop());
-      videoRef.current.srcObject = null;
+      videoRefInternal.current.srcObject = null;
     }
     setCameraActive(false);
     setHandDetected(false);
@@ -138,7 +151,7 @@ export function HandTrackingProvider({ children }) {
   const onResults = useCallback((results) => {
     if (activeModeRef.current !== TRACKING_MODES.CAMERA) return;
 
-    const canvas = canvasRef.current;
+    const canvas = canvasRefInternal.current;
     const ctx = canvas ? canvas.getContext('2d') : null;
 
     // Clear transparent canvas
@@ -218,14 +231,11 @@ export function HandTrackingProvider({ children }) {
     setHandDetected(false);
 
     try {
-      // 1. Create virtual video
-      if (!videoRef.current) {
-        const video = document.createElement('video');
-        video.autoplay = true;
-        video.playsInline = true;
-        video.style.display = 'none';
-        document.body.appendChild(video);
-        videoRef.current = video;
+      // 1. Skip camera tracking initialization if no DOM video element is currently mounted/available.
+      // This prevents the camera from starting on unmounted elements or in the background during page transitions.
+      if (!videoRefInternal.current) {
+        console.log('No video element mounted, skipping camera tracking initialization.');
+        return;
       }
 
       // 2. Get Camera stream (request ideal 60 FPS from hardware webcam)
@@ -237,7 +247,7 @@ export function HandTrackingProvider({ children }) {
           frameRate: { ideal: 60, min: 30 }
         },
       });
-      videoRef.current.srcObject = stream;
+      videoRefInternal.current.srcObject = stream;
       setCameraActive(true);
 
       // 3. Load CDN scripts
@@ -260,11 +270,14 @@ export function HandTrackingProvider({ children }) {
       }
 
       // 5. Initialize MediaPipe Camera Loop
-      if (videoRef.current && mediaPipeHandsRef.current && window.Camera) {
-        const cameraObj = new window.Camera(videoRef.current, {
+      if (videoRefInternal.current && mediaPipeHandsRef.current && window.Camera) {
+        const cameraObj = new window.Camera(videoRefInternal.current, {
           onFrame: async () => {
             if (activeModeRef.current !== TRACKING_MODES.CAMERA || !mediaPipeHandsRef.current) return;
-            await mediaPipeHandsRef.current.send({ image: videoRef.current });
+            // Only process frames if the video element is still active/mounted
+            if (videoRefInternal.current) {
+              await mediaPipeHandsRef.current.send({ image: videoRefInternal.current });
+            }
           },
           width: 640,
           height: 480,
@@ -402,7 +415,7 @@ export function HandTrackingProvider({ children }) {
     }
 
     return () => cleanup();
-  }, [trackingMode, startCameraTracking, startWebSocketTracking, startSimulationMode, cleanup]);
+  }, [trackingMode, elementTrigger, startCameraTracking, startWebSocketTracking, startSimulationMode, cleanup]);
 
   return (
     <HandTrackingContext.Provider
@@ -420,8 +433,8 @@ export function HandTrackingProvider({ children }) {
         setWsUrl,
         handRot,
         cameraActive,
-        videoRef,
-        canvasRef,
+        videoRef: videoRefCallback,
+        canvasRef: canvasRefCallback,
       }}
     >
       {children}

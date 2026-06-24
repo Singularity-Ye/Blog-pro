@@ -58,8 +58,8 @@ export default function HandHologram() {
     }
 
     const dt = Math.min(delta, 0.1); // Clamp to prevent explosions
-    const stiffness = 220; // Tension of the spring
-    const damping = 18;    // Friction of the spring
+    const stiffness = 150; // Softer spring to absorb high-frequency camera coordinate noise
+    const damping = 24;    // High damping to make hand joints follow smoothly without shivering
 
     // Perform smooth spring dampening for each joint
     let changed = false;

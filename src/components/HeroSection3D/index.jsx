@@ -824,7 +824,7 @@ function HeroSection3D({ onActiveBiomeChange }) {
 
     dwellStateRef.current.lastTime = Date.now();
     let animationFrameId;
-    const GRACE_PERIOD = 350; // 350ms grace period to survive hand jitter
+    const GRACE_PERIOD = 250; // 250ms grace period to survive micro-jitters without being overly sticky
 
     const updateDwell = () => {
       const now = Date.now();
@@ -842,9 +842,9 @@ function HeroSection3D({ onActiveBiomeChange }) {
           state.progress = 0;
           state.graceTimeRemaining = 0;
         } else {
-          // Hovering same valid biome: advance progress
+          // Hovering same valid biome: advance progress (requires a stable 1.6s hover)
           state.graceTimeRemaining = 0;
-          state.progress = Math.min(100, state.progress + (dt / 1200) * 100);
+          state.progress = Math.min(100, state.progress + (dt / 1600) * 100);
         }
       } else {
         // We are hovering over nothing or ocean
@@ -856,12 +856,12 @@ function HeroSection3D({ onActiveBiomeChange }) {
           state.graceTimeRemaining -= dt;
           
           if (state.graceTimeRemaining <= 0) {
-            // Grace period expired, slowly drain progress
+            // Grace period expired, quickly drain progress (drains in 250ms)
             state.currentTargetBiome = null;
-            state.progress = Math.max(0, state.progress - (dt / 300) * 100);
+            state.progress = Math.max(0, state.progress - (dt / 250) * 100);
           }
         } else {
-          state.progress = Math.max(0, state.progress - (dt / 300) * 100);
+          state.progress = Math.max(0, state.progress - (dt / 250) * 100);
         }
       }
 
