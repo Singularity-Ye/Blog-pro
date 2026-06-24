@@ -160,7 +160,7 @@ export function HandTrackingProvider({ children }) {
 
       // Pinch check (Distance between Thumb Tip 4 and Index Tip 8)
       const pinchDist = getDistance(hand[4], hand[8]);
-      const pinchActive = pinchDist < 0.05; // Lowered from 0.08 to 0.05 for a much tighter, more instant release with zero stickiness
+      const pinchActive = pinchDist < 0.06; // Adjusted to 0.06 to balance quick triggering and instant release
       setIsPinching(pinchActive);
 
       // Fist check (curl of index, middle, ring, pinky)
@@ -311,7 +311,7 @@ export function HandTrackingProvider({ children }) {
 
             // Pinch and grab states
             if (data.pinchDistance !== undefined) {
-              setIsPinching(data.pinchDistance < 0.05); // Lowered from 0.08 to 0.05 for instant release
+              setIsPinching(data.pinchDistance < 0.06); // Adjusted to 0.06 to match webcam threshold
             } else if (data.gesture) {
               setIsPinching(data.gesture === 'pinch');
             }
