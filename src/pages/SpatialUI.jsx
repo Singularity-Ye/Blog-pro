@@ -954,24 +954,68 @@ function SpatialScene({
   const getExplodedPosition = (id, pos) => {
     const [x, y, z] = pos;
     if (activeModel === 'turbine') {
-      // Turbine parts slide along the Z-axis
-      const zOffset = (z + 0.2) * explode * 1.5;
-      return [x, y, z + zOffset];
+      // The turbine GLB is oriented along local Z-axis (blades at positive Z, generator at negative Z)
+      // and rotated by [0, Math.PI / 2, 0] inside parent space.
+      let localX = 0;
+      let localY = 0;
+      let localZ = 0;
+      
+      switch (id) {
+        case '01': // Fan Rotor (Blades)
+          localX = 0; localY = 1.25; localZ = 0.83;
+          break;
+        case '02': // Gear Stage
+          localX = 0; localY = 1.29; localZ = 0.38;
+          break;
+        case '03': // Core Shaft
+          localX = 0; localY = 1.17; localZ = 0.15;
+          break;
+        case '04': // Power Module
+          localX = 0; localY = 1.25; localZ = -0.2;
+          break;
+        case '05': // Oil Pump
+          localX = 0; localY = 0.75; localZ = -0.4;
+          break;
+        case '06': // Bearing Housing
+          localX = 0; localY = 1.17; localZ = -0.6;
+          break;
+        case '07': // Control Unit
+          localX = 0; localY = 0.67; localZ = -0.3;
+          break;
+        default:
+          return pos;
+      }
+      
+      // Calculate local Z explode displacement
+      const zOffset = localZ * explode * 0.85;
+      const explodedLocalZ = localZ + zOffset;
+      
+      // Project local GLB coordinates to rotated parent space:
+      // Rotated by PI/2 around Y: [localX, localY, localZ] -> [localZ, localY, -localX]
+      // Scaled by 1.2, and shifted by -0.6 along the Y-axis.
+      const globalX = explodedLocalZ * 1.2;
+      const globalY = localY * 1.2 - 0.6;
+      const globalZ = -localX * 1.2;
+      
+      return [globalX, globalY, globalZ];
     }
+    
     if (activeModel === 'battery') {
-      // Battery parts translate along X, Y, and Z
+      // Battery translates along different axes
       if (id === '01') return [x, y + explode * 0.5, z];
       if (id === '02') return [x, y - explode * 0.5, z];
       if (id === '03') return [x, y, z + explode * 0.4];
       if (id === '04') return [x, y, z - explode * 0.4];
     }
+    
     if (activeModel === 'fridge') {
-      // Fridge parts slide forward or shift down
+      // Fridge slides forward or shifts down
       if (id === '01') return [x, y, z + explode * 0.42];
       if (id === '02') return [x, y, z + explode * 0.72];
       if (id === '03') return [x, y - explode * 0.35, z - explode * 0.28];
       if (id === '04') return [x - explode * 0.35, y, z + explode * 0.45];
     }
+    
     return pos;
   };
 
