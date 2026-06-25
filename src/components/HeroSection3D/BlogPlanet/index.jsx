@@ -24,6 +24,7 @@ function BlogPlanet({ activeBiome, onBiomeHover, onBiomeSelect, onNavigate }) {
   const prevCursorRef = useRef({ x: 0, y: 0 });
   const smoothedCursorRef = useRef({ x: 0, y: 0 });
   const wasHandDetectedRef = useRef(false);
+  const handDragDistanceRef = useRef(0);
 
   const zoomPlanet = useCallback((deltaY) => {
     const direction = deltaY > 0 ? -1 : 1;
@@ -154,6 +155,7 @@ function BlogPlanet({ activeBiome, onBiomeHover, onBiomeSelect, onNavigate }) {
         if (!wasGrabbingRef.current) {
           wasGrabbingRef.current = true;
           prevCursorRef.current = { ...smoothedCursorRef.current };
+          handDragDistanceRef.current = 0;
         } else {
           const dx = smoothedCursorRef.current.x - prevCursorRef.current.x;
           const dy = smoothedCursorRef.current.y - prevCursorRef.current.y;
@@ -170,13 +172,30 @@ function BlogPlanet({ activeBiome, onBiomeHover, onBiomeSelect, onNavigate }) {
             y: dx * 2.4,
           };
 
+          // Accumulate hand drag distance (in NDC coordinates)
+          handDragDistanceRef.current += Math.hypot(dx, dy);
+          if (handDragDistanceRef.current > 0.02) { // approx 1% of screen size, triggers drag threshold
+            draggedRef.current = true;
+          }
+
           prevCursorRef.current = { ...smoothedCursorRef.current };
         }
       } else {
-        wasGrabbingRef.current = false;
+        if (wasGrabbingRef.current) {
+          wasGrabbingRef.current = false;
+          // Delay resetting draggedRef to allow click handlers to ignore this drag release
+          window.setTimeout(() => {
+            draggedRef.current = false;
+          }, 120);
+        }
       }
     } else {
-      wasGrabbingRef.current = false;
+      if (wasGrabbingRef.current) {
+        wasGrabbingRef.current = false;
+        window.setTimeout(() => {
+          draggedRef.current = false;
+        }, 120);
+      }
     }
 
     // Rotation physics (inertia on mouse or hand release)
