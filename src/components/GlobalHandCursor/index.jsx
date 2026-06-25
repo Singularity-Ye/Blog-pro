@@ -72,6 +72,7 @@ const CameraPiP = styled.div`
     width: 100%;
     height: 100%;
     pointer-events: none;
+    transform: scaleX(-1); /* Mirror skeleton overlay to match mirrored video */
   }
 `;
 
