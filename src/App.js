@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate, useSe
 import GlobalStyle from './styles/GlobalStyle';
 import { scrollPositions } from './utils/scrollCache';
 import { HandTrackingProvider } from './utils/useHandTracking';
+import GlobalHandCursor from './components/GlobalHandCursor';
 
 // Landing page loads eagerly
 import Home from './pages/Home';
@@ -127,6 +128,7 @@ function AppRoutes() {
         </Suspense>
       )}
       {!isEmbed && <GlobalNav />}
+      <GlobalHandCursor />
     </>
   );
 }

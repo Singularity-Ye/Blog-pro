@@ -79,6 +79,7 @@ export function HandTrackingProvider({ children }) {
   const [cursor, setCursor] = useState({ x: 0, y: 0 }); // Screen NDC coords: [-1, 1]
   const [isPinching, setIsPinching] = useState(false);
   const [isFist, setIsFist] = useState(false);
+  const [isPeaceSign, setIsPeaceSign] = useState(false);
   const [landmarks, setLandmarks] = useState([]);
   const [isConnected, setIsConnected] = useState(false);
   const [wsUrl, setWsUrl] = useState('ws://localhost:8765');
@@ -147,6 +148,7 @@ export function HandTrackingProvider({ children }) {
     }
     setCameraActive(false);
     setHandDetected(false);
+    setIsPeaceSign(false);
     setLandmarks([]);
   }, []);
 
@@ -187,6 +189,10 @@ export function HandTrackingProvider({ children }) {
       const fistActive = indexCurled && middleCurled && ringCurled && pinkyCurled;
       setIsFist(fistActive);
 
+      // Peace sign check (Index and Middle extended, Ring and Pinky curled)
+      const peaceActive = !indexCurled && !middleCurled && ringCurled && pinkyCurled;
+      setIsPeaceSign(peaceActive);
+
       // Calculate Rotation
       const rot = calculateRotation(hand);
       setHandRot(rot);
@@ -225,6 +231,7 @@ export function HandTrackingProvider({ children }) {
       setHandDetected(false);
       setIsPinching(false);
       setIsFist(false);
+      setIsPeaceSign(false);
     }
   }, []);
 
@@ -360,6 +367,7 @@ export function HandTrackingProvider({ children }) {
 
             if (data.gesture) {
               setIsFist(data.gesture === 'fist' || data.gesture === 'grab');
+              setIsPeaceSign(data.gesture === 'peace');
             }
           }
         } catch (e) {
@@ -407,6 +415,10 @@ export function HandTrackingProvider({ children }) {
       const isFistSim = Math.sin(angle * 1.5) < -0.85;
       setIsFist(isFistSim);
 
+      // Peace sign mock (15% chance during loop when angle is in certain range)
+      const isPeaceSim = Math.cos(angle * 2.0) > 0.88;
+      setIsPeaceSign(isPeaceSim);
+
       // Rotation simulation
       setHandRot({
         x: Math.sin(angle * 0.8) * 0.2,
@@ -451,6 +463,7 @@ export function HandTrackingProvider({ children }) {
         setCursor, // Expose for mouse emulation
         isPinching,
         isFist,
+        isPeaceSign,
         landmarks,
         isConnected,
         wsUrl,

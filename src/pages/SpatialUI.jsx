@@ -5,7 +5,6 @@ import { Preload, OrbitControls, Line, Html } from '@react-three/drei';
 import { useNavigate } from 'react-router-dom';
 import * as THREE from 'three';
 import { useHandTracking, TRACKING_MODES } from '../utils/useHandTracking';
-import HandHologram from '../components/HeroSection3D/HandHologram';
 import ErrorBoundary from '../components/ErrorBoundary';
 
 const gridAnimation = keyframes`
@@ -246,45 +245,7 @@ const CanvasContainer = styled.div`
   }
 `;
 
-const FloatingCursor = styled.div`
-  position: fixed;
-  left: ${props => props.$left};
-  top: ${props => props.$top};
-  width: 10px;
-  height: 10px;
-  background: ${props => props.$isPinching ? '#10b981' : '#00f0ff'};
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 99999;
-  pointer-events: none;
-  box-shadow: 0 0 10px ${props => props.$isPinching ? '#10b981' : '#00f0ff'};
-  transition: left 0.08s cubic-bezier(0.1, 0.8, 0.2, 1), top 0.08s cubic-bezier(0.1, 0.8, 0.2, 1), background-color 0.15s, transform 0.1s;
-`;
 
-const CameraPiP = styled.div`
-  position: absolute;
-  bottom: 2rem;
-  left: 2rem;
-  width: 120px;
-  height: 90px;
-  border-radius: 6px;
-  border: 1px solid rgba(0, 240, 255, 0.25);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
-  overflow: hidden;
-  z-index: 100;
-  background: #000;
-  transform: scaleX(-1);
-  pointer-events: none;
-  display: ${props => props.$visible ? 'grid' : 'none'};
-  grid-template-areas: "stack";
-  
-  video, canvas {
-    grid-area: stack;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-`;
 
 const TechPanelContainer = styled.div`
   width: 200px;
@@ -803,9 +764,6 @@ export default function SpatialUI() {
     isConnected,
     wsUrl,
     setWsUrl,
-    cameraActive,
-    videoRef,
-    canvasRef,
   } = useHandTracking();
 
   // Gesture-Driven Exploded View
@@ -816,8 +774,7 @@ export default function SpatialUI() {
     navigate('/projects');
   };
 
-  const cursorLeft = `${(cursor.x + 1) * 50}%`;
-  const cursorTop = `${(1 - cursor.y) * 50}%`;
+
 
   return (
     <PageContainer>
@@ -922,8 +879,6 @@ export default function SpatialUI() {
                   hoveredHotspot={hoveredHotspot}
                   setHoveredHotspot={setHoveredHotspot}
                 />
-                {/* 3D Hand Skeleton overlay */}
-                <HandHologram />
                 <OrbitControls
                   enableZoom={true}
                   enablePan={false}
@@ -936,21 +891,6 @@ export default function SpatialUI() {
               </Suspense>
             </Canvas>
           </ErrorBoundary>
-
-          {/* Mapped 2D cursor overlay */}
-          {handDetected && trackingMode !== TRACKING_MODES.MOUSE && (
-            <FloatingCursor
-              $left={cursorLeft}
-              $top={cursorTop}
-              $isPinching={isPinching}
-            />
-          )}
-
-          {/* Camera debug PiP window */}
-          <CameraPiP $visible={trackingMode === TRACKING_MODES.CAMERA && cameraActive}>
-            <video ref={videoRef} autoPlay playsInline muted />
-            <canvas ref={canvasRef} width="640" height="480" />
-          </CameraPiP>
 
           <div className="pip-instructions">
             💡 提示: 悬停在模型上的 <span style={{ color: '#00f0ff', fontWeight: 900 }}>发光环</span> 上即可展开详细技术卡片。

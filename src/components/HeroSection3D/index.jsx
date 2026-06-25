@@ -10,7 +10,6 @@ import { BIOMES, BIOME_ORDER } from './BlogPlanet/biomeConfig';
 import Scene from './Scene';
 import ErrorBoundary from '../ErrorBoundary';
 import { useHandTracking, TRACKING_MODES } from '../../utils/useHandTracking';
-import HandHologram from './HandHologram';
 
 const pulseAnim = keyframes`
   0%, 100% { opacity: 0.42; }
@@ -569,24 +568,27 @@ const ControlPanel = styled.div`
   width: 250px;
   padding: 0.85rem;
   border-radius: 10px;
-  border: 1px solid rgba(0, 240, 255, 0.2);
-  background: rgba(8, 12, 18, 0.65);
+  border: 1px solid rgba(231, 199, 126, 0.22);
+  background: linear-gradient(135deg, rgba(14, 24, 20, 0.88), rgba(26, 20, 15, 0.84));
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.4),
-    0 0 15px rgba(0, 240, 255, 0.05);
-  color: #e0f2f1;
+    0 10px 30px rgba(0, 0, 0, 0.45),
+    0 0 12px rgba(231, 199, 126, 0.08);
+  color: #f5efe3;
   font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   font-size: 0.76rem;
   pointer-events: all;
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
-  transition: border-color 0.3s ease;
+  transition: all 0.3s ease;
 
   &:hover {
-    border-color: rgba(0, 240, 255, 0.45);
+    border-color: rgba(231, 199, 126, 0.45);
+    box-shadow: 
+      0 10px 32px rgba(0, 0, 0, 0.5),
+      0 0 15px rgba(231, 199, 126, 0.15);
   }
 
   h3 {
@@ -595,8 +597,8 @@ const ControlPanel = styled.div`
     font-weight: 800;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: #00f0ff;
-    text-shadow: 0 0 6px rgba(0, 240, 255, 0.35);
+    color: #e7c77e;
+    text-shadow: 0 0 6px rgba(231, 199, 126, 0.35);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -609,10 +611,10 @@ const ControlPanel = styled.div`
   }
 
   button {
-    background: rgba(0, 240, 255, 0.05);
-    border: 1px solid rgba(0, 240, 255, 0.15);
+    background: rgba(231, 199, 126, 0.04);
+    border: 1px solid rgba(231, 199, 126, 0.15);
     border-radius: 4px;
-    color: rgba(224, 242, 241, 0.65);
+    color: rgba(245, 239, 227, 0.65);
     font-size: 0.66rem;
     font-weight: 700;
     padding: 0.35rem 0;
@@ -621,16 +623,16 @@ const ControlPanel = styled.div`
     outline: none;
 
     &:hover {
-      border-color: rgba(0, 240, 255, 0.4);
+      border-color: rgba(231, 199, 126, 0.45);
       color: #fff;
-      background: rgba(0, 240, 255, 0.1);
+      background: rgba(231, 199, 126, 0.1);
     }
 
     &.active {
-      background: rgba(0, 240, 255, 0.16);
-      border-color: #00f0ff;
+      background: rgba(231, 199, 126, 0.18);
+      border-color: #e7c77e;
       color: #fff;
-      box-shadow: 0 0 8px rgba(0, 240, 255, 0.25);
+      box-shadow: 0 0 8px rgba(231, 199, 126, 0.25);
     }
   }
 
@@ -641,12 +643,12 @@ const ControlPanel = styled.div`
 
     label {
       font-size: 0.65rem;
-      color: rgba(224, 242, 241, 0.5);
+      color: rgba(245, 239, 227, 0.5);
     }
 
     input {
       background: rgba(0, 0, 0, 0.3);
-      border: 1px solid rgba(0, 240, 255, 0.15);
+      border: 1px solid rgba(231, 199, 126, 0.15);
       border-radius: 4px;
       color: #fff;
       font-size: 0.7rem;
@@ -654,7 +656,7 @@ const ControlPanel = styled.div`
       outline: none;
 
       &:focus {
-        border-color: #00f0ff;
+        border-color: #e7c77e;
       }
     }
   }
@@ -674,88 +676,14 @@ const ControlPanel = styled.div`
   }
 
   .readout {
-    background: rgba(0, 0, 0, 0.2);
+    background: rgba(0, 0, 0, 0.22);
+    border: 1px dashed rgba(231, 199, 126, 0.12);
     border-radius: 4px;
     padding: 0.35rem;
     font-family: monospace;
     font-size: 0.65rem;
-    color: rgba(0, 240, 255, 0.8);
+    color: rgba(245, 239, 227, 0.85);
     line-height: 1.35;
-  }
-`;
-
-const CameraPiP = styled.div`
-  position: absolute;
-  bottom: 2rem;
-  left: 2rem;
-  width: 140px;
-  height: 105px;
-  border-radius: 8px;
-  border: 1.5px solid rgba(0, 240, 255, 0.3);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
-  overflow: hidden;
-  z-index: 100;
-  background: #000;
-  transform: scaleX(-1);
-  pointer-events: none;
-  display: ${props => props.$visible ? 'grid' : 'none'};
-  grid-template-areas: "stack";
-  
-  video, canvas {
-    grid-area: stack;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-`;
-
-const FloatingCursor = styled.div`
-  position: fixed;
-  left: ${props => props.$left};
-  top: ${props => props.$top};
-  width: 10px;
-  height: 10px;
-  background: ${props => props.$isPinching ? '#10b981' : '#00f0ff'};
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 99999;
-  pointer-events: none;
-  box-shadow: 
-    0 0 8px ${props => props.$isPinching ? '#10b981' : '#00f0ff'},
-    0 0 16px ${props => props.$isPinching ? '#10b981' : '#00f0ff'};
-  transition: left 0.08s cubic-bezier(0.1, 0.8, 0.2, 1), top 0.08s cubic-bezier(0.1, 0.8, 0.2, 1), background-color 0.15s, transform 0.1s;
-
-  ${props => props.$isPinching && 'transform: translate(-50%, -50%) scale(0.75);'}
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: -12px;
-    left: -12px;
-    right: -12px;
-    bottom: -12px;
-    border-radius: 50%;
-    border: 1.5px solid rgba(0, 240, 255, 0.3);
-    animation: cursorSpin 6s linear infinite;
-  }
-
-  &::after {
-    content: '';
-    position: absolute;
-    top: -12px;
-    left: -12px;
-    right: -12px;
-    bottom: -12px;
-    border-radius: 50%;
-    border: 2px solid #00f0ff;
-    border-color: #00f0ff transparent transparent transparent;
-    opacity: ${props => props.$dwellProgress > 0 ? 1 : 0};
-    transform: rotate(${props => props.$dwellProgress * 3.6}deg);
-    transition: opacity 0.1s;
-  }
-
-  @keyframes cursorSpin {
-    to { transform: rotate(360deg); }
   }
 `;
 
@@ -775,8 +703,6 @@ function HeroSection3D({ onActiveBiomeChange }) {
     setWsUrl,
     isConnected,
     cameraActive,
-    videoRef,
-    canvasRef,
   } = useHandTracking();
 
   const [dwellProgress, setDwellProgress] = useState(0);
@@ -893,8 +819,7 @@ function HeroSection3D({ onActiveBiomeChange }) {
   }, [handDetected, trackingMode, navigate, handleActiveBiomeChange]);
 
 
-  const cursorLeft = `${(cursor.x + 1) * 50}%`;
-  const cursorTop = `${(1 - cursor.y) * 50}%`;
+
 
   return (
     <HeroWrapper>
@@ -919,28 +844,11 @@ function HeroSection3D({ onActiveBiomeChange }) {
               onBiomeSelect={handleActiveBiomeChange}
               onNavigate={handleNavigate}
             />
-            <HandHologram />
             <Preload all />
           </Suspense>
         </Canvas>
         </ErrorBoundary>
       </CanvasWrapper>
-
-      {/* Floating HUD Cyber Cursor */}
-      {handDetected && trackingMode !== TRACKING_MODES.MOUSE && (
-        <FloatingCursor
-          $left={cursorLeft}
-          $top={cursorTop}
-          $isPinching={isPinching}
-          $dwellProgress={dwellProgress}
-        />
-      )}
-
-      {/* Camera PiP Window */}
-      <CameraPiP $visible={trackingMode === TRACKING_MODES.CAMERA && cameraActive}>
-        <video ref={videoRef} autoPlay playsInline muted />
-        <canvas ref={canvasRef} width="640" height="480" />
-      </CameraPiP>
 
       {/* Sci-Fi Control Panel */}
       <ControlPanel>
