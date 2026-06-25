@@ -951,6 +951,30 @@ function SpatialScene({
     ? FRIDGE_PARTS 
     : (activeModel === 'battery' ? BATTERY_PARTS : TURBINE_PARTS);
 
+  const getExplodedPosition = (id, pos) => {
+    const [x, y, z] = pos;
+    if (activeModel === 'turbine') {
+      // Turbine parts slide along the Z-axis
+      const zOffset = (z + 0.2) * explode * 1.5;
+      return [x, y, z + zOffset];
+    }
+    if (activeModel === 'battery') {
+      // Battery parts translate along X, Y, and Z
+      if (id === '01') return [x, y + explode * 0.5, z];
+      if (id === '02') return [x, y - explode * 0.5, z];
+      if (id === '03') return [x, y, z + explode * 0.4];
+      if (id === '04') return [x, y, z - explode * 0.4];
+    }
+    if (activeModel === 'fridge') {
+      // Fridge parts slide forward or shift down
+      if (id === '01') return [x, y, z + explode * 0.42];
+      if (id === '02') return [x, y, z + explode * 0.72];
+      if (id === '03') return [x, y - explode * 0.35, z - explode * 0.28];
+      if (id === '04') return [x - explode * 0.35, y, z + explode * 0.45];
+    }
+    return pos;
+  };
+
   const gridY = activeModel === 'fridge' ? -1.005 : (activeModel === 'battery' ? -0.905 : -0.605);
 
   const ambientIntensity = focusMode ? 2.0 : 1.5;
@@ -1033,16 +1057,19 @@ function SpatialScene({
         )}
 
         {/* Render respective tag nodes */}
-        {Object.entries(partsData).map(([id, item]) => (
-          <TagNode
-            key={id}
-            partId={id}
-            name={item.name}
-            position={item.pos}
-            isSelected={selectedPartId === id}
-            onSelect={() => setSelectedPartId(id)}
-          />
-        ))}
+        {Object.entries(partsData).map(([id, item]) => {
+          const explodedPos = getExplodedPosition(id, item.pos);
+          return (
+            <TagNode
+              key={id}
+              partId={id}
+              name={item.name}
+              position={explodedPos}
+              isSelected={selectedPartId === id}
+              onSelect={() => setSelectedPartId(id)}
+            />
+          );
+        })}
       </group>
     </>
   );
@@ -1346,26 +1373,26 @@ export default function SpatialUI() {
           $visible={focusMode}
           onClick={() => setTempTelemetryShow(prev => !prev)}
         >
-          {tempTelemetryShow ? '◀ TELEMETRY' : 'TELEMETRY ▶'}
+          {tempTelemetryShow ? '◀ 交互遥测' : '交互遥测 ▶'}
         </EdgeTab>
         
         <EdgeTab
           $visible={focusMode}
           onClick={() => setTempConfigShow(prev => !prev)}
         >
-          {tempConfigShow ? 'CONFIGURATOR ▶' : '◀ CONFIGURATOR'}
+          {tempConfigShow ? '参数配置 ▶' : '◀ 参数配置'}
         </EdgeTab>
 
         {/* Left Side: Telemetry Control Panel */}
         <Sidebar $left $focus={focusMode && !tempTelemetryShow}>
           <HudCard>
-            <h3>Interaction Mode</h3>
+            <h3>交互模式</h3>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.4rem', marginTop: '0.4rem' }}>
               {[
-                { label: 'Mouse', mode: TRACKING_MODES.MOUSE, icon: '🖱️' },
-                { label: 'Gesture', mode: TRACKING_MODES.CAMERA, icon: '📷' },
-                { label: 'Skeleton', mode: TRACKING_MODES.SIMULATE, icon: '🌀' },
-                { label: 'Web Service', mode: TRACKING_MODES.WEBSOCKET, icon: '🔌' }
+                { label: '鼠标轨迹', mode: TRACKING_MODES.MOUSE, icon: '🖱️' },
+                { label: '手势捕捉', mode: TRACKING_MODES.CAMERA, icon: '📷' },
+                { label: '仿真模拟', mode: TRACKING_MODES.SIMULATE, icon: '🌀' },
+                { label: '网口服务', mode: TRACKING_MODES.WEBSOCKET, icon: '🔌' }
               ].map(m => (
                 <button
                   key={m.label}
@@ -1395,9 +1422,9 @@ export default function SpatialUI() {
 
           {trackingMode === TRACKING_MODES.WEBSOCKET && (
             <HudCard>
-              <h3>WebSocket Connect</h3>
+              <h3>WebSocket 连接设置</h3>
               <div className="slider-group" style={{ marginTop: '0.2rem' }}>
-                <label>Server URL</label>
+                <label>服务器地址</label>
                 <input
                   type="text"
                   value={wsUrl}
@@ -1416,13 +1443,13 @@ export default function SpatialUI() {
                 />
               </div>
               <span className="tech-info" style={{ color: isConnected ? '#10b981' : '#ef4444', display: 'block', marginTop: '0.2rem' }}>
-                {isConnected ? '● CONNECTED' : '○ DISCONNECTED'}
+                {isConnected ? '● 已连接 (CONNECTED)' : '○ 未连接 (DISCONNECTED)'}
               </span>
             </HudCard>
           )}
 
           <HudCard>
-            <h3>Tracking Status</h3>
+            <h3>追踪状态</h3>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '0.3rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.7rem' }}>
                 <span style={{
@@ -1434,11 +1461,11 @@ export default function SpatialUI() {
                   boxShadow: handDetected ? '0 0 6px #10b981' : '0 0 6px #ef4444'
                 }} />
                 <span style={{ color: '#cbd5e1', fontFamily: 'JetBrains Mono, monospace' }}>
-                  {handDetected ? 'ONLINE' : 'OFFLINE'}
+                  {handDetected ? '在线 (ONLINE)' : '离线 (OFFLINE)'}
                 </span>
               </div>
               <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.7rem', color: '#00f0ff' }}>
-                Conf: {handDetected ? '98.4%' : '0.0%'}
+                置信度: {handDetected ? '98.4%' : '0.0%'}
               </span>
             </div>
             <div className="progress-bar-container">
@@ -1447,11 +1474,11 @@ export default function SpatialUI() {
           </HudCard>
 
           <HudCard>
-            <h3>Pointer Data</h3>
+            <h3>指针数据</h3>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.2rem', fontFamily: 'JetBrains Mono, monospace', fontSize: '0.62rem', color: '#94a3b8', marginTop: '0.2rem' }}>
-              <div>X: <span style={{ color: '#fff' }}>{cursor.x.toFixed(3)}</span></div>
-              <div>Y: <span style={{ color: '#fff' }}>{cursor.y.toFixed(3)}</span></div>
-              <div>Z: <span style={{ color: '#fff' }}>{isPinching ? '0.214' : '0.000'}</span></div>
+              <div>X轴: <span style={{ color: '#fff' }}>{cursor.x.toFixed(3)}</span></div>
+              <div>Y轴: <span style={{ color: '#fff' }}>{cursor.y.toFixed(3)}</span></div>
+              <div>Z轴: <span style={{ color: '#fff' }}>{isPinching ? '0.214' : '0.000'}</span></div>
             </div>
             <div style={{ marginTop: '0.5rem' }}>
               <svg width="100%" height="60" style={{ background: 'rgba(0,0,0,0.22)', borderRadius: '6px', border: '1px solid rgba(80,180,255,0.1)' }}>
@@ -1469,17 +1496,17 @@ export default function SpatialUI() {
           </HudCard>
 
           <HudCard>
-            <h3>Performance</h3>
+            <h3>性能诊断</h3>
             <div className="sparkline-row" style={{ marginTop: '0.2rem' }}>
-              <span>FPS: <span style={{ color: '#fff' }}>59.8</span></span>
+              <span>帧率 (FPS): <span style={{ color: '#fff' }}>59.8</span></span>
               <Sparkline color="#00ff88" points={[15, 18, 17, 16, 20, 19, 21, 20, 18, 20]} />
             </div>
             <div className="sparkline-row">
-              <span>LATENCY: <span style={{ color: '#fff' }}>11ms</span></span>
+              <span>延时 (Latency): <span style={{ color: '#fff' }}>11ms</span></span>
               <Sparkline color="#ffaa00" points={[10, 8, 12, 11, 15, 12, 10, 9, 11, 8]} />
             </div>
             <div className="sparkline-row">
-              <span>TRACKING: <span style={{ color: '#fff' }}>99.2%</span></span>
+              <span>追踪量 (Quality): <span style={{ color: '#fff' }}>99.2%</span></span>
               <Sparkline color="#00a8ff" points={[5, 12, 18, 15, 8, 22, 14, 18, 10, 15]} />
             </div>
           </HudCard>
@@ -1526,17 +1553,17 @@ export default function SpatialUI() {
 
           {/* Floating Camera Control Dock */}
           <BottomDock>
-            <span className="label">Camera Control</span>
+            <span className="label">视角控制</span>
             <div className="divider" />
             
             <div className="dock-section">
-              <button onClick={() => setFov(prev => Math.min(85, prev + 3))} title="Zoom Out (➖)">
+              <button onClick={() => setFov(prev => Math.min(85, prev + 3))} title="拉远视角 (➖)">
                 ➖
               </button>
               <span className="zoom-display">
                 {Math.round((48 / fov) * 100)}%
               </span>
-              <button onClick={() => setFov(prev => Math.max(15, prev - 3))} title="Zoom In (➕)">
+              <button onClick={() => setFov(prev => Math.max(15, prev - 3))} title="拉近视角 (➕)">
                 ➕
               </button>
             </div>
@@ -1545,11 +1572,11 @@ export default function SpatialUI() {
             
             <div className="dock-section">
               {[
-                { id: 'home', label: 'Home' },
-                { id: 'front', label: 'Front' },
-                { id: 'side', label: 'Side' },
-                { id: 'top', label: 'Top' },
-                { id: 'iso', label: 'Iso' }
+                { id: 'home', label: '重置' },
+                { id: 'front', label: '前视' },
+                { id: 'side', label: '侧视' },
+                { id: 'top', label: '俯视' },
+                { id: 'iso', label: '等轴' }
               ].map(view => (
                 <button
                   key={view.id}
@@ -1564,7 +1591,7 @@ export default function SpatialUI() {
             <div className="divider" />
             
             <div className="dock-section explode-control">
-              <span style={{ color: '#8fa3b5', fontWeight: 600 }}>EXPLODE</span>
+              <span style={{ color: '#8fa3b5', fontWeight: 600 }}>拆解系数</span>
               <input
                 type="range"
                 min="0"
@@ -1583,9 +1610,9 @@ export default function SpatialUI() {
             <button
               className={autoRotate ? 'active' : ''}
               onClick={() => setAutoRotate(prev => !prev)}
-              title="Auto Rotate"
+              title="切换自动旋转"
             >
-              🔄 Rotate
+              🔄 自动旋转
             </button>
             
             <div className="divider" />
@@ -1606,7 +1633,7 @@ export default function SpatialUI() {
                 color: focusMode ? '#ef4444' : '#cbd5e1'
               }}
             >
-              🎯 {focusMode ? 'Exit Focus' : 'Focus Mode'}
+              🎯 {focusMode ? '退出观察' : '沉浸观察'}
             </button>
           </BottomDock>
 
@@ -1619,7 +1646,7 @@ export default function SpatialUI() {
         {/* Right Side: Model Parameter Configuration */}
         <Sidebar $right $focus={focusMode && !tempConfigShow}>
           <HudCard>
-            <h3>Object Library</h3>
+            <h3>展示对象库</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', marginTop: '0.3rem' }}>
               {[
                 { id: 'turbine', label: 'Wind Turbine', desc: 'MW 级双馈风力发电机', icon: '⚙️' },
@@ -1647,7 +1674,7 @@ export default function SpatialUI() {
           </HudCard>
 
           <HudCard>
-            <h3>Parts Browser</h3>
+            <h3>零件浏览器</h3>
             <div style={{ maxHeight: '180px', overflowY: 'auto', paddingRight: '4px', scrollbarWidth: 'thin' }}>
               <TreeContainer>
                 {Object.entries(partsData).map(([id, item]) => (
@@ -1665,7 +1692,7 @@ export default function SpatialUI() {
           </HudCard>
 
           <HudCard style={{ flex: 1 }}>
-            <h3>Selected Part</h3>
+            <h3>组件全息数据</h3>
             {selectedPart ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', height: '100%' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -1682,25 +1709,25 @@ export default function SpatialUI() {
                 <div style={{ height: '1px', background: 'rgba(80, 180, 255, 0.12)', margin: '0.2rem 0' }} />
                 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.35rem 0.6rem', fontSize: '0.65rem', fontFamily: 'JetBrains Mono, monospace', color: '#cbd5e1' }}>
-                  <div>Material: <span style={{ color: '#fff' }}>{selectedPart.specs.material}</span></div>
-                  <div>Weight: <span style={{ color: '#fff' }}>{selectedPart.specs.weight}</span></div>
-                  <div>Status: <span style={{ color: selectedPart.specs.status.includes('Active') || selectedPart.specs.status.includes('Running') || selectedPart.specs.status.includes('Healthy') || selectedPart.specs.status.includes('Online') ? '#10b981' : '#ffaa00' }}>
+                  <div>材料: <span style={{ color: '#fff' }}>{selectedPart.specs.material}</span></div>
+                  <div>重量: <span style={{ color: '#fff' }}>{selectedPart.specs.weight}</span></div>
+                  <div>状态: <span style={{ color: selectedPart.specs.status.includes('Active') || selectedPart.specs.status.includes('Running') || selectedPart.specs.status.includes('Healthy') || selectedPart.specs.status.includes('Online') || selectedPart.specs.status.includes('正常') || selectedPart.specs.status.includes('活动') || selectedPart.specs.status.includes('运行') || selectedPart.specs.status.includes('在线') ? '#10b981' : '#ffaa00' }}>
                     {selectedPart.specs.status}
                   </span></div>
-                  <div>Temp: <span style={{ color: '#fff' }}>{selectedPart.specs.temp}</span></div>
+                  <div>温度: <span style={{ color: '#fff' }}>{selectedPart.specs.temp}</span></div>
                   {selectedPart.specs.vibration && selectedPart.specs.vibration !== '---' && (
-                    <div style={{ gridColumn: 'span 2' }}>Vibration: <span style={{ color: '#fff' }}>{selectedPart.specs.vibration}</span></div>
+                    <div style={{ gridColumn: 'span 2' }}>振动: <span style={{ color: '#fff' }}>{selectedPart.specs.vibration}</span></div>
                   )}
                   {selectedPart.specs.power && selectedPart.specs.power !== '---' && (
-                    <div style={{ gridColumn: 'span 2' }}>Power: <span style={{ color: '#fff' }}>{selectedPart.specs.power}</span></div>
+                    <div style={{ gridColumn: 'span 2' }}>功率: <span style={{ color: '#fff' }}>{selectedPart.specs.power}</span></div>
                   )}
                   {selectedPart.specs.efficiency && selectedPart.specs.efficiency !== '---' && (
-                    <div style={{ gridColumn: 'span 2' }}>Efficiency: <span style={{ color: '#fff' }}>{selectedPart.specs.efficiency}</span></div>
+                    <div style={{ gridColumn: 'span 2' }}>效率: <span style={{ color: '#fff' }}>{selectedPart.specs.efficiency}</span></div>
                   )}
                 </div>
               </div>
             ) : (
-              <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Select a part to view diagnostics</span>
+              <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>请选择一个零件以查看其全息遥测参数</span>
             )}
           </HudCard>
         </Sidebar>
