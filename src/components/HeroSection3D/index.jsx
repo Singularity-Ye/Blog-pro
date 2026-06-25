@@ -685,12 +685,33 @@ const ControlPanel = styled.div`
     color: rgba(245, 239, 227, 0.85);
     line-height: 1.35;
   }
+
+  .rotation-mode-row {
+    display: grid;
+    grid-template-columns: 2.8rem 1fr 1fr;
+    gap: 0.25rem;
+    align-items: center;
+    border-top: 1px solid rgba(231, 199, 126, 0.12);
+    padding-top: 0.5rem;
+    margin-top: 0.1rem;
+
+    span {
+      font-size: 0.62rem;
+      color: rgba(245, 239, 227, 0.55);
+    }
+
+    button {
+      padding: 0.2rem 0;
+      font-size: 0.62rem;
+    }
+  }
 `;
 
 
 function HeroSection3D({ onActiveBiomeChange }) {
   const navigate = useNavigate();
   const [activeBiome, setActiveBiome] = useState(null);
+  const [rotationMode, setRotationMode] = useState('joystick'); // 'joystick' or 'pinch'
 
   // Hand tracking states from context
   const {
@@ -843,6 +864,7 @@ function HeroSection3D({ onActiveBiomeChange }) {
               onBiomeHover={handleActiveBiomeChange}
               onBiomeSelect={handleActiveBiomeChange}
               onNavigate={handleNavigate}
+              rotationMode={rotationMode}
             />
             <Preload all />
           </Suspense>
@@ -884,9 +906,27 @@ function HeroSection3D({ onActiveBiomeChange }) {
           </button>
         </div>
 
+        {trackingMode !== TRACKING_MODES.MOUSE && (
+          <div className="rotation-mode-row">
+            <span>旋转控制:</span>
+            <button
+              className={rotationMode === 'joystick' ? 'active' : ''}
+              onClick={() => setRotationMode('joystick')}
+            >
+              🕹️ 摇杆
+            </button>
+            <button
+              className={rotationMode === 'pinch' ? 'active' : ''}
+              onClick={() => setRotationMode('pinch')}
+            >
+              👌 捏合
+            </button>
+          </div>
+        )}
+
         {trackingMode === TRACKING_MODES.WEBSOCKET && (
           <div className="input-group">
-            <label>WebSocket Server URL</label>
+            <label>WebSocket 服务器地址</label>
             <input
               type="text"
               value={wsUrl}
@@ -896,10 +936,10 @@ function HeroSection3D({ onActiveBiomeChange }) {
         )}
 
         <div className="readout">
-          状态: {trackingMode.toUpperCase()}<br />
-          手部侦测: {handDetected ? 'DETECTED' : 'NOT DETECTED'}<br />
+          状态: {trackingMode === TRACKING_MODES.MOUSE ? '鼠标轨迹' : trackingMode === TRACKING_MODES.CAMERA ? '手势捕捉' : trackingMode === TRACKING_MODES.WEBSOCKET ? '网口服务' : '仿真模拟'}<br />
+          手部侦测: {handDetected ? '已检测到' : '未检测到'}<br />
           指针坐标: X:{cursor.x.toFixed(2)} Y:{cursor.y.toFixed(2)}<br />
-          动作: {isPinching ? '捏合拖拽 (Pinch/Drag)' : '悬停 (Hover)'}
+          动作: {isPinching ? '捏合拖拽' : '悬停'}
           {dwellProgress > 0 && <><br />确认进度: {Math.round(dwellProgress)}%</>}
         </div>
       </ControlPanel>
@@ -910,7 +950,7 @@ function HeroSection3D({ onActiveBiomeChange }) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.2 }}
         >
-          PINECONE GLOBE ONLINE
+          松果星寰已上线
         </GreetBadge>
 
         <HeroTitle
@@ -919,7 +959,7 @@ function HeroSection3D({ onActiveBiomeChange }) {
           transition={{ duration: 0.85, delay: 0.4 }}
         >
           松果星寰仪
-          <span className="en-sub">Pinecone Orrery · Aether Mirror</span>
+          <span className="en-sub">松果星寰仪 · 以太之镜</span>
         </HeroTitle>
 
         <HeroSubtitle

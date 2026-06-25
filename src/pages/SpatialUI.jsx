@@ -316,13 +316,13 @@ const TagLabel = styled.div`
 const FRIDGE_PARTS = {
   '01': {
     id: 'RF-FC-001',
-    name: 'Cool Cabin',
-    title: '01 冷藏保鲜层 (Cool Cabin)',
+    name: '冷藏保鲜层',
+    title: '01 冷藏保鲜层',
     desc: '双路微冷循环风道技术，智能控温保鲜，温度区间：2℃至8℃。',
     specs: {
       material: '食品级 ABS / 钢化玻璃',
       weight: '18.5 kg',
-      status: '正常 (Healthy)',
+      status: '正常',
       temp: '4.0 ℃',
       vibration: '0.1 mm/s',
       power: '---',
@@ -332,13 +332,13 @@ const FRIDGE_PARTS = {
   },
   '02': {
     id: 'RF-FZ-002',
-    name: 'Freezer Cabin',
-    title: '02 极速冷冻层 (Freezer Cabin)',
+    name: '极速冷冻层',
+    title: '02 极速冷冻层',
     desc: '超导一体风冷无霜蒸发器，最低制冷温度可达 -24℃。',
     specs: {
       material: '发泡聚氨酯 / 铝板',
       weight: '24.2 kg',
-      status: '活动 (Active)',
+      status: '活动',
       temp: '-18.0 ℃',
       vibration: '0.2 mm/s',
       power: '---',
@@ -348,13 +348,13 @@ const FRIDGE_PARTS = {
   },
   '03': {
     id: 'RF-CP-003',
-    name: 'Compressor',
-    title: '03 变频压缩机 (Compressor)',
+    name: '变频压缩机',
+    title: '03 变频压缩机',
     desc: '双转子直流变频静音压缩机，能耗比极佳，全天候噪音低于32dB。',
     specs: {
       material: '铸钢 / 铜绕组',
       weight: '12.0 kg',
-      status: '正常 (Healthy)',
+      status: '正常',
       temp: '45.2 ℃',
       vibration: '0.8 mm/s',
       power: '120 W',
@@ -364,13 +364,13 @@ const FRIDGE_PARTS = {
   },
   '04': {
     id: 'RF-SP-004',
-    name: 'Control Board',
-    title: '04 智能控制板 (Control Board)',
+    name: '智能控制板',
+    title: '04 智能控制板',
     desc: '透光晶体玻璃晶格触屏，集成智能物联控制芯片。',
     specs: {
       material: '微处理器 / LCD 面板',
       weight: '0.85 kg',
-      status: '在线 (Online)',
+      status: '在线',
       temp: '28.1 ℃',
       vibration: '0.0 mm/s',
       power: '12 W',
@@ -384,13 +384,13 @@ const FRIDGE_PARTS = {
 const BATTERY_PARTS = {
   '01': {
     id: 'BT-AT-001',
-    name: 'Anode Terminal',
-    title: '01 正极汇流端子 (Anode Terminal)',
+    name: '正极端子',
+    title: '01 正极汇流端子',
     desc: '阳极集流体采用高导电防氧化铜合金镀金，接触内阻极低。',
     specs: {
       material: '铜合金镀金',
       weight: '0.12 kg',
-      status: '正常 (Healthy)',
+      status: '正常',
       temp: '32.5 ℃',
       vibration: '0.0 mm/s',
       power: '---',
@@ -400,13 +400,13 @@ const BATTERY_PARTS = {
   },
   '02': {
     id: 'BT-CT-002',
-    name: 'Cathode Terminal',
-    title: '02 负极连接端子 (Cathode Terminal)',
+    name: '负极端子',
+    title: '02 负极连接端子',
     desc: '阴极集流体外层使用高纯度镍片复合冲压压铸而成，散热性极佳。',
     specs: {
       material: '高纯度复合镍板',
       weight: '0.15 kg',
-      status: '正常 (Healthy)',
+      status: '正常',
       temp: '31.8 ℃',
       vibration: '0.0 mm/s',
       power: '---',
@@ -416,13 +416,13 @@ const BATTERY_PARTS = {
   },
   '03': {
     id: 'BT-MS-003',
-    name: 'Matrix Separator',
-    title: '03 纳米多孔隔膜 (Matrix Separator)',
+    name: '纳米多孔隔膜',
+    title: '03 纳米多孔隔膜',
     desc: '12μm 多孔聚乙烯安全隔离层，熔融自闭安全防护温度达130℃。',
     specs: {
       material: '多孔聚乙烯安全膜',
       weight: '0.05 kg',
-      status: '绝缘 (Healthy)',
+      status: '绝缘',
       temp: '29.5 ℃',
       vibration: '0.0 mm/s',
       power: '---',
@@ -432,13 +432,13 @@ const BATTERY_PARTS = {
   },
   '04': {
     id: 'BT-SE-004',
-    name: 'Solid Electrolyte',
-    title: '04 固态电解质 (Solid Electrolyte)',
+    name: '固态电解质',
+    title: '04 固态电解质',
     desc: '新型固态锂聚合物电解质凝胶，大幅抑制锂枝晶生长，消除漏液风险。',
     specs: {
       material: '锂聚合物凝胶',
       weight: '1.45 kg',
-      status: '正常 (Healthy)',
+      status: '正常',
       temp: '34.2 ℃',
       vibration: '0.0 mm/s',
       power: '---',
@@ -452,13 +452,13 @@ const BATTERY_PARTS = {
 const TURBINE_PARTS = {
   '01': {
     id: 'WT-FR-001',
-    name: 'Fan Rotor',
-    title: '01 桨叶转子 (Fan Rotor)',
+    name: '桨叶转子',
+    title: '01 桨叶转子',
     desc: '高刚性碳纤维结构叶片，捕捉微弱风能并转化为转矩机械能。',
     specs: {
       material: '碳纤维复合材料',
       weight: '8.45 吨',
-      status: '正常 (Healthy)',
+      status: '正常',
       temp: '32.1 ℃',
       vibration: '1.2 mm/s',
       power: '---',
@@ -468,13 +468,13 @@ const TURBINE_PARTS = {
   },
   '02': {
     id: 'WT-GS-002',
-    name: 'Gear Stage',
-    title: '02 行星齿轮级 (Gear Stage)',
+    name: '行星齿轮级',
+    title: '02 行星齿轮级',
     desc: '两级行星齿轮及一级平行齿轮增速机构，将低速轴增速至额定发电转速。',
     specs: {
       material: '合金渗碳钢 18CrNiMo7-6',
       weight: '15.20 吨',
-      status: '正常 (Healthy)',
+      status: '正常',
       temp: '54.5 ℃',
       vibration: '2.4 mm/s',
       power: '---',
@@ -484,13 +484,13 @@ const TURBINE_PARTS = {
   },
   '03': {
     id: 'WT-CS-003',
-    name: 'Core Shaft',
-    title: '03 主轴系统 (Core Shaft)',
-    desc: '高强度锻钢主轴，支承风轮气动力和交变载荷并传递扭矩。',
+    name: '主轴系统',
+    title: '03 主轴系统',
+    desc: '高强度锻钢主轴，支承风轮气动力与交变载荷并传递扭矩。',
     specs: {
       material: '合金锻钢 34CrNiMo6',
       weight: '12.80 吨',
-      status: '正常 (Healthy)',
+      status: '正常',
       temp: '41.2 ℃',
       vibration: '1.8 mm/s',
       power: '---',
@@ -500,13 +500,13 @@ const TURBINE_PARTS = {
   },
   '04': {
     id: 'WT-PM-004',
-    name: 'Power Module',
-    title: '04 变频功率模块 (Power Module)',
+    name: '变频功率模块',
+    title: '04 变频功率模块',
     desc: '全功率变流集成柜，实现网侧与电机侧双向变流与电能调制。',
     specs: {
       material: 'IGBT 晶闸管阵列',
       weight: '3.10 吨',
-      status: '在线 (Online)',
+      status: '在线',
       temp: '42.3 ℃',
       vibration: '0.8 mm/s',
       power: '3.2 MW',
@@ -516,13 +516,13 @@ const TURBINE_PARTS = {
   },
   '05': {
     id: 'WT-OP-005',
-    name: 'Oil Pump',
-    title: '05 循环油泵组 (Oil Pump)',
+    name: '循环油泵组',
+    title: '05 循环油泵组',
     desc: '压力强制润滑系统，提供齿轮箱与轴承温控润滑介质。',
     specs: {
       material: '不锈钢泵体',
       weight: '0.85 吨',
-      status: '运行 (Running)',
+      status: '运行',
       temp: '38.4 ℃',
       vibration: '3.1 mm/s',
       power: '45 kW',
@@ -532,13 +532,13 @@ const TURBINE_PARTS = {
   },
   '06': {
     id: 'WT-BH-006',
-    name: 'Bearing Housing',
-    title: '06 主轴承座箱 (Bearing Housing)',
+    name: '主轴承座箱',
+    title: '06 主轴承座箱',
     desc: '重载调心滚子轴承座，承受风力发电机偏航与俯仰弯矩扭矩载荷。',
     specs: {
       material: '高韧性球墨铸铁 QT400',
       weight: '9.35 吨',
-      status: '正常 (Healthy)',
+      status: '正常',
       temp: '45.8 ℃',
       vibration: '1.5 mm/s',
       power: '---',
@@ -548,13 +548,13 @@ const TURBINE_PARTS = {
   },
   '07': {
     id: 'WT-CU-007',
-    name: 'Control Unit',
-    title: '07 偏航与主控柜 (Control Unit)',
+    name: '偏航与主控柜',
+    title: '07 偏航与主控柜',
     desc: '偏航电机驱动器与PLC主控单元，自适应偏航对风与变桨调节。',
     specs: {
       material: 'PLC 变频伺服系统',
       weight: '1.20 吨',
-      status: '正常 (Healthy)',
+      status: '正常',
       temp: '35.6 ℃',
       vibration: '0.5 mm/s',
       power: '22 kW',
@@ -1403,7 +1403,7 @@ export default function SpatialUI() {
       <Header>
         <div className="logo-section" onClick={() => navigate('/')}>
           <span className="icon">⚙️</span>
-          <h1>3D 零件拆解沙盒 · Product Configurator</h1>
+          <h1>3D 零件拆解沙盒 · 产品配置器</h1>
         </div>
         <button className="nav-back" onClick={handleBack}>
           返回造物坊
@@ -1487,7 +1487,7 @@ export default function SpatialUI() {
                 />
               </div>
               <span className="tech-info" style={{ color: isConnected ? '#10b981' : '#ef4444', display: 'block', marginTop: '0.2rem' }}>
-                {isConnected ? '● 已连接 (CONNECTED)' : '○ 未连接 (DISCONNECTED)'}
+                {isConnected ? '● 已连接' : '○ 未连接'}
               </span>
             </HudCard>
           )}
@@ -1505,7 +1505,7 @@ export default function SpatialUI() {
                   boxShadow: handDetected ? '0 0 6px #10b981' : '0 0 6px #ef4444'
                 }} />
                 <span style={{ color: '#cbd5e1', fontFamily: 'JetBrains Mono, monospace' }}>
-                  {handDetected ? '在线 (ONLINE)' : '离线 (OFFLINE)'}
+                  {handDetected ? '在线' : '离线'}
                 </span>
               </div>
               <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.7rem', color: '#00f0ff' }}>
@@ -1546,11 +1546,11 @@ export default function SpatialUI() {
               <Sparkline color="#00ff88" points={[15, 18, 17, 16, 20, 19, 21, 20, 18, 20]} />
             </div>
             <div className="sparkline-row">
-              <span>延时 (Latency): <span style={{ color: '#fff' }}>11ms</span></span>
+              <span>延时: <span style={{ color: '#fff' }}>11ms</span></span>
               <Sparkline color="#ffaa00" points={[10, 8, 12, 11, 15, 12, 10, 9, 11, 8]} />
             </div>
             <div className="sparkline-row">
-              <span>追踪量 (Quality): <span style={{ color: '#fff' }}>99.2%</span></span>
+              <span>追踪质量: <span style={{ color: '#fff' }}>99.2%</span></span>
               <Sparkline color="#00a8ff" points={[5, 12, 18, 15, 8, 22, 14, 18, 10, 15]} />
             </div>
           </HudCard>
@@ -1693,9 +1693,9 @@ export default function SpatialUI() {
             <h3>展示对象库</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', marginTop: '0.3rem' }}>
               {[
-                { id: 'turbine', label: 'Wind Turbine', desc: 'MW 级双馈风力发电机', icon: '⚙️' },
-                { id: 'battery', label: 'Battery Pack', desc: '固态聚合物电解质电池', icon: '🔋' },
-                { id: 'fridge', label: 'Refrigerator', desc: '全息智能温控冷藏机', icon: '❄️' }
+                { id: 'turbine', label: '风力发电机', desc: 'MW 级双馈风力发电机', icon: '⚙️' },
+                { id: 'battery', label: '电池能量包', desc: '固态聚合物电解质电池', icon: '🔋' },
+                { id: 'fridge', label: '智能冷藏柜', desc: '全息智能温控冷藏机', icon: '❄️' }
               ].map(item => (
                 <ObjectItem
                   key={item.id}
