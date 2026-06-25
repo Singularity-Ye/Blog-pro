@@ -99,6 +99,7 @@ export function HandTrackingProvider({ children }) {
   // Gesture state debouncing tracking
   const pinchActiveRef = useRef(false);
   const pinchTransitionFramesRef = useRef(0);
+  const pinchEnterFramesRef = useRef(0); // Prevent noise on entering pinch state
 
   const fistActiveRef = useRef(false);
   const fistTransitionFramesRef = useRef(0);
@@ -106,18 +107,26 @@ export function HandTrackingProvider({ children }) {
   const peaceActiveRef = useRef(false);
   const peaceTransitionFramesRef = useRef(0);
 
+  // Cursor filter states
+  const smoothedCursorRef = useRef({ x: 0, y: 0 });
+  const isFirstFrameRef = useRef(true);
+
   // Debounced gesture state dispatchers
   const updatePinchState = useCallback((rawPinchActive) => {
     if (rawPinchActive) {
       pinchTransitionFramesRef.current = 0;
       if (!pinchActiveRef.current) {
-        pinchActiveRef.current = true;
-        setIsPinching(true);
+        pinchEnterFramesRef.current += 1;
+        if (pinchEnterFramesRef.current >= 3) { // Must be true for 3 consecutive frames to trigger pinch
+          pinchActiveRef.current = true;
+          setIsPinching(true);
+        }
       }
     } else {
+      pinchEnterFramesRef.current = 0;
       if (pinchActiveRef.current) {
         pinchTransitionFramesRef.current += 1;
-        if (pinchTransitionFramesRef.current >= 6) { // Must be false for 6 consecutive frames (approx 100ms at 60fps) to release
+        if (pinchTransitionFramesRef.current >= 8) { // Must be false for 8 consecutive frames to release
           pinchActiveRef.current = false;
           setIsPinching(false);
         }
@@ -215,10 +224,12 @@ export function HandTrackingProvider({ children }) {
     // Reset gesture states & debouncing frame counters immediately
     pinchActiveRef.current = false;
     pinchTransitionFramesRef.current = 0;
+    pinchEnterFramesRef.current = 0;
     fistActiveRef.current = false;
     fistTransitionFramesRef.current = 0;
     peaceActiveRef.current = false;
     peaceTransitionFramesRef.current = 0;
+    isFirstFrameRef.current = true;
 
     setCameraActive(false);
     setHandDetected(false);
@@ -250,12 +261,29 @@ export function HandTrackingProvider({ children }) {
       const indexTip = hand[8];
       const ndcX = 1 - indexTip.x * 2;
       const ndcY = 1 - indexTip.y * 2;
-      setCursor({ x: ndcX, y: ndcY });
 
-      // Pinch check (Distance between Thumb Tip 4 and Index Tip 8)
+      // Pinch check using scale-independent normalized distance
+      // Distance between Thumb Tip (4) and Index Tip (8) relative to hand size (wrist 0 to middle knuckle 9)
       const pinchDist = getDistance(hand[4], hand[8]);
-      const rawPinchActive = pinchDist < 0.075;
+      const handScale = getDistance(hand[0], hand[9]) || 0.2;
+      const relativePinchDist = pinchDist / handScale;
+      // 0.38 is an ideal threshold that detects pinch cleanly and avoids occlusion issues
+      const rawPinchActive = relativePinchDist < 0.38;
       updatePinchState(rawPinchActive);
+
+      // Smooth the cursor position using first-order low-pass filter (Exponential Moving Average)
+      // When pinch is active, we apply a stronger filter to mitigate self-occlusion jitter.
+      const filterFactor = pinchActiveRef.current ? 0.08 : 0.22;
+
+      if (isFirstFrameRef.current) {
+        smoothedCursorRef.current = { x: ndcX, y: ndcY };
+        isFirstFrameRef.current = false;
+      } else {
+        smoothedCursorRef.current.x += (ndcX - smoothedCursorRef.current.x) * filterFactor;
+        smoothedCursorRef.current.y += (ndcY - smoothedCursorRef.current.y) * filterFactor;
+      }
+
+      setCursor({ x: smoothedCursorRef.current.x, y: smoothedCursorRef.current.y });
 
       // Fist check (curl of index, middle, ring, pinky)
       const indexCurled = isFingerCurled(hand, 5, 6, 7, 8);
@@ -305,10 +333,12 @@ export function HandTrackingProvider({ children }) {
       }
     } else {
       setHandDetected(false);
+      isFirstFrameRef.current = true;
       
       // Reset gesture states & debouncing frame counters immediately
       pinchActiveRef.current = false;
       pinchTransitionFramesRef.current = 0;
+      pinchEnterFramesRef.current = 0;
       fistActiveRef.current = false;
       fistTransitionFramesRef.current = 0;
       peaceActiveRef.current = false;

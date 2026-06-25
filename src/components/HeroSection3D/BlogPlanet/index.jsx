@@ -7,7 +7,7 @@ import { useHandTracking, TRACKING_MODES } from '../../../utils/useHandTracking'
 
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 
-function BlogPlanet({ activeBiome, onBiomeHover, onBiomeSelect, onNavigate }) {
+function BlogPlanet({ activeBiome, onBiomeHover, onBiomeSelect, onNavigate, rotationMode = 'joystick' }) {
   const { gl } = useThree();
   const groupRef = useRef();
   const navigateTimerRef = useRef(null);
@@ -19,10 +19,12 @@ function BlogPlanet({ activeBiome, onBiomeHover, onBiomeSelect, onNavigate }) {
   const targetScaleRef = useRef(1.04);
 
   // Hand tracking state
-  const { handDetected, cursor, trackingMode } = useHandTracking();
+  const { handDetected, cursor, isPinching, trackingMode } = useHandTracking();
   const prevCursorRef = useRef({ x: 0, y: 0 });
   const smoothedCursorRef = useRef({ x: 0, y: 0 });
   const wasHandDetectedRef = useRef(false);
+  const wasPinchingRef = useRef(false);
+  const pinchStartPosRef = useRef({ x: 0, y: 0 });
 
   const zoomPlanet = useCallback((deltaY) => {
     const direction = deltaY > 0 ? -1 : 1;
@@ -116,23 +118,52 @@ function BlogPlanet({ activeBiome, onBiomeHover, onBiomeSelect, onNavigate }) {
         smoothedCursorRef.current.x += (cursor.x - smoothedCursorRef.current.x) * alpha;
         smoothedCursorRef.current.y += (cursor.y - smoothedCursorRef.current.y) * alpha;
 
-        // 2. Joystick-style rotation control (based on hand position relative to screen center)
-        const deadZone = 0.22; // 22% dead zone in center to keep planet static
-        let targetVelocityY = 0;
-        let targetVelocityX = 0;
+        // 2. Rotation control based on rotationMode
+        if (rotationMode === 'pinch') {
+          // Pinch & Drag rotation (replicates mouse grab feeling)
+          if (isPinching) {
+            if (!wasPinchingRef.current) {
+              wasPinchingRef.current = true;
+              pinchStartPosRef.current = { x: cursor.x, y: cursor.y };
+            } else {
+              // Calculate delta in NDC coordinates
+              const dx = cursor.x - pinchStartPosRef.current.x;
+              const dy = cursor.y - pinchStartPosRef.current.y;
+              
+              // Rotate the planet group
+              group.rotation.y += dx * 1.5;
+              group.rotation.x = clamp(group.rotation.x - dy * 1.0, -0.65, 0.65);
+              
+              // Active velocity for release inertia
+              velocityRef.current = {
+                x: -dy * 0.12,
+                y: dx * 0.18
+              };
+              
+              pinchStartPosRef.current = { x: cursor.x, y: cursor.y };
+            }
+          } else {
+            wasPinchingRef.current = false;
+          }
+        } else {
+          // Joystick-style rotation control (based on hand position relative to screen center)
+          const deadZone = 0.22; // 22% dead zone in center to keep planet static
+          let targetVelocityY = 0;
+          let targetVelocityX = 0;
 
-        if (Math.abs(cursor.x) > deadZone) {
-          const factorX = (cursor.x - Math.sign(cursor.x) * deadZone) / (1 - deadZone);
-          targetVelocityY = factorX * 0.024; // max Y spin speed
-        }
-        if (Math.abs(cursor.y) > deadZone) {
-          const factorY = (cursor.y - Math.sign(cursor.y) * deadZone) / (1 - deadZone);
-          targetVelocityX = -factorY * 0.018; // max X tilt speed (inverted to match drag mapping)
-        }
+          if (Math.abs(cursor.x) > deadZone) {
+            const factorX = (cursor.x - Math.sign(cursor.x) * deadZone) / (1 - deadZone);
+            targetVelocityY = factorX * 0.024; // max Y spin speed
+          }
+          if (Math.abs(cursor.y) > deadZone) {
+            const factorY = (cursor.y - Math.sign(cursor.y) * deadZone) / (1 - deadZone);
+            targetVelocityX = -factorY * 0.018; // max X tilt speed (inverted to match drag mapping)
+          }
 
-        // Smoothly LERP velocity changes for inertia feel
-        velocityRef.current.y = THREE.MathUtils.lerp(velocityRef.current.y, targetVelocityY, 0.08);
-        velocityRef.current.x = THREE.MathUtils.lerp(velocityRef.current.x, targetVelocityX, 0.08);
+          // Smoothly LERP velocity changes for inertia feel
+          velocityRef.current.y = THREE.MathUtils.lerp(velocityRef.current.y, targetVelocityY, 0.08);
+          velocityRef.current.x = THREE.MathUtils.lerp(velocityRef.current.x, targetVelocityX, 0.08);
+        }
 
         prevCursorRef.current = { ...cursor };
       }
@@ -170,10 +201,14 @@ function BlogPlanet({ activeBiome, onBiomeHover, onBiomeSelect, onNavigate }) {
 
     // Rotation physics (inertia on mouse or hand release)
     if (!draggingRef.current) {
-      group.rotation.y += velocityRef.current.y + 0.00045;
-      group.rotation.x = clamp(group.rotation.x + velocityRef.current.x, -0.65, 0.65);
-      velocityRef.current.x *= 0.97; // Lowered friction (from 0.92 to 0.97) for long-lasting cosmic spin
-      velocityRef.current.y *= 0.97;
+      // In pinch mode, only apply inertia when not actively pinching
+      const applyingHandPinch = (rotationMode === 'pinch' && handDetected && isPinching);
+      if (!applyingHandPinch) {
+        group.rotation.y += velocityRef.current.y + 0.00045;
+        group.rotation.x = clamp(group.rotation.x + velocityRef.current.x, -0.65, 0.65);
+        velocityRef.current.x *= 0.97; // Lowered friction (from 0.92 to 0.97) for long-lasting cosmic spin
+        velocityRef.current.y *= 0.97;
+      }
     }
 
     currentScaleRef.current = THREE.MathUtils.lerp(

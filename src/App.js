@@ -11,6 +11,32 @@ import Layout from './components/Layout';
 import GlobalNav from './components/GlobalNav';
 import ErrorBoundary from './components/ErrorBoundary';
 
+// Polyfill to prevent browser crashes from synthetic pointer events (e.g. from OrbitControls)
+if (typeof Element !== 'undefined' && Element.prototype) {
+  const originalSet = Element.prototype.setPointerCapture;
+  const originalRelease = Element.prototype.releasePointerCapture;
+  
+  if (originalSet) {
+    Element.prototype.setPointerCapture = function(pointerId) {
+      try {
+        originalSet.call(this, pointerId);
+      } catch (e) {
+        // Suppress pointer capture errors for synthetic pointers
+      }
+    };
+  }
+  
+  if (originalRelease) {
+    Element.prototype.releasePointerCapture = function(pointerId) {
+      try {
+        originalRelease.call(this, pointerId);
+      } catch (e) {
+        // Suppress pointer capture errors for synthetic pointers
+      }
+    };
+  }
+}
+
 // Heavy pages lazy-loaded for code splitting
 const Blog = lazy(() => import('./pages/Blog'));
 const About = lazy(() => import('./pages/About'));
@@ -19,7 +45,6 @@ const Contact = lazy(() => import('./pages/Contact'));
 const Note = lazy(() => import('./pages/Note'));
 const Atlas = lazy(() => import('./pages/Atlas'));
 const GraphView = lazy(() => import('./components/GraphView/GraphView'));
-const SpatialUI = lazy(() => import('./pages/SpatialUI'));
 
 const PageFallback = () => (
   <div style={{
@@ -107,7 +132,6 @@ function AppRoutes() {
           <Route path="/atlas/:type" element={<Atlas />} />
           <Route path="/graph" element={<GraphView />} />
           <Route path="/note/*" element={<Note />} />
-          <Route path="/spatial-ui" element={<SpatialUI />} />
         </Routes>
         </Suspense>
         </ErrorBoundary>

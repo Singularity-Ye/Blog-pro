@@ -90,19 +90,6 @@ const NAV_ITEMS = [
     ),
     href: '/about',
   },
-  {
-    key: 'hologram',
-    label: '以太全息舱',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-        <polygon points="12 2 2 22 22 22" />
-        <line x1="12" y1="2" x2="12" y2="22" />
-        <polyline points="2 22 12 14 22 22" />
-        <circle cx="12" cy="14" r="2.5" />
-      </svg>
-    ),
-    href: '/spatial-ui',
-  },
 ];
 
 const Container = styled(motion.div)`
