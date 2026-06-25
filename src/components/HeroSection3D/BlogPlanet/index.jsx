@@ -19,12 +19,10 @@ function BlogPlanet({ activeBiome, onBiomeHover, onBiomeSelect, onNavigate }) {
   const targetScaleRef = useRef(1.04);
 
   // Hand tracking state
-  const { handDetected, cursor, isPinching, trackingMode } = useHandTracking();
-  const wasGrabbingRef = useRef(false);
+  const { handDetected, cursor, trackingMode } = useHandTracking();
   const prevCursorRef = useRef({ x: 0, y: 0 });
   const smoothedCursorRef = useRef({ x: 0, y: 0 });
   const wasHandDetectedRef = useRef(false);
-  const handDragDistanceRef = useRef(0);
 
   const zoomPlanet = useCallback((deltaY) => {
     const direction = deltaY > 0 ? -1 : 1;
@@ -110,11 +108,37 @@ function BlogPlanet({ activeBiome, onBiomeHover, onBiomeSelect, onNavigate }) {
       if (!wasHandDetectedRef.current) {
         wasHandDetectedRef.current = true;
         smoothedCursorRef.current = { ...cursor };
+        prevCursorRef.current = { ...cursor };
       } else {
-        const lambda = 18; // Speed coefficient (higher = faster response, lower = smoother)
+        // 1. Exponential LERP smoothing for raycasting cursor
+        const lambda = 18; // Speed coefficient
         const alpha = 1 - Math.exp(-lambda * dt);
         smoothedCursorRef.current.x += (cursor.x - smoothedCursorRef.current.x) * alpha;
         smoothedCursorRef.current.y += (cursor.y - smoothedCursorRef.current.y) * alpha;
+
+        // 2. Waving gesture detection using raw coordinates to calculate instantaneous velocity
+        const dx = cursor.x - prevCursorRef.current.x;
+        const dy = cursor.y - prevCursorRef.current.y;
+
+        const vx = dx / dt;
+        const vy = dy / dt;
+
+        const speed = Math.hypot(vx, vy);
+        if (speed > 1.0) { // Waving threshold
+          // Waving horizontally (vx) adds spin velocity around Y-axis, vertically (vy) around X-axis
+          velocityRef.current.y = clamp(
+            velocityRef.current.y + vx * 0.002,
+            -0.08,
+            0.08
+          );
+          velocityRef.current.x = clamp(
+            velocityRef.current.x + vy * 0.0015,
+            -0.06,
+            0.06
+          );
+        }
+
+        prevCursorRef.current = { ...cursor };
       }
       state.pointer.set(smoothedCursorRef.current.x, smoothedCursorRef.current.y);
 
@@ -148,58 +172,8 @@ function BlogPlanet({ activeBiome, onBiomeHover, onBiomeSelect, onNavigate }) {
       wasHandDetectedRef.current = false;
     }
 
-    // Hand-grabbing rotation (can grab and rotate anywhere on the planet globe)
-    if (handDetected) {
-      const isGrab = isPinching; // Only pinch is used for dragging/rotation as fist clenching is retired
-      if (isGrab) {
-        if (!wasGrabbingRef.current) {
-          wasGrabbingRef.current = true;
-          prevCursorRef.current = { ...smoothedCursorRef.current };
-          handDragDistanceRef.current = 0;
-        } else {
-          const dx = smoothedCursorRef.current.x - prevCursorRef.current.x;
-          const dy = smoothedCursorRef.current.y - prevCursorRef.current.y;
-
-          group.rotation.y += dx * 2.4;
-          group.rotation.x = clamp(
-            group.rotation.x - dy * 2.0,
-            -0.65,
-            0.65
-          );
-
-          velocityRef.current = {
-            x: -dy * 2.0,
-            y: dx * 2.4,
-          };
-
-          // Accumulate hand drag distance (in NDC coordinates)
-          handDragDistanceRef.current += Math.hypot(dx, dy);
-          if (handDragDistanceRef.current > 0.02) { // approx 1% of screen size, triggers drag threshold
-            draggedRef.current = true;
-          }
-
-          prevCursorRef.current = { ...smoothedCursorRef.current };
-        }
-      } else {
-        if (wasGrabbingRef.current) {
-          wasGrabbingRef.current = false;
-          // Delay resetting draggedRef to allow click handlers to ignore this drag release
-          window.setTimeout(() => {
-            draggedRef.current = false;
-          }, 120);
-        }
-      }
-    } else {
-      if (wasGrabbingRef.current) {
-        wasGrabbingRef.current = false;
-        window.setTimeout(() => {
-          draggedRef.current = false;
-        }, 120);
-      }
-    }
-
     // Rotation physics (inertia on mouse or hand release)
-    if (!draggingRef.current && !wasGrabbingRef.current) {
+    if (!draggingRef.current) {
       group.rotation.y += velocityRef.current.y + 0.00045;
       group.rotation.x = clamp(group.rotation.x + velocityRef.current.x, -0.65, 0.65);
       velocityRef.current.x *= 0.97; // Lowered friction (from 0.92 to 0.97) for long-lasting cosmic spin
