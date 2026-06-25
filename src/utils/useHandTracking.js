@@ -93,6 +93,7 @@ export function HandTrackingProvider({ children }) {
   const mediaPipeCameraRef = useRef(null);
   const simulationIntervalRef = useRef(null);
   const activeModeRef = useRef(trackingMode);
+  const activeInitIdRef = useRef(0);
 
   // Callback refs to detect mounting/unmounting of video/canvas elements across page transitions
   const [elementTrigger, setElementTrigger] = useState(0);
@@ -104,7 +105,6 @@ export function HandTrackingProvider({ children }) {
 
   const canvasRefCallback = useCallback((node) => {
     canvasRefInternal.current = node;
-    setElementTrigger((prev) => prev + 1);
   }, []);
 
   // Sync mode ref to avoid closure problems in callbacks
@@ -114,6 +114,9 @@ export function HandTrackingProvider({ children }) {
 
   // Clean up all resources
   const cleanup = useCallback(() => {
+    // Invalidate any ongoing camera initializations
+    activeInitIdRef.current++;
+
     // 1. Stop simulation
     if (simulationIntervalRef.current) {
       clearInterval(simulationIntervalRef.current);
@@ -228,6 +231,7 @@ export function HandTrackingProvider({ children }) {
   // Initialize MediaPipe tracking
   const startCameraTracking = useCallback(async () => {
     cleanup();
+    const myId = activeInitIdRef.current; // The new target ID for this call
     setHandDetected(false);
 
     try {
@@ -247,12 +251,25 @@ export function HandTrackingProvider({ children }) {
           frameRate: { ideal: 60, min: 30 }
         },
       });
+
+      // Check if a newer initialization has started since we started waiting for getUserMedia
+      if (myId !== activeInitIdRef.current) {
+        console.log('A newer camera tracking initialization started. Cleaning up stale stream.');
+        stream.getTracks().forEach((track) => track.stop());
+        return;
+      }
+
       videoRefInternal.current.srcObject = stream;
       setCameraActive(true);
 
       // 3. Load CDN scripts
       await loadScript(MEDIAPIPE_HANDS_CDN);
       await loadScript(MEDIAPIPE_CAMERA_CDN);
+
+      if (myId !== activeInitIdRef.current) {
+        console.log('A newer camera tracking initialization started. Aborting CDN loading.');
+        return;
+      }
 
       // 4. Initialize MediaPipe Hands
       if (!mediaPipeHandsRef.current && window.Hands) {
@@ -267,6 +284,11 @@ export function HandTrackingProvider({ children }) {
         });
         hands.onResults(onResults);
         mediaPipeHandsRef.current = hands;
+      }
+
+      if (myId !== activeInitIdRef.current) {
+        console.log('A newer camera tracking initialization started. Aborting hands setup.');
+        return;
       }
 
       // 5. Initialize MediaPipe Camera Loop
@@ -288,7 +310,9 @@ export function HandTrackingProvider({ children }) {
       }
     } catch (err) {
       console.error('Failed to start webcam hand tracking:', err);
-      setTrackingMode(TRACKING_MODES.MOUSE);
+      if (myId === activeInitIdRef.current) {
+        setTrackingMode(TRACKING_MODES.MOUSE);
+      }
     }
   }, [cleanup, onResults]);
 
