@@ -3,7 +3,7 @@ import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { BIOMES } from './biomeConfig';
 import PlanetSurface from './PlanetSurface';
-import { useHandTracking } from '../../../utils/useHandTracking';
+import { useHandTracking, TRACKING_MODES } from '../../../utils/useHandTracking';
 
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 
@@ -19,11 +19,10 @@ function BlogPlanet({ activeBiome, onBiomeHover, onBiomeSelect, onNavigate }) {
   const targetScaleRef = useRef(1.04);
 
   // Hand tracking state
-  const { handDetected, cursor, isPinching } = useHandTracking();
+  const { handDetected, cursor, isPinching, trackingMode } = useHandTracking();
   const wasGrabbingRef = useRef(false);
   const prevCursorRef = useRef({ x: 0, y: 0 });
   const smoothedCursorRef = useRef({ x: 0, y: 0 });
-  const cursorVelocityRef = useRef({ x: 0, y: 0 });
   const wasHandDetectedRef = useRef(false);
 
   const zoomPlanet = useCallback((deltaY) => {
@@ -33,6 +32,7 @@ function BlogPlanet({ activeBiome, onBiomeHover, onBiomeSelect, onNavigate }) {
 
   useEffect(() => {
     const handlePointerMove = (event) => {
+      if (!event.isTrusted) return;
       if (!draggingRef.current || !groupRef.current) return;
 
       const dx = event.clientX - lastPointerRef.current.x;
@@ -102,26 +102,18 @@ function BlogPlanet({ activeBiome, onBiomeHover, onBiomeSelect, onNavigate }) {
     if (!group) return;
 
     // Smoothly interpolate hand cursor coordinates inside R3F frame loop to achieve 60+ FPS motion updates.
-    // We use a spring-damper system to interpolate the 30 FPS camera tracking coordinate input,
-    // which generates continuous motion coordinates at native monitor refresh rates and absorbs jitter.
+    // We use a stable first-order low-pass filter (exponential LERP) to interpolate coordinate input,
+    // which runs smoothly at native monitor refresh rates and completely avoids physical spring overshoot/instability.
     const dt = Math.min(delta, 0.1); // Clamp dt to prevent layout explosion on frame drops
     if (handDetected) {
       if (!wasHandDetectedRef.current) {
         wasHandDetectedRef.current = true;
         smoothedCursorRef.current = { ...cursor };
-        cursorVelocityRef.current = { x: 0, y: 0 };
       } else {
-        const stiffness = 170; // Reduced stiffness to filter out hand tremors and micro-jitters
-        const damping = 26;    // Higher damping to make cursor glide and settle smoothly without bouncing
-        
-        const forceX = -stiffness * (smoothedCursorRef.current.x - cursor.x) - damping * cursorVelocityRef.current.x;
-        const forceY = -stiffness * (smoothedCursorRef.current.y - cursor.y) - damping * cursorVelocityRef.current.y;
-        
-        cursorVelocityRef.current.x += forceX * dt;
-        cursorVelocityRef.current.y += forceY * dt;
-        
-        smoothedCursorRef.current.x += cursorVelocityRef.current.x * dt;
-        smoothedCursorRef.current.y += cursorVelocityRef.current.y * dt;
+        const lambda = 18; // Speed coefficient (higher = faster response, lower = smoother)
+        const alpha = 1 - Math.exp(-lambda * dt);
+        smoothedCursorRef.current.x += (cursor.x - smoothedCursorRef.current.x) * alpha;
+        smoothedCursorRef.current.y += (cursor.y - smoothedCursorRef.current.y) * alpha;
       }
       state.pointer.set(smoothedCursorRef.current.x, smoothedCursorRef.current.y);
 
@@ -204,6 +196,12 @@ function BlogPlanet({ activeBiome, onBiomeHover, onBiomeSelect, onNavigate }) {
   });
 
   const handlePointerDown = (event) => {
+    // Skip synthetic events from virtual hand cursor simulation
+    if (event.nativeEvent && !event.nativeEvent.isTrusted) return;
+
+    // Skip mouse dragging logic if hand tracking is actively tracking a hand
+    if (trackingMode !== TRACKING_MODES.MOUSE && handDetected) return;
+
     event.stopPropagation();
     event.nativeEvent?.preventDefault?.();
     draggingRef.current = true;

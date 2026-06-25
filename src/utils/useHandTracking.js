@@ -96,6 +96,71 @@ export function HandTrackingProvider({ children }) {
   const activeModeRef = useRef(trackingMode);
   const activeInitIdRef = useRef(0);
 
+  // Gesture state debouncing tracking
+  const pinchActiveRef = useRef(false);
+  const pinchTransitionFramesRef = useRef(0);
+
+  const fistActiveRef = useRef(false);
+  const fistTransitionFramesRef = useRef(0);
+
+  const peaceActiveRef = useRef(false);
+  const peaceTransitionFramesRef = useRef(0);
+
+  // Debounced gesture state dispatchers
+  const updatePinchState = useCallback((rawPinchActive) => {
+    if (rawPinchActive) {
+      pinchTransitionFramesRef.current = 0;
+      if (!pinchActiveRef.current) {
+        pinchActiveRef.current = true;
+        setIsPinching(true);
+      }
+    } else {
+      if (pinchActiveRef.current) {
+        pinchTransitionFramesRef.current += 1;
+        if (pinchTransitionFramesRef.current >= 6) { // Must be false for 6 consecutive frames (approx 100ms at 60fps) to release
+          pinchActiveRef.current = false;
+          setIsPinching(false);
+        }
+      }
+    }
+  }, []);
+
+  const updateFistState = useCallback((rawFistActive) => {
+    if (rawFistActive) {
+      fistTransitionFramesRef.current = 0;
+      if (!fistActiveRef.current) {
+        fistActiveRef.current = true;
+        setIsFist(true);
+      }
+    } else {
+      if (fistActiveRef.current) {
+        fistTransitionFramesRef.current += 1;
+        if (fistTransitionFramesRef.current >= 6) {
+          fistActiveRef.current = false;
+          setIsFist(false);
+        }
+      }
+    }
+  }, []);
+
+  const updatePeaceState = useCallback((rawPeaceActive) => {
+    if (rawPeaceActive) {
+      peaceTransitionFramesRef.current = 0;
+      if (!peaceActiveRef.current) {
+        peaceActiveRef.current = true;
+        setIsPeaceSign(true);
+      }
+    } else {
+      if (peaceActiveRef.current) {
+        peaceTransitionFramesRef.current += 1;
+        if (peaceTransitionFramesRef.current >= 6) {
+          peaceActiveRef.current = false;
+          setIsPeaceSign(false);
+        }
+      }
+    }
+  }, []);
+
   // Callback refs to detect mounting/unmounting of video/canvas elements across page transitions
   const [elementTrigger, setElementTrigger] = useState(0);
 
@@ -146,8 +211,19 @@ export function HandTrackingProvider({ children }) {
       stream.getTracks().forEach((track) => track.stop());
       videoRefInternal.current.srcObject = null;
     }
+
+    // Reset gesture states & debouncing frame counters immediately
+    pinchActiveRef.current = false;
+    pinchTransitionFramesRef.current = 0;
+    fistActiveRef.current = false;
+    fistTransitionFramesRef.current = 0;
+    peaceActiveRef.current = false;
+    peaceTransitionFramesRef.current = 0;
+
     setCameraActive(false);
     setHandDetected(false);
+    setIsPinching(false);
+    setIsFist(false);
     setIsPeaceSign(false);
     setLandmarks([]);
   }, []);
@@ -178,20 +254,20 @@ export function HandTrackingProvider({ children }) {
 
       // Pinch check (Distance between Thumb Tip 4 and Index Tip 8)
       const pinchDist = getDistance(hand[4], hand[8]);
-      const pinchActive = pinchDist < 0.07; // Adjusted to 0.07 for precise finger tracking
-      setIsPinching(pinchActive);
+      const rawPinchActive = pinchDist < 0.075;
+      updatePinchState(rawPinchActive);
 
       // Fist check (curl of index, middle, ring, pinky)
       const indexCurled = isFingerCurled(hand, 5, 6, 7, 8);
       const middleCurled = isFingerCurled(hand, 9, 10, 11, 12);
       const ringCurled = isFingerCurled(hand, 13, 14, 15, 16);
       const pinkyCurled = isFingerCurled(hand, 17, 18, 19, 20);
-      const fistActive = indexCurled && middleCurled && ringCurled && pinkyCurled;
-      setIsFist(fistActive);
+      const rawFistActive = indexCurled && middleCurled && ringCurled && pinkyCurled;
+      updateFistState(rawFistActive);
 
       // Peace sign check (Index and Middle extended, Ring and Pinky curled)
-      const peaceActive = !indexCurled && !middleCurled && ringCurled && pinkyCurled;
-      setIsPeaceSign(peaceActive);
+      const rawPeaceActive = !indexCurled && !middleCurled && ringCurled && pinkyCurled;
+      updatePeaceState(rawPeaceActive);
 
       // Calculate Rotation
       const rot = calculateRotation(hand);
@@ -199,7 +275,7 @@ export function HandTrackingProvider({ children }) {
 
       // Draw skeleton on 2D PiP canvas
       if (ctx) {
-        ctx.fillStyle = pinchActive ? '#ff3b30' : '#00e5ff';
+        ctx.fillStyle = pinchActiveRef.current ? '#ff3b30' : '#00e5ff';
         ctx.strokeStyle = '#00e5ff';
         ctx.lineWidth = 2.5;
 
@@ -229,11 +305,21 @@ export function HandTrackingProvider({ children }) {
       }
     } else {
       setHandDetected(false);
+      
+      // Reset gesture states & debouncing frame counters immediately
+      pinchActiveRef.current = false;
+      pinchTransitionFramesRef.current = 0;
+      fistActiveRef.current = false;
+      fistTransitionFramesRef.current = 0;
+      peaceActiveRef.current = false;
+      peaceTransitionFramesRef.current = 0;
+
       setIsPinching(false);
       setIsFist(false);
       setIsPeaceSign(false);
+      setLandmarks([]);
     }
-  }, []);
+  }, [updatePinchState, updateFistState, updatePeaceState]);
 
   // Initialize MediaPipe tracking
   const startCameraTracking = useCallback(async () => {
@@ -360,14 +446,14 @@ export function HandTrackingProvider({ children }) {
 
             // Pinch and grab states
             if (data.pinchDistance !== undefined) {
-              setIsPinching(data.pinchDistance < 0.07); // Adjusted to 0.07 to match webcam threshold
+              updatePinchState(data.pinchDistance < 0.075);
             } else if (data.gesture) {
-              setIsPinching(data.gesture === 'pinch');
+              updatePinchState(data.gesture === 'pinch');
             }
 
             if (data.gesture) {
-              setIsFist(data.gesture === 'fist' || data.gesture === 'grab');
-              setIsPeaceSign(data.gesture === 'peace');
+              updateFistState(data.gesture === 'fist' || data.gesture === 'grab');
+              updatePeaceState(data.gesture === 'peace');
             }
           }
         } catch (e) {
@@ -386,7 +472,7 @@ export function HandTrackingProvider({ children }) {
       console.error('WebSocket connection failed:', e);
       setIsConnected(false);
     }
-  }, [cleanup, wsUrl]);
+  }, [cleanup, wsUrl, updatePinchState, updateFistState, updatePeaceState]);
 
   // Start Simulation mode
   const startSimulationMode = useCallback(() => {

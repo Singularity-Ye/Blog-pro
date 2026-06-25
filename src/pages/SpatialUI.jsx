@@ -617,7 +617,6 @@ function SpatialScene({ activeModel, explode, hoveredHotspot, setHoveredHotspot 
   const wasGrabbingRef = useRef(false);
   const prevCursorRef = useRef({ x: 0, y: 0 });
   const smoothedCursorRef = useRef({ x: 0, y: 0 });
-  const cursorVelocityRef = useRef({ x: 0, y: 0 });
   const wasHandDetectedRef = useRef(false);
 
   useFrame((state, delta) => {
@@ -625,26 +624,18 @@ function SpatialScene({ activeModel, explode, hoveredHotspot, setHoveredHotspot 
     if (!group) return;
 
     // Smoothly interpolate hand cursor coordinates inside R3F frame loop to achieve 60+ FPS motion updates.
-    // We use a spring-damper system to interpolate the 30 FPS camera tracking coordinate input,
-    // which generates continuous motion coordinates at native monitor refresh rates and absorbs jitter.
+    // We use a stable first-order low-pass filter (exponential LERP) to interpolate coordinate input,
+    // which runs smoothly at native monitor refresh rates and completely avoids physical spring overshoot/instability.
     const dt = Math.min(delta, 0.1); // Clamp dt to prevent layout explosion on frame drops
     if (handDetected) {
       if (!wasHandDetectedRef.current) {
         wasHandDetectedRef.current = true;
         smoothedCursorRef.current = { ...cursor };
-        cursorVelocityRef.current = { x: 0, y: 0 };
       } else {
-        const stiffness = 170; // Reduced stiffness to filter out hand tremors and micro-jitters
-        const damping = 26;    // Higher damping to make cursor glide and settle smoothly without bouncing
-        
-        const forceX = -stiffness * (smoothedCursorRef.current.x - cursor.x) - damping * cursorVelocityRef.current.x;
-        const forceY = -stiffness * (smoothedCursorRef.current.y - cursor.y) - damping * cursorVelocityRef.current.y;
-        
-        cursorVelocityRef.current.x += forceX * dt;
-        cursorVelocityRef.current.y += forceY * dt;
-        
-        smoothedCursorRef.current.x += cursorVelocityRef.current.x * dt;
-        smoothedCursorRef.current.y += cursorVelocityRef.current.y * dt;
+        const lambda = 18; // Speed coefficient (higher = faster response, lower = smoother)
+        const alpha = 1 - Math.exp(-lambda * dt);
+        smoothedCursorRef.current.x += (cursor.x - smoothedCursorRef.current.x) * alpha;
+        smoothedCursorRef.current.y += (cursor.y - smoothedCursorRef.current.y) * alpha;
       }
       state.pointer.set(smoothedCursorRef.current.x, smoothedCursorRef.current.y);
 
