@@ -1,54 +1,36 @@
 import React, { useState, useRef, Suspense } from 'react';
-import styled, { keyframes } from 'styled-components';
+import styled from 'styled-components';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Preload, OrbitControls, Line, Html } from '@react-three/drei';
+import { Preload, OrbitControls, Line, Html, Clone, useGLTF, Grid, Environment } from '@react-three/drei';
 import { useNavigate } from 'react-router-dom';
 import * as THREE from 'three';
 import { useHandTracking, TRACKING_MODES } from '../utils/useHandTracking';
 import ErrorBoundary from '../components/ErrorBoundary';
 
-const gridAnimation = keyframes`
-  from { background-position: 0 0; }
-  to { background-position: 40px 40px; }
-`;
-
 const PageContainer = styled.div`
   min-height: 100vh;
   width: 100%;
-  background: radial-gradient(circle at 50% 50%, #060a12 0%, #020408 100%);
-  color: #fff;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(40, 80, 120, 0.32), transparent 42%),
+    linear-gradient(180deg, #0a101c 0%, #05070d 100%);
+  color: #f1f5f9;
   font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   overflow: hidden;
   position: relative;
   display: flex;
   flex-direction: column;
-
-  /* Holographic background grid */
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image: 
-      linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
-    background-size: 40px 40px;
-    background-position: center;
-    pointer-events: none;
-    z-index: 0;
-    animation: ${gridAnimation} 20s linear infinite;
-  }
 `;
 
 const Header = styled.header`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.25rem 2.5rem;
-  border-bottom: 1px solid rgba(0, 240, 255, 0.15);
-  background: rgba(4, 8, 15, 0.8);
-  backdrop-filter: blur(12px);
+  padding: 1.1rem 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(20, 23, 30, 0.85);
+  backdrop-filter: blur(16px);
   z-index: 10;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 
   .logo-section {
     display: flex;
@@ -57,93 +39,78 @@ const Header = styled.header`
     cursor: pointer;
 
     .icon {
-      font-size: 1.4rem;
-      animation: pulseGlow 2s infinite ease-in-out;
+      font-size: 1.3rem;
     }
 
     h1 {
       margin: 0;
-      font-size: 1.15rem;
-      font-weight: 900;
-      letter-spacing: 0.1em;
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
       text-transform: uppercase;
-      background: linear-gradient(90deg, #00f0ff, #00ff88);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      color: #ffffff;
     }
   }
 
   .nav-back {
     background: transparent;
-    border: 1px solid rgba(0, 240, 255, 0.4);
-    color: #00f0ff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #cbd5e1;
     padding: 0.45rem 1rem;
     font-size: 0.72rem;
-    font-weight: 700;
+    font-weight: 600;
     border-radius: 6px;
     cursor: pointer;
-    transition: all 0.25s ease;
+    transition: all 0.2s ease;
     text-transform: uppercase;
     letter-spacing: 0.05em;
 
     &:hover {
-      background: rgba(0, 240, 255, 0.12);
-      box-shadow: 0 0 10px rgba(0, 240, 255, 0.35);
-      border-color: #00f0ff;
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.4);
+      color: #ffffff;
     }
-  }
-
-  @keyframes pulseGlow {
-    0%, 100% { text-shadow: 0 0 4px rgba(0, 240, 255, 0.4); }
-    50% { text-shadow: 0 0 12px rgba(0, 240, 255, 0.9); }
   }
 `;
 
 const MainContent = styled.main`
   flex: 1;
-  display: grid;
-  grid-template-columns: 280px 1fr 280px;
   position: relative;
+  display: flex;
   z-index: 1;
+  height: calc(100vh - 65px);
 
   @media (max-width: 968px) {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto 500px auto;
+    flex-direction: column;
+    overflow-y: auto;
+    height: auto;
   }
 `;
 
 const Sidebar = styled.section`
-  background: rgba(4, 8, 15, 0.65);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-right: ${props => props.$left ? '1px solid rgba(0, 240, 255, 0.15)' : 'none'};
-  border-left: ${props => props.$right ? '1px solid rgba(0, 240, 255, 0.15)' : 'none'};
-  padding: 1.5rem;
+  position: absolute;
+  top: 1.5rem;
+  bottom: 1.5rem;
+  ${props => props.$left ? 'left: 1.5rem;' : 'right: 1.5rem;'}
+  width: 290px;
+  z-index: 5;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  z-index: 2;
-  overflow-y: auto;
+  gap: 1rem;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease;
 
-  h2 {
-    font-size: 0.88rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    color: #00f0ff;
-    border-left: 3px solid #00f0ff;
-    padding-left: 0.5rem;
-    margin: 0 0 1rem;
-    letter-spacing: 0.08em;
-  }
+  ${props => props.$focus && (props.$left ? 'transform: translateX(-340px); opacity: 0; pointer-events: none;' : 'transform: translateX(340px); opacity: 0; pointer-events: none;')}
 
-  .card {
-    background: rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 8px;
-    padding: 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
+  @media (max-width: 968px) {
+    position: relative;
+    left: auto;
+    right: auto;
+    top: auto;
+    bottom: auto;
+    width: 100%;
+    height: auto;
+    margin-bottom: 1rem;
+    ${props => props.$focus && 'display: none;'}
   }
 
   .btn-group {
@@ -153,28 +120,27 @@ const Sidebar = styled.section`
   }
 
   button.option {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: rgba(255, 255, 255, 0.75);
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #cbd5e1;
     border-radius: 6px;
     padding: 0.6rem 1rem;
     font-size: 0.75rem;
     font-weight: 600;
     text-align: left;
     cursor: pointer;
-    transition: all 0.25s ease;
+    transition: all 0.2s ease;
 
     &:hover {
-      background: rgba(0, 240, 255, 0.05);
-      border-color: rgba(0, 240, 255, 0.3);
+      background: rgba(37, 99, 235, 0.08);
+      border-color: rgba(37, 99, 235, 0.4);
       color: #fff;
     }
 
     &.active {
-      background: rgba(0, 240, 255, 0.15);
-      border-color: #00f0ff;
+      background: #2563eb;
+      border-color: #3b82f6;
       color: #fff;
-      box-shadow: 0 0 12px rgba(0, 240, 255, 0.25);
     }
   }
 
@@ -185,7 +151,7 @@ const Sidebar = styled.section`
 
     label {
       font-size: 0.7rem;
-      color: rgba(255, 255, 255, 0.5);
+      color: #94a3b8;
       display: flex;
       justify-content: space-between;
     }
@@ -195,7 +161,7 @@ const Sidebar = styled.section`
       width: 100%;
       height: 4px;
       border-radius: 2px;
-      background: rgba(0, 240, 255, 0.15);
+      background: rgba(255, 255, 255, 0.1);
       outline: none;
 
       &::-webkit-slider-thumb {
@@ -203,9 +169,8 @@ const Sidebar = styled.section`
         width: 14px;
         height: 14px;
         border-radius: 50%;
-        background: #00f0ff;
+        background: #3b82f6;
         cursor: pointer;
-        box-shadow: 0 0 8px #00f0ff;
         transition: transform 0.1s;
 
         &:hover {
@@ -216,200 +181,446 @@ const Sidebar = styled.section`
   }
 
   .tech-info {
-    font-family: monospace;
+    font-family: 'JetBrains Mono', monospace;
     font-size: 0.68rem;
-    color: rgba(0, 240, 255, 0.85);
+    color: #94a3b8;
     line-height: 1.45;
   }
 `;
 
 const CanvasContainer = styled.div`
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
-  position: relative;
   overflow: hidden;
   z-index: 1;
 
+  @media (max-width: 968px) {
+    position: relative;
+    height: 500px;
+  }
+
   .pip-instructions {
     position: absolute;
-    bottom: 2rem;
-    right: 2rem;
-    background: rgba(8, 12, 18, 0.65);
-    border: 1px solid rgba(0, 240, 255, 0.15);
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(15, 17, 23, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 8px;
     padding: 0.6rem 1rem;
     font-size: 0.7rem;
-    color: rgba(0, 240, 255, 0.85);
+    color: #e2e8f0;
     pointer-events: none;
-    backdrop-filter: blur(8px);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    white-space: nowrap;
+    z-index: 5;
   }
 `;
 
 
-
-const TechPanelContainer = styled.div`
-  width: 200px;
-  padding: 0.65rem;
-  border-radius: 6px;
-  border: 1px solid rgba(0, 240, 255, 0.4);
-  background: rgba(8, 12, 18, 0.85);
-  box-shadow: 0 4px 20px rgba(0, 240, 255, 0.15);
-  color: #fff;
-  font-family: sans-serif;
-  font-size: 0.68rem;
+const HudCard = styled.div`
+  background: rgba(10, 16, 27, 0.72);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(80, 180, 255, 0.18);
+  box-shadow: inset 0 0 18px rgba(80, 180, 255, 0.05), 0 18px 40px rgba(0, 0, 0, 0.38);
+  border-radius: 12px;
+  padding: 1rem;
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
-  pointer-events: none;
-  transition: opacity 0.3s;
+  gap: 0.6rem;
+  transition: all 0.3s ease;
 
-  h4 {
+  h3 {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #f1f5f9;
+    border-left: 3px solid #2563eb;
+    padding-left: 0.4rem;
     margin: 0;
-    font-size: 0.74rem;
-    font-weight: 800;
-    color: #00f0ff;
-    border-bottom: 1px solid rgba(0, 240, 255, 0.2);
-    padding-bottom: 0.2rem;
+    letter-spacing: 0.05em;
   }
 
-  p {
-    margin: 0;
-    color: rgba(255, 255, 255, 0.78);
-    line-height: 1.35;
+  .tech-info {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: #94a3b8;
+    line-height: 1.45;
   }
 
-  .status-line {
+  /* Progress bar styles */
+  .progress-bar-container {
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 0.2rem;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: #2563eb;
+    box-shadow: 0 0 8px #3b82f6;
+  }
+
+  /* Sparkline row style */
+  .sparkline-row {
     display: flex;
     justify-content: space-between;
-    font-family: monospace;
-    font-size: 0.6rem;
-    margin-top: 0.2rem;
-    color: #10b981;
+    align-items: center;
+    font-size: 0.62rem;
+    font-family: 'JetBrains Mono', monospace;
+    color: #94a3b8;
   }
 `;
 
-// Refrigerator hotspots metadata
-const FRIDGE_HOTSPOTS = {
-  fresh_food: {
-    pos: [0, 0.65, 0.35],
-    title: '冷藏保鲜层 (Refrigeration)',
-    desc: '双路微冷循环风道技术，智能控温保鲜，温度区间：2℃至8℃，有效减少细菌滋生。',
-    status: '运行良好 (HEALTHY)'
+
+// Tag and Hotspot styled label
+const TagLabel = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: ${props => props.$selected ? 'rgba(37, 99, 235, 0.92)' : 'rgba(10, 16, 27, 0.75)'};
+  border: 1px solid ${props => props.$selected ? '#ffffff' : 'rgba(80, 180, 255, 0.35)'};
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+  padding: 0.2rem 0.45rem;
+  color: #fff;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  pointer-events: auto;
+  transition: all 0.2s ease;
+  user-select: none;
+
+  &:hover {
+    background: rgba(37, 99, 235, 0.85);
+    border-color: #fff;
+  }
+
+  .num {
+    color: ${props => props.$selected ? '#fff' : '#00d2ff'};
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 800;
+  }
+`;
+
+// Refrigerator parts metadata
+const FRIDGE_PARTS = {
+  '01': {
+    id: 'RF-FC-001',
+    name: 'Cool Cabin',
+    title: '01 冷藏保鲜层 (Cool Cabin)',
+    desc: '双路微冷循环风道技术，智能控温保鲜，温度区间：2℃至8℃。',
+    specs: {
+      material: '食品级 ABS / 钢化玻璃',
+      weight: '18.5 kg',
+      status: '正常 (Healthy)',
+      temp: '4.0 ℃',
+      vibration: '0.1 mm/s',
+      power: '---',
+      efficiency: '92.0%'
+    },
+    pos: [0, 0.65, 0.35]
   },
-  freezer: {
-    pos: [0, -0.55, 0.35],
-    title: '极速冷冻层 (Freezer)',
-    desc: '超导一体风冷无霜蒸发器，极速降温制冷，深度冻结食物，最低制冷温度可达-24℃。',
-    status: '制冷中 (ACTIVE)'
+  '02': {
+    id: 'RF-FZ-002',
+    name: 'Freezer Cabin',
+    title: '02 极速冷冻层 (Freezer Cabin)',
+    desc: '超导一体风冷无霜蒸发器，最低制冷温度可达 -24℃。',
+    specs: {
+      material: '发泡聚氨酯 / 铝板',
+      weight: '24.2 kg',
+      status: '活动 (Active)',
+      temp: '-18.0 ℃',
+      vibration: '0.2 mm/s',
+      power: '---',
+      efficiency: '95.0%'
+    },
+    pos: [0, -0.45, 0.35]
   },
-  compressor: {
-    pos: [0, -0.85, -0.45],
-    title: '双频变频压缩机 (Compressor)',
-    desc: '双转子直流变频静音压缩机，能耗比极佳，机身运行震动极小，全天候噪音低于32dB。',
-    status: '低功耗运行 (STANDBY)'
+  '03': {
+    id: 'RF-CP-003',
+    name: 'Compressor',
+    title: '03 变频压缩机 (Compressor)',
+    desc: '双转子直流变频静音压缩机，能耗比极佳，全天候噪音低于32dB。',
+    specs: {
+      material: '铸钢 / 铜绕组',
+      weight: '12.0 kg',
+      status: '正常 (Healthy)',
+      temp: '45.2 ℃',
+      vibration: '0.8 mm/s',
+      power: '120 W',
+      efficiency: '96.5%'
+    },
+    pos: [0, -0.85, -0.45]
   },
-  control_panel: {
-    pos: [0.55, 0.4, 0.45],
-    title: '智能全息交互面板 (Smart HUD)',
-    desc: '透光晶体玻璃晶格触屏，集成OTA智能物联芯片，支持自适应场景控温方案。',
-    status: '云端联机中 (ONLINE)'
+  '04': {
+    id: 'RF-SP-004',
+    name: 'Control Board',
+    title: '04 智能控制板 (Control Board)',
+    desc: '透光晶体玻璃晶格触屏，集成智能物联控制芯片。',
+    specs: {
+      material: '微处理器 / LCD 面板',
+      weight: '0.85 kg',
+      status: '在线 (Online)',
+      temp: '28.1 ℃',
+      vibration: '0.0 mm/s',
+      power: '12 W',
+      efficiency: '98.0%'
+    },
+    pos: [0.55, 0.4, 0.45]
   }
 };
 
-// Battery hotspots metadata
-const BATTERY_HOTSPOTS = {
-  anode: {
-    pos: [0, 1.15, 0],
-    title: '正极汇流端子 (Anode Terminal)',
-    desc: '阳极集流体采用高导电防氧化铜合金镀金，接触内阻低至 0.08 mΩ，支持高倍率放电。',
-    status: '温度正常 (HEALTHY)'
+// Battery parts metadata
+const BATTERY_PARTS = {
+  '01': {
+    id: 'BT-AT-001',
+    name: 'Anode Terminal',
+    title: '01 正极汇流端子 (Anode Terminal)',
+    desc: '阳极集流体采用高导电防氧化铜合金镀金，接触内阻极低。',
+    specs: {
+      material: '铜合金镀金',
+      weight: '0.12 kg',
+      status: '正常 (Healthy)',
+      temp: '32.5 ℃',
+      vibration: '0.0 mm/s',
+      power: '---',
+      efficiency: '99.8%'
+    },
+    pos: [0, 1.15, 0]
   },
-  cathode: {
-    pos: [0, -1.15, 0],
-    title: '负极连接端子 (Cathode Terminal)',
-    desc: '阴极集流体外层使用高纯度镍片复合冲压压铸而成，散热性极佳，防高温热失控。',
-    status: '温度正常 (HEALTHY)'
+  '02': {
+    id: 'BT-CT-002',
+    name: 'Cathode Terminal',
+    title: '02 负极连接端子 (Cathode Terminal)',
+    desc: '阴极集流体外层使用高纯度镍片复合冲压压铸而成，散热性极佳。',
+    specs: {
+      material: '高纯度复合镍板',
+      weight: '0.15 kg',
+      status: '正常 (Healthy)',
+      temp: '31.8 ℃',
+      vibration: '0.0 mm/s',
+      power: '---',
+      efficiency: '99.6%'
+    },
+    pos: [0, -1.15, 0]
   },
-  separator: {
-    pos: [0, 0, 0.15],
-    title: '纳米多孔隔膜 (Polymer Separator)',
-    desc: '12μm 多孔聚乙烯安全隔离层，高穿刺强度，熔融自闭安全防护温度达130℃。',
-    status: '极间绝缘阻抗: >50MΩ'
+  '03': {
+    id: 'BT-MS-003',
+    name: 'Matrix Separator',
+    title: '03 纳米多孔隔膜 (Matrix Separator)',
+    desc: '12μm 多孔聚乙烯安全隔离层，熔融自闭安全防护温度达130℃。',
+    specs: {
+      material: '多孔聚乙烯安全膜',
+      weight: '0.05 kg',
+      status: '绝缘 (Healthy)',
+      temp: '29.5 ℃',
+      vibration: '0.0 mm/s',
+      power: '---',
+      efficiency: '99.9%'
+    },
+    pos: [0, 0, 0.15]
   },
-  electrolyte: {
-    pos: [0.35, 0, -0.2],
-    title: '固态聚合物电解质 (Electrolyte)',
-    desc: '新型固态锂聚合物电解质凝胶，大幅抑制锂枝晶生长，消除漏液与易燃风险。',
-    status: '离子导电率: 1.4 mS/cm'
+  '04': {
+    id: 'BT-SE-004',
+    name: 'Solid Electrolyte',
+    title: '04 固态电解质 (Solid Electrolyte)',
+    desc: '新型固态锂聚合物电解质凝胶，大幅抑制锂枝晶生长，消除漏液风险。',
+    specs: {
+      material: '锂聚合物凝胶',
+      weight: '1.45 kg',
+      status: '正常 (Healthy)',
+      temp: '34.2 ℃',
+      vibration: '0.0 mm/s',
+      power: '---',
+      efficiency: '97.2%'
+    },
+    pos: [0.35, 0, -0.2]
   }
 };
 
-// 3D Hotspot Node Component (renders inside R3F)
-function HotspotNode({ position, title, desc, status, hoveredHotspot, setHoveredHotspot, id, activeModel }) {
+// Turbine parts metadata
+const TURBINE_PARTS = {
+  '01': {
+    id: 'WT-FR-001',
+    name: 'Fan Rotor',
+    title: '01 桨叶转子 (Fan Rotor)',
+    desc: '高刚性碳纤维结构叶片，捕捉微弱风能并转化为转矩机械能。',
+    specs: {
+      material: '碳纤维复合材料',
+      weight: '8.45 吨',
+      status: '正常 (Healthy)',
+      temp: '32.1 ℃',
+      vibration: '1.2 mm/s',
+      power: '---',
+      efficiency: '94.5%'
+    },
+    pos: [0, 0.9, 0.4]
+  },
+  '02': {
+    id: 'WT-GS-002',
+    name: 'Gear Stage',
+    title: '02 行星齿轮级 (Gear Stage)',
+    desc: '两级行星齿轮及一级平行齿轮增速机构，将低速轴增速至额定发电转速。',
+    specs: {
+      material: '合金渗碳钢 18CrNiMo7-6',
+      weight: '15.20 吨',
+      status: '正常 (Healthy)',
+      temp: '54.5 ℃',
+      vibration: '2.4 mm/s',
+      power: '---',
+      efficiency: '97.8%'
+    },
+    pos: [0, 0.95, -0.15]
+  },
+  '03': {
+    id: 'WT-CS-003',
+    name: 'Core Shaft',
+    title: '03 主轴系统 (Core Shaft)',
+    desc: '高强度锻钢主轴，支承风轮气动力和交变载荷并传递扭矩。',
+    specs: {
+      material: '合金锻钢 34CrNiMo6',
+      weight: '12.80 吨',
+      status: '正常 (Healthy)',
+      temp: '41.2 ℃',
+      vibration: '1.8 mm/s',
+      power: '---',
+      efficiency: '98.5%'
+    },
+    pos: [0, 0.8, -0.35]
+  },
+  '04': {
+    id: 'WT-PM-004',
+    name: 'Power Module',
+    title: '04 变频功率模块 (Power Module)',
+    desc: '全功率变流集成柜，实现网侧与电机侧双向变流与电能调制。',
+    specs: {
+      material: 'IGBT 晶闸管阵列',
+      weight: '3.10 吨',
+      status: '在线 (Online)',
+      temp: '42.3 ℃',
+      vibration: '0.8 mm/s',
+      power: '3.2 MW',
+      efficiency: '96.8%'
+    },
+    pos: [0, 0.9, -0.6]
+  },
+  '05': {
+    id: 'WT-OP-005',
+    name: 'Oil Pump',
+    title: '05 循环油泵组 (Oil Pump)',
+    desc: '压力强制润滑系统，提供齿轮箱与轴承温控润滑介质。',
+    specs: {
+      material: '不锈钢泵体',
+      weight: '0.85 吨',
+      status: '运行 (Running)',
+      temp: '38.4 ℃',
+      vibration: '3.1 mm/s',
+      power: '45 kW',
+      efficiency: '88.5%'
+    },
+    pos: [0, 0.3, -0.2]
+  },
+  '06': {
+    id: 'WT-BH-006',
+    name: 'Bearing Housing',
+    title: '06 主轴承座箱 (Bearing Housing)',
+    desc: '重载调心滚子轴承座，承受风力发电机偏航与俯仰弯矩扭矩载荷。',
+    specs: {
+      material: '高韧性球墨铸铁 QT400',
+      weight: '9.35 吨',
+      status: '正常 (Healthy)',
+      temp: '45.8 ℃',
+      vibration: '1.5 mm/s',
+      power: '---',
+      efficiency: '99.1%'
+    },
+    pos: [0, 0.85, -0.8]
+  },
+  '07': {
+    id: 'WT-CU-007',
+    name: 'Control Unit',
+    title: '07 偏航与主控柜 (Control Unit)',
+    desc: '偏航电机驱动器与PLC主控单元，自适应偏航对风与变桨调节。',
+    specs: {
+      material: 'PLC 变频伺服系统',
+      weight: '1.20 吨',
+      status: '正常 (Healthy)',
+      temp: '35.6 ℃',
+      vibration: '0.5 mm/s',
+      power: '22 kW',
+      efficiency: '95.0%'
+    },
+    pos: [0, 0.2, -0.5]
+  }
+};
+
+// 3D Tag and Hotspot Node Component (renders inside R3F)
+function TagNode({ partId, name, position, isSelected, onSelect }) {
   const meshRef = useRef();
-  const isHovered = hoveredHotspot === id;
 
   useFrame((state) => {
     if (meshRef.current) {
-      // Rotate the glowing ring
-      meshRef.current.rotation.z += 0.015;
-      // Pulse scale slightly
-      const pulse = 1.0 + Math.sin(state.clock.elapsedTime * 4.5) * 0.12;
-      meshRef.current.scale.setScalar(isHovered ? 1.4 : pulse);
+      meshRef.current.rotation.z += 0.012;
+      const pulse = 1.0 + Math.sin(state.clock.elapsedTime * 3.5) * 0.08;
+      meshRef.current.scale.setScalar(isSelected ? 1.3 : pulse);
     }
   });
 
   // Target HTML label offset
-  const labelOffset = activeModel === 'battery' ? [0.95, 0.35, 0] : [0.9, 0.4, 0];
+  const labelOffset = [0.2, 0.18, 0];
 
   return (
     <group position={position}>
-      {/* 3D Hotspot Node (Raycast target) */}
+      {/* Hotspot sphere (Clickable / Hoverable) */}
       <mesh
-        onPointerOver={(e) => {
+        onClick={(e) => {
           e.stopPropagation();
-          setHoveredHotspot(id);
+          onSelect();
         }}
-        onPointerOut={() => setHoveredHotspot(null)}
       >
-        <sphereGeometry args={[0.08, 16, 16]} />
-        <meshBasicMaterial color={isHovered ? '#10b981' : '#00f0ff'} transparent opacity={0.65} />
+        <sphereGeometry args={[0.04, 16, 16]} />
+        <meshBasicMaterial color={isSelected ? '#ffffff' : '#3b82f6'} transparent opacity={0.8} />
       </mesh>
 
-      {/* Pulsing wireframe circle around hotspot */}
+      {/* Pulsing wireframe circle */}
       <mesh ref={meshRef}>
-        <ringGeometry args={[0.11, 0.14, 16]} />
+        <ringGeometry args={[0.06, 0.08, 16]} />
         <meshBasicMaterial
-          color={isHovered ? '#10b981' : '#00f0ff'}
+          color={isSelected ? '#ffffff' : '#3b82f6'}
           side={THREE.DoubleSide}
           transparent
-          opacity={0.8}
+          opacity={0.6}
         />
       </mesh>
 
-      {/* Floating Sci-Fi Tech Data Card via Drei Html */}
-      {isHovered && (
-        <group>
-          {/* Mapped connecting leader line from hotspot [0,0,0] to card offset */}
-          <Line
-            points={[[0, 0, 0], labelOffset]}
-            color="#00f0ff"
-            lineWidth={1.5}
-            transparent
-            opacity={0.6}
-          />
-          <Html position={labelOffset} center distanceFactor={6.2}>
-            <TechPanelContainer>
-              <h4>{title}</h4>
-              <p>{desc}</p>
-              <div className="status-line">
-                <span>STATUS:</span>
-                <span>{status}</span>
-              </div>
-            </TechPanelContainer>
-          </Html>
-        </group>
+      {/* Floating Leader Line (draws connection from hotspot [0,0,0] to labelOffset) */}
+      {isSelected && (
+        <Line
+          points={[[0, 0, 0], labelOffset]}
+          color="#3b82f6"
+          lineWidth={1.2}
+          transparent
+          opacity={0.5}
+        />
       )}
+
+      {/* Floating 3D Label Tag */}
+      <Html position={labelOffset} center distanceFactor={6.2}>
+        <TagLabel $selected={isSelected} onClick={onSelect}>
+          <span className="num">{partId}</span>
+          <span className="name">{name}</span>
+        </TagLabel>
+      </Html>
     </group>
   );
 }
@@ -608,128 +819,228 @@ function Battery({ explode }) {
   );
 }
 
-// Scene controller that binds models, rotation physics, and hotspots
-function SpatialScene({ activeModel, explode, hoveredHotspot, setHoveredHotspot }) {
-  const groupRef = useRef();
-  
-  // Hand tracking coordinate states
-  const { handDetected, cursor } = useHandTracking();
-  const prevCursorRef = useRef({ x: 0, y: 0 });
-  const smoothedCursorRef = useRef({ x: 0, y: 0 });
-  const wasHandDetectedRef = useRef(false);
-  const velocityRef = useRef({ x: 0, y: 0 });
+// Procedural high-fidelity Wind Turbine Model loaded from GLB
+function Turbine({ explode }) {
+  const { scene } = useGLTF("/model/glb/turbine.glb");
+  const objRef = useRef();
 
   useFrame((state, delta) => {
+    if (!objRef.current) return;
+    
+    // Rotate the blades when not exploded or slowly when exploded
+    const blades = objRef.current.getObjectByName("defaultMaterial_45");
+    if (blades) {
+      blades.rotateY(delta * (1.2 * (1 - explode * 0.85))); // Rotates slower as it explodes
+    }
+
+    // Apply real-time explode translation along Z axis
+    const children = objRef.current.children;
+    if (children && children.length > 0) {
+      const length = children.length;
+      const mid = (length - 1) / 2;
+      const step = 0.15;
+
+      children.forEach((child, index) => {
+        if (child.isMesh) {
+          if (!child.userData.originPosition) {
+            child.userData.originPosition = child.position.clone();
+          }
+          const originPos = child.userData.originPosition;
+          const offset = (index - mid) * step * explode;
+          child.position.z = originPos.z + offset;
+        }
+      });
+    }
+  });
+
+  return (
+    <group scale={1.2} position={[0, -0.6, 0]} rotation={[0, Math.PI / 2, 0]}>
+      <Clone
+        deep
+        castShadow
+        receiveShadow
+        ref={objRef}
+        object={scene}
+        onPointerOver={(e) => {
+          e.stopPropagation();
+          if (e.object.isMesh) {
+            e.object.userData.originHex = e.object.material.emissive?.getHex() || 0;
+            e.object.material.emissive?.setHex(0x3b82f6);
+          }
+        }}
+        onPointerOut={(e) => {
+          if (e.object.isMesh) {
+            e.object.material.emissive?.setHex(e.object.userData.originHex || 0);
+          }
+        }}
+      />
+    </group>
+  );
+}
+
+// Scene controller that binds models, rotation physics, and hotspots
+function SpatialScene({
+  activeModel,
+  explode,
+  setExplode,
+  selectedPartId,
+  setSelectedPartId,
+  fov,
+  autoRotate,
+  cameraPreset,
+  setCameraPreset,
+  focusMode
+}) {
+  const groupRef = useRef();
+  const tickRingRef = useRef();
+
+  useFrame((state, delta) => {
+    const { camera, controls } = state;
     const group = groupRef.current;
     if (!group) return;
 
-    // Smoothly interpolate hand cursor coordinates inside R3F frame loop to achieve 60+ FPS motion updates.
-    // We use a stable first-order low-pass filter (exponential LERP) to interpolate coordinate input,
-    // which runs smoothly at native monitor refresh rates and completely avoids physical spring overshoot/instability.
-    const dt = Math.min(delta, 0.1); // Clamp dt to prevent layout explosion on frame drops
-    if (handDetected) {
-      if (!wasHandDetectedRef.current) {
-        wasHandDetectedRef.current = true;
-        smoothedCursorRef.current = { ...cursor };
-        prevCursorRef.current = { ...cursor };
-      } else {
-        // 1. Exponential LERP smoothing for raycasting cursor
-        const lambda = 18; // Speed coefficient
-        const alpha = 1 - Math.exp(-lambda * dt);
-        smoothedCursorRef.current.x += (cursor.x - smoothedCursorRef.current.x) * alpha;
-        smoothedCursorRef.current.y += (cursor.y - smoothedCursorRef.current.y) * alpha;
-
-        // 2. Joystick-style rotation control (based on hand position relative to screen center)
-        const deadZone = 0.22; // 22% dead zone in center to keep model static
-        let targetVelocityY = 0;
-        let targetVelocityX = 0;
-
-        if (Math.abs(cursor.x) > deadZone) {
-          const factorX = (cursor.x - Math.sign(cursor.x) * deadZone) / (1 - deadZone);
-          targetVelocityY = factorX * 0.024; // max Y spin speed
-        }
-        if (Math.abs(cursor.y) > deadZone) {
-          const factorY = (cursor.y - Math.sign(cursor.y) * deadZone) / (1 - deadZone);
-          targetVelocityX = factorY * 0.018; // max X tilt speed (positive for SpatialUI mapping)
-        }
-
-        // Smoothly LERP velocity changes for inertia feel
-        velocityRef.current.y = THREE.MathUtils.lerp(velocityRef.current.y, targetVelocityY, 0.08);
-        velocityRef.current.x = THREE.MathUtils.lerp(velocityRef.current.x, targetVelocityX, 0.08);
-
-        prevCursorRef.current = { ...cursor };
-      }
-      state.pointer.set(smoothedCursorRef.current.x, smoothedCursorRef.current.y);
-
-      // Force React Three Fiber to run its raycasting event loop by dispatching a synthetic pointermove event.
-      // This is crucial because when the physical mouse is stationary, R3F does not trigger hover tests for hand tracking.
-      // R3F reads event.offsetX/Y to compute normalized coordinates, so we must inject these properties.
-      const canvasEl = state.gl.domElement;
-      if (canvasEl) {
-        const rect = canvasEl.getBoundingClientRect();
-        const clientX = rect.left + (smoothedCursorRef.current.x + 1) * rect.width / 2;
-        const clientY = rect.top + (1 - smoothedCursorRef.current.y) * rect.height / 2;
-        const offsetX = (smoothedCursorRef.current.x + 1) * rect.width / 2;
-        const offsetY = (1 - smoothedCursorRef.current.y) * rect.height / 2;
-
-        const ev = new PointerEvent('pointermove', {
-          clientX,
-          clientY,
-          bubbles: true,
-          cancelable: true,
-        });
-
-        // Define read-only properties on the event object
-        Object.defineProperties(ev, {
-          offsetX: { value: offsetX },
-          offsetY: { value: offsetY },
-        });
-
-        canvasEl.dispatchEvent(ev);
-      }
-    } else {
-      wasHandDetectedRef.current = false;
+    // Smoothly LERP camera fov for lens zoom effect
+    const targetFov = focusMode ? 30 : fov;
+    if (camera.fov !== targetFov) {
+      camera.fov = THREE.MathUtils.lerp(camera.fov, targetFov, 0.15);
+      camera.updateProjectionMatrix();
     }
 
-    // Auto slow rotate & inertia physics
-    group.rotation.y += velocityRef.current.y + 0.0035;
-    group.rotation.x = THREE.MathUtils.clamp(
-      group.rotation.x + velocityRef.current.x,
-      -0.85,
-      0.85
-    );
-    velocityRef.current.x *= 0.95; // Inertia friction damping
-    velocityRef.current.y *= 0.95;
+    // Smoothly animate camera to presets
+    if (cameraPreset) {
+      const targetPos = new THREE.Vector3(0, 0, 4.8);
+      switch (cameraPreset) {
+        case 'home':
+          targetPos.set(0, 0, 4.8);
+          break;
+        case 'front':
+          targetPos.set(0, 0, 4.8);
+          break;
+        case 'side':
+          targetPos.set(4.8, 0, 0.01);
+          break;
+        case 'top':
+          targetPos.set(0, 4.8, 0.01);
+          break;
+        case 'iso':
+          targetPos.set(3.2, 2.5, 3.2);
+          break;
+        default:
+          break;
+      }
+
+      camera.position.lerp(targetPos, 0.1);
+      
+      if (controls) {
+        controls.target.lerp(new THREE.Vector3(0, 0, 0), 0.1);
+        controls.update();
+      }
+
+      if (camera.position.distanceTo(targetPos) < 0.02) {
+        setCameraPreset(null);
+      }
+    }
+
+    // Rotate tick ring
+    if (tickRingRef.current) {
+      tickRingRef.current.rotation.z -= delta * 0.15;
+    }
   });
 
-  const hotspots = activeModel === 'fridge' ? FRIDGE_HOTSPOTS : BATTERY_HOTSPOTS;
+  const partsData = activeModel === 'fridge' 
+    ? FRIDGE_PARTS 
+    : (activeModel === 'battery' ? BATTERY_PARTS : TURBINE_PARTS);
+
+  const gridY = activeModel === 'fridge' ? -1.005 : (activeModel === 'battery' ? -0.905 : -0.605);
+
+  const ambientIntensity = focusMode ? 2.0 : 1.5;
+  const hemisphereIntensity = focusMode ? 2.2 : 1.8;
+  const keyLightIntensity = focusMode ? 5.5 : 4.5;
 
   return (
     <>
-      <ambientLight intensity={0.65} color="#dff8ff" />
-      <pointLight position={[5, 5, 5]} intensity={1.5} color="#00f0ff" />
-      <pointLight position={[-5, 5, -5]} intensity={0.5} color="#00ff88" />
+      {/* Deep blue tech studio ambient lights */}
+      <ambientLight intensity={ambientIntensity} color="#0a182c" />
+      <hemisphereLight skyColor="#00d2ff" groundColor="#0f2b46" intensity={hemisphereIntensity} />
+      
+      {/* Key Light (Strong cyan studio light) */}
+      <directionalLight 
+        position={[8, 12, 8]} 
+        intensity={keyLightIntensity} 
+        color="#00d2ff" 
+        castShadow 
+      />
+
+      {/* Fill Light (Soft purple tint) */}
+      <directionalLight 
+        position={[-8, 4, 8]} 
+        intensity={2.0} 
+        color="#b026ff" 
+      />
+
+      {/* Bounce Light */}
+      <directionalLight 
+        position={[0, -5, 0]} 
+        intensity={1.0} 
+        color="#0f2b46" 
+      />
+
+      <Environment files="/hdr/venice_sunset_1k.hdr" intensity={0.5} />
+
+      {/* Tech Grid on the floor */}
+      <Grid
+        infiniteGrid
+        renderOrder={-1}
+        position={[0, gridY, 0]}
+        cellSize={0.5}
+        cellThickness={0.5}
+        sectionSize={2.5}
+        sectionThickness={1.0}
+        sectionColor="#005577"
+        cellColor="#002233"
+        fadeDistance={20}
+      />
+
+      {/* Concentric Hologram Rings */}
+      <group position={[0, gridY + 0.01, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <mesh>
+          <ringGeometry args={[0.8, 0.81, 64]} />
+          <meshBasicMaterial color="#00f0ff" transparent opacity={0.35} side={THREE.DoubleSide} />
+        </mesh>
+        <mesh>
+          <ringGeometry args={[1.2, 1.205, 64]} />
+          <meshBasicMaterial color="#00f0ff" transparent opacity={0.18} side={THREE.DoubleSide} />
+        </mesh>
+        <mesh>
+          <ringGeometry args={[1.5, 1.502, 64]} />
+          <meshBasicMaterial color="#00f0ff" transparent opacity={0.08} side={THREE.DoubleSide} />
+        </mesh>
+        {/* Rotating tick ring */}
+        <mesh ref={tickRingRef}>
+          <ringGeometry args={[0.95, 1.0, 32]} />
+          <meshBasicMaterial color="#00f0ff" wireframe transparent opacity={0.22} side={THREE.DoubleSide} />
+        </mesh>
+      </group>
       
       <group ref={groupRef} rotation={[0.15, -0.4, 0]}>
         {/* Render selected model */}
         {activeModel === 'fridge' ? (
           <Refrigerator explode={explode} />
-        ) : (
+        ) : activeModel === 'battery' ? (
           <Battery explode={explode} />
+        ) : (
+          <Turbine explode={explode} />
         )}
 
-        {/* Render respective hotspots */}
-        {Object.entries(hotspots).map(([id, item]) => (
-          <HotspotNode
+        {/* Render respective tag nodes */}
+        {Object.entries(partsData).map(([id, item]) => (
+          <TagNode
             key={id}
-            id={id}
+            partId={id}
+            name={item.name}
             position={item.pos}
-            title={item.title}
-            desc={item.desc}
-            status={item.status}
-            hoveredHotspot={hoveredHotspot}
-            setHoveredHotspot={setHoveredHotspot}
-            activeModel={activeModel}
+            isSelected={selectedPartId === id}
+            onSelect={() => setSelectedPartId(id)}
           />
         ))}
       </group>
@@ -737,11 +1048,257 @@ function SpatialScene({ activeModel, explode, hoveredHotspot, setHoveredHotspot 
   );
 }
 
+const ObjectItem = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 0.8rem;
+  background: ${props => props.$active ? 'rgba(37, 99, 235, 0.15)' : 'rgba(255, 255, 255, 0.02)'};
+  border: 1px solid ${props => props.$active ? 'rgba(80, 180, 255, 0.45)' : 'rgba(255, 255, 255, 0.08)'};
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.75rem;
+  color: ${props => props.$active ? '#ffffff' : '#cbd5e1'};
+  box-shadow: ${props => props.$active ? '0 0 12px rgba(80, 180, 255, 0.15)' : 'none'};
+
+  &:hover {
+    background: rgba(37, 99, 235, 0.08);
+    border-color: rgba(37, 99, 235, 0.4);
+    color: #ffffff;
+  }
+
+  .label-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .status-indicator {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: ${props => props.$active ? '#00f0ff' : 'transparent'};
+    box-shadow: ${props => props.$active ? '0 0 6px #00f0ff' : 'none'};
+  }
+`;
+
+const TreeContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding-left: 0.5rem;
+  border-left: 1px dashed rgba(80, 180, 255, 0.15);
+`;
+
+const TreeItem = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: ${props => props.$active ? '#00f0ff' : '#cbd5e1'};
+  background: ${props => props.$active ? 'rgba(0, 240, 255, 0.06)' : 'transparent'};
+  transition: all 0.15s ease;
+
+  &:hover {
+    color: #00f0ff;
+    background: rgba(0, 240, 255, 0.03);
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: -0.5rem;
+    top: 50%;
+    width: 0.4rem;
+    height: 1px;
+    border-bottom: 1px dashed rgba(80, 180, 255, 0.15);
+  }
+`;
+
+const BottomDock = styled.div`
+  position: absolute;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  background: rgba(10, 16, 27, 0.78);
+  backdrop-filter: blur(18px);
+  border: 1px solid rgba(80, 180, 255, 0.22);
+  box-shadow: inset 0 0 16px rgba(80, 180, 255, 0.04), 0 12px 30px rgba(0, 0, 0, 0.45);
+  border-radius: 30px;
+  padding: 0.5rem 1.2rem;
+  z-index: 6;
+  pointer-events: auto;
+  transition: all 0.3s ease;
+
+  @media (max-width: 968px) {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    transform: none;
+    flex-wrap: wrap;
+    justify-content: center;
+    border-radius: 12px;
+    padding: 0.8rem;
+    margin: 1rem 1.5rem;
+  }
+
+  .dock-section {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .divider {
+    width: 1px;
+    height: 18px;
+    background: rgba(80, 180, 255, 0.15);
+  }
+
+  .label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #8fa3b5;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-family: 'Outfit', sans-serif;
+  }
+
+  button {
+    background: transparent;
+    border: 1px solid transparent;
+    color: #cbd5e1;
+    cursor: pointer;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 0.3rem 0.6rem;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: rgba(80, 180, 255, 0.08);
+      border-color: rgba(80, 180, 255, 0.2);
+      color: #fff;
+    }
+
+    &.active {
+      background: rgba(37, 99, 235, 0.25);
+      border-color: rgba(80, 180, 255, 0.4);
+      color: #00f0ff;
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.15);
+    }
+  }
+
+  .zoom-display {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: #00f0ff;
+    min-width: 38px;
+    text-align: center;
+  }
+
+  .explode-control {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.7rem;
+
+    input[type='range'] {
+      -webkit-appearance: none;
+      width: 70px;
+      height: 3px;
+      border-radius: 2px;
+      background: rgba(255, 255, 255, 0.1);
+      outline: none;
+
+      &::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #00f0ff;
+        cursor: pointer;
+        box-shadow: 0 0 4px #00f0ff;
+      }
+    }
+  }
+`;
+
+const EdgeTab = styled.button`
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  ${props => props.$left ? 'left: 0.5rem;' : 'right: 0.5rem;'}
+  background: rgba(10, 16, 27, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(80, 180, 255, 0.2);
+  color: #00f0ff;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 1rem 0.35rem;
+  border-radius: 4px;
+  writing-mode: vertical-lr;
+  cursor: pointer;
+  z-index: 10;
+  opacity: ${props => props.$visible ? 1 : 0};
+  pointer-events: ${props => props.$visible ? 'auto' : 'none'};
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+
+  &:hover {
+    background: rgba(37, 99, 235, 0.15);
+    border-color: #00f0ff;
+  }
+`;
+
+const Sparkline = ({ color = '#00f0ff', points = [10, 25, 15, 30, 20, 35, 15, 40, 25, 30] }) => {
+  const width = 80;
+  const height = 16;
+  const step = width / (points.length - 1);
+  const pathData = points
+    .map((p, index) => `${index === 0 ? 'M' : 'L'} ${index * step} ${height - (p / 45) * height}`)
+    .join(' ');
+
+  return (
+    <svg width={width} height={height} style={{ overflow: 'visible' }}>
+      <path d={pathData} fill="none" stroke={color} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d={pathData} fill="none" stroke={color} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" opacity="0.15" style={{ filter: 'blur(1px)' }} />
+    </svg>
+  );
+};
+
 export default function SpatialUI() {
   const navigate = useNavigate();
-  const [activeModel, setActiveModel] = useState('fridge'); // 'fridge' or 'battery'
+  const [activeModel, setActiveModel] = useState('fridge'); // 'fridge', 'battery', 'turbine'
   const [explodeAmount, setExplodeAmount] = useState(0.0);
-  const [hoveredHotspot, setHoveredHotspot] = useState(null);
+  
+  // High-fidelity active sub-component selection state (defaults to '01')
+  const [selectedPartId, setSelectedPartId] = useState('01');
+
+  // Camera view configuration states
+  const [fov, setFov] = useState(48);
+  const [autoRotate, setAutoRotate] = useState(true);
+  const [cameraPreset, setCameraPreset] = useState(null);
+  const [focusMode, setFocusMode] = useState(false);
+
+  // Temporary slide-out expanders for sidebars when focusMode is active
+  const [tempTelemetryShow, setTempTelemetryShow] = useState(false);
+  const [tempConfigShow, setTempConfigShow] = useState(false);
 
   // Hook states
   const {
@@ -755,22 +1312,27 @@ export default function SpatialUI() {
     setWsUrl,
   } = useHandTracking();
 
-  // Gesture-Driven Exploded View
-  // Dynamically mapping hand velocity or hand stretch distance in the future
-  // For now, in webcam mode, we can bind pinch duration/distance, but a slider is a stable fall-back
+  // Reset selected part when switching models
+  React.useEffect(() => {
+    setSelectedPartId('01');
+  }, [activeModel]);
 
   const handleBack = () => {
     navigate('/projects');
   };
 
+  const partsData = activeModel === 'fridge' 
+    ? FRIDGE_PARTS 
+    : (activeModel === 'battery' ? BATTERY_PARTS : TURBINE_PARTS);
 
+  const selectedPart = partsData[selectedPartId] || Object.values(partsData)[0];
 
   return (
     <PageContainer>
       <Header>
         <div className="logo-section" onClick={() => navigate('/')}>
-          <span className="icon">🌌</span>
-          <h1>全息交互空间 · Holographic Sandbox</h1>
+          <span className="icon">⚙️</span>
+          <h1>3D 零件拆解沙盒 · Product Configurator</h1>
         </div>
         <button className="nav-back" onClick={handleBack}>
           返回造物坊
@@ -778,74 +1340,149 @@ export default function SpatialUI() {
       </Header>
 
       <MainContent>
+        {/* Edge toggle tabs visible only in Focus Mode */}
+        <EdgeTab
+          $left
+          $visible={focusMode}
+          onClick={() => setTempTelemetryShow(prev => !prev)}
+        >
+          {tempTelemetryShow ? '◀ TELEMETRY' : 'TELEMETRY ▶'}
+        </EdgeTab>
+        
+        <EdgeTab
+          $visible={focusMode}
+          onClick={() => setTempConfigShow(prev => !prev)}
+        >
+          {tempConfigShow ? 'CONFIGURATOR ▶' : '◀ CONFIGURATOR'}
+        </EdgeTab>
+
         {/* Left Side: Telemetry Control Panel */}
-        <Sidebar $left>
-          <div>
-            <h2>交互模式</h2>
-            <div className="btn-group">
-              <button
-                className={`option ${trackingMode === TRACKING_MODES.MOUSE ? 'active' : ''}`}
-                onClick={() => setTrackingMode(TRACKING_MODES.MOUSE)}
-              >
-                🖱️ 鼠标轨迹
-              </button>
-              <button
-                className={`option ${trackingMode === TRACKING_MODES.CAMERA ? 'active' : ''}`}
-                onClick={() => setTrackingMode(TRACKING_MODES.CAMERA)}
-              >
-                📷 相机骨骼
-              </button>
-              <button
-                className={`option ${trackingMode === TRACKING_MODES.WEBSOCKET ? 'active' : ''}`}
-                onClick={() => setTrackingMode(TRACKING_MODES.WEBSOCKET)}
-              >
-                🔌 网口服务
-              </button>
-              <button
-                className={`option ${trackingMode === TRACKING_MODES.SIMULATE ? 'active' : ''}`}
-                onClick={() => setTrackingMode(TRACKING_MODES.SIMULATE)}
-              >
-                🌀 仿真模拟
-              </button>
+        <Sidebar $left $focus={focusMode && !tempTelemetryShow}>
+          <HudCard>
+            <h3>Interaction Mode</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.4rem', marginTop: '0.4rem' }}>
+              {[
+                { label: 'Mouse', mode: TRACKING_MODES.MOUSE, icon: '🖱️' },
+                { label: 'Gesture', mode: TRACKING_MODES.CAMERA, icon: '📷' },
+                { label: 'Skeleton', mode: TRACKING_MODES.SIMULATE, icon: '🌀' },
+                { label: 'Web Service', mode: TRACKING_MODES.WEBSOCKET, icon: '🔌' }
+              ].map(m => (
+                <button
+                  key={m.label}
+                  className={`option ${trackingMode === m.mode ? 'active' : ''}`}
+                  onClick={() => setTrackingMode(m.mode)}
+                  style={{
+                    padding: '0.45rem',
+                    fontSize: '0.65rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.3rem',
+                    justifyContent: 'center',
+                    background: trackingMode === m.mode ? 'rgba(37,99,235,0.25)' : 'rgba(255,255,255,0.02)',
+                    border: `1px solid ${trackingMode === m.mode ? '#00f0ff' : 'rgba(255,255,255,0.08)'}`,
+                    color: trackingMode === m.mode ? '#fff' : '#cbd5e1',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  <span>{m.icon}</span>
+                  <span>{m.label}</span>
+                </button>
+              ))}
             </div>
-          </div>
+          </HudCard>
 
           {trackingMode === TRACKING_MODES.WEBSOCKET && (
-            <div className="card">
-              <h2>WebSocket 设置</h2>
-              <div className="slider-group">
-                <label>服务器地址</label>
+            <HudCard>
+              <h3>WebSocket Connect</h3>
+              <div className="slider-group" style={{ marginTop: '0.2rem' }}>
+                <label>Server URL</label>
                 <input
                   type="text"
                   value={wsUrl}
                   onChange={(e) => setWsUrl(e.target.value)}
                   style={{
-                    background: 'rgba(0,0,0,0.4)',
-                    border: '1px solid rgba(0,240,255,0.3)',
+                    background: 'rgba(15, 17, 23, 0.6)',
+                    border: '1px solid rgba(80, 180, 255, 0.15)',
                     color: '#fff',
                     padding: '0.4rem',
                     borderRadius: '4px',
                     fontSize: '0.7rem',
-                    outline: 'none'
+                    outline: 'none',
+                    width: '100%',
+                    boxSizing: 'border-box'
                   }}
                 />
               </div>
-              <span className="tech-info">
-                状态: {isConnected ? '● 已连接 (CONNECTED)' : '○ 未连接 (DISCONNECTED)'}
+              <span className="tech-info" style={{ color: isConnected ? '#10b981' : '#ef4444', display: 'block', marginTop: '0.2rem' }}>
+                {isConnected ? '● CONNECTED' : '○ DISCONNECTED'}
               </span>
-            </div>
+            </HudCard>
           )}
 
-          <div className="card">
-            <h2>交互遥测数据</h2>
-            <div className="tech-info">
-              模式: {trackingMode.toUpperCase()}<br />
-              侦测: {handDetected ? 'ACTIVE' : 'OFFLINE'}<br />
-              指针 X: {cursor.x.toFixed(3)}<br />
-              指针 Y: {cursor.y.toFixed(3)}<br />
-              姿态: {isPinching ? '捏合拖拽 (PINCH/DRAG)' : '掌心展开 (OPEN)'}<br />
+          <HudCard>
+            <h3>Tracking Status</h3>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '0.3rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.7rem' }}>
+                <span style={{
+                  display: 'inline-block',
+                  width: '6px',
+                  height: '6px',
+                  borderRadius: '50%',
+                  background: handDetected ? '#10b981' : '#ef4444',
+                  boxShadow: handDetected ? '0 0 6px #10b981' : '0 0 6px #ef4444'
+                }} />
+                <span style={{ color: '#cbd5e1', fontFamily: 'JetBrains Mono, monospace' }}>
+                  {handDetected ? 'ONLINE' : 'OFFLINE'}
+                </span>
+              </div>
+              <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.7rem', color: '#00f0ff' }}>
+                Conf: {handDetected ? '98.4%' : '0.0%'}
+              </span>
             </div>
-          </div>
+            <div className="progress-bar-container">
+              <div className="progress-bar-fill" style={{ width: handDetected ? '98.4%' : '0%', transition: 'width 0.3s ease' }} />
+            </div>
+          </HudCard>
+
+          <HudCard>
+            <h3>Pointer Data</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.2rem', fontFamily: 'JetBrains Mono, monospace', fontSize: '0.62rem', color: '#94a3b8', marginTop: '0.2rem' }}>
+              <div>X: <span style={{ color: '#fff' }}>{cursor.x.toFixed(3)}</span></div>
+              <div>Y: <span style={{ color: '#fff' }}>{cursor.y.toFixed(3)}</span></div>
+              <div>Z: <span style={{ color: '#fff' }}>{isPinching ? '0.214' : '0.000'}</span></div>
+            </div>
+            <div style={{ marginTop: '0.5rem' }}>
+              <svg width="100%" height="60" style={{ background: 'rgba(0,0,0,0.22)', borderRadius: '6px', border: '1px solid rgba(80,180,255,0.1)' }}>
+                <defs>
+                  <pattern id="pointer-grid" width="10" height="10" patternUnits="userSpaceOnUse">
+                    <path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(80,180,255,0.06)" strokeWidth="0.8" />
+                  </pattern>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#pointer-grid)" />
+                <line x1="50%" y1="0" x2="50%" y2="100%" stroke="rgba(80,180,255,0.15)" strokeWidth="0.5" strokeDasharray="2,2" />
+                <line x1="0" y1="50%" x2="100%" y2="50%" stroke="rgba(80,180,255,0.15)" strokeWidth="0.5" strokeDasharray="2,2" />
+                <circle cx={`${50 + cursor.x * 50}%`} cy={`${50 - cursor.y * 50}%`} r="3.5" fill="#00f0ff" style={{ filter: 'drop-shadow(0 0 4px #00f0ff)', transition: 'cx 0.05s, cy 0.05s' }} />
+              </svg>
+            </div>
+          </HudCard>
+
+          <HudCard>
+            <h3>Performance</h3>
+            <div className="sparkline-row" style={{ marginTop: '0.2rem' }}>
+              <span>FPS: <span style={{ color: '#fff' }}>59.8</span></span>
+              <Sparkline color="#00ff88" points={[15, 18, 17, 16, 20, 19, 21, 20, 18, 20]} />
+            </div>
+            <div className="sparkline-row">
+              <span>LATENCY: <span style={{ color: '#fff' }}>11ms</span></span>
+              <Sparkline color="#ffaa00" points={[10, 8, 12, 11, 15, 12, 10, 9, 11, 8]} />
+            </div>
+            <div className="sparkline-row">
+              <span>TRACKING: <span style={{ color: '#fff' }}>99.2%</span></span>
+              <Sparkline color="#00a8ff" points={[5, 12, 18, 15, 8, 22, 14, 18, 10, 15]} />
+            </div>
+          </HudCard>
         </Sidebar>
 
         {/* Center Section: R3F Canvas Container */}
@@ -858,68 +1495,76 @@ export default function SpatialUI() {
               onCreated={({ gl }) => {
                 gl.outputColorSpace = THREE.SRGBColorSpace;
                 gl.toneMapping = THREE.ACESFilmicToneMapping;
-                gl.toneMappingExposure = 1.2;
+                gl.toneMappingExposure = 1.45;
               }}
             >
               <Suspense fallback={null}>
                 <SpatialScene
                   activeModel={activeModel}
                   explode={explodeAmount}
-                  hoveredHotspot={hoveredHotspot}
-                  setHoveredHotspot={setHoveredHotspot}
+                  setExplode={setExplodeAmount}
+                  selectedPartId={selectedPartId}
+                  setSelectedPartId={setSelectedPartId}
+                  fov={fov}
+                  autoRotate={autoRotate}
+                  cameraPreset={cameraPreset}
+                  setCameraPreset={setCameraPreset}
+                  focusMode={focusMode}
                 />
                 <OrbitControls
                   enableZoom={true}
                   enablePan={false}
                   maxDistance={8}
                   minDistance={2}
-                  // Disable orbitControls mouse drag if hand is actively dragging to prevent conflicts
                   enabled={!handDetected}
+                  onStart={() => setCameraPreset(null)}
                 />
                 <Preload all />
               </Suspense>
             </Canvas>
           </ErrorBoundary>
 
-          <div className="pip-instructions">
-            💡 提示: 悬停在模型上的 <span style={{ color: '#00f0ff', fontWeight: 900 }}>发光环</span> 上即可展开详细技术卡片。
-            {handDetected ? ' 握拳移动可以平滑旋转模型。' : ' 拖拽鼠标即可旋转模型。'}
-          </div>
-        </CanvasContainer>
-
-        {/* Right Side: Model Parameter Configuration */}
-        <Sidebar $right>
-          <div>
-            <h2>切换展示物体</h2>
-            <div className="btn-group">
-              <button
-                className={`option ${activeModel === 'fridge' ? 'active' : ''}`}
-                onClick={() => {
-                  setActiveModel('fridge');
-                  setHoveredHotspot(null);
-                }}
-              >
-                ❄️ 全息微型冰箱
+          {/* Floating Camera Control Dock */}
+          <BottomDock>
+            <span className="label">Camera Control</span>
+            <div className="divider" />
+            
+            <div className="dock-section">
+              <button onClick={() => setFov(prev => Math.min(85, prev + 3))} title="Zoom Out (➖)">
+                ➖
               </button>
-              <button
-                className={`option ${activeModel === 'battery' ? 'active' : ''}`}
-                onClick={() => {
-                  setActiveModel('battery');
-                  setHoveredHotspot(null);
-                }}
-              >
-                🔋 固态聚合物电池
+              <span className="zoom-display">
+                {Math.round((48 / fov) * 100)}%
+              </span>
+              <button onClick={() => setFov(prev => Math.max(15, prev - 3))} title="Zoom In (➕)">
+                ➕
               </button>
             </div>
-          </div>
-
-          <div className="card">
-            <h2>全息部件拆解</h2>
-            <div className="slider-group">
-              <label>
-                <span>拆解系数 (Explode)</span>
-                <span>{Math.round(explodeAmount * 100)}%</span>
-              </label>
+            
+            <div className="divider" />
+            
+            <div className="dock-section">
+              {[
+                { id: 'home', label: 'Home' },
+                { id: 'front', label: 'Front' },
+                { id: 'side', label: 'Side' },
+                { id: 'top', label: 'Top' },
+                { id: 'iso', label: 'Iso' }
+              ].map(view => (
+                <button
+                  key={view.id}
+                  className={cameraPreset === view.id ? 'active' : ''}
+                  onClick={() => setCameraPreset(view.id)}
+                >
+                  {view.label}
+                </button>
+              ))}
+            </div>
+            
+            <div className="divider" />
+            
+            <div className="dock-section explode-control">
+              <span style={{ color: '#8fa3b5', fontWeight: 600 }}>EXPLODE</span>
               <input
                 type="range"
                 min="0"
@@ -928,21 +1573,136 @@ export default function SpatialUI() {
                 value={explodeAmount}
                 onChange={(e) => setExplodeAmount(parseFloat(e.target.value))}
               />
+              <span style={{ fontFamily: 'JetBrains Mono', color: '#00f0ff', minWidth: '32px' }}>
+                {Math.round(explodeAmount * 100)}%
+              </span>
             </div>
-            <span className="tech-info" style={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.62rem' }}>
-              支持在 3D 物理视界下将外壳与核心组件剥离，查看各层精密构造与配合参数。
-            </span>
-          </div>
+            
+            <div className="divider" />
+            
+            <button
+              className={autoRotate ? 'active' : ''}
+              onClick={() => setAutoRotate(prev => !prev)}
+              title="Auto Rotate"
+            >
+              🔄 Rotate
+            </button>
+            
+            <div className="divider" />
+            
+            <button
+              className={focusMode ? 'active' : ''}
+              onClick={() => {
+                setFocusMode(prev => {
+                  const next = !prev;
+                  setTempTelemetryShow(false);
+                  setTempConfigShow(false);
+                  return next;
+                });
+              }}
+              style={{
+                background: focusMode ? 'rgba(239, 68, 68, 0.2)' : 'transparent',
+                borderColor: focusMode ? 'rgba(239, 68, 68, 0.4)' : 'transparent',
+                color: focusMode ? '#ef4444' : '#cbd5e1'
+              }}
+            >
+              🎯 {focusMode ? 'Exit Focus' : 'Focus Mode'}
+            </button>
+          </BottomDock>
 
-          <div className="card">
-            <h2>星空遥感网络</h2>
-            <span className="tech-info" style={{ color: 'rgba(0, 240, 255, 0.7)' }}>
-              - 射频带宽: 5.8 GHz<br />
-              - 空气时延: &lt; 12 ms<br />
-              - 热失控防护: 自动断电<br />
-              - 渲染管线: WebGL 2.0
-            </span>
+          <div className="pip-instructions">
+            💡 提示: 点击 3D 场景中的 <span style={{ color: '#00f0ff', fontWeight: 900 }}>标签点位</span> 即可高亮并追踪该零件，数据在右侧面板同步更新。
+            {handDetected ? ' 捏合并上下拖拽，即可空中拆解模型。' : ' 拖拽鼠标即可旋转模型，缩放手轮可调节焦距。'}
           </div>
+        </CanvasContainer>
+
+        {/* Right Side: Model Parameter Configuration */}
+        <Sidebar $right $focus={focusMode && !tempConfigShow}>
+          <HudCard>
+            <h3>Object Library</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', marginTop: '0.3rem' }}>
+              {[
+                { id: 'turbine', label: 'Wind Turbine', desc: 'MW 级双馈风力发电机', icon: '⚙️' },
+                { id: 'battery', label: 'Battery Pack', desc: '固态聚合物电解质电池', icon: '🔋' },
+                { id: 'fridge', label: 'Refrigerator', desc: '全息智能温控冷藏机', icon: '❄️' }
+              ].map(item => (
+                <ObjectItem
+                  key={item.id}
+                  $active={activeModel === item.id}
+                  onClick={() => {
+                    setActiveModel(item.id);
+                  }}
+                >
+                  <div className="label-group">
+                    <span style={{ fontSize: '1rem' }}>{item.icon}</span>
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      <span style={{ fontWeight: 600 }}>{item.label}</span>
+                      <span style={{ fontSize: '0.6rem', color: '#94a3b8', marginTop: '1px' }}>{item.desc}</span>
+                    </div>
+                  </div>
+                  <div className="status-indicator" />
+                </ObjectItem>
+              ))}
+            </div>
+          </HudCard>
+
+          <HudCard>
+            <h3>Parts Browser</h3>
+            <div style={{ maxHeight: '180px', overflowY: 'auto', paddingRight: '4px', scrollbarWidth: 'thin' }}>
+              <TreeContainer>
+                {Object.entries(partsData).map(([id, item]) => (
+                  <TreeItem
+                    key={id}
+                    $active={selectedPartId === id}
+                    onClick={() => setSelectedPartId(id)}
+                  >
+                    <span style={{ color: selectedPartId === id ? '#00f0ff' : 'rgba(80, 180, 255, 0.65)' }}>{id}</span>
+                    <span>{item.name}</span>
+                  </TreeItem>
+                ))}
+              </TreeContainer>
+            </div>
+          </HudCard>
+
+          <HudCard style={{ flex: 1 }}>
+            <h3>Selected Part</h3>
+            {selectedPart ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', height: '100%' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#00f0ff' }}>{selectedPart.name}</span>
+                  <span style={{ fontSize: '0.6rem', fontFamily: 'JetBrains Mono', background: 'rgba(80,180,255,0.12)', padding: '0.1rem 0.35rem', borderRadius: '4px', border: '1px solid rgba(80,180,255,0.2)' }}>
+                    {selectedPart.id}
+                  </span>
+                </div>
+                
+                <p style={{ margin: 0, fontSize: '0.68rem', color: '#94a3b8', lineHeight: 1.45 }}>
+                  {selectedPart.desc}
+                </p>
+                
+                <div style={{ height: '1px', background: 'rgba(80, 180, 255, 0.12)', margin: '0.2rem 0' }} />
+                
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.35rem 0.6rem', fontSize: '0.65rem', fontFamily: 'JetBrains Mono, monospace', color: '#cbd5e1' }}>
+                  <div>Material: <span style={{ color: '#fff' }}>{selectedPart.specs.material}</span></div>
+                  <div>Weight: <span style={{ color: '#fff' }}>{selectedPart.specs.weight}</span></div>
+                  <div>Status: <span style={{ color: selectedPart.specs.status.includes('Active') || selectedPart.specs.status.includes('Running') || selectedPart.specs.status.includes('Healthy') || selectedPart.specs.status.includes('Online') ? '#10b981' : '#ffaa00' }}>
+                    {selectedPart.specs.status}
+                  </span></div>
+                  <div>Temp: <span style={{ color: '#fff' }}>{selectedPart.specs.temp}</span></div>
+                  {selectedPart.specs.vibration && selectedPart.specs.vibration !== '---' && (
+                    <div style={{ gridColumn: 'span 2' }}>Vibration: <span style={{ color: '#fff' }}>{selectedPart.specs.vibration}</span></div>
+                  )}
+                  {selectedPart.specs.power && selectedPart.specs.power !== '---' && (
+                    <div style={{ gridColumn: 'span 2' }}>Power: <span style={{ color: '#fff' }}>{selectedPart.specs.power}</span></div>
+                  )}
+                  {selectedPart.specs.efficiency && selectedPart.specs.efficiency !== '---' && (
+                    <div style={{ gridColumn: 'span 2' }}>Efficiency: <span style={{ color: '#fff' }}>{selectedPart.specs.efficiency}</span></div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Select a part to view diagnostics</span>
+            )}
+          </HudCard>
         </Sidebar>
       </MainContent>
     </PageContainer>
