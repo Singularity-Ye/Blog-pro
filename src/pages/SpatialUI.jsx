@@ -721,8 +721,8 @@ function SpatialScene({ activeModel, explode, hoveredHotspot, setHoveredHotspot 
     if (handDetected) {
       const isGrab = isPinching; // Only pinch is used for dragging/rotation as fist clenching is retired
       
-      // Rotate model when grabbing in empty space (i.e. not hovering any hotspot)
-      if (isGrab && hoveredHotspot === null) {
+      // Rotate model when grabbing (can grab and rotate anywhere)
+      if (isGrab) {
         if (!wasGrabbingRef.current) {
           wasGrabbingRef.current = true;
           prevCursorRef.current = { ...smoothedCursorRef.current };

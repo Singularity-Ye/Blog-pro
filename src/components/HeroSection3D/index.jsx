@@ -892,16 +892,6 @@ function HeroSection3D({ onActiveBiomeChange }) {
     };
   }, [handDetected, trackingMode, navigate, handleActiveBiomeChange]);
 
-  // 2. Pinch Click trigger logic (no clenching fist)
-  useEffect(() => {
-    if (trackingMode !== TRACKING_MODES.MOUSE && handDetected && activeBiome && activeBiome !== 'ocean' && isPinching) {
-      const biome = BIOMES[activeBiome];
-      if (biome) {
-        handleActiveBiomeChange(activeBiome);
-        window.setTimeout(() => navigate(biome.href), 150);
-      }
-    }
-  }, [isPinching, activeBiome, handDetected, trackingMode, navigate, handleActiveBiomeChange]);
 
   const cursorLeft = `${(cursor.x + 1) * 50}%`;
   const cursorTop = `${(1 - cursor.y) * 50}%`;

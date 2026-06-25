@@ -155,8 +155,8 @@ function BlogPlanet({ activeBiome, onBiomeHover, onBiomeSelect, onNavigate }) {
       wasHandDetectedRef.current = false;
     }
 
-    // Hand-grabbing rotation (only active when not hovering any biome to avoid interaction conflict)
-    if (handDetected && activeBiome === null) {
+    // Hand-grabbing rotation (can grab and rotate anywhere on the planet globe)
+    if (handDetected) {
       const isGrab = isPinching; // Only pinch is used for dragging/rotation as fist clenching is retired
       if (isGrab) {
         if (!wasGrabbingRef.current) {
