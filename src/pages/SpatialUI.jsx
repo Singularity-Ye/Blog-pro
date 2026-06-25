@@ -639,27 +639,23 @@ function SpatialScene({ activeModel, explode, hoveredHotspot, setHoveredHotspot 
         smoothedCursorRef.current.x += (cursor.x - smoothedCursorRef.current.x) * alpha;
         smoothedCursorRef.current.y += (cursor.y - smoothedCursorRef.current.y) * alpha;
 
-        // 2. Waving gesture detection using raw coordinates to calculate instantaneous velocity
-        const dx = cursor.x - prevCursorRef.current.x;
-        const dy = cursor.y - prevCursorRef.current.y;
+        // 2. Joystick-style rotation control (based on hand position relative to screen center)
+        const deadZone = 0.22; // 22% dead zone in center to keep model static
+        let targetVelocityY = 0;
+        let targetVelocityX = 0;
 
-        const vx = dx / dt;
-        const vy = dy / dt;
-
-        const speed = Math.hypot(vx, vy);
-        if (speed > 1.0) { // Waving threshold
-          // Waving horizontally (vx) adds spin velocity around Y-axis, vertically (vy) around X-axis
-          velocityRef.current.y = THREE.MathUtils.clamp(
-            velocityRef.current.y + vx * 0.002,
-            -0.08,
-            0.08
-          );
-          velocityRef.current.x = THREE.MathUtils.clamp(
-            velocityRef.current.x + vy * 0.0015,
-            -0.06,
-            0.06
-          );
+        if (Math.abs(cursor.x) > deadZone) {
+          const factorX = (cursor.x - Math.sign(cursor.x) * deadZone) / (1 - deadZone);
+          targetVelocityY = factorX * 0.024; // max Y spin speed
         }
+        if (Math.abs(cursor.y) > deadZone) {
+          const factorY = (cursor.y - Math.sign(cursor.y) * deadZone) / (1 - deadZone);
+          targetVelocityX = factorY * 0.018; // max X tilt speed (positive for SpatialUI mapping)
+        }
+
+        // Smoothly LERP velocity changes for inertia feel
+        velocityRef.current.y = THREE.MathUtils.lerp(velocityRef.current.y, targetVelocityY, 0.08);
+        velocityRef.current.x = THREE.MathUtils.lerp(velocityRef.current.x, targetVelocityX, 0.08);
 
         prevCursorRef.current = { ...cursor };
       }
