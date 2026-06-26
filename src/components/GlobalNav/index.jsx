@@ -282,20 +282,6 @@ const Swatch = styled(motion.div)`
           color: rgba(109, 40, 217, 0.85);
           stroke: rgba(109, 40, 217, 0.85);
         `;
-      case 'hologram':
-        return `
-          border-radius: 40% 45% 55% 45% / 50% 50% 50% 50%;
-          background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.85) 0%, rgba(224, 254, 254, 0.3) 30%, rgba(0, 229, 255, 0.15) 75%, rgba(0, 180, 216, 0.55) 100%);
-          backdrop-filter: blur(3px);
-          box-shadow: 
-            inset 0 2px 4px rgba(255, 255, 255, 0.7),
-            inset 0 -2px 6px rgba(0, 180, 216, 0.25),
-            0 4px 12px rgba(0, 229, 255, 0.12),
-            0 0 0 1px rgba(255, 255, 255, 0.4);
-          color: rgba(0, 180, 216, 0.85);
-          stroke: rgba(0, 180, 216, 0.85);
-        `;
-
       default:
         return '';
     }
@@ -353,15 +339,6 @@ const Swatch = styled(motion.div)`
             stroke: #ffffff;
             svg { transform: scale(1.1) rotate(10deg); }
           `;
-        case 'hologram':
-          return `
-            background: linear-gradient(135deg, #00f0ff 0%, #0077b6 100%);
-            box-shadow: 0 6px 20px rgba(0, 240, 255, 0.32), 0 0 0 1.5px rgba(255, 255, 255, 0.7);
-            color: #ffffff;
-            stroke: #ffffff;
-            svg { transform: scale(1.1) rotate(15deg); }
-          `;
-
         default:
           return '';
       }

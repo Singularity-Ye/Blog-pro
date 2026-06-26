@@ -3,11 +3,10 @@ import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { BIOMES } from './biomeConfig';
 import PlanetSurface from './PlanetSurface';
-import { useHandTracking, TRACKING_MODES } from '../../../utils/useHandTracking';
 
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 
-function BlogPlanet({ activeBiome, onBiomeHover, onBiomeSelect, onNavigate, rotationMode = 'joystick' }) {
+function BlogPlanet({ activeBiome, onBiomeHover, onBiomeSelect, onNavigate }) {
   const { gl } = useThree();
   const groupRef = useRef();
   const navigateTimerRef = useRef(null);
@@ -18,14 +17,6 @@ function BlogPlanet({ activeBiome, onBiomeHover, onBiomeSelect, onNavigate, rota
   const currentScaleRef = useRef(1.04);
   const targetScaleRef = useRef(1.04);
 
-  // Hand tracking state
-  const { handDetected, cursor, isPinching, trackingMode } = useHandTracking();
-  const prevCursorRef = useRef({ x: 0, y: 0 });
-  const smoothedCursorRef = useRef({ x: 0, y: 0 });
-  const wasHandDetectedRef = useRef(false);
-  const wasPinchingRef = useRef(false);
-  const pinchStartPosRef = useRef({ x: 0, y: 0 });
-
   const zoomPlanet = useCallback((deltaY) => {
     const direction = deltaY > 0 ? -1 : 1;
     targetScaleRef.current = clamp(targetScaleRef.current + direction * 0.055, 0.86, 1.36);
@@ -33,7 +24,6 @@ function BlogPlanet({ activeBiome, onBiomeHover, onBiomeSelect, onNavigate, rota
 
   useEffect(() => {
     const handlePointerMove = (event) => {
-      if (!event.isTrusted) return;
       if (!draggingRef.current || !groupRef.current) return;
 
       const dx = event.clientX - lastPointerRef.current.x;
@@ -98,117 +88,15 @@ function BlogPlanet({ activeBiome, onBiomeHover, onBiomeSelect, onNavigate, rota
     };
   }, [gl.domElement, zoomPlanet]);
 
-  useFrame((state, delta) => {
+  useFrame(() => {
     const group = groupRef.current;
     if (!group) return;
 
-    // Smoothly interpolate hand cursor coordinates inside R3F frame loop to achieve 60+ FPS motion updates.
-    // We use a stable first-order low-pass filter (exponential LERP) to interpolate coordinate input,
-    // which runs smoothly at native monitor refresh rates and completely avoids physical spring overshoot/instability.
-    const dt = Math.min(delta, 0.1); // Clamp dt to prevent layout explosion on frame drops
-    if (handDetected) {
-      if (!wasHandDetectedRef.current) {
-        wasHandDetectedRef.current = true;
-        smoothedCursorRef.current = { ...cursor };
-        prevCursorRef.current = { ...cursor };
-      } else {
-        // 1. Exponential LERP smoothing for raycasting cursor
-        const lambda = 18; // Speed coefficient
-        const alpha = 1 - Math.exp(-lambda * dt);
-        smoothedCursorRef.current.x += (cursor.x - smoothedCursorRef.current.x) * alpha;
-        smoothedCursorRef.current.y += (cursor.y - smoothedCursorRef.current.y) * alpha;
-
-        // 2. Rotation control based on rotationMode
-        if (rotationMode === 'pinch') {
-          // Pinch & Drag rotation (replicates mouse grab feeling)
-          if (isPinching) {
-            if (!wasPinchingRef.current) {
-              wasPinchingRef.current = true;
-              pinchStartPosRef.current = { x: cursor.x, y: cursor.y };
-            } else {
-              // Calculate delta in NDC coordinates
-              const dx = cursor.x - pinchStartPosRef.current.x;
-              const dy = cursor.y - pinchStartPosRef.current.y;
-              
-              // Rotate the planet group
-              group.rotation.y += dx * 1.5;
-              group.rotation.x = clamp(group.rotation.x - dy * 1.0, -0.65, 0.65);
-              
-              // Active velocity for release inertia
-              velocityRef.current = {
-                x: -dy * 0.12,
-                y: dx * 0.18
-              };
-              
-              pinchStartPosRef.current = { x: cursor.x, y: cursor.y };
-            }
-          } else {
-            wasPinchingRef.current = false;
-          }
-        } else {
-          // Joystick-style rotation control (based on hand position relative to screen center)
-          const deadZone = 0.22; // 22% dead zone in center to keep planet static
-          let targetVelocityY = 0;
-          let targetVelocityX = 0;
-
-          if (Math.abs(cursor.x) > deadZone) {
-            const factorX = (cursor.x - Math.sign(cursor.x) * deadZone) / (1 - deadZone);
-            targetVelocityY = factorX * 0.024; // max Y spin speed
-          }
-          if (Math.abs(cursor.y) > deadZone) {
-            const factorY = (cursor.y - Math.sign(cursor.y) * deadZone) / (1 - deadZone);
-            targetVelocityX = -factorY * 0.018; // max X tilt speed (inverted to match drag mapping)
-          }
-
-          // Smoothly LERP velocity changes for inertia feel
-          velocityRef.current.y = THREE.MathUtils.lerp(velocityRef.current.y, targetVelocityY, 0.08);
-          velocityRef.current.x = THREE.MathUtils.lerp(velocityRef.current.x, targetVelocityX, 0.08);
-        }
-
-        prevCursorRef.current = { ...cursor };
-      }
-      state.pointer.set(smoothedCursorRef.current.x, smoothedCursorRef.current.y);
-
-      // Force React Three Fiber to run its raycasting event loop by dispatching a synthetic pointermove event.
-      // This is crucial because when the physical mouse is stationary, R3F does not trigger hover tests for hand tracking.
-      // R3F reads event.offsetX/Y to compute normalized coordinates, so we must inject these properties.
-      const canvasEl = state.gl.domElement;
-      if (canvasEl) {
-        const rect = canvasEl.getBoundingClientRect();
-        const clientX = rect.left + (smoothedCursorRef.current.x + 1) * rect.width / 2;
-        const clientY = rect.top + (1 - smoothedCursorRef.current.y) * rect.height / 2;
-        const offsetX = (smoothedCursorRef.current.x + 1) * rect.width / 2;
-        const offsetY = (1 - smoothedCursorRef.current.y) * rect.height / 2;
-
-        const ev = new PointerEvent('pointermove', {
-          clientX,
-          clientY,
-          bubbles: true,
-          cancelable: true,
-        });
-
-        // Define read-only properties on the event object
-        Object.defineProperties(ev, {
-          offsetX: { value: offsetX },
-          offsetY: { value: offsetY },
-        });
-
-        canvasEl.dispatchEvent(ev);
-      }
-    } else {
-      wasHandDetectedRef.current = false;
-    }
-
-    // Rotation physics (inertia on mouse or hand release)
     if (!draggingRef.current) {
-      // In pinch mode, only apply inertia when not actively pinching
-      const applyingHandPinch = (rotationMode === 'pinch' && handDetected && isPinching);
-      if (!applyingHandPinch) {
-        group.rotation.y += velocityRef.current.y + 0.00045;
-        group.rotation.x = clamp(group.rotation.x + velocityRef.current.x, -0.65, 0.65);
-        velocityRef.current.x *= 0.97; // Lowered friction (from 0.92 to 0.97) for long-lasting cosmic spin
-        velocityRef.current.y *= 0.97;
-      }
+      group.rotation.y += velocityRef.current.y + 0.00045;
+      group.rotation.x = clamp(group.rotation.x + velocityRef.current.x, -0.65, 0.65);
+      velocityRef.current.x *= 0.92;
+      velocityRef.current.y *= 0.92;
     }
 
     currentScaleRef.current = THREE.MathUtils.lerp(
@@ -220,12 +108,6 @@ function BlogPlanet({ activeBiome, onBiomeHover, onBiomeSelect, onNavigate, rota
   });
 
   const handlePointerDown = (event) => {
-    // Skip synthetic events from virtual hand cursor simulation
-    if (event.nativeEvent && !event.nativeEvent.isTrusted) return;
-
-    // Skip mouse dragging logic if hand tracking is actively tracking a hand
-    if (trackingMode !== TRACKING_MODES.MOUSE && handDetected) return;
-
     event.stopPropagation();
     event.nativeEvent?.preventDefault?.();
     draggingRef.current = true;
