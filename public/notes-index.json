@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-26T06:53:43.757Z",
+  "generatedAt": "2026-06-26T07:21:15.181Z",
   "vaultPath": "C:\\Users\\Yhx06\\Documents\\Obsidian Vault",
   "manifestPath": "D:\\Yhx06\\Documents\\仙术工坊——项目集\\个人博客网站-松果阁\\personal-blog\\scripts\\publish-manifest.json",
   "publicFrontmatterFields": [
@@ -10569,8 +10569,8 @@
       "collection": "computer-organization",
       "collectionLabel": "计算机组成原理",
       "path": "Lab/TEC-2矩阵传送指令：从单元素原型到完整循环版.md",
-      "createdAt": "2026-06-26T06:53:33.110Z",
-      "updatedAt": "2026-06-26T06:53:33.111Z"
+      "createdAt": "2026-06-26T07:02:25.661Z",
+      "updatedAt": "2026-06-26T07:12:13.543Z"
     },
     {
       "id": "01_藏经阁（知识库）/格物院（课程与学科）/计算机组成原理/Lab/TEC-2矩阵加法指令：从单元素原型到完整循环版",
@@ -10587,8 +10587,8 @@
       "collection": "computer-organization",
       "collectionLabel": "计算机组成原理",
       "path": "Lab/TEC-2矩阵加法指令：从单元素原型到完整循环版.md",
-      "createdAt": "2026-06-26T06:53:22.449Z",
-      "updatedAt": "2026-06-26T06:53:22.449Z"
+      "createdAt": "2026-06-26T07:19:34.317Z",
+      "updatedAt": "2026-06-26T07:19:34.317Z"
     },
     {
       "id": "01_藏经阁（知识库）/格物院（课程与学科）/计算机组成原理/Lab/TEC-2课程设计：D5XX减法指令",
@@ -10673,8 +10673,8 @@
       "collection": "computer-organization",
       "collectionLabel": "计算机组成原理",
       "path": "参考附件/TEC-2 原始微程序清单与 MAPROM 入口表.md",
-      "createdAt": "2026-06-26T06:45:44.948Z",
-      "updatedAt": "2026-06-26T06:45:44.948Z"
+      "createdAt": "2026-06-26T07:20:25.598Z",
+      "updatedAt": "2026-06-26T07:20:25.599Z"
     },
     {
       "id": "01_藏经阁（知识库）/格物院（课程与学科）/计算机组成原理/参考附件/TEC-2 矩阵指令微操作样例表",

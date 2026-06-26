@@ -38,29 +38,29 @@ status: evergreen
 
 ### 2.1 寄存器-寄存器指令（××XX 型，每条占 4 个地址）
 
-| 操作码 | 指令 | 入口 |
-|:------:|------|:----:|
-| 00 | ADD DR, SR | 04H |
-| 04 | ADC DR, SR | 08H |
-| 08 | SUB DR, SR | 0CH |
-| 0C | SBB DR, SR | 10H |
-| 10 | CMP DR, SR | 14H |
-| 14 | PUSH DR | 18H |
-| 18 | POP DR | 1CH |
-| 1C | MOV DR, SR | 20H |
-| 20 | MOV DR, [SR] | 24H |
-| 24 | MOV [DR], SR | 28H |
-| 28 | MOV DR, DATA | 2CH |
-| 2C | MOV DR, [ADR] | 2EH |
-| 30 | MOV [ADR], SR | 30H |
-| 34 | MOV DR, DATA[SR] | 32H |
-| 38 | MOV DATA[SR], DR | 34H |
-| 3C | MUL SR | 38H |
-| 40 | DIV SR | 40H |
-| 44 | AND DR, SR | 4AH |
-| 48 | XOR DR, SR | 4CH |
-| 4C | OR DR, SR | 4EH |
-| 50 | TEST DR, SR | 50H |
+| 操作码 | 指令               | 入口  |
+| :-: | ---------------- | :-: |
+| 00  | ADD DR, SR       | 04H |
+| 04  | ADC DR, SR       | 08H |
+| 08  | SUB DR, SR       | 0CH |
+| 0C  | SBB DR, SR       | 10H |
+| 10  | CMP DR, SR       | 14H |
+| 14  | PUSH DR          | 18H |
+| 18  | POP DR           | 1CH |
+| 1C  | MOV DR, SR       | 20H |
+| 20  | MOV DR, [SR]     | 24H |
+| 24  | MOV [DR], SR     | 28H |
+| 28  | MOV DR, DATA     | 2CH |
+| 2C  | MOV DR, [ADR]    | 2EH |
+| 30  | MOV [ADR], SR    | 30H |
+| 34  | MOV DR, DATA[SR] | 32H |
+| 38  | MOV DATA[SR], DR | 34H |
+| 3C  | MUL SR           | 38H |
+| 40  | DIV SR           | 40H |
+| 44  | AND DR, SR       | 4AH |
+| 48  | XOR DR, SR       | 4CH |
+| 4C  | OR DR, SR        | 4EH |
+| 50  | TEST DR, SR      | 50H |
 
 ### 2.2 单操作数指令（××X0 型，每条占 2 个地址）
 
@@ -108,11 +108,11 @@ status: evergreen
 | C8 | 130H | 未用 |
 | CC | 140H | 未用 |
 | D0 | 150H | 未用 |
-| D4 | 100H | **MADD 矩阵加法**（已验证） |
+| D4 | 100H | 原始对应 LDMC 入口，通过 LDMC 指令覆盖为 **MADD 矩阵加法**（已验证 → [[TEC-2矩阵加法指令：从单元素原型到完整循环版]]） |
 | D8 | 160H | 未用 |
 | DC | 170H | 未用 |
 | E0 | 180H | 未用 |
-| E4 | 190H | **MMOV 矩阵传送**（已验证） |
+| E4 | 140H | **MMOV 矩阵传送**（已验证 → [[TEC-2矩阵传送指令：从单元素原型到完整循环版]]） |
 | E8 | 1A0H | 未用 |
 
 ---
@@ -386,6 +386,7 @@ status: evergreen
 
 ## 关联笔记
 
-- [[TEC-2 矩阵指令微操作样例表]] — 已验证的微操作积木库
+- [[TEC-2 矩阵指令微操作样例表]] — 已验证的微操作积木库，每条微码标注了在哪个 Lab 笔记中使用
 - [[TEC-2课程设计：微程序设计]] — 课程设计总索引
-- [[TEC-2矩阵加法指令：从单元素原型到完整循环版]] — MADD 完整实现
+- [[TEC-2矩阵加法指令：从单元素原型到完整循环版]] — MADD 完整实现（D4 → 100H）
+- [[TEC-2矩阵传送指令：从单元素原型到完整循环版]] — MMOV 完整实现（E4 → 140H）
