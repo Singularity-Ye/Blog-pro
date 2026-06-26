@@ -1,4 +1,4 @@
-import React, { Suspense, useCallback, useState } from 'react';
+import React, { Suspense, useCallback, useState, useEffect, useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { Preload } from '@react-three/drei';
 import styled, { keyframes } from 'styled-components';
@@ -9,6 +9,7 @@ import heroMapBackground from '../../assets/images/home/hero-map-background.png'
 import { BIOMES, BIOME_ORDER } from './BlogPlanet/biomeConfig';
 import Scene from './Scene';
 import ErrorBoundary from '../ErrorBoundary';
+import { useHandTracking, TRACKING_MODES } from '../../utils/useHandTracking';
 
 const pulseAnim = keyframes`
   0%, 100% { opacity: 0.42; }
@@ -559,9 +560,184 @@ const HintText = styled.span`
   }
 `;
 
+const ControlPanel = styled.div`
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  z-index: 100;
+  width: 250px;
+  padding: 0.85rem;
+  border-radius: 10px;
+  border: 1px solid rgba(231, 199, 126, 0.22);
+  background: linear-gradient(135deg, rgba(14, 24, 20, 0.88), rgba(26, 20, 15, 0.84));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 
+    0 10px 30px rgba(0, 0, 0, 0.45),
+    0 0 12px rgba(231, 199, 126, 0.08);
+  color: #f5efe3;
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 0.76rem;
+  pointer-events: all;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: rgba(231, 199, 126, 0.45);
+    box-shadow: 
+      0 10px 32px rgba(0, 0, 0, 0.5),
+      0 0 15px rgba(231, 199, 126, 0.15);
+  }
+
+  h3 {
+    margin: 0;
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #e7c77e;
+    text-shadow: 0 0 6px rgba(231, 199, 126, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .mode-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.25rem;
+  }
+
+  button {
+    background: rgba(231, 199, 126, 0.04);
+    border: 1px solid rgba(231, 199, 126, 0.15);
+    border-radius: 4px;
+    color: rgba(245, 239, 227, 0.65);
+    font-size: 0.66rem;
+    font-weight: 700;
+    padding: 0.35rem 0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    outline: none;
+
+    &:hover {
+      border-color: rgba(231, 199, 126, 0.45);
+      color: #fff;
+      background: rgba(231, 199, 126, 0.1);
+    }
+
+    &.active {
+      background: rgba(231, 199, 126, 0.18);
+      border-color: #e7c77e;
+      color: #fff;
+      box-shadow: 0 0 8px rgba(231, 199, 126, 0.25);
+    }
+  }
+
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+
+    label {
+      font-size: 0.65rem;
+      color: rgba(245, 239, 227, 0.5);
+    }
+
+    input {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(231, 199, 126, 0.15);
+      border-radius: 4px;
+      color: #fff;
+      font-size: 0.7rem;
+      padding: 0.25rem 0.4rem;
+      outline: none;
+
+      &:focus {
+        border-color: #e7c77e;
+      }
+    }
+  }
+
+  .status-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #ef4444;
+    box-shadow: 0 0 6px #ef4444;
+
+    &.connected {
+      background: #10b981;
+      box-shadow: 0 0 6px #10b981;
+    }
+  }
+
+  .readout {
+    background: rgba(0, 0, 0, 0.22);
+    border: 1px dashed rgba(231, 199, 126, 0.12);
+    border-radius: 4px;
+    padding: 0.35rem;
+    font-family: monospace;
+    font-size: 0.65rem;
+    color: rgba(245, 239, 227, 0.85);
+    line-height: 1.35;
+  }
+
+  .rotation-mode-row {
+    display: grid;
+    grid-template-columns: 2.8rem 1fr 1fr;
+    gap: 0.25rem;
+    align-items: center;
+    border-top: 1px solid rgba(231, 199, 126, 0.12);
+    padding-top: 0.5rem;
+    margin-top: 0.1rem;
+
+    span {
+      font-size: 0.62rem;
+      color: rgba(245, 239, 227, 0.55);
+    }
+
+    button {
+      padding: 0.2rem 0;
+      font-size: 0.62rem;
+    }
+  }
+`;
+
+
 function HeroSection3D({ onActiveBiomeChange }) {
   const navigate = useNavigate();
   const [activeBiome, setActiveBiome] = useState(null);
+  const [rotationMode, setRotationMode] = useState('joystick'); // 'joystick' or 'pinch'
+
+  // Hand tracking states from context
+  const {
+    trackingMode,
+    setTrackingMode,
+    handDetected,
+    cursor,
+    isPinching,
+    wsUrl,
+    setWsUrl,
+    isConnected,
+    cameraActive,
+  } = useHandTracking();
+
+  const [dwellProgress, setDwellProgress] = useState(0);
+  const activeBiomeRef = useRef(activeBiome);
+  const dwellStateRef = useRef({
+    progress: 0,
+    currentTargetBiome: null,
+    graceTimeRemaining: 0,
+    lastTime: Date.now(),
+  });
+
+  useEffect(() => {
+    activeBiomeRef.current = activeBiome;
+  }, [activeBiome]);
 
   const handleActiveBiomeChange = useCallback((biomeKey) => {
     setActiveBiome(biomeKey);
@@ -579,6 +755,92 @@ function HeroSection3D({ onActiveBiomeChange }) {
     handleActiveBiomeChange(biomeKey);
     window.setTimeout(() => navigate(biome.href), 220);
   }, [navigate, handleActiveBiomeChange]);
+
+  // 1. Dwell Click timer logic with grace period (hysteresis) to handle micro-jitters
+  useEffect(() => {
+    if (trackingMode === TRACKING_MODES.MOUSE || !handDetected) {
+      setDwellProgress(0);
+      dwellStateRef.current = {
+        progress: 0,
+        currentTargetBiome: null,
+        graceTimeRemaining: 0,
+        lastTime: Date.now(),
+      };
+      return;
+    }
+
+    dwellStateRef.current.lastTime = Date.now();
+    let animationFrameId;
+    const GRACE_PERIOD = 250; // 250ms grace period to survive micro-jitters without being overly sticky
+
+    const updateDwell = () => {
+      const now = Date.now();
+      const dt = now - dwellStateRef.current.lastTime;
+      dwellStateRef.current.lastTime = now;
+
+      const currentActive = activeBiomeRef.current;
+      const state = dwellStateRef.current;
+
+      // Ignore 'ocean' for page navigation dwell, treat it as empty space
+      if (currentActive && currentActive !== 'ocean') {
+        if (state.currentTargetBiome !== currentActive) {
+          // If we transitioned to a new valid biome, reset progress
+          state.currentTargetBiome = currentActive;
+          state.progress = 0;
+          state.graceTimeRemaining = 0;
+        } else {
+          // Hovering same valid biome: advance progress (requires a stable 1.6s hover)
+          state.graceTimeRemaining = 0;
+          state.progress = Math.min(100, state.progress + (dt / 1600) * 100);
+        }
+      } else {
+        // We are hovering over nothing or ocean
+        if (state.currentTargetBiome) {
+          // Start/decrement grace period countdown
+          if (state.graceTimeRemaining === 0) {
+            state.graceTimeRemaining = GRACE_PERIOD;
+          }
+          state.graceTimeRemaining -= dt;
+          
+          if (state.graceTimeRemaining <= 0) {
+            // Grace period expired, quickly drain progress (drains in 250ms)
+            state.currentTargetBiome = null;
+            state.progress = Math.max(0, state.progress - (dt / 250) * 100);
+          }
+        } else {
+          state.progress = Math.max(0, state.progress - (dt / 250) * 100);
+        }
+      }
+
+      setDwellProgress(state.progress);
+
+      if (state.progress >= 100) {
+        const target = state.currentTargetBiome;
+        if (target) {
+          const biome = BIOMES[target];
+          if (biome) {
+            handleActiveBiomeChange(target);
+            window.setTimeout(() => navigate(biome.href), 150);
+          }
+        }
+        // Reset state
+        state.progress = 0;
+        state.currentTargetBiome = null;
+        state.graceTimeRemaining = 0;
+      } else {
+        animationFrameId = requestAnimationFrame(updateDwell);
+      }
+    };
+
+    animationFrameId = requestAnimationFrame(updateDwell);
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, [handDetected, trackingMode, navigate, handleActiveBiomeChange]);
+
+
+
 
   return (
     <HeroWrapper>
@@ -602,6 +864,7 @@ function HeroSection3D({ onActiveBiomeChange }) {
               onBiomeHover={handleActiveBiomeChange}
               onBiomeSelect={handleActiveBiomeChange}
               onNavigate={handleNavigate}
+              rotationMode={rotationMode}
             />
             <Preload all />
           </Suspense>
@@ -609,13 +872,85 @@ function HeroSection3D({ onActiveBiomeChange }) {
         </ErrorBoundary>
       </CanvasWrapper>
 
+      {/* Sci-Fi Control Panel */}
+      <ControlPanel>
+        <h3>
+          空间交互控制台
+          <span className={`status-dot ${isConnected || (trackingMode === TRACKING_MODES.CAMERA && cameraActive) ? 'connected' : ''}`} />
+        </h3>
+        
+        <div className="mode-row">
+          <button
+            className={trackingMode === TRACKING_MODES.MOUSE ? 'active' : ''}
+            onClick={() => setTrackingMode(TRACKING_MODES.MOUSE)}
+          >
+            鼠标
+          </button>
+          <button
+            className={trackingMode === TRACKING_MODES.CAMERA ? 'active' : ''}
+            onClick={() => setTrackingMode(TRACKING_MODES.CAMERA)}
+          >
+            相机
+          </button>
+          <button
+            className={trackingMode === TRACKING_MODES.WEBSOCKET ? 'active' : ''}
+            onClick={() => setTrackingMode(TRACKING_MODES.WEBSOCKET)}
+          >
+            网口
+          </button>
+          <button
+            className={trackingMode === TRACKING_MODES.SIMULATE ? 'active' : ''}
+            onClick={() => setTrackingMode(TRACKING_MODES.SIMULATE)}
+          >
+            模拟
+          </button>
+        </div>
+
+        {trackingMode !== TRACKING_MODES.MOUSE && (
+          <div className="rotation-mode-row">
+            <span>旋转控制:</span>
+            <button
+              className={rotationMode === 'joystick' ? 'active' : ''}
+              onClick={() => setRotationMode('joystick')}
+            >
+              🕹️ 摇杆
+            </button>
+            <button
+              className={rotationMode === 'pinch' ? 'active' : ''}
+              onClick={() => setRotationMode('pinch')}
+            >
+              👌 捏合
+            </button>
+          </div>
+        )}
+
+        {trackingMode === TRACKING_MODES.WEBSOCKET && (
+          <div className="input-group">
+            <label>WebSocket 服务器地址</label>
+            <input
+              type="text"
+              value={wsUrl}
+              onChange={(e) => setWsUrl(e.target.value)}
+            />
+          </div>
+        )}
+
+        <div className="readout">
+          状态: {trackingMode === TRACKING_MODES.MOUSE ? '鼠标轨迹' : trackingMode === TRACKING_MODES.CAMERA ? '手势捕捉' : trackingMode === TRACKING_MODES.WEBSOCKET ? '网口服务' : '仿真模拟'}<br />
+          手部侦测: {handDetected ? '已检测到' : '未检测到'}<br />
+          指针坐标: X:{cursor.x.toFixed(2)} Y:{cursor.y.toFixed(2)}<br />
+          动作: {isPinching ? '捏合拖拽' : '悬停'}
+          {dwellProgress > 0 && <><br />确认进度: {Math.round(dwellProgress)}%</>}
+        </div>
+      </ControlPanel>
+
       <Overlay>
         <GreetBadge
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.2 }}
         >
-          PINECONE GLOBE ONLINE
+          松果星寰已上线
         </GreetBadge>
 
         <HeroTitle
@@ -624,7 +959,7 @@ function HeroSection3D({ onActiveBiomeChange }) {
           transition={{ duration: 0.85, delay: 0.4 }}
         >
           松果星寰仪
-          <span className="en-sub">Pinecone Orrery · Aether Mirror</span>
+          <span className="en-sub">松果星寰仪 · 以太之镜</span>
         </HeroTitle>
 
         <HeroSubtitle

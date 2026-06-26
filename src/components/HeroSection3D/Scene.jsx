@@ -1,6 +1,6 @@
 import BlogPlanet from './BlogPlanet';
 
-function Scene({ activeBiome, onBiomeHover, onBiomeSelect, onNavigate }) {
+function Scene({ activeBiome, onBiomeHover, onBiomeSelect, onNavigate, rotationMode }) {
   return (
     <>
       <fog attach="fog" args={['#dff8ff', 9, 20]} />
@@ -24,6 +24,7 @@ function Scene({ activeBiome, onBiomeHover, onBiomeSelect, onNavigate }) {
         onBiomeHover={onBiomeHover}
         onBiomeSelect={onBiomeSelect}
         onNavigate={onNavigate}
+        rotationMode={rotationMode}
       />
     </>
   );

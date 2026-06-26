@@ -2,12 +2,40 @@ import React, { Suspense, lazy, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import GlobalStyle from './styles/GlobalStyle';
 import { scrollPositions } from './utils/scrollCache';
+import { HandTrackingProvider } from './utils/useHandTracking';
+import GlobalHandCursor from './components/GlobalHandCursor';
 
 // Landing page loads eagerly
 import Home from './pages/Home';
 import Layout from './components/Layout';
 import GlobalNav from './components/GlobalNav';
 import ErrorBoundary from './components/ErrorBoundary';
+
+// Polyfill to prevent browser crashes from synthetic pointer events (e.g. from OrbitControls)
+if (typeof Element !== 'undefined' && Element.prototype) {
+  const originalSet = Element.prototype.setPointerCapture;
+  const originalRelease = Element.prototype.releasePointerCapture;
+  
+  if (originalSet) {
+    Element.prototype.setPointerCapture = function(pointerId) {
+      try {
+        originalSet.call(this, pointerId);
+      } catch (e) {
+        // Suppress pointer capture errors for synthetic pointers
+      }
+    };
+  }
+  
+  if (originalRelease) {
+    Element.prototype.releasePointerCapture = function(pointerId) {
+      try {
+        originalRelease.call(this, pointerId);
+      } catch (e) {
+        // Suppress pointer capture errors for synthetic pointers
+      }
+    };
+  }
+}
 
 // Heavy pages lazy-loaded for code splitting
 const Blog = lazy(() => import('./pages/Blog'));
@@ -124,20 +152,24 @@ function AppRoutes() {
         </Suspense>
       )}
       {!isEmbed && <GlobalNav />}
+      <GlobalHandCursor />
     </>
   );
 }
+
 
 function App() {
   return (
     <>
       <GlobalStyle />
-      <Router>
-        <AppRoutes />
-      </Router>
+      <HandTrackingProvider>
+        <Router>
+          <AppRoutes />
+        </Router>
+      </HandTrackingProvider>
     </>
   );
 }
 
 export default App;
-// deploy sync trigger: 2026-05-23 19:55
+// deploy sync trigger: 2026-06-24 21:00
